@@ -67,6 +67,7 @@ import profileRouter from './routes/profile.js';
 import knowledgeRouter from './routes/knowledge.js';
 import alertsRouter from './routes/alerts.js';
 import trendRouter from './routes/trend.js';
+import settingsRouter from './routes/settings.js';
 
 app.use('/api/health', healthRouter);
 app.use('/api', apiRouter);
@@ -74,6 +75,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/knowledge', knowledgeRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/trend', trendRouter);
+app.use('/api/settings', settingsRouter);
 
 // 错误处理
 app.use((err, _req, res, _next) => {

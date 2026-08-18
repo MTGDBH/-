@@ -1,28 +1,52 @@
 // AI 智能体：调用 OpenAI 兼容接口
-// 环境变量为空时自动回退到 Mock 智能体（规则 + 模板回复）
+// 优先从数据库读取 LLM 配置（设置页面可改），其次回退到环境变量，都为空走 Mock
 import { evaluateHealth } from '../lib/scoring.js';
+import db from '../db.js';
 
-const SYSTEM_PROMPT = `你是\"小康\"，一位专为老年人服务的健康管家 AI。
+const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康管家 AI。
 你的特点是：温柔耐心、口语化、避免冷冰冰的医学术语、不会下诊断结论、遇到严重情况一定建议就医。
 你的回答格式：
 1. 先用 1-2 句简短文字回应用户
-2. 如果用户询问健康建议或提到不舒服，必须给出\"结构化方案\"，包含 5 个维度：饮食、运动、作息、用药、复查
+2. 如果用户询问健康建议或提到不舒服，必须给出"结构化方案"，包含 5 个维度：饮食、运动、作息、用药、复查
 3. 禁止给出具体药物剂量；用药提醒只针对用户已配置的药品
-4. 任何\"建议就医\"的情况必须显式提示用户
+4. 任何"建议就医"的情况必须显式提示用户
 5. 回答总长度不超过 200 字
-6. 你只能基于\"用户健康摘要\"中的数据回答，不要编造数据
+6. 你只能基于"用户健康摘要"中的数据回答，不要编造数据
 返回 JSON 格式：{"content":"<对话回复>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}]}`;
 
-const hasRealLLM = !!process.env.OPENAI_API_KEY;
+/**
+ * 从数据库读取 LLM 配置，回退到环境变量
+ */
+function getLLMConfig() {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('llm_config');
+  if (row) {
+    try {
+      const cfg = JSON.parse(row.value);
+      if (cfg.api_key) return cfg;
+    } catch {}
+  }
+  // 回退到环境变量
+  if (process.env.OPENAI_API_KEY) {
+    return {
+      api_key: process.env.OPENAI_API_KEY,
+      base_url: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    };
+  }
+  return null; // 无配置 → Mock 模式
+}
+
+const hasRealLLM = () => !!getLLMConfig();
 
 /**
  * 调用真实 LLM
  */
 async function callOpenAI(messages, healthSummary) {
-  const base = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const cfg = getLLMConfig();
+  const base = (cfg.base_url || 'https://api.openai.com/v1').replace(/\/$/, '');
   const url = `${base}/chat/completions`;
   const body = {
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: cfg.model || 'gpt-4o-mini',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'system', content: `用户健康摘要：${JSON.stringify(healthSummary)}` },
@@ -35,7 +59,7 @@ async function callOpenAI(messages, healthSummary) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${cfg.api_key}`,
     },
     body: JSON.stringify(body),
   });
@@ -132,7 +156,7 @@ function safeParseJSON(text) {
  * @param {object} healthSummary 用户健康数据摘要
  */
 export async function chat(history, userMessage, healthSummary) {
-  if (hasRealLLM) {
+  if (hasRealLLM()) {
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
       const result = await callOpenAI(messages, healthSummary);

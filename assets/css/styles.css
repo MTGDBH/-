@@ -1106,6 +1106,16 @@ ul, ol { list-style: none; }
   font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
 }
 .link-btn:hover { background: #FAF0E1; color: var(--color-primary); }
+.icon-settings {
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #FFF6EE;
+  border-radius: 50%;
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+}
+.icon-settings:hover { background: var(--color-primary-light); color: var(--color-primary); }
 
 /* ========================================================================
    表单
@@ -1718,6 +1728,120 @@ ul, ol { list-style: none; }
   font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif; margin: 0;
 }
 .profile-meta { font-size: 14px; color: var(--text-muted); font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif; }
+
+/* ========================================================================
+   设置页 (settings.html)
+   ======================================================================== */
+.settings-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.settings-section-title {
+  font-size: 20px;
+  color: var(--text-primary);
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  margin: 0;
+  font-weight: 700;
+}
+.settings-section-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  margin: 0;
+  line-height: 1.6;
+}
+.settings-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+.settings-mode-badge.mode-mock {
+  background: #FBE4DD;
+  color: #A04632;
+}
+.settings-mode-badge.mode-llm {
+  background: #E5F0DC;
+  color: #5A8045;
+}
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+.settings-actions .btn { min-width: 140px; }
+.settings-test-result {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+}
+.settings-test-result.testing {
+  background: #FFF6EE;
+  color: var(--text-secondary);
+}
+.settings-test-result.success {
+  background: #E5F0DC;
+  color: #5A8045;
+}
+.settings-test-result.fail {
+  background: #FBE4DD;
+  color: #A04632;
+}
+
+.settings-account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-bottom: 1px solid #EDE5DA;
+}
+.settings-account-item:last-child { border-bottom: none; }
+.settings-account-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.settings-account-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.settings-account-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+.settings-account-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+
+.settings-about-mark {
+  width: 64px; height: 64px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(244,162,97,0.3);
+}
 
 /* ========================================================================
    Loading / Empty / Toast
