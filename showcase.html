@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小康·健康管家 — 产品展示</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
+  <style>
+    /* ============ 展示页专用样式 ============ */
+    .showcase-page { background: var(--bg-page); }
+    .showcase-section { max-width: 1200px; margin: 0 auto; padding: 80px 32px; }
+
+    /* 顶部栏 */
+    .showcase-topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .showcase-topbar-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px; padding: 0 32px;
+    }
+    .showcase-brand { display: flex; align-items: center; gap: 12px; }
+    .showcase-brand-mark {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: var(--color-primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700;
+    }
+    .showcase-brand-name { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .showcase-topbar-actions { display: flex; gap: 14px; }
+
+    /* Hero */
+    .hero {
+      display: grid; grid-template-columns: 1fr 1.15fr; gap: 60px;
+      align-items: center; padding-top: 60px; padding-bottom: 60px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--color-primary-light); color: var(--color-primary-dark);
+      padding: 8px 16px; border-radius: var(--radius-full);
+      font-size: 14px; font-weight: 700; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 48px; line-height: 1.2; font-weight: 700;
+      color: var(--text-primary); margin: 0 0 20px;
+    }
+    .hero h1 span { color: var(--color-primary); }
+    .hero p {
+      font-size: 18px; line-height: 1.8; color: var(--text-secondary);
+      margin: 0 0 32px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex; gap: 32px; margin-top: 40px;
+    }
+    .hero-stat { display: flex; flex-direction: column; }
+    .hero-stat strong {
+      font-size: 32px; font-weight: 700; color: var(--color-primary);
+    }
+    .hero-stat span { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+    .hero-visual {
+      position: relative;
+      background: #fff; border-radius: var(--radius-3xl);
+      box-shadow: 0 20px 60px rgba(122,81,40,0.12);
+      padding: 12px; overflow: hidden;
+    }
+    .hero-visual img {
+      width: 100%; border-radius: var(--radius-2xl);
+      display: block;
+    }
+    .hero-float {
+      position: absolute; background: #fff;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 14px 18px; display: flex; align-items: center; gap: 12px;
+    }
+    .hero-float-1 { top: 30px; left: -24px; }
+    .hero-float-2 { bottom: 40px; right: -20px; }
+    .hero-float-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+    }
+    .hero-float-text strong { display: block; font-size: 15px; color: var(--text-primary); }
+    .hero-float-text span { font-size: 13px; color: var(--text-muted); }
+
+    /* 通用区块标题 */
+    .section-header { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+    .section-header h2 {
+      font-size: 34px; font-weight: 700; color: var(--text-primary); margin: 0 0 12px;
+    }
+    .section-header p { font-size: 17px; color: var(--text-secondary); line-height: 1.7; margin: 0; }
+
+    /* 七大能力卡片 */
+    .capability-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    }
+    .capability-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-2xl); padding: 28px;
+      transition: all 0.2s; position: relative;
+    }
+    .capability-card:hover {
+      transform: translateY(-4px); box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
+    }
+    .capability-card.wide { grid-column: span 2; }
+    .capability-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700; margin-bottom: 16px;
+    }
+    .capability-card h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px; }
+    .capability-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0; }
+
+    /* 界面预览 */
+    .preview-grid {
+      display: grid; gap: 32px;
+    }
+    .preview-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+      align-items: center;
+    }
+    .preview-row.reverse { direction: rtl; }
+    .preview-row.reverse > * { direction: ltr; }
+    .preview-shot {
+      background: #fff; border-radius: var(--radius-3xl);
+      box-shadow: var(--shadow-lg);
+      padding: 12px; overflow: hidden;
+    }
+    .preview-shot img { width: 100%; border-radius: var(--radius-2xl); display: block; }
+    .preview-content h3 {
+      font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0 0 12px;
+    }
+    .preview-content p { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin: 0 0 20px; }
+    .preview-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .preview-tag {
+      background: var(--bg-soft); color: var(--color-primary-dark);
+      padding: 6px 14px; border-radius: var(--radius-full);
+      font-size: 13px; font-weight: 600;
+    }
+
+    /* 数据优势条 */
+    .advantage-bar {
+      background: var(--bg-card); border-radius: var(--radius-3xl);
+      padding: 40px; box-shadow: var(--shadow-sm);
+      display: flex; justify-content: space-around; flex-wrap: wrap; gap: 24px;
+    }
+    .advantage-item { text-align: center; }
+    .advantage-item strong { display: block; font-size: 36px; font-weight: 700; color: var(--color-primary); }
+    .advantage-item span { font-size: 14px; color: var(--text-muted); margin-top: 6px; display: block; }
+
+    /* CTA */
+    .cta-section {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      border-radius: var(--radius-3xl); padding: 64px;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .cta-section h2 { font-size: 36px; font-weight: 700; margin: 0 0 16px; }
+    .cta-section p { font-size: 18px; opacity: 0.95; margin: 0 0 32px; }
+    .cta-section .btn-secondary {
+      background: #fff; color: var(--color-primary-dark); border-color: #fff;
+      font-size: 18px; padding: 18px 36px; border-radius: 14px;
+    }
+    .cta-section .btn-secondary:hover { background: #FFF6EE; }
+
+    /* 页脚 */
+    .showcase-footer {
+      text-align: center; padding: 40px 32px;
+      color: var(--text-muted); font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* 响应式 */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .capability-grid { grid-template-columns: repeat(2, 1fr); }
+      .capability-card.wide { grid-column: span 2; }
+      .preview-row { grid-template-columns: 1fr; }
+      .preview-row.reverse { direction: ltr; }
+      .hero-float { display: none; }
+    }
+    @media (max-width: 560px) {
+      .capability-grid { grid-template-columns: 1fr; }
+      .capability-card.wide { grid-column: span 1; }
+      .showcase-topbar-actions { display: none; }
+      .cta-section { padding: 40px 24px; }
+      .cta-section h2 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body class="showcase-page">
+  <!-- 顶部栏 -->
+  <header class="showcase-topbar">
+    <div class="showcase-topbar-inner">
+      <div class="showcase-brand">
+        <div class="showcase-brand-mark">康</div>
+        <div class="showcase-brand-name">小康·健康管家</div>
+      </div>
+      <div class="showcase-topbar-actions">
+        <a href="login.html" class="btn btn-secondary">登录</a>
+        <a href="register.html" class="btn btn-primary">免费注册</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="showcase-section hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>🌿</span> 基于大模型的老年健康管理
+      </div>
+      <h1>AI 陪伴，<span>健康每一天</span></h1>
+      <p>
+        小康·健康管家专为老年人设计，整合健康监测、AI 评估、智能干预与健康知识，
+        用温暖的设计和智能的科技，让健康管理变得简单、安心、可持续。
+      </p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary btn-lg">立即体验</a>
+        <a href="#features" class="btn btn-secondary btn-lg">了解功能</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>7</strong><span>项核心能力</span></div>
+        <div class="hero-stat"><strong>8</strong><span>类健康指标</span></div>
+        <div class="hero-stat"><strong>1</strong><span>位 AI 健康管家</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="截图/01-概览.png" alt="概览页界面预览" />
+      <div class="hero-float hero-float-1">
+        <div class="hero-float-icon" style="background:var(--color-green-light);color:var(--color-green-dark)">✓</div>
+        <div class="hero-float-text"><strong>今日健康分 86</strong><span>状态良好</span></div>
+      </div>
+      <div class="hero-float hero-float-2">
+        <div class="hero-float-icon" style="background:var(--color-primary-light);color:var(--color-primary-dark)">AI</div>
+        <div class="hero-float-text"><strong>专属方案已生成</strong><span>少盐少油 · 散步 30 分钟</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 七大能力 -->
+  <section class="showcase-section" id="features" style="padding-top:40px">
+    <div class="section-header">
+      <h2>七大核心能力</h2>
+      <p>从监测到干预、从评估到反馈，覆盖老年人健康管理的完整闭环</p>
+    </div>
+    <div class="capability-grid">
+      <div class="capability-card">
+        <div class="capability-icon" style="background:var(--color-primary-light);color:var(--color-primary-dark)">测</div>
+        <h3>健康监测</h3>
+        <p>血压、血糖、心率、血氧、睡眠等 8 项指标一站式录入与查看</p>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon" style="background:var(--color-coral-light);color:var(--color-coral-dark)">评</div>
+        <h3>健康评估</h3>
+        <p>AI 综合评分 + 多维度分项评分，量化身体状况</p>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon" style="background:var(--color-purple-light);color:var(--color-purple)">预</div>
+        <h3>风险预测</h3>
+        <p>基于历史数据预测健康趋势，提前发现异常信号</p>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon" style="background:var(--color-green-light);color:var(--color-green-dark)">案</div>
+        <h3>智能方案</h3>
+        <p>AI 管家根据当日数据生成饮食、运动、用药方案</p>
+      </div>
+      <div class="capability-card wide">
+        <div class="capability-icon" style="background:var(--color-teal-light);color:var(--color-teal)">聊</div>
+        <h3>AI 对话</h3>
+        <p>与「小康」自然对话，随时询问指标含义、获取健康建议，老人也能轻松使用</p>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon" style="background:#F4D5C9;color:var(--color-coral-dark)">警</div>
+        <h3>异常预警</h3>
+        <p>关键指标超出阈值时自动提醒，并给出处理建议</p>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon" style="background:#F1E8F5;color:var(--color-purple)">知</div>
+        <h3>健康知识</h3>
+        <p>精选慢病管理、日常养生、用药提醒等科普内容</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 界面预览 -->
+  <section class="showcase-section" style="padding-top:40px">
+    <div class="section-header">
+      <h2>界面一览</h2>
+      <p>温暖柔和的视觉风格，大字号、清晰层级，专为老年用户优化</p>
+    </div>
+    <div class="preview-grid">
+      <div class="preview-row">
+        <div class="preview-shot">
+          <img src="截图/01-概览.png" alt="概览页" />
+        </div>
+        <div class="preview-content">
+          <h3>健康概览</h3>
+          <p>登录后一眼看到今日健康分、待办事项、异常提醒和快捷入口。数据卡片配色柔和，关键信息突出，老人不用翻找。</p>
+          <div class="preview-tags">
+            <span class="preview-tag">健康分</span>
+            <span class="preview-tag">今日待办</span>
+            <span class="preview-tag">异常提醒</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-row reverse">
+        <div class="preview-shot">
+          <img src="截图/02-监测.png" alt="健康监测页" />
+        </div>
+        <div class="preview-content">
+          <h3>健康监测</h3>
+          <p>血压、血糖、心率、血氧、睡眠、心电、体重、步数，8 类指标用图标+色块区分，异常数据醒目提示，支持智能设备同步。</p>
+          <div class="preview-tags">
+            <span class="preview-tag">8 类指标</span>
+            <span class="preview-tag">设备同步</span>
+            <span class="preview-tag">趋势预测</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-row">
+        <div class="preview-shot">
+          <img src="截图/03-评估.png" alt="健康评估页" />
+        </div>
+        <div class="preview-content">
+          <h3>AI 健康评估</h3>
+          <p>基于多维度数据生成综合评分，可视化展示分项得分与同龄人对比，并提供个性化改善建议。</p>
+          <div class="preview-tags">
+            <span class="preview-tag">AI 综合评分</span>
+            <span class="preview-tag">生活能力评估</span>
+            <span class="preview-tag">改善建议</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-row reverse">
+        <div class="preview-shot">
+          <img src="截图/04-智能管家.png" alt="智能管家页" />
+        </div>
+        <div class="preview-content">
+          <h3>智能管家</h3>
+          <p>像和家人聊天一样与 AI 交流，小康会根据今日数据主动给出调理方案，饮食、运动、用药、复查一目了然。</p>
+          <div class="preview-tags">
+            <span class="preview-tag">自然对话</span>
+            <span class="preview-tag">今日方案</span>
+            <span class="preview-tag">一键执行</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数据优势 -->
+  <section class="showcase-section" style="padding-top:20px;padding-bottom:40px">
+    <div class="advantage-bar">
+      <div class="advantage-item"><strong>4</strong><span>大核心页面</span></div>
+      <div class="advantage-item"><strong>10+</strong><span>功能模块</span></div>
+      <div class="advantage-item"><strong>老人版</strong><span>大字号界面</span></div>
+      <div class="advantage-item"><strong>照护版</strong><span>家人同步查看</span></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="showcase-section" style="padding-top:20px">
+    <div class="cta-section">
+      <h2>现在开始，让健康更有数</h2>
+      <p>免费注册账号，体验完整的 AI 健康管理服务</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="register.html" class="btn btn-secondary btn-lg">立即注册</a>
+        <a href="login.html" class="btn" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.5)">已有账号，去登录</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="showcase-footer">
+    <p>© 2026 小康·健康管家 · 基于大模型的老年健康管理系统 · 大创项目</p>
+    <p style="margin-top:8px">本页面展示全部前端界面，点击下方按钮即可进入真实应用</p>
+    <p style="margin-top:12px">
+      <a href="login.html" style="color:var(--color-primary);font-weight:600">登录</a> ·
+      <a href="register.html" style="color:var(--color-primary);font-weight:600">注册</a> ·
+      <a href="index.html" style="color:var(--color-primary);font-weight:600">直接进入概览</a>
+    </p>
+  </footer>
+</body>
+</html>
