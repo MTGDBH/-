@@ -39,5 +39,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/elderly-health:latest
-            ghcr.io/${{ github.repository_owner }}/elderly-health:${{ github.sha }}
+            ghcr.io/mtgdbh/elderly-health:latest
+            ghcr.io/mtgdbh/elderly-health:${{ github.sha }}

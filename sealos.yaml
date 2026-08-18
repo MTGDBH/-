@@ -5,7 +5,7 @@ metadata:
 spec:
   data:
     image:
-      name: ghcr.io/yourname/elderly-health:latest
+      name: ghcr.io/mtgdbh/elderly-health:latest
       pullPolicy: Always
     port: 3001
     resources:
