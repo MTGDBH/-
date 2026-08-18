@@ -2,10 +2,15 @@
 // 所有页面通过 window.API 调后端
 (function () {
   const resolveBase = () => {
-    if (window.__API_BASE__) return String(window.__API_BASE__).replace(/\/$/, '');
+    const configured = window.__API_BASE__;
+    if (configured !== undefined && configured !== null && String(configured).trim() !== '') {
+      return String(configured).replace(/\/$/, '');
+    }
+    if (configured === '') return '';
 
     const origin = window.location.origin;
-    const isLocalStaticSite = /:(3000|8080)$/.test(origin) || location.protocol === 'file:';
+    const isLocalStaticSite = location.protocol === 'file:' || /:(3000|4173|8080|8000)$/.test(origin) || /^(https?:\/\/)?(localhost|127\.0\.0\.1)(?::(3000|4173|8080|8000))?$/.test(origin);
+
     if (isLocalStaticSite) return 'http://localhost:3001';
 
     return origin;
