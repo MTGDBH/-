@@ -145,25 +145,31 @@ router.post('/chat', async (req, res) => {
   }
 
   const planJson = result.plan ? JSON.stringify(result.plan) : null;
+  const confidenceJson = result.confidence ? JSON.stringify(result.confidence) : null;
   const ins = db.prepare(`
-    INSERT INTO chat_messages (user_id, role, content, plan) VALUES (?, 'assistant', ?, ?)
-  `).run(req.user.id, result.content || '', planJson);
+    INSERT INTO chat_messages (user_id, role, content, plan, confidence) VALUES (?, 'assistant', ?, ?, ?)
+  `).run(req.user.id, result.content || '', planJson, confidenceJson);
 
   res.json({
     id: ins.lastInsertRowid,
     role: 'assistant',
     content: result.content,
     plan: result.plan || [],
+    confidence: result.confidence || { type: 'common_sense' },
     source: result.source,
   });
 });
 
 router.get('/chat/history', (req, res) => {
   const rows = db.prepare(`
-    SELECT id, role, content, plan, created_at FROM chat_messages
+    SELECT id, role, content, plan, confidence, created_at FROM chat_messages
     WHERE user_id = ? ORDER BY id ASC LIMIT 50
   `).all(req.user.id);
-  res.json(rows.map(r => ({ ...r, plan: r.plan ? JSON.parse(r.plan) : null })));
+  res.json(rows.map(r => ({
+    ...r,
+    plan: r.plan ? JSON.parse(r.plan) : null,
+    confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
+  })));
 });
 
 export default router;

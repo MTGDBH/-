@@ -148,4 +148,7 @@ db.exec(`
   );
 `);
 
+// 兼容已有库：给 chat_messages 补 confidence 列
+addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
+
 export default db;

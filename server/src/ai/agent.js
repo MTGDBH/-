@@ -12,7 +12,11 @@ const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康管�
 4. 任何"建议就医"的情况必须显式提示用户
 5. 回答总长度不超过 200 字
 6. 你只能基于"用户健康摘要"中的数据回答，不要编造数据
-返回 JSON 格式：{"content":"<对话回复>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}]}`;
+7. 每条回复必须包含 confidence 字段，标明可信度信息：
+   - 如果回复基于用户实际健康数据（血压、血糖、心率、睡眠等），type="data"，给出 0-100 的 score，列出 sources（引用了哪些具体数据及日期），给出 reasoning（评分依据）
+   - 如果回复属于通用健康常识（如"什么是窦性心律""血压正常范围"），type="common_sense"，不需要 score 和 sources
+   - 如果是日常问候/闲聊（如"你好""谢谢"），type="common_sense"
+返回 JSON 格式：{"content":"<对话回复>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据偏高，结合低盐饮食指南给出建议"}}`;
 
 /**
  * 从数据库读取 LLM 配置，回退到环境变量
@@ -73,14 +77,18 @@ async function callOpenAI(messages, healthSummary) {
 }
 
 /**
- * Mock 智能体：基于关键词匹配返回结构化方案
+ * Mock 智能体：基于关键词匹配返回结构化方案 + 可信度信息
  */
 function mockAgent(userMessage, healthSummary) {
   const msg = (userMessage || '').toLowerCase();
   const plan = [];
   let content = '';
+  let confidence = { type: 'common_sense' };
 
-  // 1. 高频关键词
+  const score = healthSummary?.total_score ?? 86;
+  const subs = healthSummary?.subscores ?? {};
+
+  // 1. 基于健康数据的建议（高可信度）
   if (/血压|高压|低压/.test(msg)) {
     content = '我看到你最近血压有点偏高，别紧张，咱们一步步来。';
     plan.push({ icon: '食', title: '饮食：少盐少油', desc: '盐 < 5g/日，多蔬菜', color: 'orange' });
@@ -88,6 +96,11 @@ function mockAgent(userMessage, healthSummary) {
     plan.push({ icon: '眠', title: '作息：22:30 入睡', desc: '保证 7 小时睡眠', color: 'purple' });
     plan.push({ icon: '药', title: '用药：18:00 降压药', desc: '饭后服用', color: 'red' });
     plan.push({ icon: '复', title: '复查：下周三 心内科', desc: '8月21日 9:00', color: 'gray' });
+    confidence = {
+      type: 'data', score: 88,
+      sources: ['慢病子项评分 ' + (subs.chronic ?? 'N/A') + ' 分', '健康总分 ' + score + ' 分', '近7天血压数据'],
+      reasoning: '基于近7天血压监测数据，慢病子项评分低于80分，结合《中国高血压防治指南》给出低盐饮食和规律运动建议，建议溯源至具体血压数值。',
+    };
   } else if (/血糖|糖/.test(msg)) {
     content = '血糖要平稳，咱们管住嘴、迈开腿。';
     plan.push({ icon: '食', title: '饮食：少糖多纤维', desc: '主食减半，多吃粗粮', color: 'orange' });
@@ -95,28 +108,52 @@ function mockAgent(userMessage, healthSummary) {
     plan.push({ icon: '眠', title: '作息：固定三餐', desc: '定时定量', color: 'purple' });
     plan.push({ icon: '药', title: '用药：按时服药', desc: '谨遵医嘱', color: 'red' });
     plan.push({ icon: '复', title: '复查：内分泌科', desc: '每月一次', color: 'gray' });
+    confidence = {
+      type: 'data', score: 85,
+      sources: ['慢病子项评分 ' + (subs.chronic ?? 'N/A') + ' 分', '近7天血糖数据'],
+      reasoning: '基于近7天血糖监测数据，结合《中国2型糖尿病防治指南》给出饮食和运动建议，用药部分仅提醒按时服药未给剂量。',
+    };
   } else if (/睡|失眠|没睡好/.test(msg)) {
     content = '睡不好第二天就难熬，咱们先从作息调起。';
     plan.push({ icon: '眠', title: '作息：22:30 前入睡', desc: '固定时间最重要', color: 'purple' });
     plan.push({ icon: '食', title: '饮食：晚饭七分饱', desc: '睡前不喝浓茶', color: 'orange' });
     plan.push({ icon: '行', title: '运动：白天多走动', desc: '消耗多余精力', color: 'green' });
+    confidence = {
+      type: 'data', score: 82,
+      sources: ['睡眠子项评分 ' + (subs.sleep ?? 'N/A') + ' 分'],
+      reasoning: '基于睡眠子项评分数据，作息调整建议参考《中国睡眠障碍防治指南》，饮食和运动建议为辅助改善措施。',
+    };
   } else if (/吃|餐|饭/.test(msg)) {
     content = '一日三餐有讲究，咱们慢慢说。';
     plan.push({ icon: '食', title: '早餐：温热易消化', desc: '粥 + 鸡蛋 + 蔬菜', color: 'orange' });
     plan.push({ icon: '食', title: '午餐：七分饱', desc: '主食减半，肉蛋适量', color: 'orange' });
     plan.push({ icon: '食', title: '晚餐：清淡少量', desc: '18:00 前吃完', color: 'orange' });
+    confidence = {
+      type: 'data', score: 75,
+      sources: ['营养子项评分 ' + (subs.nutrition ?? 'N/A') + ' 分', '健康总分 ' + score + ' 分'],
+      reasoning: '基于营养子项评分给出饮食结构调整建议，参考《中国老年人膳食指南》，但未引用具体体重/BMI数值。',
+    };
   } else if (/运动|散步|锻炼/.test(msg)) {
     content = '动起来是好习惯，但要看身体情况。';
     plan.push({ icon: '行', title: '散步 30 分钟', desc: '午饭后或傍晚', color: 'green' });
     plan.push({ icon: '行', title: '太极 15 分钟', desc: '小区或公园', color: 'green' });
     plan.push({ icon: '行', title: '避免剧烈运动', desc: '膝关节友好', color: 'green' });
+    confidence = {
+      type: 'data', score: 80,
+      sources: ['活动子项评分 ' + (subs.activity ?? 'N/A') + ' 分', '健康总分 ' + score + ' 分'],
+      reasoning: '基于活动子项评分给出运动强度建议，参考《中国老年人运动指南》，结合步数数据评估运动量。',
+    };
   } else if (/药/.test(msg)) {
     content = '用药要按时，咱们看看今天的安排。';
     plan.push({ icon: '药', title: '08:00 降压药', desc: '已服用 ✓', color: 'red' });
     plan.push({ icon: '药', title: '18:00 降压药', desc: '饭后服用', color: 'red' });
     plan.push({ icon: '药', title: '21:00 钙片', desc: '随晚餐服用', color: 'red' });
+    confidence = {
+      type: 'data', score: 90,
+      sources: ['用户用药配置', '慢病子项评分 ' + (subs.chronic ?? 'N/A') + ' 分'],
+      reasoning: '基于用户已配置的用药方案，用药提醒仅涉及时间和服药方式，未涉及剂量调整，符合安全用药原则。',
+    };
   } else if (/健康|评分|今天/.test(msg)) {
-    const score = healthSummary?.total_score ?? 86;
     content = `今天你的健康分是 ${score} 分，整体状态${score >= 80 ? '不错' : '需要留意'}，要不要我出一份方案？`;
     if (score < 80) {
       plan.push({ icon: '食', title: '饮食：少盐少油', desc: '盐 < 5g/日', color: 'orange' });
@@ -125,15 +162,27 @@ function mockAgent(userMessage, healthSummary) {
       plan.push({ icon: '药', title: '用药：按时服药', desc: '关注血压', color: 'red' });
       plan.push({ icon: '复', title: '复查：下周复诊', desc: '心内科 9:00', color: 'gray' });
     }
+    confidence = {
+      type: 'data', score: 92,
+      sources: ['健康总分 ' + score + ' 分', '睡眠 ' + (subs.sleep ?? 'N/A') + ' 分', '营养 ' + (subs.nutrition ?? 'N/A') + ' 分', '活动 ' + (subs.activity ?? 'N/A') + ' 分', '慢病 ' + (subs.chronic ?? 'N/A') + ' 分'],
+      reasoning: '基于近7天5大维度健康评分聚合计算，总分由睡眠、营养、情绪、活动、慢病5个子项取平均，数据来源为实际监测指标，溯源链完整。',
+    };
+  } else if (/什么是|正常|范围|能吃|能不能|可以吗|窦性|定义|意思/.test(msg)) {
+    // 常识类问题
+    content = '这是个常见的健康知识问题。' + (msg.includes('血压') ? '正常血压范围是收缩压 90-130 mmHg、舒张压 60-85 mmHg。超出范围建议咨询医生。' : msg.includes('窦性') ? '窦性心律是正常的心律，说明心脏跳动由窦房结发起，是健康的心跳节律。' : msg.includes('血糖') ? '空腹血糖正常范围是 4-7 mmol/L，餐后2小时应低于 11.1 mmol/L。' : '这方面的问题建议咨询专业医生获取准确信息。');
+    confidence = { type: 'common_sense' };
   } else if (/你好|您好|hi|hello/.test(msg)) {
     content = '你好呀！我是小康，你的健康管家。想了解什么？';
+    confidence = { type: 'common_sense' };
   } else if (/谢谢|感谢/.test(msg)) {
     content = '不客气，有问题随时叫我。';
+    confidence = { type: 'common_sense' };
   } else {
     content = '我在听，你慢慢说。要不先告诉我今天身体怎么样？';
+    confidence = { type: 'common_sense' };
   }
 
-  return { content, plan };
+  return { content, plan, confidence };
 }
 
 function safeParseJSON(text) {

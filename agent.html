@@ -53,6 +53,7 @@
       loadPlan();
       bindSend();
       bindPrompts();
+      bindMsgActions();
       renderQuickPrompts('plan');
     });
     Auth.init();
@@ -64,6 +65,8 @@
     };
 
     let activeTab = 'plan';
+    let lastUserMessage = '';
+    let ttsUtterance = null;
 
     function bindSend() {
       document.getElementById('btn-send').addEventListener('click', send);
@@ -77,11 +80,12 @@
       try {
         const msgs = await API.get('/api/chat/history');
         if (!msgs.length) {
-          hist.innerHTML = `
-            <div class="msg msg-ai">
-              <div class="msg-avatar">康</div>
-              <div class="msg-bubble">您好，我是小康，您的健康管家。想了解今天的身体状况吗？</div>
-            </div>`;
+          hist.innerHTML = renderMsg({
+            role: 'assistant',
+            content: '您好，我是小康，您的健康管家。想了解今天的身体状况吗？',
+            plan: null,
+            confidence: { type: 'common_sense' }
+          });
           return;
         }
         hist.innerHTML = msgs.map(renderMsg).join('');
@@ -89,6 +93,81 @@
       } catch (err) {
         hist.innerHTML = `<div class="empty">对话读取失败：${escapeHTML(err.message)}</div>`;
       }
+    }
+
+    function confidenceScoreClass(score) {
+      if (score >= 80) return 'score-high';
+      if (score >= 60) return 'score-mid';
+      return 'score-low';
+    }
+
+    function renderActions(m) {
+      if (m.role !== 'assistant') return '';
+      const conf = m.confidence || { type: 'common_sense' };
+      const isData = conf.type === 'data' && conf.score != null;
+      const msgId = m.id || ('msg-' + Math.random().toString(36).slice(2, 9));
+      const contentEscaped = encodeURIComponent(m.content || '');
+
+      let confidenceHtml = '';
+      if (isData) {
+        const cls = confidenceScoreClass(conf.score);
+        confidenceHtml = `
+          <button class="msg-action-btn confidence-btn ${cls}" data-action="confidence" data-msg-id="${msgId}"
+                  data-score="${conf.score}" data-sources='${JSON.stringify(conf.sources || []).replace(/'/g, "&#39;")}'
+                  data-reasoning="${escapeHTML(conf.reasoning || '')}"
+                  title="查看可信度评分细则">
+            <span class="score-ring">${conf.score}</span>
+            可信度
+          </button>`;
+      } else {
+        confidenceHtml = `
+          <span class="common-sense-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            常识
+          </span>`;
+      }
+
+      return `
+        <div class="msg-actions" data-msg-id="${msgId}">
+          <button class="msg-action-btn" data-action="copy" data-content="${contentEscaped}" title="复制">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            复制
+          </button>
+          <button class="msg-action-btn" data-action="like" title="赞">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+            </svg>
+            赞
+          </button>
+          <button class="msg-action-btn" data-action="dislike" title="踩">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+            </svg>
+            踩
+          </button>
+          <span class="msg-action-sep"></span>
+          <button class="msg-action-btn" data-action="tts" data-content="${contentEscaped}" title="朗读">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            朗读
+          </button>
+          <button class="msg-action-btn" data-action="regenerate" data-msg-id="${msgId}" title="重新生成">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            重新生成
+          </button>
+          ${confidenceHtml}
+        </div>`;
     }
 
     function renderMsg(m) {
@@ -110,6 +189,7 @@
             <div>
               <div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>
               ${planHtml}
+              ${renderActions(m)}
             </div>
           </div>`;
       }
@@ -123,12 +203,21 @@
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
+      lastUserMessage = text;
       appendUserMsg(text);
       const typingEl = appendTyping();
       try {
         const r = await API.post('/api/chat', { message: text });
         typingEl.remove();
-        document.getElementById('chat-history').insertAdjacentHTML('beforeend', renderMsg({ role: 'assistant', content: r.content, plan: r.plan }));
+        document.getElementById('chat-history').insertAdjacentHTML('beforeend',
+          renderMsg({
+            role: 'assistant',
+            content: r.content,
+            plan: r.plan,
+            confidence: r.confidence || { type: 'common_sense' },
+            id: r.id
+          })
+        );
         scrollChat();
         if (r.plan && r.plan.length) {
           toast('小康给了你 ' + r.plan.length + ' 条建议', 'success');
@@ -147,7 +236,7 @@
     }
     function appendAssistantMsg(content, plan) {
       document.getElementById('chat-history').insertAdjacentHTML('beforeend',
-        renderMsg({ role: 'assistant', content, plan })
+        renderMsg({ role: 'assistant', content, plan, confidence: { type: 'common_sense' } })
       );
       scrollChat();
     }
@@ -163,6 +252,148 @@
     function scrollChat() {
       const el = document.getElementById('chat-history');
       el.scrollTop = el.scrollHeight;
+    }
+
+    // ===== 消息操作栏事件绑定（事件委托） =====
+    function bindMsgActions() {
+      document.getElementById('chat-history').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        switch (action) {
+          case 'copy':       doCopy(btn); break;
+          case 'like':       doLike(btn); break;
+          case 'dislike':    doDislike(btn); break;
+          case 'tts':        doTTS(btn); break;
+          case 'regenerate': doRegenerate(btn); break;
+          case 'confidence': doConfidence(btn); break;
+        }
+      });
+    }
+
+    function doCopy(btn) {
+      const text = decodeURIComponent(btn.dataset.content || '');
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已复制`;
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+      }).catch(() => {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); toast('已复制', 'success'); } catch {}
+        document.body.removeChild(ta);
+      });
+    }
+
+    function doLike(btn) {
+      const parent = btn.closest('.msg-actions');
+      const dislikeBtn = parent?.querySelector('[data-action="dislike"]');
+      const isOn = btn.classList.contains('active');
+      btn.classList.toggle('active');
+      btn.classList.toggle('like', !isOn);
+      if (!isOn && dislikeBtn?.classList.contains('active')) {
+        dislikeBtn.classList.remove('active');
+      }
+      if (!isOn) toast('感谢反馈', 'success');
+    }
+
+    function doDislike(btn) {
+      const parent = btn.closest('.msg-actions');
+      const likeBtn = parent?.querySelector('[data-action="like"]');
+      const isOn = btn.classList.contains('active');
+      btn.classList.toggle('active');
+      if (!isOn && likeBtn?.classList.contains('active')) {
+        likeBtn.classList.remove('active');
+        likeBtn.classList.remove('like');
+      }
+      if (!isOn) toast('已记录你的反馈', 'info');
+    }
+
+    function doTTS(btn) {
+      // 如果正在朗读，停止
+      if (ttsUtterance) {
+        window.speechSynthesis.cancel();
+        document.querySelectorAll('.msg-action-btn.reading').forEach(b => {
+          b.classList.remove('reading');
+          const origText = b.querySelector('svg + *') || b.lastChild;
+          if (origText) origText.textContent = ' 朗读';
+        });
+        ttsUtterance = null;
+        if (btn.classList.contains('reading')) return;
+      }
+
+      const text = decodeURIComponent(btn.dataset.content || '');
+      if (!text || !window.speechSynthesis) {
+        toast('浏览器不支持语音朗读', 'error');
+        return;
+      }
+
+      ttsUtterance = new SpeechSynthesisUtterance(text);
+      ttsUtterance.lang = 'zh-CN';
+      ttsUtterance.rate = 0.9;
+      ttsUtterance.pitch = 1.0;
+
+      btn.classList.add('reading');
+      const label = btn.lastChild;
+      if (label) label.textContent = ' 朗读中';
+
+      ttsUtterance.onend = () => {
+        btn.classList.remove('reading');
+        if (label) label.textContent = ' 朗读';
+        ttsUtterance = null;
+      };
+      ttsUtterance.onerror = () => {
+        btn.classList.remove('reading');
+        if (label) label.textContent = ' 朗读';
+        ttsUtterance = null;
+      };
+
+      window.speechSynthesis.speak(ttsUtterance);
+    }
+
+    async function doRegenerate(btn) {
+      if (!lastUserMessage) {
+        toast('没有可重新生成的消息', 'error');
+        return;
+      }
+      // 找到当前消息的 .msg-ai 容器并替换内容
+      const msgEl = btn.closest('.msg-ai');
+      if (!msgEl) return;
+
+      // 替换为加载状态
+      const contentDiv = msgEl.querySelector('.msg-bubble');
+      const oldContent = contentDiv.innerHTML;
+      contentDiv.innerHTML = `<span class="loading" style="vertical-align:middle"></span> 小康正在重新想…`;
+
+      try {
+        const r = await API.post('/api/chat', { message: lastUserMessage });
+        // 重新渲染整条消息
+        const newHtml = renderMsg({
+          role: 'assistant',
+          content: r.content,
+          plan: r.plan,
+          confidence: r.confidence || { type: 'common_sense' },
+          id: r.id
+        });
+        msgEl.outerHTML = newHtml;
+        scrollChat();
+        toast('已重新生成', 'success');
+      } catch (err) {
+        contentDiv.innerHTML = oldContent;
+        toast('重新生成失败', 'error');
+      }
+    }
+
+    function doConfidence(btn) {
+      const score = parseInt(btn.dataset.score, 10) || 0;
+      const sources = JSON.parse(btn.dataset.sources || '[]');
+      const reasoning = btn.dataset.reasoning || '';
+      const params = new URLSearchParams({ score, sources: JSON.stringify(sources), reasoning });
+      window.open(`confidence.html?${params.toString()}`, '_blank');
     }
 
     async function loadPlan() {
@@ -202,7 +433,6 @@
       if (activeTab === target) return;
       activeTab = target;
       renderQuickPrompts(target);
-      // 给点反馈
       const tips = {
         qa: '切换到问答模式，问我任何健康相关的问题。',
         tip: '切换到贴士模式，我会给你一些日常建议。',

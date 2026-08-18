@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可信度评分细则 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main">
+    <header class="page-head">
+      <h1>可信度评分细则</h1>
+      <p class="subtitle">每条基于健康数据的 AI 建议都附带可信度评分，确保建议可溯源、可信赖</p>
+    </header>
+
+    <div class="confidence-page" id="content">
+
+      <!-- 动态：如果 URL 带参数，显示当前消息的可信度详情 -->
+      <section id="msg-detail" hidden>
+        <div class="confidence-hero">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span class="settings-mode-badge" id="detail-mode" style="background:#E5F0DC;color:#5A8045">数据驱动</span>
+            <span style="font-size:14px;color:#9C8B7A">本条消息的可信度分析</span>
+          </div>
+          <h2 style="font-size:22px;color:#3D2E1F">综合可信度评分</h2>
+          <div class="confidence-hero-score">
+            <span class="big-num" id="detail-score">—</span>
+            <span class="unit">/ 100 分</span>
+          </div>
+          <div class="confidence-dim-bar" style="margin-top:16px">
+            <div class="confidence-dim-bar-fill" id="detail-bar" style="width:0%;background:linear-gradient(90deg,#F4A261,#7FB069)"></div>
+          </div>
+
+          <div id="detail-sources-wrap" hidden>
+            <h3 style="font-size:16px;color:#3D2E1F;margin:20px 0 8px">数据来源（溯源信息）</h3>
+            <ul class="confidence-source-list" id="detail-sources"></ul>
+          </div>
+
+          <div id="detail-reasoning-wrap" hidden>
+            <h3 style="font-size:16px;color:#3D2E1F;margin:20px 0 8px">评分依据</h3>
+            <div class="confidence-reasoning-box" id="detail-reasoning"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 常识说明 -->
+      <section id="sense-section" hidden>
+        <div class="confidence-sense-banner">
+          <div class="sense-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9C8B7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+          </div>
+          <h3>该条消息为常识类回复</h3>
+          <p>此类回复属于通用健康知识，不依赖用户个人健康数据，因此不进行可信度评分。<br/>
+          常识类内容包括：健康概念解释、正常值范围、通用饮食/运动建议、日常问候等。</p>
+        </div>
+      </section>
+
+      <!-- 评分维度 -->
+      <h2 style="font-size:20px;color:#3D2E1F;margin:32px 0 16px">评分维度（四维加权）</h2>
+
+      <!-- 维度1：数据支撑度 -->
+      <div class="confidence-dimension-card">
+        <div class="confidence-dim-header">
+          <div class="confidence-dim-icon" style="background:#FFE9D9;color:#E0784E">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="confidence-dim-title">数据支撑度</div>
+            <div class="confidence-dim-weight">权重 30% · 回复是否引用了用户实际健康数据</div>
+          </div>
+        </div>
+        <div class="confidence-dim-bar">
+          <div class="confidence-dim-bar-fill" style="width:30%;background:#E0784E"></div>
+        </div>
+        <table class="confidence-level-table">
+          <thead>
+            <tr><th>分值</th><th>标准</th><th>示例</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-badge" style="background:#E5F0DC;color:#5A8045">90-100</span></td>
+              <td>直接引用用户具体指标数值及日期</td>
+              <td>"您的收缩压 145mmHg（8月18日）偏高"</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FFF4E6;color:#C4823A">70-89</span></td>
+              <td>引用用户健康趋势或子项评分</td>
+              <td>"慢病子项评分 65 分，血压趋势偏高"</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FBE4DD;color:#A04632">50-69</span></td>
+              <td>部分基于数据，部分为通用建议</td>
+              <td>"根据您的健康评分，建议少盐饮食"</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#F5EFE6;color:#9C8B7A">0-49</span></td>
+              <td>无数据引用，纯通用建议</td>
+              <td>"建议每天运动30分钟"（无步数依据）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 维度2：可溯源性 -->
+      <div class="confidence-dimension-card">
+        <div class="confidence-dim-header">
+          <div class="confidence-dim-icon" style="background:#E5F0DC;color:#5A8045">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div>
+            <div class="confidence-dim-title">可溯源性</div>
+            <div class="confidence-dim-weight">权重 25% · 建议能否追溯到具体数据来源或医学指南</div>
+          </div>
+        </div>
+        <div class="confidence-dim-bar">
+          <div class="confidence-dim-bar-fill" style="width:25%;background:#7FB069"></div>
+        </div>
+        <table class="confidence-level-table">
+          <thead>
+            <tr><th>分值</th><th>标准</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-badge" style="background:#E5F0DC;color:#5A8045">90-100</span></td>
+              <td>每条建议均可链接到具体监测指标 + 临床指南条目</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FFF4E6;color:#C4823A">70-89</span></td>
+              <td>建议可追溯到监测指标，但未明确引用指南</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FBE4DD;color:#A04632">50-69</span></td>
+              <td>建议为通用健康知识，符合医学常识但未关联个人数据</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#F5EFE6;color:#9C8B7A">0-49</span></td>
+              <td>建议无法追溯来源，或来源不明</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 维度3：来源可靠性 -->
+      <div class="confidence-dimension-card">
+        <div class="confidence-dim-header">
+          <div class="confidence-dim-icon" style="background:#F1E8F5;color:#9C7BC9">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="confidence-dim-title">来源可靠性</div>
+            <div class="confidence-dim-weight">权重 25% · 建议所依据的知识来源质量等级</div>
+          </div>
+        </div>
+        <div class="confidence-dim-bar">
+          <div class="confidence-dim-bar-fill" style="width:25%;background:#9C7BC9"></div>
+        </div>
+        <table class="confidence-level-table">
+          <thead>
+            <tr><th>分值</th><th>来源类型</th><th>示例</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-badge" style="background:#E5F0DC;color:#5A8045">90-100</span></td>
+              <td>中国临床诊疗指南 / 专家共识</td>
+              <td>《中国高血压防治指南》《中国2型糖尿病防治指南》</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FFF4E6;color:#C4823A">70-89</span></td>
+              <td>国家健康科普材料 / 权威机构发布</td>
+              <td>国家卫健委老年健康教育资料、中华医学会科普</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FBE4DD;color:#A04632">50-69</span></td>
+              <td>广泛认可的健康常识</td>
+              <td>"少盐少油""规律作息"等通用建议</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#F5EFE6;color:#9C8B7A">0-49</span></td>
+              <td>AI 生成，未经来源标注</td>
+              <td>模型自行推理的建议，未标注依据</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 维度4：时效性 -->
+      <div class="confidence-dimension-card">
+        <div class="confidence-dim-header">
+          <div class="confidence-dim-icon" style="background:#FFE9D9;color:#F4A261">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <div class="confidence-dim-title">时效性</div>
+            <div class="confidence-dim-weight">权重 20% · 所引用健康数据的新鲜程度</div>
+          </div>
+        </div>
+        <div class="confidence-dim-bar">
+          <div class="confidence-dim-bar-fill" style="width:20%;background:#F4A261"></div>
+        </div>
+        <table class="confidence-level-table">
+          <thead>
+            <tr><th>分值</th><th>数据时间范围</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-badge" style="background:#E5F0DC;color:#5A8045">100</span></td>
+              <td>24 小时内的监测数据</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#E5F0DC;color:#5A8045">85</span></td>
+              <td>3 天内的监测数据</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FFF4E6;color:#C4823A">70</span></td>
+              <td>7 天内的监测数据</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#FBE4DD;color:#A04632">50</span></td>
+              <td>超过 7 天的监测数据</td>
+            </tr>
+            <tr>
+              <td><span class="level-badge" style="background:#F5EFE6;color:#9C8B7A">30</span></td>
+              <td>无近期数据，使用默认值或历史数据</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 常识类说明 -->
+      <h2 style="font-size:20px;color:#3D2E1F;margin:32px 0 16px">常识类回复说明</h2>
+      <div class="confidence-sense-banner" style="text-align:left">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <h3 style="margin:0">哪些回复会被标记为"常识"？</h3>
+        </div>
+        <p style="text-align:left;line-height:1.8">
+          以下类型的回复不依赖用户个人健康数据，属于通用健康知识，因此<strong>不显示可信度评分按钮</strong>，仅显示"常识"标签：
+        </p>
+        <ul style="margin:12px 0 0 20px;padding:0;font-size:14px;color:#6B5A4A;line-height:2">
+          <li>健康概念解释 — 如"什么是窦性心律""血压正常范围是多少"</li>
+          <li>通用饮食建议 — 如"糖尿病能吃水果吗""喝水有什么讲究"</li>
+          <li>日常健康知识 — 如"饭后不宜做的 3 件事""冬季注意事项"</li>
+          <li>日常问候/闲聊 — 如"你好""谢谢"</li>
+        </ul>
+        <p style="text-align:left;line-height:1.8;margin-top:12px;font-size:13px;color:#9C8B7A">
+          常识类回复虽然不进行可信度评分，但其内容均基于广泛认可的健康知识，后续将通过 RAG 知识库增强溯源能力。
+        </p>
+      </div>
+
+      <!-- 示例对照 -->
+      <h2 style="font-size:20px;color:#3D2E1F;margin:32px 0 16px">示例对照</h2>
+
+      <div class="confidence-example-card">
+        <span class="ex-tag" style="background:#E5F0DC;color:#5A8045">数据驱动 · 高可信度</span>
+        <div class="ex-content">
+          "我看到你最近血压有点偏高，别紧张，咱们一步步来。"
+          <br/><span style="color:#9C8B7A;font-size:13px">→ 附带方案：少盐饮食、散步30分钟、22:30入睡、按时服药、下周复查</span>
+        </div>
+        <div class="ex-score">
+          <span class="score-ring" style="width:20px;height:20px;border-radius:50%;border:2px solid #5A8045;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#5A8045">88</span>
+          可信度 88 分 — 引用了慢病子项评分 + 近7天血压数据，建议可溯源至《中国高血压防治指南》
+        </div>
+      </div>
+
+      <div class="confidence-example-card">
+        <span class="ex-tag" style="background:#FFF4E6;color:#C4823A">数据驱动 · 中可信度</span>
+        <div class="ex-content">
+          "一日三餐有讲究，咱们慢慢说。"
+          <br/><span style="color:#9C8B7A;font-size:13px">→ 附带方案：早餐温热易消化、午餐七分饱、晚餐清淡少量</span>
+        </div>
+        <div class="ex-score">
+          <span class="score-ring" style="width:20px;height:20px;border-radius:50%;border:2px solid #C4823A;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#C4823A">75</span>
+          可信度 75 分 — 引用了营养子项评分，但未引用具体体重/BMI数值，建议参考膳食指南
+        </div>
+      </div>
+
+      <div class="confidence-example-card">
+        <span class="ex-tag" style="background:#F0EDE8;color:#9C8B7A">常识类 · 无评分</span>
+        <div class="ex-content">
+          "正常血压范围是收缩压 90-130 mmHg、舒张压 60-85 mmHg。超出范围建议咨询医生。"
+        </div>
+        <div class="ex-score">
+          <span style="color:#9C8B7A">标记为"常识" — 通用健康知识，不依赖个人数据，不显示可信度评分</span>
+        </div>
+      </div>
+
+      <!-- 后续计划 -->
+      <h2 style="font-size:20px;color:#3D2E1F;margin:32px 0 16px">后续优化计划</h2>
+      <div class="confidence-dimension-card" style="background:#FAF6EF">
+        <ul style="margin:0;padding-left:20px;font-size:14px;color:#5A4A3A;line-height:2.2">
+          <li><strong>RAG 知识库增强</strong> — 接入健康知识库检索，每条建议可追溯到具体知识条目</li>
+          <li><strong>指南条目映射</strong> — 将建议与临床指南具体条目关联，点击可查看指南原文</li>
+          <li><strong>数据时间线展示</strong> — 可信度页面增加数据时间线，展示引用数据的历史趋势</li>
+          <li><strong>多维度拆分展示</strong> — 综合评分拆分为四维子分数的雷达图</li>
+          <li><strong>用户反馈闭环</strong> — 点赞/差评反馈用于持续优化建议质量</li>
+        </ul>
+      </div>
+
+      <div style="text-align:center;margin-top:32px">
+        <button class="btn btn-secondary" onclick="window.close()" style="padding:10px 28px">关闭</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.addEventListener('auth:ready', () => {
+      const params = new URLSearchParams(window.location.search);
+      const score = params.get('score');
+      const sources = params.get('sources');
+      const reasoning = params.get('reasoning');
+
+      if (score) {
+        // 有参数 → 显示当前消息的可信度详情
+        const s = parseInt(score, 10);
+        document.getElementById('msg-detail').hidden = false;
+
+        const scoreEl = document.getElementById('detail-score');
+        const barEl = document.getElementById('detail-bar');
+        scoreEl.textContent = s;
+        barEl.style.width = s + '%';
+
+        // 颜色
+        if (s >= 80) {
+          scoreEl.style.color = '#5A8045';
+          barEl.style.background = 'linear-gradient(90deg, #7FB069, #5A8045)';
+          document.getElementById('detail-mode').style.background = '#E5F0DC';
+          document.getElementById('detail-mode').style.color = '#5A8045';
+          document.getElementById('detail-mode').textContent = '高可信度';
+        } else if (s >= 60) {
+          scoreEl.style.color = '#C4823A';
+          barEl.style.background = 'linear-gradient(90deg, #F4A261, #C4823A)';
+          document.getElementById('detail-mode').style.background = '#FFF4E6';
+          document.getElementById('detail-mode').style.color = '#C4823A';
+          document.getElementById('detail-mode').textContent = '中可信度';
+        } else {
+          scoreEl.style.color = '#A04632';
+          barEl.style.background = 'linear-gradient(90deg, #E0784E, #A04632)';
+          document.getElementById('detail-mode').style.background = '#FBE4DD';
+          document.getElementById('detail-mode').style.color = '#A04632';
+          document.getElementById('detail-mode').textContent = '低可信度';
+        }
+
+        // 数据来源
+        if (sources) {
+          try {
+            const arr = JSON.parse(sources);
+            if (arr.length) {
+              document.getElementById('detail-sources-wrap').hidden = false;
+              const colors = ['#F4A261', '#7FB069', '#9C7BC9', '#E0784E', '#9C8B7A'];
+              document.getElementById('detail-sources').innerHTML = arr.map((s, i) => `
+                <li>
+                  <span class="source-dot" style="background:${colors[i % colors.length]}"></span>
+                  <span>${escapeHTML(s)}</span>
+                </li>
+              `).join('');
+            }
+          } catch {}
+        }
+
+        // 评分依据
+        if (reasoning) {
+          document.getElementById('detail-reasoning-wrap').hidden = false;
+          document.getElementById('detail-reasoning').textContent = reasoning;
+        }
+      } else {
+        // 无参数 → 显示常识说明
+        document.getElementById('sense-section').hidden = false;
+      }
+    });
+    Auth.init();
+
+    function escapeHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+    }
+  </script>
+</body>
+</html>
