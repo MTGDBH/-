@@ -5,25 +5,21 @@ import { evaluateHealth } from '../lib/scoring.js';
 
 const router = express.Router();
 
-const METRIC_META = {
-  bp:     { name: '血压',     unit: 'mmHg', color: '#F4A261', icon: '压' },
-  glucose:{ name: '血糖',     unit: 'mmol/L', color: '#E0784E', icon: '糖' },
-  hr:     { name: '心率',     unit: 'bpm',   color: '#9C7BC9', icon: '心' },
-  sleep:  { name: '睡眠',     unit: 'h',     color: '#9C7BC9', icon: '眠' },
-  spo2:   { name: '血氧',     unit: '%',     color: '#3E8E8E', icon: '氧' },
-  ecg:    { name: '心电',     unit: '',      color: '#E0784E', icon: '电' },
-  weight: { name: '体重',     unit: 'kg',    color: '#F4A261', icon: '重' },
-  steps:  { name: '步数',     unit: '步',    color: '#5A8045', icon: '步' },
-};
+// 指标元数据（单一数据源：metric_defs 表）
+const METRIC_META = new Map(
+  db.prepare('SELECT type, name, unit, color, icon FROM metric_defs ORDER BY sort')
+    .all()
+    .map(r => [r.type, r])
+);
 
 router.get('/types', (_req, res) => {
-  res.json(Object.entries(METRIC_META).map(([key, v]) => ({ key, ...v })));
+  res.json([...METRIC_META.values()]);
 });
 
 // 单指标趋势 + AI 文字解释
 router.get('/:type', (req, res) => {
   const { type } = req.params;
-  if (!METRIC_META[type]) return res.status(400).json({ error: '未知指标类型' });
+  if (!METRIC_META.has(type)) return res.status(400).json({ error: '未知指标类型' });
 
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
@@ -61,7 +57,7 @@ router.get('/:type', (req, res) => {
 
   res.json({
     type,
-    meta: METRIC_META[type],
+    meta: METRIC_META.get(type),
     latest: latest || null,
     points,
     stats,

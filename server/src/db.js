@@ -59,16 +59,33 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS metrics (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
-    type TEXT NOT NULL,                -- bp | glucose | hr | sleep | spo2 | ecg | weight | steps
+    type TEXT NOT NULL,                -- 指标类型，见 metric_defs
     value REAL NOT NULL,
     value2 REAL,
     unit TEXT,
     recorded_at TEXT NOT NULL,
-    source TEXT NOT NULL DEFAULT 'manual',
+    source TEXT NOT NULL DEFAULT 'manual',  -- manual | device | synthetic
     note TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
   CREATE INDEX IF NOT EXISTS idx_metrics_user_type_time ON metrics(user_id, type, recorded_at DESC);
+
+  CREATE TABLE IF NOT EXISTS metric_defs (
+    type TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    unit TEXT NOT NULL DEFAULT '',
+    value_type TEXT NOT NULL DEFAULT 'number',   -- number | dual | categorical
+    min_value REAL,                              -- 物理合理下限（校验用）
+    max_value REAL,                              -- 物理合理上限
+    normal_min REAL,                             -- 正常区间下限（评分用）
+    normal_max REAL,                             -- 正常区间上限
+    frequency TEXT,                              -- 建议采集频率（提示用）
+    ml_enabled INTEGER NOT NULL DEFAULT 1,       -- 是否可进入 ML 特征
+    description TEXT,
+    color TEXT NOT NULL DEFAULT '#F4A261',
+    icon TEXT NOT NULL DEFAULT '测',
+    sort INTEGER NOT NULL DEFAULT 0
+  );
 
   CREATE TABLE IF NOT EXISTS assessments (
     id INTEGER PRIMARY KEY,
@@ -163,5 +180,42 @@ db.exec(`
 
 // 兼容已有库：给 chat_messages 补 confidence 列
 addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
+
+// 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
+addColumnIfMissing('metrics', 'device_id', 'INTEGER');
+
+// ============= 核心指标定义（单一数据源）=============
+// 15 种核心指标 + ecg（历史展示保留，ml_enabled=0 不进 ML）
+// source 语义：manual=用户手动录入 | device=真实设备采集 | synthetic=项目演示数据
+const CORE_METRIC_DEFS = [
+  // [type, name, unit, value_type, min, max, normal_min, normal_max, freq, ml, desc, color, icon, sort]
+  ['bp',        '血压',          'mmHg',   'dual',        50, 250, 90, 139,  '1-2次/日', 1, '收缩压/舒张压，value2 存舒张压', '#F4A261', '压', 1],
+  ['glucose',   '血糖',          'mmol/L', 'number',       1,  33,  4,   7,  '1-4次/日', 1, '空腹血糖', '#E0784E', '糖', 2],
+  ['hr',        '心率',          'bpm',    'number',      20, 220, 60, 100,  '多次/日',  1, '静息心率', '#9C7BC9', '心', 3],
+  ['sleep',     '睡眠',          'h',      'number',       0,  24,  7,   9,  '1次/日',   1, '夜间睡眠时长', '#9C7BC9', '眠', 4],
+  ['spo2',      '血氧',          '%',      'number',      50, 100, 95, 100,  '多次/日',  1, '血氧饱和度', '#3E8E8E', '氧', 5],
+  ['weight',    '体重',          'kg',     'number',      20, 200, 45,  90,  '1次/日',   1, '体重（BMI 在特征工程由 height+weight 推导，不入库）', '#F4A261', '重', 6],
+  ['steps',     '步数',          '步',     'number',       0, 100000, 3000, 20000, '连续', 1, '每日步数', '#5A8045', '步', 7],
+  ['temp',      '体温',          '°C',     'number',      30,  45, 36, 37.3, '1-2次/日', 1, '腋下体温', '#E0784E', '温', 8],
+  ['resp',      '呼吸频率',      '次/分',  'number',       5,  60, 14,  20,  '按需',     1, '静息呼吸频率', '#3E8E8E', '呼', 9],
+  ['grip',      '握力',          'kg',     'number',       0, 100, 20,  50,  '1次/月',   1, '手部握力（衰弱筛查参考）', '#5A8045', '握', 10],
+  ['bodyfat',   '体脂率',        '%',      'number',       5,  70, 20,  35,  '1次/周',   1, '体脂百分比', '#F4A261', '脂', 11],
+  ['waist',     '腰围',          'cm',     'number',      30, 200, 70,  95,  '1次/周',   1, '腰围（腹型肥胖筛查参考）', '#E0784E', '腰', 12],
+  ['uricacid',  '尿酸',          'μmol/L', 'number',      50, 1200, 150, 420, '1次/月',   1, '血尿酸', '#E0784E', '尿', 13],
+  ['cholesterol','胆固醇',       'mmol/L', 'number',       1,  20, 3.1, 5.7, '1次/月',   1, '总胆固醇', '#A04632', '胆', 14],
+  ['hba1c',     '糖化血红蛋白',  '%',      'number',       3,  20,  4, 6.5,  '1次/季度', 1, '糖化血红蛋白（近 3 个月血糖均值指标）', '#A04632', '化', 15],
+  ['ecg',       '心电',          '',       'categorical', null, null, null, null, '按需', 0, '定性结果：100=窦性，50=异常。仅展示，暂不进 ML', '#E0784E', '电', 16],
+];
+
+const upsertDef = db.prepare(`
+  INSERT OR REPLACE INTO metric_defs
+    (type, name, unit, value_type, min_value, max_value, normal_min, normal_max,
+     frequency, ml_enabled, description, color, icon, sort)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+const upsertDefs = db.transaction(() => {
+  for (const d of CORE_METRIC_DEFS) upsertDef.run(...d);
+});
+upsertDefs();
 
 export default db;

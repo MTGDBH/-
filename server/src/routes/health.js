@@ -5,6 +5,16 @@ import { evaluateHealth } from '../lib/scoring.js';
 
 const router = express.Router();
 
+// 指标定义（单一数据源：metric_defs 表）
+router.get('/metric-defs', (_req, res) => {
+  const defs = db.prepare(`
+    SELECT type, name, unit, value_type, min_value, max_value, normal_min, normal_max,
+           frequency, ml_enabled, description, color, icon, sort
+    FROM metric_defs ORDER BY sort
+  `).all();
+  res.json(defs);
+});
+
 // 获取今日健康摘要：得分 + 子项 + 子项卡 + 待办数 + 预警数
 router.get('/summary', (req, res) => {
   const today = new Date();
@@ -46,8 +56,8 @@ router.get('/summary', (req, res) => {
 
 // 获取所有指标的最新值（内置 + 用户自定义）
 router.get('/metrics', (req, res) => {
-  const builtInTypes = ['bp', 'glucose', 'hr', 'sleep', 'spo2', 'ecg', 'weight', 'steps',
-    'temp', 'resp', 'vision', 'hearing', 'grip', 'bodyfat', 'waist', 'uricacid', 'cholesterol', 'hba1c'];
+  // 内置指标列表来自 metric_defs（vision/hearing 已移出核心体系）
+  const builtInTypes = db.prepare('SELECT type FROM metric_defs ORDER BY sort').all().map(r => r.type);
   const result = {};
   for (const t of builtInTypes) {
     const row = db.prepare(`
@@ -85,17 +95,20 @@ router.get('/metrics/:type/history', (req, res) => {
 });
 
 // 录入 / 更新指标
+// source: manual（用户录入，默认）| device（真实设备）| synthetic（演示/测试）
 router.post('/metrics', (req, res) => {
-  const { type, value, value2, unit, recorded_at, source, note } = req.body;
+  const { type, value, value2, unit, recorded_at, source, note, device_id } = req.body;
   if (!type || value == null) {
     return res.status(400).json({ error: 'missing type or value' });
   }
+  // 兼容旧数据/调用方：source 白名单外的值归一为 manual
+  const src = ['manual', 'device', 'synthetic'].includes(source) ? source : 'manual';
   const r = db.prepare(`
-    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(req.user.id, type, value, value2 ?? null, unit ?? null,
          recorded_at || new Date().toISOString(),
-         source || 'manual', note ?? null);
+         src, note ?? null, device_id ?? null);
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
   res.json(row);
 });

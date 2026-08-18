@@ -25,7 +25,7 @@ router.get('/assessments/latest', (req, res) => {
 
   const evaluation = evaluateHealth(metrics, { todoCompletionRate, height: req.user.height });
 
-  // ADL / IADL：与历史同值（demo 阶段不算法化）
+  // ADL / IADL：读取最近一次评估记录；无记录则为 null（严禁硬编码假值）
   const lastAssess = db.prepare(`
     SELECT adl, iadl FROM assessments WHERE user_id = ? ORDER BY id DESC LIMIT 1
   `).get(req.user.id);
@@ -33,8 +33,8 @@ router.get('/assessments/latest', (req, res) => {
   res.json({
     total_score: evaluation.total_score,
     subscores: evaluation.subscores,
-    adl: lastAssess?.adl ?? 95,
-    iadl: lastAssess?.iadl ?? 88,
+    adl: lastAssess?.adl ?? null,
+    iadl: lastAssess?.iadl ?? null,
     suggestions: evaluation.suggestions,
     summary: evaluation.summary,
     evaluated_at: new Date().toISOString(),
@@ -59,8 +59,8 @@ router.post('/assessments', (req, res) => {
     req.user.id,
     ev.total_score,
     JSON.stringify(ev.subscores),
-    lastAssess?.adl ?? 95,
-    lastAssess?.iadl ?? 88,
+    lastAssess?.adl ?? null,
+    lastAssess?.iadl ?? null,
     JSON.stringify(ev.suggestions),
     ev.summary
   );

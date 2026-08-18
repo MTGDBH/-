@@ -137,26 +137,47 @@
     });
     Auth.init();
 
-    const METRIC_DEFS = [
-      { type: 'bp',      name: '血压',   unit: 'mmHg',  color: '#F4A261', bg: '#FFE9D9', icon: '压',  fmt: v => v ? `${v.value}/${v.value2}` : '--' },
-      { type: 'glucose', name: '血糖',   unit: 'mmol/L',color: '#E0784E', bg: '#FBE4DD', icon: '糖',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'hr',      name: '心率',   unit: 'bpm',   color: '#9C7BC9', bg: '#F1E8F5', icon: '心',  fmt: v => v ? Math.round(v.value) : '--' },
-      { type: 'sleep',   name: '睡眠',   unit: 'h',     color: '#9C7BC9', bg: '#F1E8F5', icon: '眠',  fmt: v => v ? v.value.toFixed(1) + 'h' : '--' },
-      { type: 'spo2',    name: '血氧',   unit: '%',     color: '#3E8E8E', bg: '#E0F0F0', icon: '氧',  fmt: v => v ? Math.round(v.value) : '--' },
-      { type: 'ecg',     name: '心电',   unit: '',      color: '#E0784E', bg: '#FBE4DD', icon: '电',  fmt: v => v ? (v.value === 100 ? '窦性' : '异常') : '--' },
-      { type: 'weight',  name: '体重',   unit: 'kg',    color: '#F4A261', bg: '#FFE9D9', icon: '重',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'steps',   name: '步数',   unit: '步',    color: '#5A8045', bg: '#E5F0DC', icon: '步',  fmt: v => v ? Math.round(v.value).toLocaleString() : '--' },
-      // 无创指标
-      { type: 'temp',    name: '体温',   unit: '°C',    color: '#E0784E', bg: '#FBE4DD', icon: '温',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'resp',    name: '呼吸频率', unit: '次/分', color: '#3E8E8E', bg: '#E0F0F0', icon: '呼',  fmt: v => v ? Math.round(v.value) : '--' },
-      { type: 'grip',    name: '握力',   unit: 'kg',    color: '#5A8045', bg: '#E5F0DC', icon: '握',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'bodyfat', name: '体脂率', unit: '%',     color: '#F4A261', bg: '#FFE9D9', icon: '脂',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'waist',   name: '腰围',   unit: 'cm',    color: '#E0784E', bg: '#FBE4DD', icon: '腰',  fmt: v => v ? v.value.toFixed(0) : '--' },
-      // 微创指标
-      { type: 'uricacid',  name: '尿酸',   unit: 'μmol/L', color: '#E0784E', bg: '#FBE4DD', icon: '尿',  fmt: v => v ? Math.round(v.value) : '--' },
-      { type: 'cholesterol', name: '胆固醇', unit: 'mmol/L', color: '#A04632', bg: '#F4D5C9', icon: '胆',  fmt: v => v ? v.value.toFixed(1) : '--' },
-      { type: 'hba1c',   name: '糖化血红蛋白', unit: '%', color: '#A04632', bg: '#F4D5C9', icon: '化',  fmt: v => v ? v.value.toFixed(1) : '--' },
-    ];
+    // 内置指标定义：从 /api/health/metric-defs 拉取（后端 metric_defs 表为单一数据源）
+    let METRIC_DEFS = [];
+
+    // 格式化逻辑（渲染层，非指标定义；defs 未覆盖的 type 走通用格式）
+    const FMT = {
+      bp:      v => v ? `${v.value}/${v.value2}` : '--',
+      glucose: v => v ? v.value.toFixed(1) : '--',
+      hr:      v => v ? Math.round(v.value) : '--',
+      sleep:   v => v ? v.value.toFixed(1) + 'h' : '--',
+      spo2:    v => v ? Math.round(v.value) : '--',
+      ecg:     v => v ? (v.value === 100 ? '窦性' : '异常') : '--',
+      weight:  v => v ? v.value.toFixed(1) : '--',
+      steps:   v => v ? Math.round(v.value).toLocaleString() : '--',
+      temp:    v => v ? v.value.toFixed(1) : '--',
+      resp:    v => v ? Math.round(v.value) : '--',
+      grip:    v => v ? v.value.toFixed(1) : '--',
+      bodyfat: v => v ? v.value.toFixed(1) : '--',
+      waist:   v => v ? v.value.toFixed(0) : '--',
+      uricacid: v => v ? Math.round(v.value) : '--',
+      cholesterol: v => v ? v.value.toFixed(1) : '--',
+      hba1c:   v => v ? v.value.toFixed(1) : '--',
+    };
+    const defaultFmt = v => v ? (v.value2 != null ? `${v.value}/${v.value2}` : String(v.value)) : '--';
+
+    async function loadMetricDefs() {
+      try {
+        const defs = await API.get('/api/health/metric-defs');
+        METRIC_DEFS = defs.map(d => ({
+          type: d.type,
+          name: d.name,
+          unit: d.unit,
+          color: d.color,
+          bg: d.color + '22',
+          icon: d.icon,
+          fmt: FMT[d.type] || defaultFmt,
+        }));
+      } catch {
+        // 定义加载失败时页面保持空卡片可交互，不白屏
+        METRIC_DEFS = [];
+      }
+    }
 
     // 自定义指标（从后端加载后追加）
     let customDefs = [];
@@ -178,7 +199,7 @@
     }
 
     async function loadAll() {
-      await loadCustomMetrics();
+      await Promise.all([loadMetricDefs(), loadCustomMetrics()]);
       const [metrics, devices] = await Promise.all([
         API.get('/api/health/metrics'),
         API.get('/api/devices'),

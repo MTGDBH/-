@@ -32,56 +32,58 @@ if (seqExists) db.exec('DELETE FROM sqlite_sequence');
 // ============= 用户 =============
 // 默认账号：密码统一 123456（demo 明文；生产环境务必改用 bcrypt）
 const insertUser = db.prepare(`
-  INSERT INTO users (id, name, age, avatar_color, height, emergency_name, emergency_phone, password)
-  VALUES (?, ?, ?, ?, ?, ?, ?, '123456')
+  INSERT INTO users (id, name, age, gender, avatar_color, height, emergency_name, emergency_phone, password)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, '123456')
 `);
-insertUser.run(1, '张奶奶', 72, '#7FB069', 1.60, '晓东（儿子）', '13800138001');
-insertUser.run(2, '李爷爷', 75, '#9C7BC9', 1.72, '晓敏（女儿）', '13800138002');
+insertUser.run(1, '张奶奶', 72, 'female', '#7FB069', 1.60, '晓东（儿子）', '13800138001');
+insertUser.run(2, '李爷爷', 75, 'male', '#9C7BC9', 1.72, '晓敏（女儿）', '13800138002');
 console.log('✓ 用户：张奶奶 / 李爷爷（密码 123456）');
 
 // ============= 健康指标（张奶奶，user_id=1） =============
+// 注意：本脚本生成的全部指标均为 synthetic（项目演示数据），
+// 严禁用于 XGBoost 训练 / ML 验证 / 真实健康风险结论。
 const insertMetric = db.prepare(`
   INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source)
   VALUES (1, ?, ?, ?, ?, ?, ?)
 `);
 
-insertMetric.run('bp', 128, 85, 'mmHg', timeAt(12, 30), 'device');
+insertMetric.run('bp', 128, 85, 'mmHg', timeAt(12, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('bp', 122 + Math.round(Math.sin(i) * 8), 78 + Math.round(Math.cos(i) * 5), 'mmHg', daysAgoISO(i, 8, 0), 'device');
+  insertMetric.run('bp', 122 + Math.round(Math.sin(i) * 8), 78 + Math.round(Math.cos(i) * 5), 'mmHg', daysAgoISO(i, 8, 0), 'synthetic');
 }
-insertMetric.run('glucose', 5.8, null, 'mmol/L', timeAt(7, 30), 'manual');
+insertMetric.run('glucose', 5.8, null, 'mmol/L', timeAt(7, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('glucose', +(5.4 + Math.sin(i) * 0.6).toFixed(1), null, 'mmol/L', daysAgoISO(i, 7, 30), 'manual');
+  insertMetric.run('glucose', +(5.4 + Math.sin(i) * 0.6).toFixed(1), null, 'mmol/L', daysAgoISO(i, 7, 30), 'synthetic');
 }
-insertMetric.run('hr', 72, null, 'bpm', timeAt(11, 0), 'device');
+insertMetric.run('hr', 72, null, 'bpm', timeAt(11, 0), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('hr', 70 + Math.round(Math.sin(i) * 4), null, 'bpm', daysAgoISO(i, 11, 0), 'device');
+  insertMetric.run('hr', 70 + Math.round(Math.sin(i) * 4), null, 'bpm', daysAgoISO(i, 11, 0), 'synthetic');
 }
-insertMetric.run('sleep', 7.3, null, 'h', timeAt(6, 0), 'device');
+insertMetric.run('sleep', 7.3, null, 'h', timeAt(6, 0), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('sleep', +(6.8 + Math.cos(i) * 0.8).toFixed(1), null, 'h', daysAgoISO(i, 6, 0), 'device');
+  insertMetric.run('sleep', +(6.8 + Math.cos(i) * 0.8).toFixed(1), null, 'h', daysAgoISO(i, 6, 0), 'synthetic');
 }
-insertMetric.run('spo2', 97, null, '%', timeAt(11, 30), 'device');
+insertMetric.run('spo2', 97, null, '%', timeAt(11, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('spo2', 96 + Math.round(Math.sin(i)), null, '%', daysAgoISO(i, 11, 30), 'device');
+  insertMetric.run('spo2', 96 + Math.round(Math.sin(i)), null, '%', daysAgoISO(i, 11, 30), 'synthetic');
 }
-insertMetric.run('ecg', 100, null, 'normal', timeAt(8, 0), 'device');
+insertMetric.run('ecg', 100, null, 'normal', timeAt(8, 0), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('ecg', 100, null, 'normal', daysAgoISO(i, 8, 0), 'device');
+  insertMetric.run('ecg', 100, null, 'normal', daysAgoISO(i, 8, 0), 'synthetic');
 }
-insertMetric.run('weight', 56.2, null, 'kg', timeAt(7, 30), 'device');
+insertMetric.run('weight', 56.2, null, 'kg', timeAt(7, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('weight', +(56.0 + Math.sin(i) * 0.4).toFixed(1), null, 'kg', daysAgoISO(i, 7, 30), 'device');
+  insertMetric.run('weight', +(56.0 + Math.sin(i) * 0.4).toFixed(1), null, 'kg', daysAgoISO(i, 7, 30), 'synthetic');
 }
-insertMetric.run('steps', 4820, null, '步', timeAt(20, 0), 'device');
+insertMetric.run('steps', 4820, null, '步', timeAt(20, 0), 'synthetic');
 for (let i = 1; i <= 6; i++) {
-  insertMetric.run('steps', 4500 + Math.round(Math.sin(i) * 600), null, '步', daysAgoISO(i, 20, 0), 'device');
+  insertMetric.run('steps', 4500 + Math.round(Math.sin(i) * 600), null, '步', daysAgoISO(i, 20, 0), 'synthetic');
 }
 console.log('✓ 健康指标：张奶奶，8 类 × 7 天');
 
 // ============= 健康指标（李爷爷，user_id=2，数据较少） =============
 const insM2 = db.prepare(`
-  INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source) VALUES (2, ?, ?, ?, ?, ?, 'device')
+  INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source) VALUES (2, ?, ?, ?, ?, ?, 'synthetic')
 `);
 for (let i = 0; i < 5; i++) {
   insM2.run('bp', 138 + Math.round(Math.random()*8 - 4), 88 + Math.round(Math.random()*6 - 3), 'mmHg', daysAgoISO(i, 8, 0));
@@ -90,17 +92,18 @@ for (let i = 0; i < 5; i++) {
 }
 
 // ============= 评估（张奶奶） =============
+// adl/iadl 置 NULL：当前无真实 ADL/IADL 评估数据，严禁造假值
 db.prepare(`
   INSERT INTO assessments (user_id, total_score, subscores, adl, iadl, suggestions, summary, created_at)
-  VALUES (1, 86, ?, 95, 88, ?, ?, ?)
+  VALUES (1, 86, ?, NULL, NULL, ?, ?, ?)
 `).run(
-  JSON.stringify({ sleep: 82, nutrition: 78, mood: 90, activity: 85, chronic: 76 }),
+  JSON.stringify({ sleep: 82, nutrition: 78, activity: 85, chronic: 76 }),
   JSON.stringify([
     { icon: 'warning', title: '血压管理：低盐饮食', detail: '每日盐摄入 < 5g，多吃蔬菜' },
     { icon: 'activity', title: '规律运动：每日 30 分钟', detail: '散步、太极、广场舞任选' },
     { icon: 'sleep', title: '睡眠改善：固定作息', detail: '22:30 前入睡，7 小时为目标' },
   ]),
-  '综合 5 维度评估，整体良好，血压需持续关注。',
+  '综合睡眠、营养、活动、慢病控制维度评估，整体良好，血压需持续关注。',
   new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
 );
 console.log('✓ 健康评估：张奶奶 1 条');

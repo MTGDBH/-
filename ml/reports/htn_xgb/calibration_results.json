@@ -1,0 +1,79 @@
+{
+  "brier_raw": 0.1584109216928482,
+  "brier_platt": 0.25,
+  "brier_isotonic": 0.043057473427525,
+  "calibration_slope_raw": 0.7092,
+  "calibration_intercept_raw": -2.6757,
+  "calibration_curve_raw": [
+    {
+      "bin_mid": 0.05,
+      "mean_pred": 0.0635,
+      "frac_pos": 0.0195
+    },
+    {
+      "bin_mid": 0.15,
+      "mean_pred": 0.1511,
+      "frac_pos": 0.0249
+    },
+    {
+      "bin_mid": 0.25,
+      "mean_pred": 0.2491,
+      "frac_pos": 0.0229
+    },
+    {
+      "bin_mid": 0.35,
+      "mean_pred": 0.3459,
+      "frac_pos": 0.0252
+    },
+    {
+      "bin_mid": 0.45,
+      "mean_pred": 0.4522,
+      "frac_pos": 0.0535
+    },
+    {
+      "bin_mid": 0.55,
+      "mean_pred": 0.5407,
+      "frac_pos": 0.0687
+    },
+    {
+      "bin_mid": 0.65,
+      "mean_pred": 0.6479,
+      "frac_pos": 0.1027
+    },
+    {
+      "bin_mid": 0.75,
+      "mean_pred": 0.745,
+      "frac_pos": 0.1566
+    },
+    {
+      "bin_mid": 0.85,
+      "mean_pred": 0.834,
+      "frac_pos": 0.2778
+    }
+  ],
+  "calibration_curve_platt": [
+    {
+      "bin_mid": 0.55,
+      "mean_pred": 0.5,
+      "frac_pos": 0.0466
+    }
+  ],
+  "calibration_curve_isotonic": [
+    {
+      "bin_mid": 0.05,
+      "mean_pred": 0.0435,
+      "frac_pos": 0.0401
+    },
+    {
+      "bin_mid": 0.15,
+      "mean_pred": 0.1336,
+      "frac_pos": 0.15
+    },
+    {
+      "bin_mid": 0.25,
+      "mean_pred": 0.2222,
+      "frac_pos": 0.6
+    }
+  ],
+  "note": "校准器仅在训练集 OOF 上拟合; slope/intercept 为 test 上诊断性拟合(理想 slope=1, intercept=0)"
+}

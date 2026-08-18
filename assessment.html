@@ -126,8 +126,9 @@
     }
 
     function renderAdlIadl(d) {
-      document.getElementById('adl').textContent = d.adl ?? 95;
-      document.getElementById('iadl').textContent = d.iadl ?? 88;
+      // ADL / IADL：仅展示真实评估记录，无记录显示 "--"（严禁兜底假值）
+      document.getElementById('adl').textContent = d.adl ?? '--';
+      document.getElementById('iadl').textContent = d.iadl ?? '--';
       document.getElementById('life-sub').textContent = `ADL / IADL 综合 · ${fmtDate(new Date().toISOString())}`;
     }
 

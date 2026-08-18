@@ -7,27 +7,17 @@ import { scoreMetric } from '../lib/scoring.js';
 
 const router = express.Router();
 
-// 所有指标元数据（含新增无创微创）
-const ALL_METRICS = {
-  bp:        { name: '血压',     unit: 'mmHg',   color: '#F4A261', icon: '压', dual: true, invasive: 'none' },
-  glucose:   { name: '血糖',     unit: 'mmol/L', color: '#E0784E', icon: '糖', dual: false, invasive: 'mini' },
-  hr:        { name: '心率',     unit: 'bpm',    color: '#9C7BC9', icon: '心', dual: false, invasive: 'none' },
-  sleep:     { name: '睡眠',     unit: 'h',      color: '#9C7BC9', icon: '眠', dual: false, invasive: 'none' },
-  spo2:      { name: '血氧',     unit: '%',      color: '#3E8E8E', icon: '氧', dual: false, invasive: 'none' },
-  ecg:       { name: '心电',     unit: '',       color: '#E0784E', icon: '电', dual: false, invasive: 'none' },
-  weight:    { name: '体重',     unit: 'kg',     color: '#F4A261', icon: '重', dual: false, invasive: 'none' },
-  steps:     { name: '步数',     unit: '步',     color: '#5A8045', icon: '步', dual: false, invasive: 'none' },
-  temp:      { name: '体温',     unit: '°C',     color: '#E0784E', icon: '温', dual: false, invasive: 'none' },
-  resp:      { name: '呼吸频率', unit: '次/分',  color: '#3E8E8E', icon: '呼', dual: false, invasive: 'none' },
-  vision:    { name: '视力',     unit: '',       color: '#7FB069', icon: '视', dual: false, invasive: 'none' },
-  hearing:   { name: '听力',     unit: 'dB',     color: '#9C7BC9', icon: '听', dual: false, invasive: 'none' },
-  grip:      { name: '握力',     unit: 'kg',     color: '#5A8045', icon: '握', dual: false, invasive: 'none' },
-  bodyfat:   { name: '体脂率',   unit: '%',      color: '#F4A261', icon: '脂', dual: false, invasive: 'none' },
-  waist:     { name: '腰围',     unit: 'cm',     color: '#E0784E', icon: '腰', dual: false, invasive: 'none' },
-  uricacid:  { name: '尿酸',     unit: 'μmol/L', color: '#E0784E', icon: '尿', dual: false, invasive: 'mini' },
-  cholesterol:{ name: '胆固醇',  unit: 'mmol/L', color: '#A04632', icon: '胆', dual: false, invasive: 'mini' },
-  hba1c:     { name: '糖化血红蛋白', unit: '%',  color: '#A04632', icon: '化', dual: false, invasive: 'mini' },
-};
+// 指标元数据：以 metric_defs 表为单一数据源
+// 展示附加属性（dual/invasive）仅在此保留，指标定义本身不重复维护
+const ALL_METRICS = new Map(
+  db.prepare('SELECT type, name, unit, color, icon, value_type FROM metric_defs ORDER BY sort')
+    .all()
+    .map(r => {
+      const dual = r.value_type === 'dual';
+      const invasive = ['uricacid', 'cholesterol', 'hba1c', 'glucose'].includes(r.type) ? 'mini' : 'none';
+      return [r.type, { ...r, dual, invasive }];
+    })
+);
 
 // 同龄人平均参考值（按年龄段）
 const PEER_AVERAGES = {
@@ -130,7 +120,7 @@ function generatePeerLine(baseValue, totalDays, seed = 0) {
 
 // 获取所有可用指标类型（内置 + 用户自定义）
 router.get('/metrics', (req, res) => {
-  const builtIn = Object.entries(ALL_METRICS).map(([key, v]) => ({ key, ...v, custom: false }));
+  const builtIn = [...ALL_METRICS.entries()].map(([key, v]) => ({ key, ...v, custom: false }));
   const custom = db.prepare('SELECT * FROM custom_metrics WHERE user_id = ?').all(req.user.id)
     .map(c => ({
       key: 'custom_' + c.id,
@@ -172,7 +162,7 @@ router.get('/:type', (req, res) => {
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
   const futureDays = Math.min(parseInt(req.query.future || '30', 10), 90);
 
-  const meta = ALL_METRICS[type];
+  const meta = ALL_METRICS.get(type);
   if (!meta) return res.status(400).json({ error: '未知指标类型' });
 
   // 获取历史数据
@@ -252,8 +242,9 @@ router.get('/overview/composite', (req, res) => {
   const compositeActual = allDates.map(date => {
     const dayMetrics = allMetrics.filter(m => m.recorded_at.slice(0, 10) === date);
     const scores = dayMetrics
-      .filter(m => ALL_METRICS[m.type])
-      .map(m => scoreMetric(m.value, m.value2, m.type, { height: req.user.height }));
+      .filter(m => ALL_METRICS.has(m.type))
+      .map(m => scoreMetric(m.value, m.value2, m.type, { height: req.user.height }))
+      .filter(s => s != null);
     if (!scores.length) return null;
     return {
       date,
@@ -297,10 +288,52 @@ router.get('/overview/list', (req, res) => {
   `).all(req.user.id, since);
 
   const result = types
-    .filter(t => ALL_METRICS[t.type])
-    .map(t => ({ type: t.type, ...ALL_METRICS[t.type], count: t.cnt }));
+    .filter(t => ALL_METRICS.has(t.type))
+    .map(t => ({ type: t.type, ...ALL_METRICS.get(t.type), count: t.cnt }));
 
   res.json(result);
+});
+
+// ===== XGBoost 高血压风险预测（Node → Python Tool）=====
+// 说明：
+//   - 本接口为 Phase 2.2 的显式输入模式：由请求体直接提供 12 个模型字段，
+//     不从数据库读取历史数据（下一阶段再做 数据库→最近数据→模型）
+//   - 只接受白名单字段，不允许传入模型路径或任意命令
+//   - 字段单位: 血压 mmHg、bmi、腰围 cm、握力 kg、bl_glu/bl_cho/bl_ua = mg/dl、
+//     糖化 %、睡眠 h
+import { HTN_FEATURES, predictHtn } from '../lib/htnPredictor.js';
+
+router.post('/htn', async (req, res) => {
+  const body = req.body;
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return res.status(400).json({ error: 'body 必须是 JSON 对象' });
+  }
+
+  // 白名单过滤：只取 12 个模型字段，丢弃其他一切键（防注入任意参数）
+  const input = {};
+  for (const k of HTN_FEATURES) input[k] = body[k];
+
+  try {
+    const result = await predictHtn(input);
+    if (!result.success) {
+      // 传输层/环境错误（对象 error.code）→ 结构化 5xx；Python 校验错误（字符串）→ 4xx
+      if (typeof result.error === 'object' && result.error && result.error.code) {
+        const statusMap = {
+          PYTHON_NOT_FOUND: 503,
+          PYTHON_TIMEOUT: 504,
+          PYTHON_EXIT: 502,
+          PYTHON_EMPTY_OUTPUT: 502,
+          PYTHON_BAD_OUTPUT: 502,
+        };
+        return res.status(statusMap[result.error.code] || 500).json({ error: result.error.message || 'prediction service error' });
+      }
+      return res.status(400).json({ error: typeof result.error === 'string' ? result.error : 'invalid prediction input' });
+    }
+    res.json(result);
+  } catch (e) {
+    console.error('[htn] unexpected error:', e);
+    res.status(500).json({ error: 'prediction service internal error' });
+  }
 });
 
 export default router;
