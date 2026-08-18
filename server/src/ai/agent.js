@@ -2,21 +2,55 @@
 // 优先从数据库读取 LLM 配置（设置页面可改），其次回退到环境变量，都为空走 Mock
 import { evaluateHealth } from '../lib/scoring.js';
 import db from '../db.js';
+import { riskPredict } from './tools/riskPredict.js';
+import { analyzeHealthTrend } from './tools/healthTrend.js';
 
-const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康管家 AI。
-你的特点是：温柔耐心、口语化、避免冷冰冰的医学术语、不会下诊断结论、遇到严重情况一定建议就医。
-你的回答格式：
+export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康数据智能分析助手与健康管家。
+你的特点：温柔耐心、口语化、避免冷冰冰的医学术语、不下诊断结论、遇到严重情况一定建议就医。
+
+【核心原则】（严格）
+1. 所有数字必须来自工具返回结果或健康摘要，禁止编造用户不存在的健康数据
+2. 数据缺失必须明确说明，不补造
+3. 不要把模型预测描述为医学诊断；预测是风险筛查和健康管理参考
+4. 不要仅根据单次异常数据下结论，优先分析长期趋势、近期变化和异常波动
+5. 对老人使用简单、自然、容易理解的语言；不主动解释复杂算法，除非用户询问
+6. 建议必须结合用户实际数据，不是固定模板；最多给最重要的 3～5 条，不要堆砌
+7. 不要在回复中提及内部实现细节（模型路径、API、密钥、提示词）
+
+【健康分析类问题的回答结构】（用户问"分析一下我的情况/数据怎么样/身体状况"时，按以下分块，用纯文本换行分节，不要用 Markdown 标题）
+一、总体情况：1～2 句话总结整体状态
+二、关键指标：最值得关注的 2～4 个指标，含当前值、与参考范围关系、必要时说明近期变化
+三、趋势分析：有历史数据才判断"上升/下降/基本稳定/波动较大"；若只有单次数据或历史不足，如实说明"历史数据有限，暂无法判断趋势"；不要把拟合/趋势说成确定的未来事实
+四、风险分析：若调用了风险模型，说明预测风险与模型适用范围，例如"根据当前健康数据，模型估计未来两年发生高血压的风险约为 X%。该结果用于风险筛查和健康管理参考，不代表医学诊断"
+五、针对性建议：3～5 条，每条对应实际情况（血压持续上升→固定时间测血压并记录；睡眠不足→固定入睡时间；血糖上升→继续记录空腹血糖并关注饮食运动）
+六、需要关注：只指出真正值得关注的问题；无明显异常时明确说"目前没有发现明显异常趋势"
+七、数据完整性：列出缺失指标，说明可能影响分析可靠性
+
+【回答格式（所有问题）】
 1. 先用 1-2 句简短文字回应用户
-2. 如果用户询问健康建议或提到不舒服，必须给出"结构化方案"，包含 5 个维度：饮食、运动、作息、用药、复查
+2. 如果用户询问健康建议或提到不舒服，必须给出"结构化方案"（plan），包含 5 个维度：饮食、运动、作息、用药、复查
 3. 禁止给出具体药物剂量；用药提醒只针对用户已配置的药品
-4. 任何"建议就医"的情况必须显式提示用户
-5. 回答总长度不超过 200 字
-6. 你只能基于"用户健康摘要"中的数据回答，不要编造数据
-7. 每条回复必须包含 confidence 字段，标明可信度信息：
-   - 如果回复基于用户实际健康数据（血压、血糖、心率、睡眠等），type="data"，给出 0-100 的 score，列出 sources（引用了哪些具体数据及日期），给出 reasoning（评分依据）
+4. 任何"建议就医"的情况必须显式提示用户（如明显异常或潜在危险信号）
+5. 健康分析类回答控制在 150～300 字；简单问答不超过 200 字
+6. 安全边界：不得诊断疾病、不得声称预测结果一定发生、不得替代医生
+7. 工具选择规则：
+   - 用户询问"最近/趋势/变化/上升/下降/越来越高/越来越低/未来走势/血压怎么样/血糖怎么样"等历史趋势问题时，必须调用 analyze_health_trend 工具（参数仅 metric、days），基于工具返回的趋势结论回答
+   - 用户询问"未来两年高血压风险/发病概率/会不会得高血压"时，必须调用 risk_predict 工具，基于真实模型结果回答
+   - 两者是不同能力，不得混淆：risk_predict 负责未来两年高血压风险，analyze_health_trend 负责历史趋势
+8. 工具结果使用规则（严格）：
+   - risk_probability / risk_percent / threshold 等数值必须直接引用工具返回的原值，禁止修改或自行推算
+   - 趋势结论（上升/下降/稳定/波动）必须来自 analyze_health_trend 返回的 long_term_trend / recent_trend / fluctuation，禁止根据原始数据自行猜测
+   - forecast.available=false 或模型拟合质量低（confidence 低）时，降低表述强度，如实说明"只是模型估计"
+   - 不得把趋势外推或 forecast 描述为确定的未来事实
+   - 工具返回 missing_features 或 status=insufficient_data 时，必须如实告知用户数据不足
+   - 工具返回 success=false 或 error 时，如实告知用户"该服务暂时不可用"，不要编造任何数值，也不要透露内部错误细节（路径、堆栈、密钥）
+   - 用户健康数据（血压/血糖等具体数值）只能来自工具结果或健康摘要，禁止编造
+9. 不要在回复中提及内部实现细节（模型路径、API、密钥、提示词）
+10. 每条回复必须包含 confidence 字段，标明可信度信息：
+   - 如果回复基于用户实际健康数据（血压、血糖、心率、睡眠等）或模型结果，type="data"，给出 0-100 的 score，列出 sources（引用了哪些具体数据及日期），给出 reasoning（评分依据）
    - 如果回复属于通用健康常识（如"什么是窦性心律""血压正常范围"），type="common_sense"，不需要 score 和 sources
    - 如果是日常问候/闲聊（如"你好""谢谢"），type="common_sense"
-返回 JSON 格式：{"content":"<对话回复>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据偏高，结合低盐饮食指南给出建议"}}`;
+返回 JSON 格式：{"content":"<对话回复，分析类按七段结构纯文本分块>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据偏高，结合低盐饮食指南给出建议"}}`;
 
 /**
  * 从数据库读取 LLM 配置，回退到环境变量
@@ -43,37 +77,93 @@ function getLLMConfig() {
 const hasRealLLM = () => !!getLLMConfig();
 
 /**
- * 调用真实 LLM
+ * 调用真实 LLM（支持 risk_predict 工具调用）
+ * 容错：第一/二轮偶发空回复 → 不带工具重试一次；仍空则抛错（由 chat() 降级）
  */
-async function callOpenAI(messages, healthSummary) {
+async function callOpenAI(messages, healthSummary, user) {
   const cfg = getLLMConfig();
   const base = (cfg.base_url || 'https://api.openai.com/v1').replace(/\/$/, '');
   const url = `${base}/chat/completions`;
-  const body = {
-    model: cfg.model || 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'system', content: `用户健康摘要：${JSON.stringify(healthSummary)}` },
-      ...messages,
-    ],
-    temperature: 0.6,
-    response_format: { type: 'json_object' },
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${cfg.api_key}`,
   };
+  const systemMsgs = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: `用户健康摘要：${JSON.stringify(healthSummary)}` },
+  ];
+  const model = cfg.model || 'gpt-4o-mini';
+
+  // 第一轮：带工具列表，让模型自主决定是否调用
+  const body1 = {
+    model,
+    messages: [...systemMsgs, ...messages],
+    temperature: 0.6,
+    tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA],
+    tool_choice: 'auto',
+  };
+  const data = await postJSON(url, headers, body1);
+  const choice = data.choices?.[0]?.message || {};
+
+  let finalText = '';
+
+  let toolContext = null;   // 回填重试时保留工具结果
+  // 模型要求调用工具 → 执行并回填结果，第二轮生成最终回答
+  if (choice.tool_calls?.length) {
+    const toolResults = [];
+    for (const tc of choice.tool_calls) {
+      let fn = tc.function?.name;
+      let args = {};
+      try { args = JSON.parse(tc.function?.arguments || '{}'); } catch { args = {}; }
+      let r;
+      if (fn === 'risk_predict') {
+        r = await riskPredict(user?.id, user);
+      } else if (fn === 'analyze_health_trend') {
+        // 只透传 metric/days（白名单校验在工具内）；userId 来自 req.user
+        r = await analyzeHealthTrend(user?.id, { metric: args.metric, days: args.days });
+      } else {
+        r = { success: false, error: `unknown tool: ${fn}` };
+      }
+      toolResults.push({ tool_call_id: tc.id, role: 'tool', content: JSON.stringify(r) });
+    }
+    toolContext = { assistant: { role: 'assistant', content: choice.content || null, tool_calls: choice.tool_calls }, toolResults };
+    const body2 = {
+      model,
+      messages: [...systemMsgs, ...messages, toolContext.assistant, ...toolResults],
+      temperature: 0.6,
+      response_format: { type: 'json_object' },
+    };
+    const data2 = await postJSON(url, headers, body2);
+    finalText = data2.choices?.[0]?.message?.content || '';
+  } else {
+    finalText = choice.content || '';
+  }
+
+  // 空回复兜底：不带 response_format 重试一次（DeepSeek json_object 偶发返回空）
+  if (!finalText.trim()) {
+    const retryMsgs = toolContext
+      ? [...systemMsgs, ...messages, toolContext.assistant, ...toolContext.toolResults]
+      : [...systemMsgs, ...messages];
+    const retryBody = { model, messages: retryMsgs, temperature: 0.6 };  // 无 response_format，最稳
+    const dataR = await postJSON(url, headers, retryBody);
+    finalText = dataR.choices?.[0]?.message?.content || '';
+  }
+
+  if (!finalText.trim()) throw new Error('LLM 返回空内容');
+  return safeParseJSON(finalText);
+}
+
+async function postJSON(url, headers, body) {
   const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${cfg.api_key}`,
-    },
+    headers,
     body: JSON.stringify(body),
   });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`OpenAI API ${res.status}: ${text}`);
   }
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content || '{}';
-  return safeParseJSON(text);
+  return res.json();
 }
 
 /**
@@ -198,22 +288,201 @@ function safeParseJSON(text) {
   }
 }
 
+// ===== 风险预测工具注册（标准 Tool schema）=====
+// 参数为空对象：userId 由后端 req.user 注入，健康数据由后端读库，
+// LLM 无法传入/修改模型输入 —— 防注入与防编造
+export const RISK_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'risk_predict',
+    description: '基于用户最近的健康数据，预测未来两年高血压发病风险。当用户询问高血压风险、发病概率、会不会得高血压、健康预测时调用。工具会自动读取用户数据库中的最新指标并运行风险模型。',
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+};
+
+// ===== 趋势分析工具注册 =====
+// LLM 只能传 metric / days；userId 由 req.user 注入；禁止指定数据库/模型/路径
+export const ANALYZE_TREND_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'analyze_health_trend',
+    description: '分析用户某个健康指标的历史趋势（上升/下降/稳定/波动）、异常波动、短期与长期变化及未来7-30天外推估计。当用户询问"最近/趋势/变化/上升/下降/越来越高/越来越低/未来走势/血压怎么样/血糖怎么样"时调用。metric 可选: systo, diasto, pulse, weight, bmi, mwaist, glucose, hbalc, cholesterol, uricacid, sleep, all（默认 all）。工具自动读取用户数据库中的历史指标。',
+    parameters: {
+      type: 'object',
+      properties: {
+        metric: { type: 'string', enum: ['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'glucose', 'hbalc', 'cholesterol', 'uricacid', 'sleep', 'all'], description: '要分析的指标，默认 all' },
+        days: { type: 'number', minimum: 7, maximum: 365, description: '回溯天数，默认 90' },
+      },
+      additionalProperties: false,
+    },
+  },
+};
+
+// ===== 风险预测意图识别（Mock 模式用；LLM 模式由模型自主决定调用工具）=====
+// 覆盖: "高血压风险/风险预测"、"会不会得高血压"、"得高血压的可能性/概率"、"健康预测"
+// 注意: 单纯描述血压数值（如"我今天血压 128/85 正常吗"）不触发
+const RISK_INTENT = /(高血压|血压).{0,10}(风险|预测|可能性|概率)|(风险|预测|可能性|概率).{0,10}(高血压|血压)|会不会.{0,4}(高血压|血压)|健康预测/;
+
+// ===== 趋势分析意图识别（Mock 模式用）=====
+// 注意: 风险意图优先判断（RISK_INTENT）；本正则覆盖"最近/趋势/变化/上升/下降/走势/波动"等
+const TREND_INTENT = /最近|趋势|走势|变化|上升|下降|越来越高|越来越低|波动|未来.{0,6}(变化|走势)|怎么样了|怎么样啦/;
+
+const TREND_CN = {
+  rising: '上升', falling: '下降', stable: '基本稳定',
+  low: '波动较小', moderate: '波动中等', high: '波动较大',
+  weak: '较弱', moderate: '中等', strong: '较强',
+};
+
+/**
+ * Mock 模式工具调用：趋势分析（真实数据 → health_curve.py）
+ */
+async function mockTrendReply(user) {
+  let result;
+  try {
+    result = await analyzeHealthTrend(user?.id, { metric: 'all', days: 90 });
+  } catch (e) {
+    console.error('[agent][tool] analyzeHealthTrend error:', e.message);
+    return { content: '趋势分析服务暂时不可用，稍后再试试吧。', plan: [], confidence: { type: 'common_sense' } };
+  }
+  if (!result.success) {
+    return { content: '趋势分析暂时不可用，稍后再试试吧。', plan: [], confidence: { type: 'common_sense' } };
+  }
+  const list = result.metrics || [];
+  if (!list.length) {
+    return {
+      content: '最近 90 天还没有足够的健康记录，先到"健康监测"多录几次，我就能帮你分析趋势了。',
+      plan: [{ icon: '测', title: '先去录入数据', desc: '监测页可录入血压/血糖等', color: 'orange' }],
+      confidence: { type: 'common_sense' },
+    };
+  }
+  const lines = list.slice(0, 5).map(m => {
+    const long = TREND_CN[m.long_term_trend] || m.long_term_trend;
+    const recent = TREND_CN[m.recent_trend] || m.recent_trend;
+    const fluc = TREND_CN[m.fluctuation] || m.fluctuation;
+    let s = `${m.metric === 'systo' ? '收缩压' : m.metric === 'diasto' ? '舒张压' : m.metric}（${m.unit}）：当前 ${m.latest_value}，长期${long}、近期${recent}，${fluc}`;
+    if (m.abnormal_spike) s += '，曾出现明显异常波动';
+    if (m.forecast?.available && m.forecast.estimated_value != null) s += `；按当前走势估计 ${m.forecast.days} 天后约 ${m.forecast.estimated_value}（仅供参考）`;
+    return s;
+  });
+  const content = `从最近记录来看：\n${lines.join('\n')}\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。`;
+  const plan = [
+    { icon: '测', title: '持续记录', desc: '固定时间测量更准确', color: 'orange' },
+    { icon: '眠', title: '规律作息', desc: '保证 7 小时睡眠', color: 'purple' },
+    { icon: '行', title: '适度活动', desc: '每日散步 30 分钟', color: 'green' },
+  ];
+  const confidence = {
+    type: 'data',
+    score: Math.max(60, Math.round(list.reduce((a, m) => a + (m.confidence || 0.5), 0) / list.length * 100)),
+    sources: list.map(m => `${m.metric}: ${m.data_points} 点`),
+    reasoning: `基于用户最近 ${result.requested_days || 90} 天的历史指标，由稳健回归与趋势识别模型计算；forecast 为短期外推估计，非真实未来值。`,
+  };
+  return { content, plan, confidence };
+}
+
+/** 组合 风险 + 趋势 两个工具回复 */
+function combineRiskTrend(riskR, trendR) {
+  const parts = [];
+  if (riskR?.content) parts.push(riskR.content);
+  if (trendR?.content) parts.push(trendR.content);
+  const plan = [...(riskR?.plan || []), ...(trendR?.plan || [])].slice(0, 5);
+  const conf = riskR?.confidence?.type === 'data' ? riskR.confidence : (trendR?.confidence || { type: 'common_sense' });
+  return { content: parts.join('\n\n'), plan, confidence: conf };
+}
+
+/**
+ * Mock 模式下的工具调用：用户问高血压风险 → 调用 risk_predict → 基于真实模型结果组织回答
+ */
+async function mockRiskReply(user) {
+  let result;
+  try {
+    result = await riskPredict(user?.id, user);
+  } catch (e) {
+    console.error('[agent][tool] riskPredict error:', e.message);
+    return {
+      content: '预测服务暂时出了点问题，请稍后再试，或到"健康监测"确认数据已录入。',
+      plan: [],
+      confidence: { type: 'common_sense' },
+    };
+  }
+
+  if (!result.success) {
+    if (result.error === 'no_data') {
+      return {
+        content: '我这边还没有你的健康监测数据。先去"健康监测"录几次血压、血糖，我就能帮你做风险评估了。',
+        plan: [{ icon: '测', title: '先去录入数据', desc: '监测页可录入血压/血糖等', color: 'orange' }],
+        confidence: { type: 'common_sense' },
+      };
+    }
+    return {
+      content: '风险评估暂时不可用，稍后再试试吧。',
+      plan: [],
+      confidence: { type: 'common_sense' },
+    };
+  }
+
+  const pct = result.risk_percent;
+  const isHigh = result.risk_level === 'higher_than_threshold';
+  const missing = result.missing_features?.length ? result.missing_features : [];
+  const factorText = result.factors?.length
+    ? result.factors.map(f => `${f.name}${f.direction === 'high' ? '偏高' : '偏低'}（${f.value}${f.unit || ''}）`).join('、')
+    : '各项主要指标均在正常范围';
+
+  const content = `根据你最近记录的数据（${result.summary}），模型估计你未来两年发生高血压的风险约为 ${pct}%。${
+    isHigh ? '这个水平偏高，建议近期重点关注血压，最好咨询医生做个全面检查。' : '处于较低水平，继续保持规律监测就好。'
+  }目前主要影响因素：${factorText}。${missing.length ? `有部分指标未记录（${missing.join('、')}），结果仅供参考。` : ''}`;
+
+  const plan = [
+    { icon: '测', title: '血压监测：早晚各一次', desc: '固定时间测量并记录', color: 'orange' },
+    { icon: '食', title: '饮食：低盐少油', desc: '盐 < 5g/日，多蔬菜', color: 'green' },
+    { icon: '行', title: '运动：每日 30 分钟', desc: '散步、太极任选', color: 'purple' },
+  ];
+  if (isHigh) plan.push({ icon: '复', title: '复查：建议就医评估', desc: '心内科咨询', color: 'red' });
+
+  const confidence = {
+    type: 'data',
+    score: missing.length >= 3 ? 85 : 93,
+    sources: [`XGBoost 模型（${result.model_version}）`, result.summary, missing.length ? `缺失指标：${missing.join('、')}` : '指标完整'],
+    reasoning: `基于 CHARLS 老年人群真实数据训练的 XGBoost 模型 + Isotonic 概率校准输出，阈值 ${result.threshold} 分层；模型为风险评估工具，非医学诊断。`,
+  };
+
+  return { content, plan, confidence };
+}
+
 /**
  * 主入口
  * @param {Array<{role:string,content:string}>} history
  * @param {string} userMessage
  * @param {object} healthSummary 用户健康数据摘要
+ * @param {object} [user] req.user（risk_predict 工具需要 id/height）
  */
-export async function chat(history, userMessage, healthSummary) {
+export async function chat(history, userMessage, healthSummary, user) {
+  const riskHit = RISK_INTENT.test(userMessage || '');
+  const trendHit = TREND_INTENT.test(userMessage || '');
+
   if (hasRealLLM()) {
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
-      const result = await callOpenAI(messages, healthSummary);
+      const result = await callOpenAI(messages, healthSummary, user);
       return { source: 'openai', ...result };
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
-      // 失败回退
+      // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
+      if (riskHit || trendHit) {
+        const [r1, r2] = await Promise.all([
+          riskHit ? mockRiskReply(user) : null,
+          trendHit ? mockTrendReply(user) : null,
+        ]);
+        return { source: 'tool', ...combineRiskTrend(r1, r2) };
+      }
     }
+  }
+  // Mock 模式：风险/趋势意图 → 真实工具调用（真实数据）
+  if (riskHit || trendHit) {
+    const [r1, r2] = await Promise.all([
+      riskHit ? mockRiskReply(user) : null,
+      trendHit ? mockTrendReply(user) : null,
+    ]);
+    return { source: 'tool', ...combineRiskTrend(r1, r2) };
   }
   return { source: 'mock', ...mockAgent(userMessage, healthSummary) };
 }

@@ -89,12 +89,13 @@ export function buildHtnPredictionInput(metrics, opts = {}) {
 }
 
 /**
- * 调用 Python 预测工具（异步，永不 reject；错误以结构化对象返回）
- * @param {object} input 12 特征对象
- * @returns {Promise<object>} 成功: Python 原始输出（success/risk_probability/...）
- *                            传输失败: { success:false, error:{ code, message } }
+ * 通用 Python 脚本调用（stdin/stdout JSON，异步，永不 reject）
+ * @param {string} scriptPath ml/ 下脚本绝对路径
+ * @param {object} input JSON 负载
+ * @param {number} [timeoutMs] 覆盖默认超时
+ * @returns {Promise<object>} 结构化结果或 {success:false, error:{code,message}}
  */
-export function predictHtn(input) {
+export function runPythonTool(scriptPath, input, timeoutMs) {
   return new Promise((resolve) => {
     let payload;
     try {
@@ -104,11 +105,11 @@ export function predictHtn(input) {
     }
 
     const python = resolvePython();
-    const timeoutMs = parseInt(process.env.HTN_TIMEOUT_MS || String(DEFAULT_TIMEOUT_MS), 10);
+    const t = timeoutMs ?? parseInt(process.env.HTN_TIMEOUT_MS || String(DEFAULT_TIMEOUT_MS), 10);
 
     let child;
     try {
-      child = spawn(python, [PREDICT_SCRIPT], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+      child = spawn(python, [scriptPath], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
     } catch (e) {
       return resolve({ success: false, error: { code: 'PYTHON_NOT_FOUND', message: `无法启动 Python: ${e.message}` } });
     }
@@ -118,11 +119,10 @@ export function predictHtn(input) {
     let settled = false;
     const done = (r) => { if (!settled) { settled = true; resolve(r); } };
 
-    // 超时：杀掉子进程并返回明确错误
     const timer = setTimeout(() => {
       try { child.kill('SIGKILL'); } catch { /* 已退出则忽略 */ }
-      done({ success: false, error: { code: 'PYTHON_TIMEOUT', message: `Python 预测超时（${timeoutMs}ms）` } });
-    }, timeoutMs);
+      done({ success: false, error: { code: 'PYTHON_TIMEOUT', message: `Python 超时（${t}ms）` } });
+    }, t);
 
     child.stdout.on('data', (d) => { stdout += d; });
     child.stderr.on('data', (d) => { stderr += d; });
@@ -136,16 +136,17 @@ export function predictHtn(input) {
       clearTimeout(timer);
       if (settled) return;
       if (code !== 0) {
-        return done({ success: false, error: { code: 'PYTHON_EXIT', message: `Python 退出码 ${code}: ${stderr.slice(0, 300)}` } });
+        // 只取 stderr 最后一行"错误摘要"，剥离 traceback/文件路径（禁止泄漏内部细节）
+        const lines = stderr.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const last = [...lines].reverse().find(l => !/Traceback|File "|^\s+at /i.test(l)) || 'unknown error';
+        return done({ success: false, error: { code: 'PYTHON_EXIT', message: `Python 退出码 ${code}: ${String(last).slice(0, 200)}` } });
       }
       const trimmed = stdout.trim();
       if (!trimmed) {
         return done({ success: false, error: { code: 'PYTHON_EMPTY_OUTPUT', message: 'Python 无输出' } });
       }
       try {
-        const parsed = JSON.parse(trimmed);
-        // Python 内部校验失败（success:false + 字符串 error）原样透传
-        return done(parsed);
+        return done(JSON.parse(trimmed));
       } catch {
         return done({ success: false, error: { code: 'PYTHON_BAD_OUTPUT', message: 'Python 输出无法解析为 JSON' } });
       }
@@ -154,4 +155,13 @@ export function predictHtn(input) {
     child.stdin.write(payload);
     child.stdin.end();
   });
+}
+
+/**
+ * 高血压风险预测（Node → Python predict_htn.py）
+ * @param {object} input 12 特征对象
+ * @returns {Promise<object>} 成功: Python 原始输出；传输失败: 结构化错误
+ */
+export function predictHtn(input) {
+  return runPythonTool(PREDICT_SCRIPT, input);
 }

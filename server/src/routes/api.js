@@ -138,7 +138,7 @@ router.post('/chat', async (req, res) => {
 
   let result;
   try {
-    result = await chat(history, message, healthSummary);
+    result = await chat(history, message, healthSummary, req.user);
   } catch (err) {
     console.error('[chat] error:', err);
     return res.status(500).json({ error: 'agent error', detail: err.message });
