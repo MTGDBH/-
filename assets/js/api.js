@@ -1,6 +1,13 @@
 // API 客户端：fetch 封装 + Cookie + 401 处理
 // 所有页面通过 window.API 调后端
 (function () {
+  // 如果通过 file:// 协议打开，自动跳转到后端服务地址（同源才能正常读写 cookie）
+  if (location.protocol === 'file:') {
+    var page = location.pathname.split('/').pop() || 'index.html';
+    location.replace('http://localhost:3001/' + page + location.search + location.hash);
+    return;
+  }
+
   const resolveBase = () => {
     const configured = window.__API_BASE__;
     if (configured !== undefined && configured !== null && String(configured).trim() !== '') {
