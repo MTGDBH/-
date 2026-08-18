@@ -14,6 +14,16 @@ const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
+async function ensureSeedData() {
+  const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
+  if (userCount > 0) return;
+
+  console.log('[seed] users table empty, loading demo data...');
+  await import('../data/seed.js');
+}
+
+await ensureSeedData();
+
 app.use(express.json({ limit: '1mb' }));
 
 // CORS：开发期允许文件:// 和常见本地端口
