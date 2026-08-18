@@ -21,7 +21,7 @@ const RANGE_SCORES = [
  * @param {string} type 指标类型
  * @param {object} [ctx] 上下文（身高用于 BMI）
  */
-function scoreMetric(value, value2, type, ctx = {}) {
+export function scoreMetric(value, value2, type, ctx = {}) {
   switch (type) {
     case 'bp': { // 血压
       const s = clampScore(scoreBp(value));

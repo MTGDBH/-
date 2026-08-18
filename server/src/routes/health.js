@@ -44,17 +44,29 @@ router.get('/summary', (req, res) => {
   });
 });
 
-// 获取 8 项指标的最新值
+// 获取所有指标的最新值（内置 + 用户自定义）
 router.get('/metrics', (req, res) => {
-  const types = ['bp', 'glucose', 'hr', 'sleep', 'spo2', 'ecg', 'weight', 'steps'];
+  const builtInTypes = ['bp', 'glucose', 'hr', 'sleep', 'spo2', 'ecg', 'weight', 'steps',
+    'temp', 'resp', 'vision', 'hearing', 'grip', 'bodyfat', 'waist', 'uricacid', 'cholesterol', 'hba1c'];
   const result = {};
-  for (const t of types) {
+  for (const t of builtInTypes) {
     const row = db.prepare(`
       SELECT * FROM metrics
       WHERE user_id = ? AND type = ?
       ORDER BY recorded_at DESC LIMIT 1
     `).get(req.user.id, t);
     result[t] = row || null;
+  }
+  // 用户自定义指标
+  const customs = db.prepare('SELECT * FROM custom_metrics WHERE user_id = ?').all(req.user.id);
+  for (const c of customs) {
+    const key = 'custom_' + c.id;
+    const row = db.prepare(`
+      SELECT * FROM metrics
+      WHERE user_id = ? AND type = ?
+      ORDER BY recorded_at DESC LIMIT 1
+    `).get(req.user.id, key);
+    result[key] = row ? { ...row, custom_name: c.name, custom_unit: c.unit, custom_icon: c.icon, custom_color: c.color } : null;
   }
   res.json(result);
 });

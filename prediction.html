@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI健康预测 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main pred-page">
+    <header class="page-head pred-page-head">
+      <a href="monitoring.html" class="btn btn-ghost" style="margin-bottom:8px;padding:6px 0">← 返回监测</a>
+      <h1>AI 健康预测</h1>
+      <p class="subtitle">基于历史数据预测未来趋势，与同龄人对比 · 日 / 周 / 月</p>
+    </header>
+
+    <!-- 时间范围切换 -->
+    <div class="pred-range-bar" id="range-bar">
+      <button class="chip active" data-days="7" data-future="7">日（7天 + 预测7天）</button>
+      <button class="chip" data-days="30" data-future="14">周（30天 + 预测14天）</button>
+      <button class="chip" data-days="90" data-future="30">月（90天 + 预测30天）</button>
+    </div>
+
+    <!-- 综合健康拟合图 -->
+    <div class="pred-composite-card">
+      <div class="pred-composite-title">综合健康趋势预测</div>
+      <div class="pred-composite-sub" id="composite-sub">基于各项指标归一化拟合 · 左侧实线为实际数据，右侧虚线为预测</div>
+      <div class="pred-composite-svg-wrap">
+        <svg id="composite-chart" width="100%" height="280" viewBox="0 0 1060 280" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="pred-legend">
+        <div class="pred-legend-item"><div class="pred-legend-line" style="background:#F4A261"></div>我的健康分（实际）</div>
+        <div class="pred-legend-item" style="color:#F4A261"><div class="pred-legend-dash"></div>我的健康分（预测）</div>
+        <div class="pred-legend-item"><div class="pred-legend-line" style="background:#9C8B7A"></div>同龄人平均</div>
+      </div>
+    </div>
+
+    <!-- 各指标预测图 -->
+    <div id="metric-charts"></div>
+
+    <div style="text-align:center;padding:20px 0 40px;color:#9C8B7A;font-size:13px;font-family:var(--font-cn)">
+      <p>预测算法基于历史线性回归 + 波动噪声，仅供参考 · 后续将接入更精准的时序模型</p>
+      <p>同龄人平均数据来自年龄段统计参考值</p>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    Auth.init().then(() => main());
+
+    let days = 7;
+    let futureDays = 7;
+    let metricList = [];
+
+    async function main() {
+      bindRange();
+      await loadAll();
+    }
+
+    function bindRange() {
+      const bar = document.getElementById('range-bar');
+      bar.addEventListener('click', (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        bar.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+        days = parseInt(b.dataset.days, 10);
+        futureDays = parseInt(b.dataset.future, 10);
+        loadAll();
+      });
+    }
+
+    async function loadAll() {
+      try {
+        // 并行加载：指标列表 + 综合预测
+        const [list, composite] = await Promise.all([
+          API.get('/api/prediction/overview/list?days=' + days),
+          API.get(`/api/prediction/overview/composite?days=${days}&future=${futureDays}`),
+        ]);
+        metricList = list;
+        renderComposite(composite);
+        await renderMetricCharts();
+      } catch (err) {
+        document.getElementById('composite-sub').textContent = '加载失败：' + err.message;
+      }
+    }
+
+    // ===== 综合健康拟合图 =====
+    function renderComposite(data) {
+      const svg = document.getElementById('composite-chart');
+      const actual = data.actual;
+      const predicted = data.predicted;
+      const peer = data.peer;
+
+      const sub = document.getElementById('composite-sub');
+      sub.textContent = `综合 ${data.metricCount} 项指标归一化拟合 · 年龄段：${data.ageGroup} · 同龄人均值 ${data.peerBaseScore} 分`;
+
+      const allPoints = [
+        ...actual.map((p, i) => ({ x: i, y: p.value, predicted: false })),
+        ...predicted.map((p, i) => ({ x: actual.length + i, y: p.value, predicted: true })),
+      ];
+
+      if (allPoints.length === 0) {
+        svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="16" font-family="sans-serif">暂无数据</text>';
+        return;
+      }
+
+      const W = 1060, H = 280, padL = 50, padR = 30, padT = 30, padB = 40;
+      const totalLen = allPoints.length;
+      const peerLen = Math.max(totalLen, peer.length);
+
+      const allVals = [...allPoints.map(p => p.y), ...peer];
+      const yMin = Math.min(...allVals) - 5;
+      const yMax = Math.max(...allVals) + 5;
+      const yLo = Math.max(0, yMin);
+      const yHi = Math.min(100, yMax);
+
+      const xToPx = (i) => padL + (totalLen <= 1 ? (W - padL - padR) / 2 : (i / (totalLen - 1)) * (W - padL - padR));
+      const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
+
+      // 分割线位置
+      const dividerX = actual.length > 0 ? xToPx(actual.length - 1) : padL;
+
+      // 实际线
+      const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+      // 预测线（从最后一个实际点开始）
+      const predStart = actual.length > 0 ? actual[actual.length - 1] : null;
+      const predPoints = predStart ? [{ x: actual.length - 1, y: predStart.value }, ...predicted.map((p, i) => ({ x: actual.length + i, y: p.value }))] : [];
+      const predPolyline = predPoints.map(p => `${xToPx(p.x)},${yToPx(p.y)}`).join(' ');
+
+      // 同龄人线
+      const peerPolyline = peer.slice(0, totalLen).map((v, i) => `${xToPx(i)},${yToPx(v)}`).join(' ');
+
+      // Y轴标签
+      const yLabels = [yLo, Math.round((yLo + yHi) / 2), yHi].map(v => {
+        const y = yToPx(v);
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#F0EDE8" stroke-width="1" stroke-dasharray="4,4"/><text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">${Math.round(v)}</text>`;
+      }).join('');
+
+      // 分割线
+      const dividerLine = actual.length > 0 ? `
+        <line x1="${dividerX}" y1="${padT}" x2="${dividerX}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="${dividerX + 6}" y="${padT + 14}" class="pred-divider-label" font-family="sans-serif" fill="#9C8B7A" font-size="11">预测起点 →</text>
+      ` : '';
+
+      // 数据点
+      const dots = actual.map((p, i) =>
+        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3" fill="#F4A261" stroke="#fff" stroke-width="1.5"/>`
+      ).join('');
+
+      svg.innerHTML = `
+        ${yLabels}
+        <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
+        <!-- 同龄人线 -->
+        <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        <!-- 实际线 -->
+        <polyline points="${actualPolyline}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 预测线 -->
+        <polyline points="${predPolyline}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        ${dividerLine}
+        ${dots}
+        <text x="${padL}" y="${H - 8}" fill="#9C8B7A" font-size="12" font-family="sans-serif">${actual.length > 0 ? actual[0].date : ''}</text>
+        <text x="${W - padR}" y="${H - 8}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">+${futureDays}天预测</text>
+      `;
+    }
+
+    // ===== 各指标预测图 =====
+    async function renderMetricCharts() {
+      const host = document.getElementById('metric-charts');
+      if (!metricList.length) {
+        host.innerHTML = '<div class="empty" style="padding:40px;text-align:center">暂无指标数据，请先在监测页录入</div>';
+        return;
+      }
+
+      // 并行加载所有指标预测
+      const promises = metricList.map(m =>
+        API.get(`/api/prediction/${m.type}?days=${days}&future=${futureDays}`).catch(err => null)
+      );
+      const results = await Promise.all(promises);
+
+      host.innerHTML = results.map((data, i) => {
+        if (!data) return '';
+        const m = metricList[i];
+        return renderMetricCard(data, m);
+      }).join('');
+
+      // 为每个卡渲染图表
+      results.forEach((data, i) => {
+        if (!data) return;
+        const svgId = `metric-svg-${metricList[i].type}`;
+        renderMetricChart(svgId, data, metricList[i]);
+      });
+    }
+
+    function renderMetricCard(data, m) {
+      const trendMap = { up: '↑ 上升趋势', down: '↓ 下降趋势', stable: '→ 趋势平稳' };
+      const trendClass = data.predTrend;
+      const trendText = trendMap[data.predTrend] || '—';
+      const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${m.unit ? m.unit : ''}` : '无同龄人参考';
+      const stats = data.stats;
+      const statsHtml = stats ? `
+        <div class="pred-metric-stat">平均 <strong>${stats.avg}</strong> ${m.unit}</div>
+        <div class="pred-metric-stat">范围 <strong>${stats.min}~${stats.max}</strong></div>
+        <div class="pred-metric-stat">记录 <strong>${stats.count}</strong> 条</div>
+      ` : '<div class="pred-metric-stat">暂无统计</div>';
+
+      return `
+        <div class="pred-metric-card">
+          <div class="pred-metric-head">
+            <div class="pred-metric-title-row">
+              <div class="pred-metric-icon" style="background:${m.color}">${m.icon}</div>
+              <div>
+                <div class="pred-metric-name">${m.name}趋势预测</div>
+                <div class="pred-metric-tag">${m.unit ? '单位：' + m.unit : '定性指标'} · ${peerText}</div>
+              </div>
+            </div>
+            <span class="pred-metric-badge ${trendClass}">${trendText}</span>
+          </div>
+          <div class="pred-metric-svg-wrap">
+            <svg id="metric-svg-${m.type}" width="100%" height="220" viewBox="0 0 1060 220" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div class="pred-legend">
+            <div class="pred-legend-item"><div class="pred-legend-line" style="background:${m.color}"></div>我的数据（实际）</div>
+            <div class="pred-legend-item" style="color:${m.color}"><div class="pred-legend-dash"></div>预测趋势</div>
+            <div class="pred-legend-item"><div class="pred-legend-line" style="background:#9C8B7A"></div>同龄人平均</div>
+          </div>
+          <div class="pred-metric-stats">${statsHtml}</div>
+        </div>
+      `;
+    }
+
+    function renderMetricChart(svgId, data, m) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+
+      const actual = data.actual;
+      const predicted = data.predicted;
+      const peer = data.peer;
+
+      if (actual.length === 0 && predicted.length === 0) {
+        svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="14" font-family="sans-serif">暂无数据</text>';
+        return;
+      }
+
+      const W = 1060, H = 220, padL = 50, padR = 30, padT = 25, padB = 35;
+      const total = actual.length + predicted.length;
+
+      const allVals = [
+        ...actual.map(p => p.value),
+        ...predicted.map(p => p.value),
+        ...peer,
+      ];
+      if (data.peerBase) allVals.push(data.peerBase.value);
+
+      const yMin = Math.min(...allVals);
+      const yMax = Math.max(...allVals);
+      const yRange = Math.max(yMax - yMin, 0.1);
+      const yLo = yMin - yRange * 0.15;
+      const yHi = yMax + yRange * 0.15;
+
+      const xToPx = (i) => padL + (total <= 1 ? (W - padL - padR) / 2 : (i / (total - 1)) * (W - padL - padR));
+      const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
+
+      // 分割线
+      const dividerX = actual.length > 0 ? xToPx(actual.length - 1) : padL;
+
+      // 实际线
+      const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+      // 预测线
+      const predStart = actual.length > 0 ? actual[actual.length - 1] : null;
+      const predPoints = predStart ? [{ x: actual.length - 1, y: predStart.value }, ...predicted.map((p, i) => ({ x: actual.length + i, y: p.value }))] : predicted.map((p, i) => ({ x: i, y: p.value }));
+      const predPolyline = predPoints.map(p => `${xToPx(p.x)},${yToPx(p.y)}`).join(' ');
+
+      // 同龄人线
+      const peerPolyline = peer.slice(0, total).map((v, i) => `${xToPx(i)},${yToPx(v)}`).join(' ');
+
+      // Y轴标签
+      const yLabels = [yLo, yHi].map(v => {
+        const y = yToPx(v);
+        return `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">${v.toFixed(1)}</text>`;
+      }).join('');
+
+      // 同龄人参考线（虚线）
+      const peerRefLine = data.peerBase ? `
+        <line x1="${padL}" y1="${yToPx(data.peerBase.value)}" x2="${W - padR}" y2="${yToPx(data.peerBase.value)}" stroke="#9C8B7A" stroke-width="1" stroke-dasharray="3,5" opacity="0.3"/>
+      ` : '';
+
+      // 数据点
+      const dots = actual.map((p, i) =>
+        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3" fill="${m.color}" stroke="#fff" stroke-width="1.5"/>`
+      ).join('');
+
+      // 分割线
+      const dividerLine = actual.length > 0 ? `
+        <line x1="${dividerX}" y1="${padT}" x2="${dividerX}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="${dividerX + 4}" y="${padT + 12}" class="pred-divider-label" font-family="sans-serif" fill="#9C8B7A" font-size="10">预测→</text>
+      ` : '';
+
+      svg.innerHTML = `
+        ${yLabels}
+        ${peerRefLine}
+        <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
+        <!-- 同龄人线 -->
+        <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+        <!-- 实际线 -->
+        <polyline points="${actualPolyline}" fill="none" stroke="${m.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 预测线 -->
+        <polyline points="${predPolyline}" fill="none" stroke="${m.color}" stroke-width="2.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        ${dividerLine}
+        ${dots}
+        <text x="${padL}" y="${H - 8}" fill="#9C8B7A" font-size="11" font-family="sans-serif">${actual.length > 0 ? actual[0].recorded_at.slice(0,10) : ''}</text>
+        <text x="${W - padR}" y="${H - 8}" text-anchor="end" fill="#9C8B7A" font-size="11" font-family="sans-serif">+${futureDays}天</text>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -146,6 +146,19 @@ db.exec(`
     value TEXT,
     updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
+
+  CREATE TABLE IF NOT EXISTS custom_metrics (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    unit TEXT NOT NULL DEFAULT '',
+    icon TEXT NOT NULL DEFAULT '自',
+    color TEXT NOT NULL DEFAULT '#F4A261',
+    ref_min REAL,
+    ref_max REAL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_custom_metrics_user ON custom_metrics(user_id);
 `);
 
 // 兼容已有库：给 chat_messages 补 confidence 列

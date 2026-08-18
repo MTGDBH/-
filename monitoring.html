@@ -33,9 +33,9 @@
         <div class="device-list" id="device-list"></div>
       </div>
 
-      <div class="pred-card">
+      <div class="pred-card pred-card-clickable" onclick="location.href='prediction.html'">
         <div class="pred-header">
-          <span class="pred-title">AI 健康预测</span>
+          <span class="pred-title">AI 健康预测 <span style="font-size:12px;color:#9C8B7A;font-weight:400">› 点击查看详情</span></span>
           <span class="pred-badge" id="pred-badge">—</span>
         </div>
         <div class="pred-alert">
@@ -77,6 +77,57 @@
     </div>
   </div>
 
+  <!-- 自定义采集项浮窗 -->
+  <div class="modal-mask" id="custom-modal">
+    <div class="modal">
+      <h3>添加自定义采集项</h3>
+      <form class="form custom-metric-form" id="custom-form">
+        <div class="form-row">
+          <label>指标名称</label>
+          <input class="input" id="cm-name" placeholder="如：排尿次数" required />
+        </div>
+        <div class="form-row">
+          <label>单位</label>
+          <input class="input" id="cm-unit" placeholder="如：次/日" />
+        </div>
+        <div class="form-row">
+          <label>参考范围（可选）</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="input" id="cm-min" type="number" placeholder="下限" style="flex:1" />
+            <span style="color:#9C8B7A">~</span>
+            <input class="input" id="cm-max" type="number" placeholder="上限" style="flex:1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>选择图标</label>
+          <div class="custom-metric-icon-row" id="cm-icon-row">
+            <button type="button" class="custom-metric-icon-btn selected" data-icon="自">自</button>
+            <button type="button" class="custom-metric-icon-btn" data-icon="测">测</button>
+            <button type="button" class="custom-metric-icon-btn" data-icon="记">记</button>
+            <button type="button" class="custom-metric-icon-btn" data-icon="项">项</button>
+            <button type="button" class="custom-metric-icon-btn" data-icon="数">数</button>
+            <button type="button" class="custom-metric-icon-btn" data-icon="量">量</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>选择颜色</label>
+          <div class="custom-metric-color-row" id="cm-color-row">
+            <button type="button" class="custom-metric-color-btn selected" data-color="#F4A261" style="background:#F4A261"></button>
+            <button type="button" class="custom-metric-color-btn" data-color="#E0784E" style="background:#E0784E"></button>
+            <button type="button" class="custom-metric-color-btn" data-color="#7FB069" style="background:#7FB069"></button>
+            <button type="button" class="custom-metric-color-btn" data-color="#9C7BC9" style="background:#9C7BC9"></button>
+            <button type="button" class="custom-metric-color-btn" data-color="#3E8E8E" style="background:#3E8E8E"></button>
+            <button type="button" class="custom-metric-color-btn" data-color="#A04632" style="background:#A04632"></button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>取消</button>
+          <button type="submit" class="btn btn-primary">添加</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
@@ -95,9 +146,39 @@
       { type: 'ecg',     name: '心电',   unit: '',      color: '#E0784E', bg: '#FBE4DD', icon: '电',  fmt: v => v ? (v.value === 100 ? '窦性' : '异常') : '--' },
       { type: 'weight',  name: '体重',   unit: 'kg',    color: '#F4A261', bg: '#FFE9D9', icon: '重',  fmt: v => v ? v.value.toFixed(1) : '--' },
       { type: 'steps',   name: '步数',   unit: '步',    color: '#5A8045', bg: '#E5F0DC', icon: '步',  fmt: v => v ? Math.round(v.value).toLocaleString() : '--' },
+      // 无创指标
+      { type: 'temp',    name: '体温',   unit: '°C',    color: '#E0784E', bg: '#FBE4DD', icon: '温',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'resp',    name: '呼吸频率', unit: '次/分', color: '#3E8E8E', bg: '#E0F0F0', icon: '呼',  fmt: v => v ? Math.round(v.value) : '--' },
+      { type: 'grip',    name: '握力',   unit: 'kg',    color: '#5A8045', bg: '#E5F0DC', icon: '握',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'bodyfat', name: '体脂率', unit: '%',     color: '#F4A261', bg: '#FFE9D9', icon: '脂',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'waist',   name: '腰围',   unit: 'cm',    color: '#E0784E', bg: '#FBE4DD', icon: '腰',  fmt: v => v ? v.value.toFixed(0) : '--' },
+      // 微创指标
+      { type: 'uricacid',  name: '尿酸',   unit: 'μmol/L', color: '#E0784E', bg: '#FBE4DD', icon: '尿',  fmt: v => v ? Math.round(v.value) : '--' },
+      { type: 'cholesterol', name: '胆固醇', unit: 'mmol/L', color: '#A04632', bg: '#F4D5C9', icon: '胆',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'hba1c',   name: '糖化血红蛋白', unit: '%', color: '#A04632', bg: '#F4D5C9', icon: '化',  fmt: v => v ? v.value.toFixed(1) : '--' },
     ];
 
+    // 自定义指标（从后端加载后追加）
+    let customDefs = [];
+
+    async function loadCustomMetrics() {
+      try {
+        const all = await API.get('/api/prediction/metrics');
+        customDefs = all.filter(m => m.custom).map(m => ({
+          type: m.key,
+          name: m.name,
+          unit: m.unit,
+          color: m.color,
+          bg: m.color + '22',
+          icon: m.icon,
+          fmt: v => v ? v.value : '--',
+          custom: true,
+        }));
+      } catch {}
+    }
+
     async function loadAll() {
+      await loadCustomMetrics();
       const [metrics, devices] = await Promise.all([
         API.get('/api/health/metrics'),
         API.get('/api/devices'),
@@ -108,10 +189,11 @@
     }
 
     function renderMetrics(metrics) {
-      const recorded = Object.values(metrics).filter(Boolean).length;
-      document.getElementById('entry-tip').textContent = `已记录 ${recorded}/${METRIC_DEFS.length}`;
+      const allDefs = [...METRIC_DEFS, ...customDefs];
+      const recorded = allDefs.filter(d => metrics[d.type]).length;
+      document.getElementById('entry-tip').textContent = `已记录 ${recorded}/${allDefs.length}`;
       const grid = document.getElementById('metric-grid');
-      grid.innerHTML = METRIC_DEFS.map(d => {
+      const cards = allDefs.map(d => {
         const m = metrics[d.type];
         const mainText = d.fmt(m);
         const unitText = m ? `${d.unit} · ${fmtTime(m.recorded_at)}` : '点击录入';
@@ -124,9 +206,17 @@
           </button>
         `;
       }).join('');
-      grid.querySelectorAll('button.entry-card').forEach(btn => {
+      grid.innerHTML = cards + `
+        <button class="entry-card entry-card-add" id="btn-add-metric" style="text-align:center;cursor:pointer">
+          <div class="entry-icon">+</div>
+          <div class="entry-lbl">添加采集项</div>
+          <div class="entry-unit">自定义指标</div>
+        </button>
+      `;
+      grid.querySelectorAll('button.entry-card[data-type]').forEach(btn => {
         btn.addEventListener('click', () => openRecord(btn.dataset.type));
       });
+      document.getElementById('btn-add-metric')?.addEventListener('click', openCustomMetricModal);
     }
 
     function renderDevices(devices) {
@@ -153,7 +243,7 @@
         const bpHistory = await API.get('/api/health/metrics/bp/history?days=7');
         const points = bpHistory.points;
         document.getElementById('pred-desc').textContent =
-          `基于血压、血氧、心电等 ${METRIC_DEFS.length} 项数据综合评估；近 7 天共 ${points.length} 条血压记录。`;
+          `基于血压、血氧、心电等 ${METRIC_DEFS.length + customDefs.length} 项数据综合评估；近 7 天共 ${points.length} 条血压记录。点击查看完整预测 →`;
         document.getElementById('pred-suggest').textContent = '建议：维持规律作息，每日散步 30 分钟';
         const sbpValues = points.map(p => p.value);
         const avg = sbpValues.length ? Math.round(sbpValues.reduce((a,b)=>a+b,0) / sbpValues.length) : 0;
@@ -192,10 +282,11 @@
 
     // ===== 录入浮窗 =====
     function openRecord(type) {
-      const def = METRIC_DEFS.find(d => d.type === type);
+      const def = getMetricDef(type) || METRIC_DEFS.find(d => d.type === type);
+      if (!def) return;
       document.getElementById('record-title').textContent = `录入${def.name}`;
       document.getElementById('lbl-value').textContent = type === 'bp' ? '收缩压（高压）' : '数值';
-      document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : '100=窦性心律，其他=异常';
+      document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : (type === 'ecg' ? '100=窦性心律，其他=异常' : '请输入数值');
       document.getElementById('rec-row2').hidden = type !== 'bp';
       document.getElementById('rec-value').value = '';
       document.getElementById('rec-value2').value = '';
@@ -213,7 +304,8 @@
     document.getElementById('record-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const type = document.getElementById('record-modal').dataset.type;
-      const def = METRIC_DEFS.find(d => d.type === type);
+      const def = getMetricDef(type) || METRIC_DEFS.find(d => d.type === type);
+      if (!def) return;
       const v1 = document.getElementById('rec-value').value.trim();
       const v2 = type === 'bp' ? document.getElementById('rec-value2').value.trim() : null;
       if (!v1) return;
@@ -230,6 +322,68 @@
     });
 
     function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+
+    // ===== 自定义采集项 =====
+    let selectedIcon = '自';
+    let selectedColor = '#F4A261';
+
+    function openCustomMetricModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.add('show');
+      document.getElementById('cm-name').value = '';
+      document.getElementById('cm-unit').value = '';
+      document.getElementById('cm-min').value = '';
+      document.getElementById('cm-max').value = '';
+      selectedIcon = '自';
+      selectedColor = '#F4A261';
+      setTimeout(() => document.getElementById('cm-name').focus(), 50);
+    }
+
+    document.getElementById('custom-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'custom-modal' || e.target.dataset.close !== undefined) {
+        document.getElementById('custom-modal').classList.remove('show');
+      }
+    });
+
+    document.getElementById('cm-icon-row').addEventListener('click', (e) => {
+      const btn = e.target.closest('.custom-metric-icon-btn');
+      if (!btn) return;
+      document.querySelectorAll('#cm-icon-row .custom-metric-icon-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedIcon = btn.dataset.icon;
+    });
+
+    document.getElementById('cm-color-row').addEventListener('click', (e) => {
+      const btn = e.target.closest('.custom-metric-color-btn');
+      if (!btn) return;
+      document.querySelectorAll('#cm-color-row .custom-metric-color-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedColor = btn.dataset.color;
+    });
+
+    document.getElementById('custom-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cm-name').value.trim();
+      const unit = document.getElementById('cm-unit').value.trim();
+      const ref_min = document.getElementById('cm-min').value ? parseFloat(document.getElementById('cm-min').value) : null;
+      const ref_max = document.getElementById('cm-max').value ? parseFloat(document.getElementById('cm-max').value) : null;
+      if (!name) return;
+      try {
+        await API.post('/api/prediction/custom-metrics', {
+          name, unit, icon: selectedIcon, color: selectedColor, ref_min, ref_max,
+        });
+        toast('添加成功', 'success');
+        document.getElementById('custom-modal').classList.remove('show');
+        loadAll();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    });
+
+    // 录入自定义指标时更新提示
+    function getMetricDef(type) {
+      return [...METRIC_DEFS, ...customDefs].find(d => d.type === type);
+    }
   </script>
 </body>
 </html>
