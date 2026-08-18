@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>健康监测 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main">
+    <header class="page-head">
+      <h1>健康监测</h1>
+      <p class="subtitle">记录、查看与预测你的健康指标</p>
+    </header>
+
+    <section class="entry-section">
+      <div class="entry-header">
+        <span class="entry-title">今日数据</span>
+        <span class="entry-tip" id="entry-tip">--</span>
+      </div>
+
+      <div class="entry-grid" id="metric-grid"></div>
+    </section>
+
+    <section class="monitor-bottom">
+      <div class="device-card">
+        <div class="device-header">
+          <span class="device-title">我的设备</span>
+          <button class="btn btn-ghost" id="btn-add-device" style="padding:6px 0">+ 添加</button>
+        </div>
+        <div class="device-list" id="device-list"></div>
+      </div>
+
+      <div class="pred-card">
+        <div class="pred-header">
+          <span class="pred-title">AI 健康预测</span>
+          <span class="pred-badge" id="pred-badge">—</span>
+        </div>
+        <div class="pred-alert">
+          <div class="pred-alert-title">未来 7 天</div>
+          <div class="pred-alert-main">综合趋势</div>
+          <div class="pred-alert-desc" id="pred-desc">—</div>
+        </div>
+        <div class="pred-chart">
+          <div class="pred-chart-label">近 7 天血压趋势（收缩压）</div>
+          <svg id="pred-svg" width="100%" height="80" viewBox="0 0 540 80"></svg>
+        </div>
+        <div class="pred-suggest">
+          <div class="pred-suggest-icon">✓</div>
+          <div class="pred-suggest-text" id="pred-suggest">—</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 录入浮窗 -->
+  <div class="modal-mask" id="record-modal">
+    <div class="modal">
+      <h3 id="record-title">录入数据</h3>
+      <form class="form" id="record-form">
+        <div class="form-row">
+          <label id="lbl-value">数值</label>
+          <input class="input" id="rec-value" required />
+          <span class="hint-text" id="rec-hint">—</span>
+        </div>
+        <div class="form-row" id="rec-row2" hidden>
+          <label>舒张压</label>
+          <input class="input" id="rec-value2" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.addEventListener('auth:ready', () => {
+      loadAll();
+    });
+    Auth.init();
+
+    const METRIC_DEFS = [
+      { type: 'bp',      name: '血压',   unit: 'mmHg',  color: '#F4A261', bg: '#FFE9D9', icon: '压',  fmt: v => v ? `${v.value}/${v.value2}` : '--' },
+      { type: 'glucose', name: '血糖',   unit: 'mmol/L',color: '#E0784E', bg: '#FBE4DD', icon: '糖',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'hr',      name: '心率',   unit: 'bpm',   color: '#9C7BC9', bg: '#F1E8F5', icon: '心',  fmt: v => v ? Math.round(v.value) : '--' },
+      { type: 'sleep',   name: '睡眠',   unit: 'h',     color: '#9C7BC9', bg: '#F1E8F5', icon: '眠',  fmt: v => v ? v.value.toFixed(1) + 'h' : '--' },
+      { type: 'spo2',    name: '血氧',   unit: '%',     color: '#3E8E8E', bg: '#E0F0F0', icon: '氧',  fmt: v => v ? Math.round(v.value) : '--' },
+      { type: 'ecg',     name: '心电',   unit: '',      color: '#E0784E', bg: '#FBE4DD', icon: '电',  fmt: v => v ? (v.value === 100 ? '窦性' : '异常') : '--' },
+      { type: 'weight',  name: '体重',   unit: 'kg',    color: '#F4A261', bg: '#FFE9D9', icon: '重',  fmt: v => v ? v.value.toFixed(1) : '--' },
+      { type: 'steps',   name: '步数',   unit: '步',    color: '#5A8045', bg: '#E5F0DC', icon: '步',  fmt: v => v ? Math.round(v.value).toLocaleString() : '--' },
+    ];
+
+    async function loadAll() {
+      const [metrics, devices] = await Promise.all([
+        API.get('/api/health/metrics'),
+        API.get('/api/devices'),
+      ]);
+      renderMetrics(metrics);
+      renderDevices(devices);
+      renderPred(metrics);
+    }
+
+    function renderMetrics(metrics) {
+      const recorded = Object.values(metrics).filter(Boolean).length;
+      document.getElementById('entry-tip').textContent = `已记录 ${recorded}/${METRIC_DEFS.length}`;
+      const grid = document.getElementById('metric-grid');
+      grid.innerHTML = METRIC_DEFS.map(d => {
+        const m = metrics[d.type];
+        const mainText = d.fmt(m);
+        const unitText = m ? `${d.unit} · ${fmtTime(m.recorded_at)}` : '点击录入';
+        return `
+          <button class="entry-card" data-type="${d.type}" style="text-align:left;cursor:pointer">
+            <div class="entry-icon" style="background:${d.bg};color:${d.color}">${d.icon}</div>
+            <div class="entry-lbl">${d.name}</div>
+            <div class="entry-val">${mainText}</div>
+            <div class="entry-unit" style="color:${m ? '#5A8045' : '#9C8B7A'}">${unitText}</div>
+          </button>
+        `;
+      }).join('');
+      grid.querySelectorAll('button.entry-card').forEach(btn => {
+        btn.addEventListener('click', () => openRecord(btn.dataset.type));
+      });
+    }
+
+    function renderDevices(devices) {
+      const list = document.getElementById('device-list');
+      if (!devices.length) {
+        list.innerHTML = '<div class="empty">还没有设备</div>';
+        return;
+      }
+      list.innerHTML = devices.map(d => `
+        <div class="device-row">
+          <div class="device-icon">${(d.name || '·').slice(0, 1)}</div>
+          <div class="device-text">
+            <div class="device-name">${escapeHTML(d.name)}</div>
+            <div class="device-status" style="color:${d.status === 'connected' ? '#5A8045' : '#9C8B7A'}">
+              ${d.status === 'connected' ? '已连接' : '未连接'}${d.last_sync ? ' · ' + fromNow(d.last_sync) : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function renderPred(metrics) {
+      try {
+        const bpHistory = await API.get('/api/health/metrics/bp/history?days=7');
+        const points = bpHistory.points;
+        document.getElementById('pred-desc').textContent =
+          `基于血压、血氧、心电等 ${METRIC_DEFS.length} 项数据综合评估；近 7 天共 ${points.length} 条血压记录。`;
+        document.getElementById('pred-suggest').textContent = '建议：维持规律作息，每日散步 30 分钟';
+        const sbpValues = points.map(p => p.value);
+        const avg = sbpValues.length ? Math.round(sbpValues.reduce((a,b)=>a+b,0) / sbpValues.length) : 0;
+        let badge = '正常', badgeColor = '#7FB069';
+        if (avg >= 140) { badge = '需关注'; badgeColor = '#E0784E'; }
+        else if (avg >= 130) { badge = '偏高'; badgeColor = '#F4A261'; }
+        document.getElementById('pred-badge').textContent = badge;
+        document.getElementById('pred-badge').style.background = badgeColor + '22';
+        document.getElementById('pred-badge').style.color = badgeColor;
+
+        // 绘制折线图
+        const svg = document.getElementById('pred-svg');
+        if (points.length === 0) {
+          svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="13" font-family="sans-serif">暂无血压记录</text>';
+          return;
+        }
+        const W = 540, H = 80, padX = 12, padY = 14;
+        const xs = points.map((_, i) => i);
+        const ys = points.map(p => p.value);
+        const yMin = Math.min(...ys) - 5;
+        const yMax = Math.max(...ys) + 5;
+        const xToPx = (i) => padX + (xs.length === 1 ? (W - 2*padX)/2 : (i/(xs.length-1))*(W - 2*padX));
+        const yToPx = (v) => H - padY - ((v - yMin) / (yMax - yMin)) * (H - 2*padY);
+        const polyline = points.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+        const dots = points.map((p, i) =>
+          `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3.5" fill="#F4A261"/>`
+        ).join('');
+        svg.innerHTML = `
+          <polyline points="${polyline}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          ${dots}
+        `;
+      } catch (err) {
+        document.getElementById('pred-desc').textContent = '预测生成失败';
+      }
+    }
+
+    // ===== 录入浮窗 =====
+    function openRecord(type) {
+      const def = METRIC_DEFS.find(d => d.type === type);
+      document.getElementById('record-title').textContent = `录入${def.name}`;
+      document.getElementById('lbl-value').textContent = type === 'bp' ? '收缩压（高压）' : '数值';
+      document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : '100=窦性心律，其他=异常';
+      document.getElementById('rec-row2').hidden = type !== 'bp';
+      document.getElementById('rec-value').value = '';
+      document.getElementById('rec-value2').value = '';
+      const modal = document.getElementById('record-modal');
+      modal.classList.add('show');
+      modal.dataset.type = type;
+      setTimeout(() => document.getElementById('rec-value').focus(), 50);
+    }
+    function closeRecord() {
+      document.getElementById('record-modal').classList.remove('show');
+    }
+    document.getElementById('record-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'record-modal' || e.target.dataset.close !== undefined) closeRecord();
+    });
+    document.getElementById('record-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.getElementById('record-modal').dataset.type;
+      const def = METRIC_DEFS.find(d => d.type === type);
+      const v1 = document.getElementById('rec-value').value.trim();
+      const v2 = type === 'bp' ? document.getElementById('rec-value2').value.trim() : null;
+      if (!v1) return;
+      const value = type === 'ecg' ? (v1 === '窦性' ? 100 : 50) : parseFloat(v1);
+      const value2 = v2 ? parseFloat(v2) : null;
+      try {
+        await API.post('/api/health/metrics', { type, value, value2, unit: def.unit || null, source: 'manual' });
+        toast('录入成功', 'success');
+        closeRecord();
+        loadAll();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    });
+
+    function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+  </script>
+</body>
+</html>

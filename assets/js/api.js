@@ -1,0 +1,61 @@
+// API 客户端：fetch 封装 + Cookie + 401 处理
+// 所有页面通过 window.API 调后端
+(function () {
+  const BASE = (window.__API_BASE__ || window.location.origin);
+  const isLoginPage = () => /login\.html$/.test(location.pathname) || location.pathname === '/login.html';
+
+  async function request(method, url, opts = {}) {
+    const finalUrl = url.startsWith('http') ? url : `${BASE}${url}`;
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (opts.body && typeof opts.body !== 'string') {
+      opts.body = JSON.stringify(opts.body);
+    }
+
+    let res;
+    try {
+      res = await fetch(finalUrl, {
+        method,
+        headers,
+        credentials: 'include', // 关键：发送并接收 cookie
+        body: opts.body,
+      });
+    } catch (err) {
+      // 网络层错误
+      throw new Error('网络连接不上，请稍后再试');
+    }
+
+    let data = null;
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      data = await res.json().catch(() => null);
+    } else {
+      data = await res.text().catch(() => '');
+    }
+
+    if (res.status === 401) {
+      // 未登录或登录过期
+      if (!isLoginPage()) {
+        const next = encodeURIComponent(location.pathname + location.search);
+        location.href = `login.html?next=${next}`;
+      }
+      const msg = (data && data.error) || '请先登录';
+      throw new Error(msg);
+    }
+
+    if (!res.ok) {
+      const msg = (data && data.error) || `请求失败 (${res.status})`;
+      throw new Error(msg);
+    }
+
+    return data;
+  }
+
+  window.API = {
+    BASE,
+    get:    (u, o)       => request('GET', u, o),
+    post:   (u, body, o) => request('POST', u, { ...o, body }),
+    put:    (u, body, o) => request('PUT', u, { ...o, body }),
+    patch:  (u, body, o) => request('PATCH', u, { ...o, body }),
+    delete: (u, o)       => request('DELETE', u, o),
+  };
+})();

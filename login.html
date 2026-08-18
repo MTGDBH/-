@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
+</head>
+<body>
+  <main class="login-screen" id="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-mark">康</div>
+        <h1>小康·健康管家</h1>
+        <p>登录后开始您今天的健康管理</p>
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <form class="login-form" id="login-form" autocomplete="on">
+        <div class="form-row">
+          <label for="identifier">账号</label>
+          <input class="input" type="text" id="identifier" name="identifier"
+                 placeholder="请输入姓名（如：张奶奶）" required autofocus />
+        </div>
+        <div class="form-row">
+          <label for="password">密码</label>
+          <input class="input" type="password" id="password" name="password"
+                 placeholder="请输入密码" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">登 录</button>
+      </form>
+      <div class="login-hint">
+        <strong>演示账号</strong><br />
+        张奶奶 / 123456 （数据完整）<br />
+        李爷爷 / 123456 （数据较少，可对比）<br />
+        <span style="color:#A04632">本系统为本地演示，密码明文存储，切勿放公网。</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script>
+    (function () {
+      const form = document.getElementById('login-form');
+      const error = document.getElementById('login-error');
+      const submit = document.getElementById('submit-btn');
+
+      function showError(msg) {
+        error.textContent = msg;
+        error.classList.add('show');
+      }
+      function clearError() { error.classList.remove('show'); }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+        submit.disabled = true;
+        submit.textContent = '正在登录...';
+        const identifier = document.getElementById('identifier').value.trim();
+        const password = document.getElementById('password').value;
+        try {
+          await API.post('/api/auth/login', { identifier, password });
+          const params = new URLSearchParams(location.search);
+          const next = params.get('next');
+          location.href = next || 'index.html';
+        } catch (err) {
+          showError(err.message || '登录失败');
+          submit.disabled = false;
+          submit.textContent = '登 录';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人资料 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="metric-page">
+    <header class="page-head">
+      <h1>个人资料</h1>
+      <p class="subtitle">修改您的基本信息和紧急联系人</p>
+    </header>
+
+    <div class="loading-page" id="loading"><span class="loading"></span> 读取中…</div>
+
+    <div id="content" hidden>
+      <section class="profile-form-card">
+        <div class="profile-header">
+          <div class="profile-avatar" id="avatar" style="background:#7FB069">张</div>
+          <div>
+            <h2 class="profile-name" id="display-name">—</h2>
+            <div class="profile-meta" id="display-meta">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="profile-form-card">
+        <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 20px;font-weight:700">基本信息</h3>
+        <form class="form" id="form-basic">
+          <div class="form-row">
+            <label for="name">姓名</label>
+            <input class="input" id="name" name="name" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div class="form-row">
+              <label for="age">年龄</label>
+              <input class="input" id="age" name="age" type="number" min="40" max="120" />
+            </div>
+            <div class="form-row">
+              <label for="height">身高（m）</label>
+              <input class="input" id="height" name="height" type="number" step="0.01" min="1.0" max="2.5" />
+              <span class="hint-text">用于计算 BMI（体重÷身高²）</span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start;min-width:140px">保存</button>
+        </form>
+      </section>
+
+      <section class="profile-form-card">
+        <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 20px;font-weight:700">紧急联系人</h3>
+        <form class="form" id="form-emergency">
+          <div class="form-row">
+            <label for="emergency_name">联系人姓名</label>
+            <input class="input" id="emergency_name" name="emergency_name" placeholder="如：晓东（儿子）" />
+          </div>
+          <div class="form-row">
+            <label for="emergency_phone">联系电话</label>
+            <input class="input" id="emergency_phone" name="emergency_phone" type="tel" placeholder="11 位手机号" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start;min-width:140px">保存</button>
+        </form>
+      </section>
+
+      <section class="profile-form-card">
+        <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 20px;font-weight:700">修改密码</h3>
+        <form class="form" id="form-password">
+          <div class="form-row">
+            <label for="old_password">当前密码</label>
+            <input class="input" id="old_password" type="password" />
+          </div>
+          <div class="form-row">
+            <label for="new_password">新密码</label>
+            <input class="input" id="new_password" type="password" />
+            <span class="hint-text">至少 4 位，建议字母+数字</span>
+          </div>
+          <button type="submit" class="btn btn-secondary" style="align-self:flex-start;min-width:140px">修改密码</button>
+        </form>
+      </section>
+
+      <section class="profile-form-card" style="border:1px solid #FBE4DD;background:#FFFAF2">
+        <h3 style="font-size:18px;color:#A04632;font-family:var(--font-cn);margin:0 0 8px;font-weight:700">注销账号</h3>
+        <p style="font-size:14px;color:var(--c-text-muted);font-family:var(--font-cn);margin:0 0 16px">
+          注销后您的所有数据（健康记录、待办、对话历史）都将被删除，且无法恢复。
+        </p>
+        <button type="button" class="btn btn-danger" id="btn-delete">注销账号</button>
+      </section>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    Auth.init().then(() => main());
+
+    let currentUser = null;
+
+    async function main() {
+      try {
+        currentUser = await API.get('/api/profile/me');
+        renderUser();
+        bindForms();
+        document.getElementById('loading').hidden = true;
+        document.getElementById('content').hidden = false;
+      } catch (err) {
+        document.getElementById('loading').innerHTML = `加载失败：${err.message}`;
+      }
+    }
+
+    function renderUser() {
+      const u = currentUser;
+      document.getElementById('avatar').textContent = (u.name || '?').slice(0, 1);
+      document.getElementById('avatar').style.background = u.avatar_color || '#7FB069';
+      document.getElementById('display-name').textContent = u.name || '—';
+      const parts = [];
+      if (u.age) parts.push(`${u.age} 岁`);
+      if (u.height) parts.push(`身高 ${u.height}m`);
+      if (u.emergency_name) parts.push(`紧急联系人：${u.emergency_name}`);
+      document.getElementById('display-meta').textContent = parts.join(' · ') || '点击下方完善资料';
+
+      document.getElementById('name').value = u.name || '';
+      document.getElementById('age').value = u.age || '';
+      document.getElementById('height').value = u.height || '';
+      document.getElementById('emergency_name').value = u.emergency_name || '';
+      document.getElementById('emergency_phone').value = u.emergency_phone || '';
+    }
+
+    function bindForms() {
+      // 基本信息
+      document.getElementById('form-basic').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById('name').value.trim(),
+          age: document.getElementById('age').value,
+          height: document.getElementById('height').value,
+        };
+        try {
+          currentUser = await API.put('/api/profile/me', body);
+          renderUser();
+          toast('已保存', 'success');
+        } catch (err) {
+          toast(err.message, 'error');
+        }
+      });
+
+      // 紧急联系人
+      document.getElementById('form-emergency').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const body = {
+          emergency_name: document.getElementById('emergency_name').value.trim(),
+          emergency_phone: document.getElementById('emergency_phone').value.trim(),
+        };
+        try {
+          currentUser = await API.put('/api/profile/me', body);
+          renderUser();
+          toast('已保存', 'success');
+        } catch (err) {
+          toast(err.message, 'error');
+        }
+      });
+
+      // 修改密码
+      document.getElementById('form-password').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const old_password = document.getElementById('old_password').value;
+        const new_password = document.getElementById('new_password').value;
+        try {
+          await API.post('/api/profile/password', { old_password, new_password });
+          document.getElementById('old_password').value = '';
+          document.getElementById('new_password').value = '';
+          toast('密码已修改', 'success');
+        } catch (err) {
+          toast(err.message, 'error');
+        }
+      });
+
+      // 注销
+      document.getElementById('btn-delete').addEventListener('click', async () => {
+        if (!confirm('确定要注销账号吗？所有数据将无法恢复！')) return;
+        if (!confirm('真的确定吗？这是最后确认。')) return;
+        try {
+          await API.delete('/api/profile/me');
+          location.href = 'login.html';
+        } catch (err) {
+          toast(err.message, 'error');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

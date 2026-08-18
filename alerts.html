@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>预警中心 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="metric-page">
+    <header class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <h1>预警中心</h1>
+        <p class="subtitle">健康异常、心率、用药漏服提醒</p>
+      </div>
+      <button class="btn btn-secondary" id="btn-read-all">全部已读</button>
+    </header>
+
+    <div class="loading-page" id="loading"><span class="loading"></span> 读取中…</div>
+
+    <div id="content" hidden>
+      <div class="filter-bar" id="filter-bar">
+        <a class="chip active" data-status="">全部</a>
+        <a class="chip" data-status="pending">未处理</a>
+        <a class="chip" data-status="acknowledged">已读</a>
+        <a class="chip" data-status="resolved">已解决</a>
+      </div>
+
+      <div id="alert-list" class="alert-list"></div>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    Auth.init().then(() => main());
+
+    let activeStatus = '';
+
+    async function main() {
+      bindFilter();
+      await loadList();
+      document.getElementById('loading').hidden = true;
+      document.getElementById('content').hidden = false;
+      document.getElementById('btn-read-all').addEventListener('click', readAll);
+    }
+
+    function bindFilter() {
+      const bar = document.getElementById('filter-bar');
+      bar.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        e.preventDefault();
+        bar.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        activeStatus = chip.dataset.status;
+        loadList();
+      });
+    }
+
+    async function loadList() {
+      const list = document.getElementById('alert-list');
+      list.innerHTML = '<div class="loading-page"><span class="loading"></span> 读取中…</div>';
+      try {
+        const qs = activeStatus ? '?status=' + activeStatus : '';
+        const { items } = await API.get('/api/alerts' + qs);
+        if (!items.length) {
+          list.innerHTML = '<div class="empty"><div class="emoji">✨</div>当前没有预警，注意继续保持</div>';
+          return;
+        }
+        list.innerHTML = items.map(a => `
+          <div class="alert-row severity-${a.severity} status-${a.status}">
+            <div class="icon" style="background:${a.severity === 'warning' ? '#E0784E' : a.severity === 'critical' ? '#A04632' : '#7FB069'}">!</div>
+            <div class="body">
+              <div class="title">${escapeHTML(a.title)}</div>
+              <div class="message">${escapeHTML(a.message)}</div>
+              <div class="meta">${fromNow(a.created_at)} · ${severityName(a.severity)} · ${statusName(a.status)}</div>
+            </div>
+            <div class="actions">
+              ${a.status === 'pending' ? `<button class="btn btn-secondary" data-id="${a.id}" data-action="ack">我知道了</button>` : ''}
+              ${a.status !== 'resolved' ? `<button class="btn btn-ghost" data-id="${a.id}" data-action="resolve">已解决</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+        list.querySelectorAll('button[data-action]').forEach(b => {
+          b.addEventListener('click', () => updateAlert(parseInt(b.dataset.id, 10), b.dataset.action));
+        });
+      } catch (err) {
+        list.innerHTML = `<div class="empty">读取失败：${escapeHTML(err.message)}</div>`;
+      }
+    }
+
+    async function updateAlert(id, action) {
+      const status = action === 'ack' ? 'acknowledged' : 'resolved';
+      try {
+        await API.patch(`/api/alerts/${id}`, { status });
+        toast('已更新', 'success');
+        loadList();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    }
+
+    async function readAll() {
+      try {
+        await API.post('/api/alerts/read-all');
+        toast('已全部标记为已读', 'success');
+        loadList();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    }
+
+    function severityName(s) {
+      return { critical: '严重', warning: '警告', info: '提醒' }[s] || s;
+    }
+    function statusName(s) {
+      return { pending: '未处理', acknowledged: '已读', resolved: '已解决' }[s] || s;
+    }
+    function escapeHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+    }
+  </script>
+</body>
+</html>

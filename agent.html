@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能管家 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main">
+    <header class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <h1>智能管家</h1>
+        <p class="subtitle">和小康聊聊 · 给你定制今日方案</p>
+      </div>
+      <div class="tabs" data-tabs id="mode-tabs" style="margin:0">
+        <button class="tab active" data-tab="plan" style="padding:8px 18px;border:none;background:#F4A261;color:#fff;border-radius:18px;font-weight:700;font-family:var(--font-cn);cursor:pointer">方案</button>
+        <button class="tab" data-tab="qa" style="padding:8px 18px;border:none;background:transparent;color:#9C8B7A;border-radius:18px;font-weight:500;font-family:var(--font-cn);cursor:pointer">问答</button>
+        <button class="tab" data-tab="tip" style="padding:8px 18px;border:none;background:transparent;color:#9C8B7A;border-radius:18px;font-weight:500;font-family:var(--font-cn);cursor:pointer">贴士</button>
+      </div>
+    </header>
+
+    <section class="agent-row">
+      <div class="chat-area">
+        <div class="chat-history" id="chat-history"></div>
+        <div class="quick-prompts" id="quick-prompts"></div>
+        <div class="chat-input-bar">
+          <input class="input chat-input" id="chat-input" placeholder="你想问点什么…" />
+          <button class="btn-icon" id="btn-send" style="background:var(--c-primary);color:#fff;border:none">→</button>
+        </div>
+      </div>
+
+      <div class="plan-area">
+        <div class="plan-header">
+          <span class="plan-title">今日方案</span>
+          <span class="plan-badge" id="plan-count">— 项</span>
+        </div>
+        <div class="plan-sub">AI 实时生成 · <span id="plan-today">—</span></div>
+        <div id="plan-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.addEventListener('auth:ready', () => {
+      bindTabs();
+      loadChat();
+      loadPlan();
+      bindSend();
+      bindPrompts();
+      renderQuickPrompts('plan');
+    });
+    Auth.init();
+
+    const PROMPTS = {
+      plan: ['为什么血压偏高？', '推荐适合我的运动', '一日三餐怎么吃？', '我今晚该注意什么？'],
+      qa: ['什么是窦性心律？', '血压多少算正常？', '糖尿病能吃水果吗？', '失眠怎么办？'],
+      tip: ['今日养生贴士', '冬季注意事项', '饭后不宜做的 3 件事', '喝水也有讲究？'],
+    };
+
+    let activeTab = 'plan';
+
+    function bindSend() {
+      document.getElementById('btn-send').addEventListener('click', send);
+      document.getElementById('chat-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') send();
+      });
+    }
+
+    async function loadChat() {
+      const hist = document.getElementById('chat-history');
+      try {
+        const msgs = await API.get('/api/chat/history');
+        if (!msgs.length) {
+          hist.innerHTML = `
+            <div class="msg msg-ai">
+              <div class="msg-avatar">康</div>
+              <div class="msg-bubble">您好，我是小康，您的健康管家。想了解今天的身体状况吗？</div>
+            </div>`;
+          return;
+        }
+        hist.innerHTML = msgs.map(renderMsg).join('');
+        scrollChat();
+      } catch (err) {
+        hist.innerHTML = `<div class="empty">对话读取失败：${escapeHTML(err.message)}</div>`;
+      }
+    }
+
+    function renderMsg(m) {
+      const planHtml = m.plan && m.plan.length ? `
+        <div class="msg-plan">${m.plan.map(p => `
+          <div class="plan-card-mini" style="background:${planColorBg(p.color)}">
+            <div class="plan-card-icon" style="background:${planColorFg(p.color)};color:#fff">${escapeHTML(p.icon)}</div>
+            <div class="plan-card-text">
+              <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
+              <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
+            </div>
+            <div class="plan-card-check" style="color:${planColorFg(p.color)}">✓</div>
+          </div>
+        `).join('')}</div>` : '';
+      if (m.role === 'assistant') {
+        return `
+          <div class="msg msg-ai">
+            <div class="msg-avatar">康</div>
+            <div>
+              <div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>
+              ${planHtml}
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="msg msg-user"><div class="msg-bubble msg-bubble-user">${escapeHTML(m.content)}</div></div>
+      `;
+    }
+
+    async function send() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      appendUserMsg(text);
+      const typingEl = appendTyping();
+      try {
+        const r = await API.post('/api/chat', { message: text });
+        typingEl.remove();
+        document.getElementById('chat-history').insertAdjacentHTML('beforeend', renderMsg({ role: 'assistant', content: r.content, plan: r.plan }));
+        scrollChat();
+        if (r.plan && r.plan.length) {
+          toast('小康给了你 ' + r.plan.length + ' 条建议', 'success');
+        }
+      } catch (err) {
+        typingEl.remove();
+        appendAssistantMsg('我网络不太好，稍后再试？', []);
+      }
+    }
+
+    function appendUserMsg(text) {
+      document.getElementById('chat-history').insertAdjacentHTML('beforeend',
+        `<div class="msg msg-user"><div class="msg-bubble msg-bubble-user">${escapeHTML(text)}</div></div>`
+      );
+      scrollChat();
+    }
+    function appendAssistantMsg(content, plan) {
+      document.getElementById('chat-history').insertAdjacentHTML('beforeend',
+        renderMsg({ role: 'assistant', content, plan })
+      );
+      scrollChat();
+    }
+    function appendTyping() {
+      const host = document.getElementById('chat-history');
+      const el = document.createElement('div');
+      el.className = 'msg msg-ai';
+      el.innerHTML = `<div class="msg-avatar">康</div><div class="msg-bubble"><span class="loading" style="vertical-align:middle"></span> 小康正在想…</div>`;
+      host.appendChild(el);
+      scrollChat();
+      return el;
+    }
+    function scrollChat() {
+      const el = document.getElementById('chat-history');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    async function loadPlan() {
+      try {
+        const r = await API.post('/api/chat', { message: '今天我该怎么调' });
+        const plan = r.plan || [];
+        document.getElementById('plan-count').textContent = `${plan.length} 项`;
+        document.getElementById('plan-today').textContent = new Date().toISOString().slice(0, 10);
+        document.getElementById('plan-list').innerHTML = plan.map(p => `
+          <div class="plan-card" style="background:${planColorBg(p.color)}">
+            <div class="plan-card-icon" style="background:${planColorFg(p.color)};color:#fff">${escapeHTML(p.icon)}</div>
+            <div class="plan-card-text">
+              <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
+              <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
+            </div>
+            <div class="plan-card-check" style="color:${planColorFg(p.color)}">✓</div>
+          </div>
+        `).join('') || '<div class="empty">暂无方案，先在左边和小康聊聊</div>';
+      } catch (err) {
+        document.getElementById('plan-list').innerHTML = '<div class="empty">加载失败</div>';
+      }
+    }
+
+    function renderQuickPrompts(mode) {
+      activeTab = mode;
+      const host = document.getElementById('quick-prompts');
+      host.innerHTML = (PROMPTS[mode] || []).map(p => `<button class="prompt" data-prompt>${escapeHTML(p)}</button>`).join('');
+      bindPrompts(host);
+    }
+
+    // Tab 切换
+    document.getElementById('mode-tabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+      e.preventDefault();
+      const target = tab.dataset.tab;
+      if (activeTab === target) return;
+      activeTab = target;
+      renderQuickPrompts(target);
+      // 给点反馈
+      const tips = {
+        qa: '切换到问答模式，问我任何健康相关的问题。',
+        tip: '切换到贴士模式，我会给你一些日常建议。',
+        plan: '切换到方案模式，我可以给出今日的方案。',
+      };
+      appendAssistantMsg(tips[target] || '', []);
+    });
+
+    function planColorFg(c) {
+      return { orange:'#F4A261', green:'#7FB069', purple:'#9C7BC9', red:'#E0784E', gray:'#9C8B7A' }[c] || '#F4A261';
+    }
+    function planColorBg(c) {
+      return { orange:'#FFE9D9', green:'#E5F0DC', purple:'#F1E8F5', red:'#FBE4DD', gray:'#FAF6EF' }[c] || '#FFE9D9';
+    }
+    function planColorDesc(c) {
+      return { orange:'#A45F3D', green:'#5A8045', purple:'#8A6DAE', red:'#8A4538', gray:'#6B5A4A' }[c] || '#A45F3D';
+    }
+    function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>健康知识 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main id="page" class="metric-page" data-mode="list">
+    <!-- 列表模式 -->
+    <section id="view-list">
+      <header class="page-head">
+        <h1>健康知识</h1>
+        <p class="subtitle">实用的健康科普、问答和每日贴士</p>
+      </header>
+
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;">
+        <input class="search-input" id="search" type="search" placeholder="搜文章、关键词…" />
+      </div>
+
+      <div class="filter-bar" id="filter-bar">
+        <a class="chip active" data-cat="">全部</a>
+        <a class="chip" data-cat="topic">科普</a>
+        <a class="chip" data-cat="qa">问答</a>
+        <a class="chip" data-cat="tip">贴士</a>
+      </div>
+
+      <div class="tags" id="popular-tags" style="margin-top:0"></div>
+
+      <div id="article-list" class="article-grid"></div>
+    </section>
+
+    <!-- 详情模式 -->
+    <section id="view-detail" hidden>
+      <a href="knowledge.html" class="btn btn-ghost" style="margin-bottom:16px;">← 返回列表</a>
+      <article class="article-body" id="article-body"></article>
+    </section>
+
+    <div class="loading-page" id="loading" hidden><span class="loading"></span> 正在读取…</div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    Auth.init().then(() => main());
+
+    let activeCat = '';
+
+    async function main() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      if (id) {
+        await loadDetail(parseInt(id, 10));
+      } else {
+        bindFilter();
+        bindSearch();
+        await loadPopularTags();
+        await loadList();
+      }
+    }
+
+    function bindFilter() {
+      const bar = document.getElementById('filter-bar');
+      bar.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        e.preventDefault();
+        bar.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        activeCat = chip.dataset.cat;
+        loadList();
+      });
+    }
+    let searchTimer;
+    function bindSearch() {
+      const input = document.getElementById('search');
+      input.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(loadList, 250);
+      });
+    }
+
+    async function loadList() {
+      const q = document.getElementById('search').value.trim();
+      const list = document.getElementById('article-list');
+      list.innerHTML = '<div class="loading-page"><span class="loading"></span> 读取中…</div>';
+      try {
+        const qs = new URLSearchParams();
+        if (activeCat) qs.set('category', activeCat);
+        if (q) qs.set('q', q);
+        const { items } = await API.get('/api/knowledge?' + qs);
+        if (!items.length) {
+          list.innerHTML = '<div class="empty"><div class="emoji">📭</div>没找到相关文章</div>';
+          return;
+        }
+        list.innerHTML = items.map(a => `
+          <a class="article-card ${a.category}" href="knowledge.html?id=${a.id}">
+            <span class="category-tag">${categoryName(a.category)}</span>
+            <div class="title">${escapeHTML(a.title)}</div>
+            <div class="summary">${escapeHTML(a.summary || '')}</div>
+            <div class="meta">
+              ${a.view_count} 次浏览 · ${fmtDate(a.created_at)}
+            </div>
+          </a>
+        `).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="empty">读取失败：${escapeHTML(err.message)}</div>`;
+      }
+    }
+
+    async function loadPopularTags() {
+      try {
+        const tags = await API.get('/api/knowledge/meta/popular-tags');
+        const host = document.getElementById('popular-tags');
+        host.innerHTML = tags.slice(0, 8).map(t =>
+          `<a class="tag" href="knowledge.html?q=${encodeURIComponent(t.tag)}">${escapeHTML(t.tag)} · ${t.count}</a>`
+        ).join('');
+      } catch {}
+    }
+
+    async function loadDetail(id) {
+      document.getElementById('view-list').hidden = true;
+      document.getElementById('view-detail').hidden = false;
+      document.getElementById('page').dataset.mode = 'detail';
+      const body = document.getElementById('article-body');
+      body.innerHTML = '<div class="loading-page"><span class="loading"></span> 读取中…</div>';
+      try {
+        const a = await API.get('/api/knowledge/' + id);
+        const tags = (a.tags || []).map(t =>
+          `<a class="tag" href="knowledge.html?q=${encodeURIComponent(t)}">${escapeHTML(t)}</a>`
+        ).join('');
+        body.innerHTML = `
+          <header>
+            <span class="category-tag" style="display:inline-flex;background:#FFE9D9;color:#8C4520;font-size:13px;font-weight:700;padding:6px 14px;border-radius:14px;font-family:var(--font-cn)">${categoryName(a.category)}</span>
+            <h1 style="font-size:30px;color:var(--c-text);font-family:var(--font-cn);margin:12px 0 6px;font-weight:700">${escapeHTML(a.title)}</h1>
+            <div style="color:var(--c-text-muted);font-size:14px;font-family:var(--font-cn);margin-bottom:16px">${a.view_count} 次浏览</div>
+          </header>
+          ${tags ? `<div class="tags">${tags}</div>` : ''}
+          ${markdownToHTML(a.body)}
+        `;
+      } catch (err) {
+        body.innerHTML = `<div class="empty">文章加载失败：${escapeHTML(err.message)}</div>`;
+      }
+    }
+
+    function categoryName(c) {
+      return { topic: '科普', qa: '问答', tip: '贴士' }[c] || c;
+    }
+
+    // 简易 markdown → HTML（处理 ##、**、-、表格）
+    function markdownToHTML(md) {
+      const lines = md.split(/\r?\n/);
+      let out = '';
+      let inTable = false;
+      let tableLines = [];
+      function flushTable() {
+        if (!tableLines.length) return;
+        const rows = tableLines.filter(l => l.includes('|')).map(l => l.split('|').map(s => s.trim()).filter(Boolean));
+        if (rows.length < 2) {
+          out += rows.map(r => r.join(' | ')).join('<br/>') + '\n';
+        } else {
+          const headers = rows[0];
+          out += '<table><thead><tr>' + headers.map(h => `<th>${inline(h)}</th>`).join('') + '</tr></thead><tbody>';
+          for (let i = 2; i < rows.length; i++) {
+            out += '<tr>' + rows[i].map(h => `<td>${inline(h)}</td>`).join('') + '</tr>';
+          }
+          out += '</tbody></table>\n';
+        }
+        tableLines = [];
+      }
+      for (const line of lines) {
+        if (line.trim().startsWith('|')) {
+          inTable = true;
+          tableLines.push(line);
+          continue;
+        } else if (inTable) {
+          flushTable();
+          inTable = false;
+        }
+        if (line.startsWith('## ')) out += `<h2>${inline(line.slice(3))}</h2>`;
+        else if (line.startsWith('# ')) out += `<h2>${inline(line.slice(2))}</h2>`;
+        else if (line.trim().startsWith('- ')) {
+          // 多行列表不适合简易处理，用 <p> 渲染
+          out += `<p>· ${inline(line.replace(/^-\s*/, ''))}</p>`;
+        } else if (line.trim() === '') out += '';
+        else out += `<p>${inline(line)}</p>`;
+      }
+      if (inTable) flushTable();
+      return out;
+    }
+    function inline(s) {
+      return escapeHTML(s)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+    function escapeHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+    }
+  </script>
+</body>
+</html>

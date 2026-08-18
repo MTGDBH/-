@@ -1,0 +1,18 @@
+apiVersion: app.sealos.io/v1
+kind: App
+metadata:
+  name: elderly-health
+spec:
+  data:
+    image:
+      name: ghcr.io/yourname/elderly-health:latest
+      pullPolicy: Always
+    port: 3001
+    resources:
+      cpu: 0.5
+      memory: 512Mi
+  autodeploy: true
+  description: 老年人健康管理系统
+  displayType: normal
+  icon: "https://avatars.githubusercontent.com/u/0?v=4"
+  name: 老年人健康管理

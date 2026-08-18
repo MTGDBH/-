@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>概览 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main">
+    <!-- 问候栏 -->
+    <section class="greeting">
+      <div class="greeting-left">
+        <div class="greeting-icon" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="7" fill="#F4A261"/>
+            <path d="M16 3 L16 6 M16 26 L16 29 M3 16 L6 16 M26 16 L29 16 M6.3 6.3 L8.4 8.4 M23.6 23.6 L25.7 25.7 M25.7 6.3 L23.6 8.4 M8.4 23.6 L6.3 25.7" stroke="#F4A261" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="greeting-title"><span data-bind="greeting">您好</span></div>
+          <div class="greeting-date" data-bind="today">—</div>
+        </div>
+      </div>
+      <div class="greeting-right">
+        <span class="pill pill-warm">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" fill="#F4A261"/><path d="M10 2 L10 3.5 M10 16.5 L10 18 M2 10 L3.5 10 M16.5 10 L18 10 M4.2 4.2 L5.3 5.3 M14.7 14.7 L15.8 15.8 M15.8 4.2 L14.7 5.3 M5.3 14.7 L4.2 15.8" stroke="#F4A261" stroke-width="1.8" stroke-linecap="round"/></svg>
+          晴 26°/19° 适宜散步
+        </span>
+        <span class="pill pill-green">
+          <span class="pill-dot"></span>
+          数据实时同步
+        </span>
+      </div>
+    </section>
+
+    <section class="overview-row">
+      <!-- 左：评分卡 -->
+      <div class="score-card">
+        <div class="score-header">
+          <div class="score-title">今日健康分 <span class="date" data-bind="today-short">—</span></div>
+          <span class="trend-pill" data-bind="trend">--</span>
+        </div>
+        <div class="score-number">
+          <span class="score-number-main" data-bind="total_score">--</span>
+          <div class="score-number-unit">
+            <span class="of">/ 100</span>
+            <span class="status" data-bind="status">读取中…</span>
+          </div>
+        </div>
+        <div class="subscore-grid">
+          <div class="subscore" style="background:var(--color-purple-light)">
+            <div class="subscore-dot" style="width:10px;height:10px;border-radius:50%;background:var(--color-purple)"></div>
+            <div class="subscore-label">睡眠</div>
+            <div class="subscore-value" data-bind="sleep">--</div>
+            <div class="subscore-trend" data-bind="sleep-trend">—</div>
+          </div>
+          <div class="subscore" style="background:var(--color-primary-light)">
+            <div class="subscore-dot" style="width:10px;height:10px;border-radius:50%;background:var(--color-primary)"></div>
+            <div class="subscore-label">营养</div>
+            <div class="subscore-value" data-bind="nutrition">--</div>
+            <div class="subscore-trend" data-bind="nutrition-trend">—</div>
+          </div>
+          <div class="subscore" style="background:var(--color-coral-light)">
+            <div class="subscore-dot" style="width:10px;height:10px;border-radius:50%;background:var(--color-coral)"></div>
+            <div class="subscore-label">情绪</div>
+            <div class="subscore-value" data-bind="mood">--</div>
+            <div class="subscore-trend" data-bind="mood-trend">—</div>
+          </div>
+          <div class="subscore" style="background:var(--color-green-light)">
+            <div class="subscore-dot" style="width:10px;height:10px;border-radius:50%;background:var(--color-green)"></div>
+            <div class="subscore-label">活动</div>
+            <div class="subscore-value" data-bind="activity">--</div>
+            <div class="subscore-trend" data-bind="activity-trend">—</div>
+          </div>
+        </div>
+        <div class="score-footer">
+          <a class="link" href="assessment.html">查看完整健康评估 →</a>
+          <span class="meta" data-bind="last-assess">—</span>
+        </div>
+      </div>
+
+      <!-- 右：待办 + 提醒 + CTA -->
+      <div class="todo-col">
+        <div class="todo-header">
+          <span class="todo-title">今日待办</span>
+          <span class="todo-meta" data-bind="todo-count">--</span>
+        </div>
+        <div class="todo-list" id="todo-list"></div>
+        <div class="alert" id="alert-box" hidden>
+          <div class="alert-mark">!</div>
+          <div class="text">
+            <div class="name" data-bind="alert-title">—</div>
+            <div class="desc" data-bind="alert-desc">—</div>
+          </div>
+          <a href="alerts.html" class="arrow">→</a>
+        </div>
+        <a href="agent.html" class="cta">
+          <div class="cta-row">
+            <div class="cta-mark">康</div>
+            <div class="cta-text">
+              <div class="cta-title">和小康聊聊</div>
+              <div class="cta-sub" data-bind="cta-sub">基于今日数据，AI 定制方案</div>
+            </div>
+          </div>
+          <div class="cta-action">
+            <span>立即开口问</span>
+            <span>→</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 快捷入口 -->
+    <section class="quick-row">
+      <a class="quick-card" href="monitoring.html">
+        <div class="quick-mark" style="background:var(--color-primary-light);color:var(--color-primary)">+</div>
+        <div class="text">
+          <div class="name">录入数据</div>
+          <div class="sub">血压 / 血糖 / 心率 / 血氧</div>
+        </div>
+      </a>
+      <a class="quick-card" href="metric.html?type=bp">
+        <div class="quick-mark" style="background:var(--color-green-light);color:var(--color-green-dark)">报</div>
+        <div class="text">
+          <div class="name">查看报告</div>
+          <div class="sub">单指标 7/30/90 天趋势</div>
+        </div>
+      </a>
+      <a class="quick-card" href="alerts.html">
+        <div class="quick-mark" style="background:var(--color-coral-light);color:var(--color-coral-dark)">!</div>
+        <div class="text">
+          <div class="name">预警中心</div>
+          <div class="sub" data-bind="alert-sub">— 条待处理</div>
+        </div>
+      </a>
+      <a class="quick-card" href="agent.html">
+        <div class="quick-mark" style="background:#F4D5C9;color:var(--color-coral-dark)">急</div>
+        <div class="text">
+          <div class="name">智能管家</div>
+          <div class="sub">和 AI 聊聊健康</div>
+        </div>
+      </a>
+    </section>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.addEventListener('auth:ready', (e) => {
+      const u = e.detail;
+      document.querySelector('[data-bind="greeting"]').textContent = greeting(u.name);
+      loadSummary();
+      loadTodos();
+      loadAlerts();
+    });
+    Auth.init();
+
+    function greeting(name) {
+      const h = new Date().getHours();
+      const time = h < 11 ? '早上好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
+      return `${name || '您'}，${time}`;
+    }
+
+    async function loadSummary() {
+      const d = await API.get('/api/health/summary');
+      document.querySelector('[data-bind="today"]').textContent =
+        `${d.today} · ${weekdayCN(d.today)}`;
+      document.querySelector('[data-bind="today-short"]').textContent = d.today;
+      document.querySelector('[data-bind="total_score"]').textContent = d.total_score;
+      const status = d.total_score >= 80 ? '状态良好' : d.total_score >= 60 ? '需关注' : '需复诊';
+      document.querySelector('[data-bind="status"]').textContent = status;
+      const trend = d.subscores;
+      f('sleep', trend.sleep);
+      f('nutrition', trend.nutrition);
+      f('mood', trend.mood);
+      f('activity', trend.activity);
+
+      try {
+        const list = await API.get('/api/assessments');
+        if (list.length > 1) {
+          const last = list[0];
+          const dt = (last.created_at || '').slice(0, 10);
+          document.querySelector('[data-bind="last-assess"]').textContent = `上次评估：${dt}`;
+          if (last.total_score) {
+            const diff = d.total_score - last.total_score;
+            const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '·';
+            document.querySelector('[data-bind="trend"]').textContent = `${arrow} ${Math.abs(diff)}`;
+          }
+        } else {
+          document.querySelector('[data-bind="trend"]').textContent = '· 基线';
+          document.querySelector('[data-bind="last-assess"]').textContent = '尚无历史评估';
+        }
+      } catch {
+        document.querySelector('[data-bind="trend"]').textContent = '· —';
+      }
+    }
+
+    function f(key, value) {
+      const num = document.querySelector(`[data-bind="${key}"]`);
+      if (num) num.textContent = value ?? '--';
+      const order = value >= 80 ? '持平良好' : value >= 60 ? '需留意' : '偏低';
+      const tr = document.querySelector(`[data-bind="${key}-trend"]`);
+      if (tr) tr.textContent = order;
+    }
+
+    async function loadTodos() {
+      const todos = await API.get('/api/todos/today');
+      const done = todos.filter(t => t.completed).length;
+      document.querySelector('[data-bind="todo-count"]').textContent = `${todos.length} 项 · 已完成 ${done}`;
+      const host = document.getElementById('todo-list');
+      if (!todos.length) {
+        host.innerHTML = '<div class="empty">今天没有待办，享受轻松的一天</div>';
+        return;
+      }
+      host.innerHTML = todos.map(t => `
+        <button class="todo-item ${t.completed ? 'done' : ''}" data-id="${t.id}" data-completed="${t.completed ? '1' : '0'}">
+          <div class="quick-mark" style="background:${iconColor(t.kind)};color:#fff;width:36px;height:36px;border-radius:18px;font-size:15px;display:flex;align-items:center;justify-content:center">${iconChar(t.kind)}</div>
+          <div class="text">
+            <div class="name">${escapeHTML(t.title)}</div>
+            <div class="meta">${t.time}${t.completed ? ' · 已完成' : ' · 待完成'}</div>
+          </div>
+        </button>
+      `).join('');
+      host.querySelectorAll('button.todo-item').forEach(b => {
+        b.addEventListener('click', async () => {
+          const id = parseInt(b.dataset.id, 10);
+          const completed = b.dataset.completed !== '1';
+          try {
+            await API.patch(`/api/todos/${id}`, { completed });
+            loadTodos();
+          } catch (err) {
+            toast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    async function loadAlerts() {
+      try {
+        const s = await API.get('/api/alerts/summary');
+        document.querySelector('[data-bind="alert-sub"]').textContent = `${s.pending} 条待处理`;
+        if (s.pending === 0) return;
+        const { items } = await API.get('/api/alerts?status=pending');
+        if (items.length) {
+          const a = items[0];
+          document.getElementById('alert-box').hidden = false;
+          document.querySelector('[data-bind="alert-title"]').textContent = a.title;
+          document.querySelector('[data-bind="alert-desc"]').textContent = a.message;
+        }
+      } catch {}
+    }
+
+    function iconColor(kind) {
+      return { medication: '#F4A261', exercise: '#7FB069', todo: '#F4A261', meal: '#9C7BC9', sleep: '#9C7BC9' }[kind] || '#F4A261';
+    }
+    function iconChar(kind) {
+      return { medication: '药', exercise: '走', todo: '测', meal: '食', sleep: '眠' }[kind] || '·';
+    }
+    function weekdayCN(dateStr) {
+      return ['周日','周一','周二','周三','周四','周五','周六'][new Date(dateStr).getDay()];
+    }
+    function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+  </script>
+</body>
+</html>

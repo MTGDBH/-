@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>健康评估 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="main">
+    <header class="page-head">
+      <h1>健康评估</h1>
+      <p class="subtitle">AI 综合评估你的健康状况</p>
+    </header>
+
+    <section class="assess-row">
+      <div class="total-card">
+        <div class="total-header">
+          <span class="total-title">总健康评分</span>
+          <span class="total-badge" id="total-badge">—</span>
+        </div>
+
+        <div class="ring-row">
+          <div class="ring-svg" id="ring-container">
+            <svg width="240" height="240" viewBox="0 0 240 240">
+              <circle cx="120" cy="120" r="100" stroke="#FAF0E1" stroke-width="20" fill="none"/>
+              <circle id="ring-progress" cx="120" cy="120" r="100" stroke="#F4A261" stroke-width="20" fill="none" stroke-linecap="round" transform="rotate(-90 120 120)" pathLength="628"/>
+              <text id="ring-num" x="120" y="135" text-anchor="middle" font-size="64" font-weight="700" fill="#F4A261" font-family="sans-serif">--</text>
+              <text x="120" y="165" text-anchor="middle" font-size="14" font-weight="500" fill="#9C8B7A" font-family="sans-serif">/ 100 分</text>
+            </svg>
+          </div>
+          <div class="ring-side">
+            <div class="ring-side-label">AI 综合评分</div>
+            <div class="ring-side-desc" id="summary-text">—</div>
+            <div class="ring-side-comp" id="ring-meta">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sub-title">分项评分</div>
+        <div class="sub-list" id="sub-list"></div>
+
+        <div class="assess-footer">
+          <a class="score-link" href="metric.html?type=bp">查看血压趋势 →</a>
+          <span class="score-footer-tip" id="evaluated-at">—</span>
+        </div>
+      </div>
+
+      <div class="assess-right">
+        <div class="life-card">
+          <div class="life-title">生活能力评估</div>
+          <div class="life-sub" id="life-sub">—</div>
+          <div class="life-row"><div class="life-icon" style="background:#E5F0DC;color:#5A8045">日</div><div class="life-text"><div class="life-name">基本生活 ADL</div><div class="life-desc">吃饭、穿衣、移动、如厕</div></div><div class="life-score" style="color:#5A8045" id="adl">--</div></div>
+          <div class="life-row"><div class="life-icon" style="background:#FFE9D9;color:#F4A261">用</div><div class="life-text"><div class="life-name">工具性生活 IADL</div><div class="life-desc">做饭、购物、用药、电话</div></div><div class="life-score" style="color:#F4A261" id="iadl">--</div></div>
+          <button class="btn btn-primary btn-block" id="btn-assess">开始重新评估</button>
+        </div>
+
+        <div class="improve-card">
+          <div class="improve-title">改善建议</div>
+          <div class="improve-sub">AI 基于你的数据定制 · 最多 3 条</div>
+          <div id="suggest-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.addEventListener('auth:ready', () => loadAll());
+    Auth.init();
+
+    async function loadAll() {
+      try {
+        const d = await API.get('/api/assessments/latest');
+        renderTotal(d);
+        renderSubs(d.subscores);
+        renderAdlIadl(d);
+        renderSuggest(d.suggestions);
+        document.getElementById('evaluated-at').textContent = '最近评估：' + (d.evaluated_at || '').slice(0, 16).replace('T', ' ');
+      } catch (err) {
+        document.getElementById('summary-text').textContent = '加载失败：' + err.message;
+      }
+    }
+
+    function renderTotal(d) {
+      const total = d.total_score;
+      document.getElementById('ring-num').textContent = total;
+      const dash = Math.round((total / 100) * 628);
+      document.getElementById('ring-progress').setAttribute('stroke-dasharray', `${dash} 628`);
+      const badge = total >= 80 ? '状态良好' : total >= 60 ? '需关注' : '需复诊';
+      const badgeBg = total >= 80 ? '#E5F0DC' : total >= 60 ? '#FFE9D9' : '#FBE4DD';
+      const badgeColor = total >= 80 ? '#5A8045' : total >= 60 ? '#F4A261' : '#A04632';
+      const el = document.getElementById('total-badge');
+      el.textContent = badge;
+      el.style.background = badgeBg;
+      el.style.color = badgeColor;
+      document.getElementById('summary-text').textContent = d.summary;
+      document.getElementById('ring-meta').textContent = '· 实时计算自今日数据';
+    }
+
+    function renderSubs(s) {
+      const order = [
+        { key: 'sleep',     label: '睡眠',     bg: '#F1E8F5', color: '#9C7BC9' },
+        { key: 'nutrition', label: '营养',     bg: '#FFE9D9', color: '#F4A261' },
+        { key: 'mood',      label: '情绪',     bg: '#FBE4DD', color: '#E0784E' },
+        { key: 'activity',  label: '活动',     bg: '#E5F0DC', color: '#7FB069' },
+        { key: 'chronic',   label: '慢病控制', bg: '#F4D5C9', color: '#A04632' },
+      ];
+      const list = document.getElementById('sub-list');
+      list.innerHTML = order.map(o => {
+        const v = s[o.key] ?? 80;
+        const w = Math.round((v / 100) * 400);
+        return `
+          <div class="sub-row">
+            <div class="sub-label">${o.label}</div>
+            <div class="sub-bar" style="background:${o.bg}"><div class="sub-fill" style="width:${w}px;background:${o.color}"></div></div>
+            <div class="sub-num">${v}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAdlIadl(d) {
+      document.getElementById('adl').textContent = d.adl ?? 95;
+      document.getElementById('iadl').textContent = d.iadl ?? 88;
+      document.getElementById('life-sub').textContent = `ADL / IADL 综合 · ${fmtDate(new Date().toISOString())}`;
+    }
+
+    function renderSuggest(list) {
+      const host = document.getElementById('suggest-list');
+      if (!list || !list.length) { host.innerHTML = '<div class="empty">当前没有建议</div>'; return; }
+      const colors = ['#E8896E', '#F4A261', '#7FB069'];
+      const chars = ['1', '2', '3'];
+      host.innerHTML = list.slice(0, 3).map((s, i) => `
+        <div class="imp-row" style="background:${i === 0 ? '#FBE4DD' : i === 1 ? '#FFE9D9' : '#E5F0DC'}">
+          <div class="imp-icon" style="background:${colors[i]}">${chars[i]}</div>
+          <div class="imp-text">
+            <div class="imp-name" style="color:${i === 0 ? '#A04632' : i === 1 ? '#8C4520' : '#3D6630'}">${escapeHTML(s.title)}</div>
+            <div class="imp-desc" style="color:${i === 0 ? '#8A4538' : i === 1 ? '#A45F3D' : '#5A8045'}">${escapeHTML(s.detail)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-assess').addEventListener('click', async () => {
+      try {
+        await API.post('/api/assessments', {});
+        toast('已生成新评估', 'success');
+        loadAll();
+      } catch (err) { toast(err.message, 'error'); }
+    });
+
+    function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+  </script>
+</body>
+</html>

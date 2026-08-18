@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>指标趋势 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-nav"></div>
+
+  <main class="metric-page">
+    <div id="loading" class="loading-page"><span class="loading"></span> 读取中…</div>
+
+    <div id="content" hidden>
+      <header class="page-head">
+        <a href="monitoring.html" class="btn btn-ghost" style="margin-bottom:8px;padding:6px 0">← 返回监测</a>
+        <h1 id="metric-title">—</h1>
+        <p class="subtitle" id="metric-subtitle">—</p>
+      </header>
+
+      <div class="metric-stats" id="stats"></div>
+
+      <section class="metric-chart">
+        <h3>趋势图</h3>
+        <div style="display:flex;gap:8px;margin-bottom:12px" id="range-bar">
+          <button class="chip" data-days="7">7 天</button>
+          <button class="chip active" data-days="30">30 天</button>
+          <button class="chip" data-days="90">90 天</button>
+          <button class="chip" data-days="365">一年</button>
+        </div>
+        <svg id="chart" width="100%" height="240" viewBox="0 0 1100 240" preserveAspectRatio="none"></svg>
+        <div class="metric-comment" id="comment">—</div>
+      </section>
+
+      <section class="profile-form-card">
+        <h3 style="font-size:18px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 16px;font-weight:700">录入新数据</h3>
+        <form class="form" id="form-record">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div class="form-row">
+              <label id="label-value">数值</label>
+              <input class="input" id="value" required />
+              <span class="hint-text" id="hint-value">单位</span>
+            </div>
+            <div class="form-row" id="row-value2" hidden>
+              <label id="label-value2">数值 2</label>
+              <input class="input" id="value2" />
+              <span class="hint-text" id="hint-value2">单位</span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start">录入</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    Auth.init().then(() => main());
+
+    const params = new URLSearchParams(location.search);
+    let type = params.get('type') || 'bp';
+    let days = parseInt(params.get('days') || '30', 10);
+    let META = null;
+
+    async function main() {
+      try {
+        const types = await API.get('/api/trend/types');
+        META = Object.fromEntries(types.map(t => [t.key, t]));
+        if (!META[type]) {
+          document.getElementById('loading').innerHTML = '未知指标类型';
+          return;
+        }
+        document.title = `${META[type].name}趋势 · 小康·健康管家`;
+        configureForm();
+        bindRange();
+        await loadTrend();
+        document.getElementById('loading').hidden = true;
+        document.getElementById('content').hidden = false;
+      } catch (err) {
+        document.getElementById('loading').innerHTML = `加载失败：${err.message}`;
+      }
+    }
+
+    function configureForm() {
+      const m = META[type];
+      document.getElementById('label-value').textContent = type === 'bp' ? '收缩压' : '数值';
+      document.getElementById('hint-value').textContent = type === 'bp' ? '高压（mmHg）' : m.unit;
+      if (type === 'bp') {
+        document.getElementById('row-value2').hidden = false;
+        document.getElementById('label-value2').textContent = '舒张压';
+        document.getElementById('hint-value2').textContent = '低压（mmHg）';
+      } else if (type === 'ecg') {
+        document.getElementById('label-value').textContent = '结果';
+        document.getElementById('hint-value').textContent = '100 = 窦性心律，其他值视为异常';
+      } else {
+        document.getElementById('row-value2').hidden = true;
+      }
+      document.getElementById('form-record').addEventListener('submit', submitRecord);
+    }
+
+    function bindRange() {
+      const bar = document.getElementById('range-bar');
+      bar.addEventListener('click', (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        bar.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+        days = parseInt(b.dataset.days, 10);
+        loadTrend();
+      });
+    }
+
+    let currentData = null;
+    async function loadTrend() {
+      document.getElementById('metric-title').textContent = META[type].name + '趋势';
+      document.getElementById('metric-subtitle').textContent = `查看您最近 ${days} 天的${META[type].name}记录`;
+      document.getElementById('comment').textContent = '分析中...';
+      try {
+        currentData = await API.get(`/api/trend/${type}?days=${days}`);
+        renderStats(currentData);
+        renderChart(currentData);
+        document.getElementById('comment').textContent = currentData.comment || '暂无评论';
+      } catch (err) {
+        document.getElementById('comment').textContent = '加载失败：' + err.message;
+      }
+    }
+
+    function renderStats(d) {
+      const m = META[type];
+      const stats = d.stats;
+      const html = [];
+      html.push(statCard('最新', d.latest ? formatValue(type, d.latest) + ' ' + m.unit : '—'));
+      html.push(statCard('平均', stats ? stats.avg + ' ' + m.unit : '—'));
+      if (stats) {
+        html.push(statCard('范围', `${stats.min} - ${stats.max}`));
+        html.push(statCard('次数', stats.count + ' 次'));
+      } else {
+        html.push(statCard('范围', '—'));
+        html.push(statCard('次数', '—'));
+      }
+      document.getElementById('stats').innerHTML = html.join('');
+    }
+
+    function statCard(label, value) {
+      return `<div class="metric-stat"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+    }
+
+    function formatValue(t, point) {
+      if (t === 'bp') return `${point.value}/${point.value2}`;
+      return point.value;
+    }
+
+    function renderChart(d) {
+      const svg = document.getElementById('chart');
+      const pts = d.points;
+      svg.innerHTML = '';
+      if (pts.length === 0) {
+        svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" font-family="sans-serif" fill="#9C8B7A" font-size="16">还没有数据，先在下面录入一条吧</text>';
+        return;
+      }
+      const W = 1100, H = 240, padX = 40, padY = 30;
+      const xs = pts.map((_, i) => i);
+      let ys = pts.map(p => p.value);
+      if (type === 'bp') ys = ys.concat(pts.map(p => p.value2));
+      const yMin = Math.min(...ys);
+      const yMax = Math.max(...ys);
+      const yRange = Math.max(1, yMax - yMin);
+      const yPad = yRange * 0.15;
+      const lo = yMin - yPad;
+      const hi = yMax + yPad;
+
+      const xToPx = (i) => padX + (xs.length === 1 ? (W - 2 * padX) / 2 : (i / (xs.length - 1)) * (W - 2 * padX));
+      const yToPx = (v) => H - padY - ((v - lo) / (hi - lo)) * (H - 2 * padY);
+
+      let polyline = '';
+      const color = META[type].color || '#F4A261';
+      pts.forEach((p, i) => {
+        polyline += `${xToPx(i)},${yToPx(p.value)} `;
+      });
+      const dots = pts.map((p, i) =>
+        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3.5" fill="${color}" stroke="white" stroke-width="1.5"/>`
+      ).join('');
+      svg.innerHTML = `
+        <line x1="${padX}" y1="${H - padY}" x2="${W - padX}" y2="${H - padY}" stroke="#E8DCC9" stroke-width="1"/>
+        <line x1="${padX}" y1="${padY}" x2="${padX}" y2="${H - padY}" stroke="#E8DCC9" stroke-width="1"/>
+        <polyline points="${polyline.trim()}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${dots}
+        <text x="${padX}" y="${padY - 8}" fill="#9C8B7A" font-size="13" font-family="sans-serif">${hi.toFixed(1)}</text>
+        <text x="${padX}" y="${H - padY + 18}" fill="#9C8B7A" font-size="13" font-family="sans-serif">${lo.toFixed(1)}</text>
+        <text x="${W - padX}" y="${H - 6}" fill="#9C8B7A" font-size="12" text-anchor="end" font-family="sans-serif">${fmtDate(d.points[0].recorded_at)} → ${fmtDate(d.points.at(-1).recorded_at)}</text>
+      `;
+    }
+
+    async function submitRecord(e) {
+      e.preventDefault();
+      const valueRaw = document.getElementById('value').value.trim();
+      const value2Raw = type === 'bp' ? document.getElementById('value2').value.trim() : null;
+      if (!valueRaw) return;
+      const value = type === 'ecg' ? (valueRaw === '窦性' ? 100 : 50) : parseFloat(valueRaw);
+      const value2 = value2Raw ? parseFloat(value2Raw) : null;
+      try {
+        await API.post('/api/health/metrics', {
+          type,
+          value,
+          value2,
+          unit: META[type].unit || null,
+          source: 'manual',
+        });
+        document.getElementById('value').value = '';
+        if (type === 'bp') document.getElementById('value2').value = '';
+        toast('录入成功', 'success');
+        loadTrend();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
