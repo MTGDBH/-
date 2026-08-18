@@ -1238,6 +1238,259 @@ ul, ol { list-style: none; }
   line-height: 1.7;
 }
 
+/* ===== 登录/注册页：补充交互样式 ===== */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-btn-secondary {
+  text-decoration: none;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary-dark);
+  background: #FFF6EE;
+  transition: background 0.15s, transform 0.1s;
+}
+.login-btn-secondary:hover {
+  background: var(--color-primary-light);
+}
+.login-btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* 输入框带图标 */
+.login-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.login-input-wrap .input {
+  padding-left: 48px;
+}
+.login-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+}
+.login-toggle-pwd {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.login-toggle-pwd:hover { color: var(--color-primary); background: #FFF6EE; }
+
+/* 记住我 / 选项行 */
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  user-select: none;
+}
+.login-remember input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #D4C4B0;
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.login-remember input[type="checkbox"]:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.login-remember input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 注册页：性别选择 */
+.register-gender {
+  display: flex;
+  gap: 12px;
+}
+.register-gender label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid #E8DCC9;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+.register-gender label:hover {
+  border-color: var(--color-primary);
+  background: #FFF6EE;
+}
+.register-gender input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #D4C4B0;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+.register-gender input[type="radio"]:checked {
+  border-color: var(--color-primary);
+}
+.register-gender input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.register-gender label:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* 注册页：协议勾选 */
+.register-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+}
+.register-agree input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #D4C4B0;
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.register-agree input[type="checkbox"]:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.register-agree input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.register-agree a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.register-agree a:hover { text-decoration: underline; }
+
+/* 密码强度条 */
+.pwd-strength {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pwd-strength span {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #E8DCC9;
+  transition: background 0.2s;
+}
+.pwd-strength[data-level="1"] span:nth-child(1) { background: var(--color-coral-dark); }
+.pwd-strength[data-level="2"] span:nth-child(1),
+.pwd-strength[data-level="2"] span:nth-child(2) { background: var(--color-primary); }
+.pwd-strength[data-level="3"] span:nth-child(1),
+.pwd-strength[data-level="3"] span:nth-child(2),
+.pwd-strength[data-level="3"] span:nth-child(3) { background: var(--color-green); }
+
+/* 背景装饰光斑 */
+.login-deco {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.login-deco-1 {
+  width: 320px; height: 320px;
+  background: #F4A261;
+  opacity: 0.18;
+  top: -80px; right: -60px;
+}
+.login-deco-2 {
+  width: 260px; height: 260px;
+  background: #7FB069;
+  opacity: 0.14;
+  bottom: -60px; left: -40px;
+}
+.login-card { position: relative; z-index: 1; }
+
 /* ========================================================================
    文章 / 卡片
    ======================================================================== */

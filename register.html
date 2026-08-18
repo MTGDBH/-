@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注册 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
+</head>
+<body>
+  <main class="login-screen" id="register-screen">
+    <!-- 背景装饰光斑 -->
+    <div class="login-deco login-deco-1"></div>
+    <div class="login-deco login-deco-2"></div>
+
+    <div class="login-card">
+      <!-- 品牌区 -->
+      <div class="login-brand">
+        <div class="login-mark">康</div>
+        <h1>创建账号</h1>
+        <p>注册后即可使用小康·健康管家</p>
+      </div>
+
+      <!-- 错误提示 -->
+      <div class="login-error" id="register-error"></div>
+
+      <!-- 注册表单 -->
+      <form class="login-form" id="register-form" autocomplete="on">
+        <!-- 姓名 -->
+        <div class="form-row">
+          <label for="name">姓名</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <input class="input" type="text" id="name" name="name"
+                   placeholder="请输入真实姓名（如：张奶奶）" required autofocus />
+          </div>
+        </div>
+
+        <!-- 性别 -->
+        <div class="form-row">
+          <label>性别</label>
+          <div class="register-gender">
+            <label>
+              <input type="radio" name="gender" value="male" />
+              <span>男</span>
+            </label>
+            <label>
+              <input type="radio" name="gender" value="female" />
+              <span>女</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 年龄 -->
+        <div class="form-row">
+          <label for="age">年龄</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </span>
+            <input class="input" type="number" id="age" name="age"
+                   min="1" max="120" placeholder="请输入年龄" required />
+          </div>
+        </div>
+
+        <!-- 密码 -->
+        <div class="form-row">
+          <label for="password">密码</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+              </svg>
+            </span>
+            <input class="input" type="password" id="password" name="password"
+                   placeholder="至少 6 位密码" required />
+            <button type="button" class="login-toggle-pwd" id="toggle-pwd">显示</button>
+          </div>
+          <div class="pwd-strength" id="pwd-strength" data-level="0">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- 确认密码 -->
+        <div class="form-row">
+          <label for="password2">确认密码</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4"/>
+                <rect x="4" y="11" width="16" height="10" rx="2"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+              </svg>
+            </span>
+            <input class="input" type="password" id="password2" name="password2"
+                   placeholder="请再次输入密码" required />
+          </div>
+        </div>
+
+        <!-- 协议 -->
+        <label class="register-agree">
+          <input type="checkbox" id="agree" name="agree" required />
+          <span>我已阅读并同意 <a href="#" id="terms-link">《用户协议》</a> 和 <a href="#" id="privacy-link">《隐私政策》</a></span>
+        </label>
+
+        <!-- 注册按钮 -->
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">注 册</button>
+      </form>
+
+      <!-- 分隔线 + 返回登录 -->
+      <div class="login-divider">已有账号？</div>
+      <a href="login.html" class="btn btn-secondary btn-lg btn-block login-btn-secondary">返 回 登 录</a>
+
+      <!-- 提示 -->
+      <div class="login-hint">
+        <strong>温馨提示</strong><br />
+        注册后系统将为您建立个人健康档案<br />
+        请填写真实信息以获得更准确的健康评估<br />
+        <span style="color:#A04632">本系统为本地演示环境，数据不对外公开</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/api.js"></script>
+  <script>
+    (function () {
+      const form = document.getElementById('register-form');
+      const errorBox = document.getElementById('register-error');
+      const submitBtn = document.getElementById('submit-btn');
+      const pwdInput = document.getElementById('password');
+      const pwd2Input = document.getElementById('password2');
+      const togglePwd = document.getElementById('toggle-pwd');
+      const pwdStrength = document.getElementById('pwd-strength');
+
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.add('show');
+      }
+      function clearError() {
+        errorBox.classList.remove('show');
+      }
+
+      // 密码显示/隐藏
+      togglePwd.addEventListener('click', () => {
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          togglePwd.textContent = '隐藏';
+        } else {
+          pwdInput.type = 'password';
+          togglePwd.textContent = '显示';
+        }
+      });
+
+      // 密码强度
+      pwdInput.addEventListener('input', () => {
+        const v = pwdInput.value;
+        let level = 0;
+        if (v.length >= 6) level = 1;
+        if (v.length >= 8 && /[A-Za-z]/.test(v) && /\d/.test(v)) level = 2;
+        if (v.length >= 10 && /[A-Za-z]/.test(v) && /\d/.test(v) && /[^A-Za-z0-9]/.test(v)) level = 3;
+        pwdStrength.setAttribute('data-level', level);
+      });
+
+      // 输入时清除错误
+      form.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', clearError);
+      });
+
+      // 表单提交
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const name = document.getElementById('name').value.trim();
+        const gender = document.querySelector('input[name="gender"]:checked');
+        const age = parseInt(document.getElementById('age').value, 10);
+        const password = pwdInput.value;
+        const password2 = pwd2Input.value;
+        const agree = document.getElementById('agree').checked;
+
+        // 前端校验
+        if (!name) {
+          showError('请输入姓名');
+          document.getElementById('name').focus();
+          return;
+        }
+        if (name.length > 20) {
+          showError('姓名不能超过 20 个字');
+          return;
+        }
+        if (!gender) {
+          showError('请选择性别');
+          return;
+        }
+        if (!age || age < 1 || age > 120) {
+          showError('请输入有效的年龄（1-120）');
+          document.getElementById('age').focus();
+          return;
+        }
+        if (!password || password.length < 6) {
+          showError('密码至少 6 位');
+          pwdInput.focus();
+          return;
+        }
+        if (password !== password2) {
+          showError('两次输入的密码不一致');
+          pwd2Input.focus();
+          return;
+        }
+        if (!agree) {
+          showError('请阅读并同意用户协议和隐私政策');
+          return;
+        }
+
+        // 提交
+        submitBtn.disabled = true;
+        submitBtn.textContent = '正在注册…';
+
+        try {
+          await API.post('/api/auth/register', {
+            name,
+            gender: gender.value,
+            age,
+            password
+          });
+
+          // 注册成功 → 自动登录或跳转登录页
+          submitBtn.textContent = '注册成功！';
+          submitBtn.style.background = 'var(--color-green)';
+
+          setTimeout(() => {
+            // 尝试自动登录
+            API.post('/api/auth/login', { identifier: name, password })
+              .then(() => { location.href = 'index.html'; })
+              .catch(() => { location.href = 'login.html'; });
+          }, 1000);
+
+        } catch (err) {
+          showError(err.message || '注册失败，请稍后再试');
+          submitBtn.disabled = false;
+          submitBtn.textContent = '注 册';
+        }
+      });
+
+      // 协议链接占位
+      ['terms-link', 'privacy-link'].forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => {
+          e.preventDefault();
+          showError('用户协议与隐私政策即将完善');
+          setTimeout(clearError, 2500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
