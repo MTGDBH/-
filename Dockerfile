@@ -1,9 +1,9 @@
-FROM node:20-alpine
+FROM node:20-bookworm
 
 WORKDIR /app
 
 COPY server/package*.json ./server/
-RUN cd server && npm install --omit=dev
+RUN cd server && npm install --omit=dev --build-from-source
 
 COPY . .
 
