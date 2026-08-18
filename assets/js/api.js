@@ -1,7 +1,17 @@
 // API 客户端：fetch 封装 + Cookie + 401 处理
 // 所有页面通过 window.API 调后端
 (function () {
-  const BASE = (window.__API_BASE__ || window.location.origin);
+  const resolveBase = () => {
+    if (window.__API_BASE__) return String(window.__API_BASE__).replace(/\/$/, '');
+
+    const origin = window.location.origin;
+    const isLocalStaticSite = /:(3000|8080)$/.test(origin) || location.protocol === 'file:';
+    if (isLocalStaticSite) return 'http://localhost:3001';
+
+    return origin;
+  };
+
+  const BASE = resolveBase();
   const isLoginPage = () => /login\.html$/.test(location.pathname) || location.pathname === '/login.html';
 
   async function request(method, url, opts = {}) {
