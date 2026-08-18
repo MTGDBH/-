@@ -3,6 +3,7 @@ name: Build and push Docker image to GHCR
 on:
   push:
     branches:
+      - master
       - main
   workflow_dispatch:
 
