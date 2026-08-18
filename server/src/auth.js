@@ -79,6 +79,47 @@ router.post('/login', (req, res) => {
   res.json({ user: safeUser, expires_at: expires });
 });
 
+// ===== 注册 =====
+router.post('/register', (req, res) => {
+  const { name, gender, age, password } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: '请输入姓名' });
+  }
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: '密码至少 6 位' });
+  }
+
+  // 检查姓名是否已存在
+  const existing = db.prepare('SELECT id FROM users WHERE name = ?').get(name.trim());
+  if (existing) {
+    return res.status(409).json({ error: '该姓名已被注册，请换一个或直接登录' });
+  }
+
+  // 随机暖色头像
+  const avatarColors = ['#F4A261', '#E76F51', '#7FB069', '#6C8EBF', '#B084CC', '#E9A368'];
+  const avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+
+  const result = db.prepare(`
+    INSERT INTO users (name, gender, age, password, avatar_color)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(name.trim(), gender || 'unknown', age || null, password, avatarColor);
+
+  // 自动创建 session（注册即登录）
+  const token = newToken();
+  const expires = new Date(Date.now() + SESSION_TTL_MS).toISOString();
+  db.prepare(`
+    INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)
+  `).run(token, result.lastInsertRowid, expires);
+
+  res.setHeader('Set-Cookie',
+    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}`
+  );
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+  const { password: _, ...safeUser } = user;
+  res.status(201).json({ user: safeUser, expires_at: expires });
+});
+
 // ===== 登出 =====
 router.post('/logout', (req, res) => {
   const token = getTokenFromReq(req);

@@ -40,6 +40,7 @@ db.exec(`
   );
 `);
 // 兼容已有库：补字段
+addColumnIfMissing('users', 'gender', "TEXT DEFAULT 'unknown'");
 addColumnIfMissing('users', 'password', "TEXT NOT NULL DEFAULT '123456'");
 addColumnIfMissing('users', 'height', 'REAL');
 addColumnIfMissing('users', 'emergency_name', 'TEXT');
