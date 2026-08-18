@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>开发导航 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
+  <style>
+    body { background: var(--bg-page); }
+    .dev-wrap { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* 顶部标题 */
+    .dev-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+    }
+    .dev-header .login-mark {
+      width: 56px; height: 56px; font-size: 30px; border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(244,162,97,0.3);
+    }
+    .dev-header h1 {
+      font-size: 28px; margin: 0; color: var(--text-primary); font-weight: 700;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-header p {
+      margin: 4px 0 0; color: var(--text-muted); font-size: 15px;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-subtitle {
+      color: var(--text-muted); font-size: 14px; margin: 0 0 32px;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+
+    /* 工具栏 */
+    .dev-toolbar {
+      display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .dev-toolbar button {
+      padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--bg-card); color: var(--text-secondary); cursor: pointer;
+      font-size: 14px; font-weight: 600;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+      transition: all 0.15s;
+    }
+    .dev-toolbar button:hover {
+      border-color: var(--color-primary); color: var(--color-primary-dark); background: #FFF6EE;
+    }
+    .dev-toolbar .api-status {
+      margin-left: auto; display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-muted);
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .api-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #ccc;
+    }
+    .api-dot.online { background: var(--color-green); }
+    .api-dot.offline { background: var(--color-coral); }
+
+    /* 分组标题 */
+    .dev-group-title {
+      font-size: 13px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.5px; margin: 32px 0 14px;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-group-title:first-of-type { margin-top: 0; }
+
+    /* 页面卡片网格 */
+    .dev-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;
+    }
+    .dev-card {
+      display: block; text-decoration: none;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px;
+      transition: all 0.18s; position: relative; overflow: hidden;
+    }
+    .dev-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .dev-card-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .dev-card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; flex-shrink: 0;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-card-name {
+      font-size: 16px; font-weight: 700; color: var(--text-primary);
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-card-desc {
+      font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-card-file {
+      font-size: 12px; color: var(--text-muted);
+      font-family: "SF Mono","Fira Code","Consolas",monospace;
+      background: var(--bg-soft); padding: 3px 8px; border-radius: 6px; display: inline-block;
+    }
+    .dev-card-badge {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-card-badge.nav { background: var(--color-green-light); color: var(--color-green-dark); }
+    .dev-card-badge.auth { background: var(--color-purple-light); color: var(--color-purple); }
+    .dev-card-badge.sub { background: var(--color-coral-light); color: var(--color-coral-dark); }
+
+    /* 底部信息 */
+    .dev-footer {
+      margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-muted); line-height: 1.8;
+      font-family: "Source Han Sans CN","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    }
+    .dev-footer code {
+      font-family: "SF Mono","Fira Code","Consolas",monospace;
+      background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dev-wrap">
+    <!-- 标题 -->
+    <div class="dev-header">
+      <div class="login-mark">康</div>
+      <div>
+        <h1>小康·健康管家 — 开发导航</h1>
+        <p>所有前端页面入口 · 快速跳转调试</p>
+      </div>
+    </div>
+    <p class="dev-subtitle">共 10 个页面，按功能分组。点击卡片直接打开对应页面。</p>
+
+    <!-- 工具栏 -->
+    <div class="dev-toolbar">
+      <button onclick="openAll()">全部打开</button>
+      <button onclick="checkAPI()">检查 API 连接</button>
+      <a href="login.html" class="dev-toolbar" style="text-decoration:none">
+        <button>前往登录</button>
+      </a>
+      <div class="api-status">
+        <span class="api-dot" id="api-dot"></span>
+        <span id="api-text">未检测</span>
+      </div>
+    </div>
+
+    <!-- 认证页面 -->
+    <div class="dev-group-title">认证页面（无需登录）</div>
+    <div class="dev-grid">
+      <a class="dev-card" href="login.html">
+        <span class="dev-card-badge auth">认证</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-primary-light);color:var(--color-primary-dark)">登</div>
+          <div class="dev-card-name">登录</div>
+        </div>
+        <div class="dev-card-desc">姓名 + 密码登录，演示账号张奶奶/123456</div>
+        <span class="dev-card-file">login.html</span>
+      </a>
+      <a class="dev-card" href="register.html">
+        <span class="dev-card-badge auth">认证</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-purple-light);color:var(--color-purple)">册</div>
+          <div class="dev-card-name">注册</div>
+        </div>
+        <div class="dev-card-desc">姓名/性别/年龄/密码注册，成功后自动登录</div>
+        <span class="dev-card-file">register.html</span>
+      </a>
+    </div>
+
+    <!-- 主导航页面 -->
+    <div class="dev-group-title">主导航页面（需登录）</div>
+    <div class="dev-grid">
+      <a class="dev-card" href="index.html">
+        <span class="dev-card-badge nav">导航栏</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-primary-light);color:var(--color-primary-dark)">览</div>
+          <div class="dev-card-name">概览</div>
+        </div>
+        <div class="dev-card-desc">首页 dashboard，健康分、待办、预警、快捷入口</div>
+        <span class="dev-card-file">index.html</span>
+      </a>
+      <a class="dev-card" href="monitoring.html">
+        <span class="dev-card-badge nav">导航栏</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-green-light);color:var(--color-green-dark)">测</div>
+          <div class="dev-card-name">健康监测</div>
+        </div>
+        <div class="dev-card-desc">录入血压/血糖/心率/血氧，查看最新数据</div>
+        <span class="dev-card-file">monitoring.html</span>
+      </a>
+      <a class="dev-card" href="assessment.html">
+        <span class="dev-card-badge nav">导航栏</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-coral-light);color:var(--color-coral-dark)">估</div>
+          <div class="dev-card-name">健康评估</div>
+        </div>
+        <div class="dev-card-desc">多维度健康评分、历史趋势、完整评估报告</div>
+        <span class="dev-card-file">assessment.html</span>
+      </a>
+      <a class="dev-card" href="agent.html">
+        <span class="dev-card-badge nav">导航栏</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-purple-light);color:var(--color-purple)">管</div>
+          <div class="dev-card-name">智能管家</div>
+        </div>
+        <div class="dev-card-desc">AI 对话，基于健康数据定制干预方案</div>
+        <span class="dev-card-file">agent.html</span>
+      </a>
+      <a class="dev-card" href="knowledge.html">
+        <span class="dev-card-badge nav">导航栏</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-teal-light);color:var(--color-teal)">知</div>
+          <div class="dev-card-name">健康知识</div>
+        </div>
+        <div class="dev-card-desc">健康科普文章，按类别浏览</div>
+        <span class="dev-card-file">knowledge.html</span>
+      </a>
+    </div>
+
+    <!-- 子页面 -->
+    <div class="dev-group-title">子页面（从主页面跳入）</div>
+    <div class="dev-grid">
+      <a class="dev-card" href="metric.html?type=bp">
+        <span class="dev-card-badge sub">子页</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-green-light);color:var(--color-green-dark)">势</div>
+          <div class="dev-card-name">指标趋势</div>
+        </div>
+        <div class="dev-card-desc">单指标 7/30/90 天趋势图，从监测页跳入</div>
+        <span class="dev-card-file">metric.html</span>
+      </a>
+      <a class="dev-card" href="alerts.html">
+        <span class="dev-card-badge sub">子页</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:var(--color-coral-light);color:var(--color-coral-dark)">警</div>
+          <div class="dev-card-name">预警中心</div>
+        </div>
+        <div class="dev-card-desc">异常数据预警列表，从首页铃铛/卡片跳入</div>
+        <span class="dev-card-file">alerts.html</span>
+      </a>
+      <a class="dev-card" href="profile.html">
+        <span class="dev-card-badge sub">子页</span>
+        <div class="dev-card-head">
+          <div class="dev-card-icon" style="background:#F1E8F5;color:var(--color-purple)">人</div>
+          <div class="dev-card-name">个人中心</div>
+        </div>
+        <div class="dev-card-desc">个人信息、头像、设置、退出登录</div>
+        <span class="dev-card-file">profile.html</span>
+      </a>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="dev-footer">
+      <strong>页面导航结构</strong><br />
+      登录/注册 → 概览（首页）→ 健康监测 → 指标趋势（子页）<br />
+      概览 → 健康评估 / 智能管家 / 健康知识 / 预警中心 / 个人中心<br />
+      <br />
+      <strong>API 地址</strong>：<code id="api-base">检测中…</code><br />
+      <strong>鉴权方式</strong>：Cookie（credentials: include），401 自动跳转 <code>login.html?next=</code><br />
+      <strong>后端入口</strong>：<code>server/</code> 目录，RAG 知识库在 <code>elderly-health-rag/</code>
+    </div>
+  </div>
+
+  <script src="assets/js/api.js"></script>
+  <script>
+    // 显示 API 地址
+    document.getElementById('api-base').textContent = API.BASE || '(同源)';
+
+    // 全部打开
+    function openAll() {
+      const pages = ['login.html','register.html','index.html','monitoring.html',
+        'assessment.html','agent.html','knowledge.html','metric.html?type=bp',
+        'alerts.html','profile.html'];
+      pages.forEach(p => window.open(p, '_blank'));
+    }
+
+    // 检查 API 连接
+    async function checkAPI() {
+      const dot = document.getElementById('api-dot');
+      const text = document.getElementById('api-text');
+      dot.className = 'api-dot';
+      text.textContent = '检测中…';
+      try {
+        const res = await fetch(API.BASE + '/api/health/summary', {
+          credentials: 'include',
+          signal: AbortSignal.timeout(3000)
+        });
+        if (res.status === 401) {
+          dot.className = 'api-dot online';
+          text.textContent = 'API 在线（需登录）';
+        } else if (res.ok) {
+          dot.className = 'api-dot online';
+          text.textContent = 'API 在线（已登录）';
+        } else {
+          dot.className = 'api-dot offline';
+          text.textContent = 'API 异常 (' + res.status + ')';
+        }
+      } catch (err) {
+        dot.className = 'api-dot offline';
+        text.textContent = 'API 离线';
+      }
+    }
+
+    // 页面加载时自动检测一次
+    checkAPI();
+  </script>
+</body>
+</html>
