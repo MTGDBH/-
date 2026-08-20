@@ -162,8 +162,10 @@ router.post('/chat', async (req, res) => {
 
 router.get('/chat/history', (req, res) => {
   const rows = db.prepare(`
-    SELECT id, role, content, plan, confidence, created_at FROM chat_messages
-    WHERE user_id = ? ORDER BY id ASC LIMIT 50
+    SELECT id, role, content, plan, confidence, created_at FROM (
+      SELECT id, role, content, plan, confidence, created_at FROM chat_messages
+      WHERE user_id = ? ORDER BY id DESC LIMIT 50
+    ) ORDER BY id ASC
   `).all(req.user.id);
   res.json(rows.map(r => ({
     ...r,

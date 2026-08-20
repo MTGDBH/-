@@ -150,13 +150,33 @@ def analyze(metric, unit, points, forecast_days=30):
             confidence -= 0.1
     confidence = round(max(0.1, min(0.95, confidence)), 2)
 
-    # Forecast：7~30 天外推（明确为模型估计）
+    # Forecast：7~30 天外推（明确为模型估计）。
+    # 对接近稳定的指标，验证集方差很小，R² 可能不稳定；此时用相对 MAE
+    # 作为第二道质量标准，避免“误差只有 1% 但 R² 为负”而完全没有预测。
+    validation_mae_ratio = None
+    validation_quality_ok = False
+    if model_info is not None:
+        validation_mae_ratio = float(model_info['score']['mae']) / max(abs(med), 1e-9)
+        validation_quality_ok = bool(
+            model_info['score']['r2'] >= 0.2 or validation_mae_ratio <= 0.05
+        )
+    forecast_checks = []
+    if n_clean < 10:
+        forecast_checks.append(f'有效点不足（{n_clean}/10）')
+    if span_days < 14:
+        forecast_checks.append(f'时间跨度不足（{span_days:.1f}/14天）')
+    if model_info is None:
+        forecast_checks.append('时间顺序验证未通过')
+    elif not validation_quality_ok:
+        forecast_checks.append('时间顺序验证误差偏大')
+    if fluctuation == 'high':
+        forecast_checks.append('近期波动过高')
     forecast_available = bool(
         n_clean >= 10 and span_days >= 14 and model_info is not None
-        and model_info['score']['r2'] >= 0.2 and fluctuation != 'high'
+        and validation_quality_ok and fluctuation != 'high'
     )
     forecast_reason = None if forecast_available else (
-        '需要至少10个有效点、覆盖14天且时间顺序验证可信，当前仅提供历史趋势'
+        '；'.join(forecast_checks) if forecast_checks else '当前仅提供历史趋势'
     )
     forecast = {'available': forecast_available, 'days': forecast_days,
                 'estimated_value': None,
@@ -217,6 +237,7 @@ def analyze(metric, unit, points, forecast_days=30):
         'abnormal_spike': spike,
         'model': model_name if model_info else 'huber',
         'model_score': model_info['score'] if model_info else None,
+        'validation_mae_ratio': round(validation_mae_ratio, 4) if validation_mae_ratio is not None else None,
         'confidence': confidence,
         'forecast': forecast,
             'curve': {

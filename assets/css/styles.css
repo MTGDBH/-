@@ -2661,6 +2661,37 @@ ul, ol { list-style: none; }
 }
 .pred-legend-line { width: 24px; height: 3px; border-radius: 2px; }
 .pred-legend-dash { width: 24px; border-top: 2.5px dashed currentColor; }
+.pred-legend-band { width: 24px; height: 9px; border-radius: 3px; opacity: .2; }
+
+.pred-chart-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 12px 0 18px; padding: 10px 14px; background: #FFFDFC;
+  border: 1px solid #EFE7DE; border-radius: 14px; flex-wrap: wrap;
+}
+.pred-chart-toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+.pred-toggle {
+  border: 1px solid #E7DED4; background: #fff; color: #9C8B7A;
+  border-radius: 999px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.pred-toggle.active { color: #5A4637; background: #FFF3E7; border-color: #F4A261; }
+.pred-zoom-control { display: flex; align-items: center; gap: 10px; color: #6B5A4A; font-size: 12px; white-space: nowrap; }
+.pred-zoom-control strong { color: #3D2E1F; min-width: 20px; display: inline-block; text-align: right; }
+.pred-zoom-control input { width: 150px; accent-color: #F4A261; cursor: pointer; }
+.pred-metric-svg-wrap, .pred-composite-svg-wrap { position: relative; }
+.pred-chart-tooltip {
+  position: absolute; z-index: 5; left: 8px; top: 4px; pointer-events: none;
+  max-width: 180px; padding: 6px 9px; border-radius: 7px;
+  background: rgba(61,46,31,.92); color: #fff; font-size: 11px; line-height: 1.35;
+  opacity: 0; transform: translateY(2px); transition: opacity .12s ease, transform .12s ease;
+}
+.pred-chart-tooltip.visible { opacity: 1; transform: translateY(0); }
+.pred-metric-svg-wrap svg circle, .pred-composite-svg-wrap svg circle { cursor: pointer; }
+@media (max-width: 640px) {
+  .pred-chart-toolbar { align-items: flex-start; }
+  .pred-zoom-control { width: 100%; }
+  .pred-zoom-control input { flex: 1; width: auto; }
+}
 
 .pred-metric-card {
   background: #fff; border-radius: 20px; padding: 20px;

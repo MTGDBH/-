@@ -18,9 +18,21 @@
 
     <!-- 时间范围切换 -->
     <div class="pred-range-bar" id="range-bar">
-      <button class="chip active" data-days="7" data-future="7">日（7天 + 预测7天）</button>
+      <button class="chip" data-days="7" data-future="7">日（7天 + 预测7天）</button>
       <button class="chip" data-days="30" data-future="14">周（30天 + 预测14天）</button>
-      <button class="chip" data-days="90" data-future="30">月（90天 + 预测30天）</button>
+      <button class="chip active" data-days="90" data-future="30">月（90天 + 预测30天）</button>
+    </div>
+    <div class="pred-chart-toolbar" aria-label="曲线显示控制">
+      <div class="pred-chart-toggles" role="group" aria-label="曲线图层">
+        <button class="pred-toggle active" data-layer="raw" type="button">● 原始点</button>
+        <button class="pred-toggle active" data-layer="fitted" type="button">┄ 历史拟合</button>
+        <button class="pred-toggle active" data-layer="peer" type="button">— 同龄人</button>
+        <button class="pred-toggle active" data-layer="forecast" type="button">▱ 预测区间</button>
+      </div>
+      <label class="pred-zoom-control" for="chart-days">
+        <span>显示最近 <strong id="chart-days-label">90</strong> 天</span>
+        <input id="chart-days" type="range" min="7" max="90" step="1" value="90" />
+      </label>
     </div>
 
     <!-- 综合健康拟合图 -->
@@ -48,12 +60,15 @@
   <script>
     Auth.init().then(() => main());
 
-    let days = 7;
-    let futureDays = 7;
+    let days = 90;
+    let futureDays = 30;
     let metricList = [];
+    const chartVisibility = { raw: true, fitted: true, peer: true, forecast: true };
+    let zoomTimer = null;
 
     async function main() {
       bindRange();
+      bindChartControls();
       await loadAll();
     }
 
@@ -65,7 +80,33 @@
         bar.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
         days = parseInt(b.dataset.days, 10);
         futureDays = parseInt(b.dataset.future, 10);
+        const slider = document.getElementById('chart-days');
+        const label = document.getElementById('chart-days-label');
+        if (slider) slider.value = days;
+        if (label) label.textContent = days;
         loadAll();
+      });
+    }
+
+    function bindChartControls() {
+      document.querySelectorAll('.pred-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+          const layer = button.dataset.layer;
+          chartVisibility[layer] = !chartVisibility[layer];
+          button.classList.toggle('active', chartVisibility[layer]);
+          loadAll();
+        });
+      });
+      const slider = document.getElementById('chart-days');
+      const label = document.getElementById('chart-days-label');
+      if (!slider) return;
+      slider.addEventListener('input', () => {
+        days = parseInt(slider.value, 10);
+        futureDays = days <= 7 ? 7 : days <= 30 ? 14 : 30;
+        if (label) label.textContent = days;
+        document.querySelectorAll('#range-bar button').forEach(b => b.classList.toggle('active', parseInt(b.dataset.days, 10) === days));
+        clearTimeout(zoomTimer);
+        zoomTimer = setTimeout(loadAll, 260);
       });
     }
 
@@ -164,30 +205,73 @@
       return `<div class="pred-legend-item" style="color:${color}"><div class="${dashed ? 'pred-legend-dash' : 'pred-legend-line'}" style="${dashed ? `border-color:${color}` : `background:${color}`}" ></div>${label}</div>`;
     }
 
+    function legendBandItem(label, color) {
+      return `<div class="pred-legend-item" style="color:${color}"><div class="pred-legend-band" style="background:${color}"></div>${label}</div>`;
+    }
+
     function buildLegend(data, actualLabel = '我的数据（实际）', forecastLabel = '预测趋势', actualColor = '#F4A261') {
       const items = [];
       if (data.actual?.length) items.push(legendItem(actualLabel, actualColor));
       if (data.fitted?.length) items.push(legendItem('历史拟合', '#A45F3D', true));
-      if (data.predicted?.length) items.push(legendItem(forecastLabel, '#2563EB', true));
+      if (data.predicted?.length) {
+        items.push(legendItem(forecastLabel, '#2563EB', true));
+        if (data.predicted.some(p => Number.isFinite(p.lower) && Number.isFinite(p.upper))) {
+          items.push(legendBandItem('预测区间', '#2563EB'));
+        }
+      }
       if (data.peer?.length) items.push(legendItem('同龄人平均', '#9C8B7A'));
       return items.join('') || '<span class="pred-metric-tag">暂无可绘制曲线</span>';
+    }
+
+    function attachSvgTooltip(svg) {
+      if (!svg?.parentElement) return;
+      const host = svg.parentElement;
+      host.querySelector('.pred-chart-tooltip')?.remove();
+      const tooltip = document.createElement('div');
+      tooltip.className = 'pred-chart-tooltip';
+      tooltip.setAttribute('role', 'status');
+      host.appendChild(tooltip);
+      // 时间和值放在 circle 内部的 <title> 节点，不是 circle 的 title 属性。
+      const points = svg.querySelectorAll('circle');
+      points.forEach(point => {
+        point.addEventListener('mouseenter', () => {
+          tooltip.textContent = point.querySelector('title')?.textContent || '';
+          tooltip.classList.add('visible');
+        });
+        point.addEventListener('mousemove', event => {
+          const rect = host.getBoundingClientRect();
+          tooltip.style.left = `${Math.max(8, Math.min(rect.width - 180, event.clientX - rect.left + 10))}px`;
+          tooltip.style.top = `${Math.max(4, event.clientY - rect.top - 42)}px`;
+        });
+        point.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+      });
     }
 
     // ===== 综合健康拟合图 =====
     function renderComposite(data) {
       const svg = document.getElementById('composite-chart');
-      const actual = data.actual;
-      const predicted = data.predicted;
-      const peer = data.peer;
+      const actual = data.actual || [];
+      const predicted = chartVisibility.forecast ? (data.predicted || []) : [];
+      const peer = data.peer || [];
+      const showRaw = chartVisibility.raw;
+      const showFitted = chartVisibility.fitted;
+      const showPeer = chartVisibility.peer;
+      const showForecast = chartVisibility.forecast;
 
       const sub = document.getElementById('composite-sub');
       const legend = document.getElementById('composite-legend');
-      if (legend) legend.innerHTML = buildLegend(data, '我的健康分（实际）', '我的健康分（预测）');
+      if (legend) legend.innerHTML = buildLegend({
+        ...data,
+        actual: showRaw ? actual : [],
+        fitted: showFitted ? (data.fitted || []) : [],
+        predicted: showForecast ? predicted : [],
+        peer: showPeer ? peer : [],
+      }, '我的健康分（实际）', '我的健康分（预测）');
       const metricCount = Number.isFinite(Number(data.metricCount)) ? data.metricCount : 0;
       const ageGroup = data.ageGroup || '未分组';
       const peerBaseScore = data.peerBaseScore ?? '—';
       sub.textContent = `综合 ${metricCount} 项指标归一化拟合 · 年龄段：${ageGroup} · 同龄人均值 ${peerBaseScore} 分` +
-        (data.status === 'insufficient_data' ? ' · 数据不足，暂不外推' : data.analysis?.confidence ? ` · 可信度 ${Math.round(data.analysis.confidence * 100)}%` : '');
+        (data.predicted?.length ? (data.analysis?.confidence ? ` · 预测可信度 ${Math.round(data.analysis.confidence * 100)}%` : '') : ' · 历史数据暂不足，请继续打卡记录，满足条件后自动生成预测');
 
       const allPoints = [
         ...actual.map((p, i) => ({ x: i, y: p.value, predicted: false })),
@@ -218,7 +302,7 @@
       const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
 
       // 分割线位置
-      const dividerX = predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
+      const dividerX = showForecast && predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
 
       // 实际线
       const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
@@ -247,11 +331,14 @@
       const forecastShade = dividerX != null
         ? `<rect x="${dividerX}" y="${padT}" width="${W - padR - dividerX}" height="${H - padT - padB}" fill="#2563EB" opacity="0.035"/>`
         : '';
-      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, predicted.length);
+      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, showForecast ? predicted.length : 0);
 
       // 数据点
       const dots = actual.map((p, i) =>
         `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3.5" fill="#F4A261" stroke="#fff" stroke-width="1.5"><title>${formatPointTime(p)} · ${p.value}</title></circle>`
+      ).join('');
+      const forecastDots = predicted.map((p, i) =>
+        `<circle cx="${xToPx(actual.length + i)}" cy="${yToPx(p.value)}" r="2.5" fill="#2563EB" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · 预测 ${p.value}</title></circle>`
       ).join('');
 
       svg.innerHTML = `
@@ -259,19 +346,21 @@
         <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
         <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
         ${timeAxis}
-        ${forecastShade}
+        ${showForecast ? forecastShade : ''}
         <!-- 同龄人线 -->
-        <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        ${showPeer ? `<polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.5"/>` : ''}
         <!-- 实际线 -->
-        <polyline points="${actualPolyline}" fill="none" stroke="#F4A261" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        ${showRaw ? `<polyline points="${actualPolyline}" fill="none" stroke="#F4A261" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
         <!-- 历史拟合线 -->
-        <path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>
+        ${showFitted ? `<path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>` : ''}
         <!-- 预测线 -->
-        ${predBand}
-        <path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>
-        ${dividerLine}
-        ${dots}
+        ${showForecast ? predBand : ''}
+        ${showForecast ? `<path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>` : ''}
+        ${showForecast ? dividerLine : ''}
+        ${showRaw ? dots : ''}
+        ${showForecast ? forecastDots : ''}
       `;
+      attachSvgTooltip(svg);
     }
 
     // ===== 各指标预测图 =====
@@ -310,8 +399,8 @@
       const trendText = trendMap[data.predTrend] || '—';
       const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${unitLabel}` : '无同龄人参考';
       const forecastNote = data.analysis?.forecastAvailable
-        ? '已达到预测门槛，虚线为短期趋势估计'
-        : (data.analysis?.forecastReason || '历史数据不足，暂不外推');
+        ? '已达到预测门槛，虚线和色带为短期趋势估计'
+        : `${data.analysis?.forecastReason || '历史数据不足，暂不外推'}；请继续打卡记录，数据满足条件后自动生成预测`;
       const stats = data.stats;
       const statsHtml = stats ? `
         <div class="pred-metric-stat">平均 <strong>${stats.avg}</strong>${unitLabel ? ` ${unitLabel}` : ''}</div>
@@ -334,7 +423,13 @@
           <div class="pred-metric-svg-wrap">
             <svg id="metric-svg-${m.type}" width="100%" height="220" viewBox="0 0 1060 220" preserveAspectRatio="xMidYMid meet"></svg>
           </div>
-          <div class="pred-legend">${buildLegend(data, '我的数据（实际）', '预测趋势', m.color)}</div>
+          <div class="pred-legend">${buildLegend({
+            ...data,
+            actual: chartVisibility.raw ? (data.actual || []) : [],
+            fitted: chartVisibility.fitted ? (data.fitted || []) : [],
+            predicted: chartVisibility.forecast ? (data.predicted || []) : [],
+            peer: chartVisibility.peer ? (data.peer || []) : [],
+          }, '我的数据（实际）', '预测趋势', m.color)}</div>
           <div class="pred-metric-stats">${statsHtml}</div>
         </div>
       `;
@@ -345,9 +440,13 @@
       if (!svg) return;
 
       const actual = data.actual;
-      const predicted = data.predicted;
+      const predicted = chartVisibility.forecast ? (data.predicted || []) : [];
       const peer = data.peer;
       const unitLabel = m.unit || '';
+      const showRaw = chartVisibility.raw;
+      const showFitted = chartVisibility.fitted;
+      const showPeer = chartVisibility.peer;
+      const showForecast = chartVisibility.forecast;
 
       if (actual.length === 0 && predicted.length === 0) {
         svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="14" font-family="sans-serif">暂无数据</text>';
@@ -383,7 +482,7 @@
       const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
 
       // 分割线
-      const dividerX = predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
+      const dividerX = showForecast && predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
 
       // 实际线
       const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
@@ -413,6 +512,9 @@
       const dots = actual.map((p, i) =>
         `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="${p.outlier ? 4.5 : 3.5}" fill="${p.outlier ? '#A04632' : m.color}" stroke="#fff" stroke-width="1.5"><title>${formatPointTime(p)} · ${p.value}${unitLabel ? ` ${unitLabel}` : ''}</title></circle>`
       ).join('');
+      const forecastDots = predicted.map((p, i) =>
+        `<circle cx="${xToPx(actual.length + i)}" cy="${yToPx(p.value)}" r="2.5" fill="#2563EB" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · 预测 ${p.value}${unitLabel ? ` ${unitLabel}` : ''}</title></circle>`
+      ).join('');
 
       // 分割线
       const dividerLine = dividerX != null ? `
@@ -422,27 +524,29 @@
       const forecastShade = dividerX != null
         ? `<rect x="${dividerX}" y="${padT}" width="${W - padR - dividerX}" height="${H - padT - padB}" fill="#2563EB" opacity="0.035"/>`
         : '';
-      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, predicted.length);
+      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, showForecast ? predicted.length : 0);
 
       svg.innerHTML = `
         ${yLabels}
-        ${peerRefLine}
+        ${showPeer ? peerRefLine : ''}
         <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
         <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
         <!-- 同龄人线 -->
-        <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+        ${showPeer ? `<polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.4"/>` : ''}
         <!-- 实际线 -->
         ${timeAxis}
-        ${forecastShade}
-        <polyline points="${actualPolyline}" fill="none" stroke="${m.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        ${showForecast ? forecastShade : ''}
+        ${showRaw ? `<polyline points="${actualPolyline}" fill="none" stroke="${m.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
         <!-- 历史拟合线 -->
-        <path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>
+        ${showFitted ? `<path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>` : ''}
         <!-- 预测线 -->
-        ${predBand}
-        <path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>
-        ${dividerLine}
-        ${dots}
+        ${showForecast ? predBand : ''}
+        ${showForecast ? `<path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>` : ''}
+        ${showForecast ? dividerLine : ''}
+        ${showRaw ? dots : ''}
+        ${showForecast ? forecastDots : ''}
       `;
+      attachSvgTooltip(svg);
     }
   </script>
 </body>

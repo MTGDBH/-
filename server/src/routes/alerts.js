@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
   res.json({ items: rows });
 });
 
-router.get('/summary', (_req, res) => {
+router.get('/summary', (req, res) => {
   const u = req.user.id;
   const total = db.prepare('SELECT COUNT(*) c FROM alerts WHERE user_id = ?').get(u).c;
   const pending = db.prepare(`SELECT COUNT(*) c FROM alerts WHERE user_id = ? AND status = 'pending'`).get(u).c;
