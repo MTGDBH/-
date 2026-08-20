@@ -3,6 +3,7 @@ import express from 'express';
 import db from '../db.js';
 import { evaluateHealth, aggregateMetrics } from '../lib/scoring.js';
 import { chat } from '../ai/agent.js';
+import { buildHealthContext } from '../ai/contextBuilder.js';
 
 const router = express.Router();
 
@@ -131,7 +132,7 @@ router.post('/chat', async (req, res) => {
     SELECT * FROM metrics WHERE user_id = ? AND recorded_at >= ?
   `).all(req.user.id, sevenDaysAgo);
   const { total_score, subscores } = aggregateMetrics(metrics, { height: req.user.height });
-  const healthSummary = { total_score, subscores };
+  const healthSummary = { total_score, subscores, context: buildHealthContext(req.user, 90) };
 
   db.prepare(`INSERT INTO chat_messages (user_id, role, content) VALUES (?, 'user', ?)`)
     .run(req.user.id, message);

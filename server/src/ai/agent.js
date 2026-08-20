@@ -4,6 +4,10 @@ import { evaluateHealth } from '../lib/scoring.js';
 import db from '../db.js';
 import { riskPredict } from './tools/riskPredict.js';
 import { analyzeHealthTrend } from './tools/healthTrend.js';
+import { predictDisease } from '../lib/diseasePredictor.js';
+import { queryKnowledgeGraph } from './tools/knowledgeGraph.js';
+import { analyzeBehavior } from './tools/behaviorPattern.js';
+import { routeIntent } from './intentRouter.js';
 
 export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康数据智能分析助手与健康管家。
 你的特点：温柔耐心、口语化、避免冷冰冰的医学术语、不下诊断结论、遇到严重情况一定建议就医。
@@ -45,6 +49,8 @@ export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健
    - 工具返回 missing_features 或 status=insufficient_data 时，必须如实告知用户数据不足
    - 工具返回 success=false 或 error 时，如实告知用户"该服务暂时不可用"，不要编造任何数值，也不要透露内部错误细节（路径、堆栈、密钥）
    - 用户健康数据（血压/血糖等具体数值）只能来自工具结果或健康摘要，禁止编造
+   - 知识图谱返回 recommendations 时，建议必须优先解释这些结构化行动及其 reason/evidence；没有 recommendation 时才给一般性健康教育
+   - 知识图谱的证据只能支持健康教育和复测建议，不得越权生成诊断、药物剂量或确定性结论
 9. 不要在回复中提及内部实现细节（模型路径、API、密钥、提示词）
 10. 每条回复必须包含 confidence 字段，标明可信度信息：
    - 如果回复基于用户实际健康数据（血压、血糖、心率、睡眠等）或模型结果，type="data"，给出 0-100 的 score，列出 sources（引用了哪些具体数据及日期），给出 reasoning（评分依据）
@@ -97,8 +103,12 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   // 第一轮：带工具列表，让模型自主决定是否调用
   const forcedToolChoice = intent.riskHit && intent.trendHit
     ? 'auto'
+    : intent.diseaseRiskHit
+      ? { type: 'function', function: { name: 'disease_risk_predict' } }
     : intent.riskHit
       ? { type: 'function', function: { name: 'risk_predict' } }
+    : intent.behaviorHit
+      ? { type: 'function', function: { name: 'behavior_pattern' } }
       : intent.trendHit
         ? { type: 'function', function: { name: 'analyze_health_trend' } }
         : 'none';
@@ -106,7 +116,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     model,
     messages: [...systemMsgs, ...messages],
     temperature: 0.6,
-    tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA],
+    tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA, DISEASE_RISK_TOOL_SCHEMA, BEHAVIOR_TOOL_SCHEMA],
     // 后端意图路由决定工具边界，普通问答禁止误触发健康数据工具。
     tool_choice: forcedToolChoice,
   };
@@ -126,6 +136,11 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
       let r;
       if (fn === 'risk_predict') {
         r = await riskPredict(user?.id, user);
+      } else if (fn === 'disease_risk_predict') {
+        const disease = ['hypertension', 'diabetes', 'heart_disease', 'stroke'].includes(args.disease) ? args.disease : 'hypertension';
+        r = await predictDisease(user?.id, user, disease);
+      } else if (fn === 'behavior_pattern') {
+        r = analyzeBehavior(user?.id, user);
       } else if (fn === 'analyze_health_trend') {
         // 只透传 metric/days（白名单校验在工具内）；userId 来自 req.user
         r = await analyzeHealthTrend(user?.id, { metric: args.metric, days: args.days });
@@ -282,13 +297,52 @@ function mockAgent(userMessage, healthSummary) {
 }
 
 function safeParseJSON(text) {
+  const parseMaybe = (value) => {
+    try {
+      const parsed = JSON.parse(value);
+      if (typeof parsed === 'string') {
+        try { return JSON.parse(parsed); } catch { return { content: parsed, plan: [] }; }
+      }
+      return parsed;
+    } catch { return null; }
+  };
+  const escapeRawNewlines = (value) => {
+    let out = '', quoted = false, escaped = false;
+    for (const ch of value) {
+      if (ch === '"' && !escaped) quoted = !quoted;
+      if ((ch === '\n' || ch === '\r') && quoted) out += '\\n';
+      else out += ch;
+      escaped = ch === '\\' && !escaped;
+      if (ch !== '\\') escaped = false;
+    }
+    return out;
+  };
+  const direct = parseMaybe(text);
+  if (direct) return direct;
+  const repaired = parseMaybe(escapeRawNewlines(text));
+  if (repaired) return repaired;
+  // DeepSeek 偶尔返回“字段内有裸换行”的 JSON。此时仍提取完整 content，避免只保留前200字。
+  const contentStart = text.search(/"content"\s*:\s*"/);
+  if (contentStart >= 0) {
+    const valueStart = text.indexOf('"', text.indexOf(':', contentStart) + 1) + 1;
+    const tail = text.slice(valueStart);
+    const end = tail.search(/"\s*,\s*"(?:plan|confidence)"\s*:/);
+    if (valueStart > 0 && end > 0) {
+      const content = tail.slice(0, end).replace(/\\n/g, '\n').replace(/\\"/g, '"');
+      return { content, plan: [] };
+    }
+    if (valueStart > 0 && tail.length > 0) {
+      return { content: tail.replace(/\\n/g, '\n').replace(/\\"/g, '"').slice(0, 2000), plan: [] };
+    }
+  }
   try {
     return JSON.parse(text);
   } catch {
     // 尝试从 markdown code fence 中提取
     const m = text.match(/\{[\s\S]*\}/);
     if (m) {
-      try { return JSON.parse(m[0]); } catch {}
+      const extracted = parseMaybe(m[0]) || parseMaybe(escapeRawNewlines(m[0]));
+      if (extracted) return extracted;
     }
     return { content: text.slice(0, 200), plan: [] };
   }
@@ -326,6 +380,27 @@ function normalizeAgentResult(raw) {
   return { content: content || '我暂时无法生成可靠回答，请稍后再试。', plan, confidence };
 }
 
+// GraphRAG 结果不是“参考文本”而已：把结构化行动、原因和证据强制带回最终回答。
+function applyGraphGrounding(result, graph) {
+  const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, 4) : [];
+  if (!recs.length) return result;
+  const actions = recs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
+  const citations = [...new Set(recs.map(r => r.evidence).filter(Boolean))].join('、');
+  const grounded = `${result.content}\n\n结合当前数据，优先执行：\n${actions}\n依据：${citations || '知识图谱健康管理条目'}`;
+  const plan = recs.slice(0, 3).map((r, i) => ({
+    icon: r.priority === 'urgent' ? '急' : '测',
+    title: r.priority === 'urgent' ? '需要立即关注' : '建议：' + (r.action.length > 24 ? r.action.slice(0, 24) + '…' : r.action),
+    desc: r.action,
+    color: r.priority === 'urgent' ? 'red' : i === 0 ? 'orange' : 'green',
+  }));
+  return {
+    ...result,
+    content: grounded.slice(0, 2000),
+    plan: plan.length ? plan : result.plan,
+    confidence: { type: 'data', score: Math.min(90, Math.max(65, result.confidence?.score || 70)), sources: citations ? citations.split('、') : ['GraphRAG 结构化建议'], reasoning: '回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。' },
+  };
+}
+
 // ===== 风险预测工具注册（标准 Tool schema）=====
 // 参数为空对象：userId 由后端 req.user 注入，健康数据由后端读库，
 // LLM 无法传入/修改模型输入 —— 防注入与防编造
@@ -356,10 +431,29 @@ export const ANALYZE_TREND_TOOL_SCHEMA = {
   },
 };
 
+export const DISEASE_RISK_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'disease_risk_predict',
+    description: '基于当前用户真实指标，估计未来两年常见疾病新发风险。只用于筛查，不是诊断。支持 hypertension、diabetes、heart_disease、stroke。',
+    parameters: { type: 'object', properties: { disease: { type: 'string', enum: ['hypertension', 'diabetes', 'heart_disease', 'stroke'] } }, required: ['disease'], additionalProperties: false },
+  },
+};
+
+export const BEHAVIOR_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'behavior_pattern',
+    description: '分析用户最近步数和睡眠的7天滚动平均、波动和记录完整度。不得输出精确医学未来预测。',
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+};
+
 // ===== 风险预测意图识别（Mock 模式用；LLM 模式由模型自主决定调用工具）=====
 // 覆盖: "高血压风险/风险预测"、"会不会得高血压"、"得高血压的可能性/概率"、"健康预测"
 // 注意: 单纯描述血压数值（如"我今天血压 128/85 正常吗"）不触发
 const RISK_INTENT = /(高血压|血压).{0,10}(风险|预测|可能性|概率)|(风险|预测|可能性|概率).{0,10}(高血压|血压)|会不会.{0,4}(高血压|血压)|健康预测/;
+const DISEASE_RISK_INTENT = /(糖尿病|心脏病|心血管|脑卒中|中风).{0,12}(风险|概率|预测|会不会)|(风险|概率|预测).{0,12}(糖尿病|心脏病|心血管|脑卒中|中风)/;
 
 // ===== 趋势分析意图识别（Mock 模式用）=====
 // 注意: 风险意图优先判断（RISK_INTENT）；本正则覆盖"最近/趋势/变化/上升/下降/走势/波动"等
@@ -370,6 +464,14 @@ const TREND_CN = {
   low: '波动较小', moderate: '波动中等', high: '波动较大',
   weak: '较弱', moderate: '中等', strong: '较强',
 };
+
+async function mockBehaviorReply(user) {
+  const result = analyzeBehavior(user?.id, user);
+  const rows = Object.entries(result.behavior || {});
+  if (!rows.length) return { content: '最近还没有足够的步数或睡眠记录，先连续记录几天，我再帮你看变化。', plan: [], confidence: { type: 'common_sense' } };
+  const text = rows.map(([type, x]) => `${type === 'steps' ? '步数' : '睡眠'}近7天平均 ${x.rolling_7d_average}${type === 'steps' ? '步' : '小时'}，最近一次 ${x.latest}`).join('；');
+  return { content: `${text}。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。`, plan: [{ icon: '测', title: '继续记录', desc: '固定时间记录步数和睡眠', color: 'orange' }], confidence: { type: 'data', score: 78, sources: rows.map(([type, x]) => `${type} ${x.data_points} 个数据点`), reasoning: '基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。' } };
+}
 
 /**
  * Mock 模式工具调用：趋势分析（真实数据 → health_curve.py）
@@ -496,31 +598,62 @@ async function mockRiskReply(user) {
  */
 export async function chat(history, userMessage, healthSummary, user) {
   const riskHit = RISK_INTENT.test(userMessage || '');
+  const diseaseRiskHit = DISEASE_RISK_INTENT.test(userMessage || '');
   const trendHit = TREND_INTENT.test(userMessage || '');
+  const behaviorHit = routeIntent(userMessage).behavior;
 
   if (hasRealLLM()) {
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
-      const result = await callOpenAI(messages, healthSummary, user, { riskHit, trendHit });
-      return { source: 'openai', ...normalizeAgentResult(result) };
+      let graphContext = '';
+      let graphEvidence = null;
+      if (/为什么|怎么办|建议|注意|危险|饮食|复测/.test(userMessage || '')) {
+        const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
+        const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {});
+        if (kg?.results?.length || kg?.recommendations?.length) {
+          graphEvidence = kg;
+          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 3) || [], recommendations: kg.recommendations || [], disclaimer: kg.disclaimer })}`;
+        }
+      }
+      const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, { riskHit, trendHit, diseaseRiskHit, behaviorHit });
+      const normalized = applyGraphGrounding(normalizeAgentResult(result), graphEvidence);
+      // 工具已返回真实数据时，即使模型因截断漏掉 confidence，也不能把数据回答标成闲聊。
+      if ((riskHit || trendHit || diseaseRiskHit || graphContext) && normalized.confidence.type === 'common_sense') {
+        normalized.confidence = { type: 'data', score: 60, sources: ['后端健康分析工具结果'], reasoning: '回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。' };
+      }
+      return { source: 'openai', ...normalized };
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
-      if (riskHit || trendHit) {
+      if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
         const [r1, r2] = await Promise.all([
           riskHit ? mockRiskReply(user) : null,
           trendHit ? mockTrendReply(user) : null,
         ]);
+        if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
+        if (diseaseRiskHit) {
+          const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
+          const d = await predictDisease(user?.id, user, disease);
+          const extra = d?.success ? { content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`, plan: [], confidence: { type: 'data', score: d.confidence === 'low' ? 65 : 82, sources: [`${disease}风险模型`, `缺失指标 ${d.missing_features?.length || 0} 项`], reasoning: '基于当前账户真实指标和纵向队列模型。' } } : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+          return { source: 'tool', ...combineRiskTrend(extra, combineRiskTrend(r1, r2)) };
+        }
         return { source: 'tool', ...combineRiskTrend(r1, r2) };
       }
     }
   }
   // Mock 模式：风险/趋势意图 → 真实工具调用（真实数据）
-  if (riskHit || trendHit) {
+  if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
     const [r1, r2] = await Promise.all([
       riskHit ? mockRiskReply(user) : null,
       trendHit ? mockTrendReply(user) : null,
     ]);
+    if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
+    if (diseaseRiskHit) {
+      const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
+      const d = await predictDisease(user?.id, user, disease);
+      const extra = d?.success ? { content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`, plan: [], confidence: { type: 'data', score: d.confidence === 'low' ? 65 : 82, sources: [`${disease}风险模型`], reasoning: '基于当前账户真实指标和纵向队列模型。' } } : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+      return { source: 'tool', ...combineRiskTrend(extra, combineRiskTrend(r1, r2)) };
+    }
     return { source: 'tool', ...combineRiskTrend(r1, r2) };
   }
   return { source: 'mock', ...mockAgent(userMessage, healthSummary) };

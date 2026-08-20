@@ -1,0 +1,66 @@
+{
+  "disease": "hypertension",
+  "task": "Wave1→Wave2 incidence",
+  "model": "xgboost",
+  "features": [
+    "age",
+    "gender",
+    "edu",
+    "systo",
+    "diasto",
+    "pulse",
+    "bmi",
+    "mwaist",
+    "lgrip",
+    "rgrip",
+    "bl_glu",
+    "bl_hbalc",
+    "bl_cho",
+    "sleep",
+    "smokev",
+    "smoken",
+    "drinkev",
+    "drinkl",
+    "exercise",
+    "totmet",
+    "srh",
+    "cesd10",
+    "total_cognition",
+    "adlab_c",
+    "iadl",
+    "chronic",
+    "diabe",
+    "hearte",
+    "stroke",
+    "dyslipe",
+    "lunge"
+  ],
+  "n_total": 11010,
+  "n_positive": 506,
+  "positive_rate": 0.04595821980018165,
+  "candidate_scores": {
+    "logistic": {
+      "cv_roc_auc_mean": 0.6980950868387249,
+      "cv_pr_auc_mean": 0.11482645431568554,
+      "test_roc_auc": 0.6674520855226884,
+      "test_pr_auc": 0.08729537908873365,
+      "test_brier": 0.20968015415599128
+    },
+    "xgboost": {
+      "cv_roc_auc_mean": 0.692624006297167,
+      "cv_pr_auc_mean": 0.12243297823417958,
+      "test_roc_auc": 0.659447881960971,
+      "test_pr_auc": 0.10070148118979379,
+      "test_brier": 0.04311619699001312
+    }
+  },
+  "test_metrics_calibrated": {
+    "roc_auc": 0.6539177477957221,
+    "pr_auc": 0.08919836054251237,
+    "brier": 0.043300415001902015,
+    "n_test": 2202,
+    "positive_test": 101
+  },
+  "random_state": 42,
+  "disclaimer": "队列风险筛查模型，不是诊断；需要外部验证后才能用于临床。"
+}

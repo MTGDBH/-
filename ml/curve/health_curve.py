@@ -25,6 +25,11 @@ from curve_utils import (parse_points, dedup_time, clean_series, model_metrics,
 
 MIN_POINTS = 5
 
+# 只有有明确“短期连续水平”的指标才做数值外推。
+# 步数、睡眠、体温等保留历史趋势/异常分析，但不输出虚假的未来数值。
+FORECASTABLE_METRICS = {'systo', 'diasto', 'pulse', 'weight', 'glucose', 'health_score'}
+BEHAVIOR_ONLY_METRICS = {'steps', 'sleep'}
+
 
 def _pick_model(train_x, train_y, val_x, val_y):
     """
@@ -50,7 +55,8 @@ def _pick_model(train_x, train_y, val_x, val_y):
 
 
 def analyze(metric, unit, points, forecast_days=30):
-    forecast_days = int(max(7, min(30, int(forecast_days or 30))))
+    requested_forecast_days = int(max(7, min(30, int(forecast_days or 30))))
+    forecast_days = requested_forecast_days
     ts, vs = parse_points(points)
     ts, vs = dedup_time(ts, vs)
     n_raw = len(vs)
@@ -161,6 +167,11 @@ def analyze(metric, unit, points, forecast_days=30):
             model_info['score']['r2'] >= 0.2 or validation_mae_ratio <= 0.05
         )
     forecast_checks = []
+    if metric not in FORECASTABLE_METRICS:
+        if metric in BEHAVIOR_ONLY_METRICS:
+            forecast_checks.append('行为指标只做滚动趋势，不做精确未来预测')
+        else:
+            forecast_checks.append('该指标不适合短期数值外推')
     if n_clean < 10:
         forecast_checks.append(f'有效点不足（{n_clean}/10）')
     if span_days < 14:
@@ -171,8 +182,20 @@ def analyze(metric, unit, points, forecast_days=30):
         forecast_checks.append('时间顺序验证误差偏大')
     if fluctuation == 'high':
         forecast_checks.append('近期波动过高')
+
+    # 数据越短，允许的预测跨度越短；不能用两周数据承诺30天。
+    max_horizon = 0
+    if n_clean >= 10 and span_days >= 14:
+        max_horizon = 7
+    if n_clean >= 21 and span_days >= 21:
+        max_horizon = 14
+    if n_clean >= 30 and span_days >= 30:
+        max_horizon = 30
+    if max_horizon and requested_forecast_days > max_horizon:
+        forecast_days = max_horizon
+        forecast_checks.append(f'数据量仅支持未来{max_horizon}天，已缩短预测跨度')
     forecast_available = bool(
-        n_clean >= 10 and span_days >= 14 and model_info is not None
+        metric in FORECASTABLE_METRICS and n_clean >= 10 and span_days >= 14 and max_horizon > 0 and model_info is not None
         and validation_quality_ok and fluctuation != 'high'
     )
     forecast_reason = None if forecast_available else (
@@ -186,8 +209,12 @@ def analyze(metric, unit, points, forecast_days=30):
     if forecast_available:
         h = forecast_days
         future_x = x[-1] + np.arange(1, h + 1, dtype=float)
-        pred_y = np.asarray(predict(full_coef, future_x), dtype=float)
-        full_resid = vs_clean - np.asarray(predict(full_coef, x), dtype=float)
+        # 使用局部稳健趋势 + 阻尼外推，避免二次曲线长期爆炸。
+        from curve_models import damped_fit, damped_predict, huber_predict
+        damped_coef = damped_fit(x, vs_clean, window=min(10, len(x)), damping=0.92)
+        pred_y = np.asarray(damped_predict(damped_coef, future_x), dtype=float)
+        huber_coef = huber_fit(x, vs_clean)
+        full_resid = vs_clean - np.asarray(huber_predict(huber_coef, x), dtype=float)
         # 即使历史点完全落在直线上，也保留一个与指标量级相关的最小测量误差，
         # 避免前端显示“零宽度的确定性预测区间”。
         sigma = max(float(np.std(full_resid, ddof=1)) if len(full_resid) > 1 else 0.0,
@@ -199,6 +226,7 @@ def analyze(metric, unit, points, forecast_days=30):
         future_ts = ts_clean[-1] + np.arange(1, h + 1, dtype=float) * 86400.0
         est = float(pred_y[-1])
         forecast['estimated_value'] = round(est, 2)
+        forecast['model'] = 'damped_huber'
         forecast['curve'] = {
             'timestamps': [float(v) for v in future_ts],
             'predicted': [round(float(v), 2) for v in pred_y],

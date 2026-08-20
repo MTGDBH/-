@@ -65,6 +65,20 @@
         </div>
       </div>
     </section>
+
+    <section class="disease-risk-panel" aria-labelledby="disease-risk-title">
+      <div class="disease-risk-head">
+        <div>
+          <div class="disease-risk-title" id="disease-risk-title">常见疾病风险筛查</div>
+          <div class="disease-risk-sub">结合你的近期健康记录估算未来两年风险 · 结果仅用于健康管理参考</div>
+        </div>
+        <span class="risk-horizon-badge">未来两年</span>
+      </div>
+      <div class="disease-risk-grid" id="disease-risk-grid">
+        <div class="risk-loading"><span class="risk-loading-dot"></span>正在读取健康数据并计算风险…</div>
+      </div>
+      <div class="disease-risk-foot">风险概率不是诊断结果。数据不足时，建议继续规律记录血压、血糖等指标。</div>
+    </section>
   </main>
 
   <script src="assets/js/api.js"></script>
@@ -82,9 +96,49 @@
         renderAdlIadl(d);
         renderSuggest(d.suggestions);
         document.getElementById('evaluated-at').textContent = '最近评估：' + (d.evaluated_at || '').slice(0, 16).replace('T', ' ');
+        loadDiseaseRisks();
       } catch (err) {
         document.getElementById('summary-text').textContent = '加载失败：' + err.message;
       }
+    }
+
+    const diseaseRiskMeta = [
+      { key: 'hypertension', name: '高血压', icon: '压', tone: 'orange', desc: '关注血压变化' },
+      { key: 'diabetes', name: '糖尿病', icon: '糖', tone: 'purple', desc: '关注血糖记录' },
+      { key: 'heart_disease', name: '心脏病', icon: '心', tone: 'green', desc: '关注心血管状态' },
+      { key: 'stroke', name: '脑卒中', icon: '脑', tone: 'red', desc: '关注综合风险因素' },
+    ];
+
+    async function loadDiseaseRisks() {
+      const host = document.getElementById('disease-risk-grid');
+      const results = await Promise.all(diseaseRiskMeta.map(async meta => {
+        try { return { meta, data: await API.get('/api/prediction/disease/' + meta.key) }; }
+        catch (error) { return { meta, data: { success: false, error: error.message || '暂时无法获取' } }; }
+      }));
+      host.innerHTML = results.map(({ meta, data }) => renderDiseaseRisk(meta, data)).join('');
+    }
+
+    function renderDiseaseRisk(meta, data) {
+      if (!data || data.error === 'no_data') {
+        return `<article class="disease-risk-card ${meta.tone}">
+          <div class="risk-card-top"><span class="risk-icon">${meta.icon}</span><div><div class="risk-name">${meta.name}</div><div class="risk-desc">${meta.desc}</div></div><span class="risk-state muted">待记录</span></div>
+          <div class="risk-empty">还没有足够的监测数据<br><a href="monitoring.html">去记录数据 →</a></div>
+        </article>`;
+      }
+      if (!data.success) {
+        return `<article class="disease-risk-card ${meta.tone}"><div class="risk-card-top"><span class="risk-icon">${meta.icon}</span><div><div class="risk-name">${meta.name}</div><div class="risk-desc">${meta.desc}</div></div><span class="risk-state muted">暂不可用</span></div><div class="risk-empty">${escapeHTML(data.error || '风险服务暂时不可用')}</div></article>`;
+      }
+      const pct = Math.max(0, Math.min(100, Number(data.risk_percent) || 0));
+      const level = data.risk_level === 'higher' ? '需重点关注' : data.risk_level === 'moderate' ? '建议留意' : '相对较低';
+      const stateClass = data.risk_level === 'higher' ? 'high' : data.risk_level === 'moderate' ? 'mid' : 'low';
+      const confidence = data.confidence === 'low' ? '可信度较低' : data.confidence === 'medium' ? '可信度中等' : '可信度较高';
+      const missing = Array.isArray(data.missing_features) ? data.missing_features.length : 0;
+      return `<article class="disease-risk-card ${meta.tone}">
+        <div class="risk-card-top"><span class="risk-icon">${meta.icon}</span><div><div class="risk-name">${meta.name}</div><div class="risk-desc">${meta.desc}</div></div><span class="risk-state ${stateClass}">${level}</span></div>
+        <div class="risk-number-row"><span class="risk-number">${pct.toFixed(2)}</span><span class="risk-unit">%</span><span class="risk-confidence">${confidence}</span></div>
+        <div class="risk-bar"><span style="width:${Math.max(3, pct)}%"></span></div>
+        <div class="risk-meta"><span>模型：${data.model === 'xgboost' ? 'XGBoost' : 'Logistic'}</span><span>${missing ? '缺少 ' + missing + ' 项数据' : '数据较完整'}</span></div>
+      </article>`;
     }
 
     function renderTotal(d) {

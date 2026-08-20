@@ -1,6 +1,8 @@
 // 健康知识路由
 import express from 'express';
 import db from '../db.js';
+import { queryKnowledgeGraph } from '../ai/tools/knowledgeGraph.js';
+import { buildHealthContext } from '../ai/contextBuilder.js';
 
 const router = express.Router();
 
@@ -28,6 +30,25 @@ router.get('/', (req, res) => {
   res.json({ items: rows, total: rows.length });
 });
 
+// GraphRAG 检索：返回可引用的来源、章节和证据等级，不与数据库文章列表混淆。
+router.get('/graph/query', async (req, res) => {
+  const question = String(req.query.q || '').trim();
+  if (!question) return res.status(400).json({ error: 'q is required' });
+  const disease = req.query.disease ? String(req.query.disease) : null;
+  try { res.json(await queryKnowledgeGraph(question, disease, buildHealthContext(req.user, 90))); }
+  catch { res.status(503).json({ error: 'knowledge graph unavailable' }); }
+});
+
+// 热门关键词（从 tags 提取）
+router.get('/meta/popular-tags', (_req, res) => {
+  const rows = db.prepare('SELECT tags FROM knowledge_articles').all();
+  const counts = {};
+  for (const r of rows) {
+    try { for (const t of (r.tags ? JSON.parse(r.tags) : [])) counts[t] = (counts[t] || 0) + 1; } catch {}
+  }
+  res.json(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([tag, count]) => ({ tag, count })));
+});
+
 // 单篇
 router.get('/:id', (req, res) => {
   const id = parseInt(req.params.id, 10);
@@ -39,20 +60,6 @@ router.get('/:id', (req, res) => {
     tags: row.tags ? JSON.parse(row.tags) : [],
     view_count: row.view_count + 1,
   });
-});
-
-// 热门关键词（从 tags 提取）
-router.get('/meta/popular-tags', (_req, res) => {
-  const rows = db.prepare('SELECT tags FROM knowledge_articles').all();
-  const counts = {};
-  for (const r of rows) {
-    try {
-      const tags = r.tags ? JSON.parse(r.tags) : [];
-      for (const t of tags) counts[t] = (counts[t] || 0) + 1;
-    } catch {}
-  }
-  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([tag, count]) => ({ tag, count }));
-  res.json(top);
 });
 
 export default router;

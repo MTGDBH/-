@@ -1,0 +1,359 @@
+[
+  {
+    "source": "disease:cardiovascular",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "measurement:血脂",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "measurement:体重",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:吸烟",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:体重",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:血脂",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:1",
+    "evidence": "cardiovascular.md#风险因素"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:2",
+    "evidence": "cardiovascular.md#复查计划"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "intervention:就医",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:2",
+    "evidence": "cardiovascular.md#复查计划"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "danger_sign:胸痛",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:3",
+    "evidence": "cardiovascular.md#危险信号"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "danger_sign:呼吸困难",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:3",
+    "evidence": "cardiovascular.md#危险信号"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "danger_sign:言语不清",
+    "type": "mentions",
+    "chunk_id": "cardiovascular:3",
+    "evidence": "cardiovascular.md#危险信号"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:1",
+    "evidence": "diabetes.md#监测"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:1",
+    "evidence": "diabetes.md#监测"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "diabetes:1",
+    "evidence": "diabetes.md#监测"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "diabetes:1",
+    "evidence": "diabetes.md#监测"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:3",
+    "evidence": "diabetes.md#危险信号"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:3",
+    "evidence": "diabetes.md#危险信号"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:联系家属",
+    "type": "mentions",
+    "chunk_id": "diabetes:3",
+    "evidence": "diabetes.md#危险信号"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "danger_sign:意识模糊",
+    "type": "mentions",
+    "chunk_id": "diabetes:3",
+    "evidence": "diabetes.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:1",
+    "evidence": "hypertension.md#识别与复测"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:1",
+    "evidence": "hypertension.md#识别与复测"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "hypertension:1",
+    "evidence": "hypertension.md#识别与复测"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "hypertension:1",
+    "evidence": "hypertension.md#识别与复测"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:体重",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:吸烟",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:盐",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:体重",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "intervention:减少盐",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "hypertension:2",
+    "evidence": "hypertension.md#生活方式"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "danger_sign:胸痛",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "danger_sign:呼吸困难",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "danger_sign:意识改变",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "danger_sign:单侧无力",
+    "type": "mentions",
+    "chunk_id": "hypertension:3",
+    "evidence": "hypertension.md#危险信号"
+  }
+]

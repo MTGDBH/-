@@ -1,0 +1,246 @@
+[
+  {
+    "id": "disease:cardiovascular",
+    "type": "disease",
+    "name": "cardiovascular",
+    "chunk_ids": []
+  },
+  {
+    "id": "measurement:血压",
+    "type": "measurement",
+    "name": "血压",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "hypertension:1",
+      "hypertension:2",
+      "hypertension:3"
+    ]
+  },
+  {
+    "id": "measurement:血糖",
+    "type": "measurement",
+    "name": "血糖",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "diabetes:1",
+      "diabetes:2",
+      "diabetes:3"
+    ]
+  },
+  {
+    "id": "measurement:血脂",
+    "type": "measurement",
+    "name": "血脂",
+    "chunk_ids": [
+      "cardiovascular:1"
+    ]
+  },
+  {
+    "id": "measurement:体重",
+    "type": "measurement",
+    "name": "体重",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "measurement:活动",
+    "type": "measurement",
+    "name": "活动",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "diabetes:2",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "risk_factor:吸烟",
+    "type": "risk_factor",
+    "name": "吸烟",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "risk_factor:体重",
+    "type": "risk_factor",
+    "name": "体重",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "risk_factor:血压",
+    "type": "risk_factor",
+    "name": "血压",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "hypertension:1",
+      "hypertension:2",
+      "hypertension:3"
+    ]
+  },
+  {
+    "id": "risk_factor:血糖",
+    "type": "risk_factor",
+    "name": "血糖",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "diabetes:1",
+      "diabetes:2",
+      "diabetes:3"
+    ]
+  },
+  {
+    "id": "risk_factor:血脂",
+    "type": "risk_factor",
+    "name": "血脂",
+    "chunk_ids": [
+      "cardiovascular:1"
+    ]
+  },
+  {
+    "id": "intervention:活动",
+    "type": "intervention",
+    "name": "活动",
+    "chunk_ids": [
+      "cardiovascular:1",
+      "diabetes:2",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "intervention:复测",
+    "type": "intervention",
+    "name": "复测",
+    "chunk_ids": [
+      "cardiovascular:2",
+      "diabetes:1",
+      "hypertension:1"
+    ]
+  },
+  {
+    "id": "intervention:就医",
+    "type": "intervention",
+    "name": "就医",
+    "chunk_ids": [
+      "cardiovascular:2"
+    ]
+  },
+  {
+    "id": "danger_sign:胸痛",
+    "type": "danger_sign",
+    "name": "胸痛",
+    "chunk_ids": [
+      "cardiovascular:3",
+      "hypertension:3"
+    ]
+  },
+  {
+    "id": "danger_sign:呼吸困难",
+    "type": "danger_sign",
+    "name": "呼吸困难",
+    "chunk_ids": [
+      "cardiovascular:3",
+      "hypertension:3"
+    ]
+  },
+  {
+    "id": "danger_sign:言语不清",
+    "type": "danger_sign",
+    "name": "言语不清",
+    "chunk_ids": [
+      "cardiovascular:3"
+    ]
+  },
+  {
+    "id": "disease:diabetes",
+    "type": "disease",
+    "name": "diabetes",
+    "chunk_ids": []
+  },
+  {
+    "id": "intervention:记录",
+    "type": "intervention",
+    "name": "记录",
+    "chunk_ids": [
+      "diabetes:1",
+      "hypertension:1"
+    ]
+  },
+  {
+    "id": "measurement:睡眠",
+    "type": "measurement",
+    "name": "睡眠",
+    "chunk_ids": [
+      "diabetes:2",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "intervention:睡眠",
+    "type": "intervention",
+    "name": "睡眠",
+    "chunk_ids": [
+      "diabetes:2",
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "intervention:联系家属",
+    "type": "intervention",
+    "name": "联系家属",
+    "chunk_ids": [
+      "diabetes:3"
+    ]
+  },
+  {
+    "id": "danger_sign:意识模糊",
+    "type": "danger_sign",
+    "name": "意识模糊",
+    "chunk_ids": [
+      "diabetes:3"
+    ]
+  },
+  {
+    "id": "disease:hypertension",
+    "type": "disease",
+    "name": "hypertension",
+    "chunk_ids": []
+  },
+  {
+    "id": "risk_factor:盐",
+    "type": "risk_factor",
+    "name": "盐",
+    "chunk_ids": [
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "intervention:减少盐",
+    "type": "intervention",
+    "name": "减少盐",
+    "chunk_ids": [
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "danger_sign:意识改变",
+    "type": "danger_sign",
+    "name": "意识改变",
+    "chunk_ids": [
+      "hypertension:3"
+    ]
+  },
+  {
+    "id": "danger_sign:单侧无力",
+    "type": "danger_sign",
+    "name": "单侧无力",
+    "chunk_ids": [
+      "hypertension:3"
+    ]
+  }
+]

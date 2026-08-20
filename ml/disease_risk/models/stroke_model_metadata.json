@@ -1,0 +1,66 @@
+{
+  "disease": "stroke",
+  "task": "Wave1→Wave2 incidence",
+  "model": "xgboost",
+  "features": [
+    "age",
+    "gender",
+    "edu",
+    "systo",
+    "diasto",
+    "pulse",
+    "bmi",
+    "mwaist",
+    "lgrip",
+    "rgrip",
+    "bl_glu",
+    "bl_hbalc",
+    "bl_cho",
+    "sleep",
+    "smokev",
+    "smoken",
+    "drinkev",
+    "drinkl",
+    "exercise",
+    "totmet",
+    "srh",
+    "cesd10",
+    "total_cognition",
+    "adlab_c",
+    "iadl",
+    "chronic",
+    "diabe",
+    "hearte",
+    "stroke",
+    "dyslipe",
+    "lunge"
+  ],
+  "n_total": 14534,
+  "n_positive": 94,
+  "positive_rate": 0.006467593229668364,
+  "candidate_scores": {
+    "logistic": {
+      "cv_roc_auc_mean": 0.6149434532004848,
+      "cv_pr_auc_mean": 0.015126400750913751,
+      "test_roc_auc": 0.5574974486076688,
+      "test_pr_auc": 0.017898374305619046,
+      "test_brier": 0.18749970932133309
+    },
+    "xgboost": {
+      "cv_roc_auc_mean": 0.6171594188781555,
+      "cv_pr_auc_mean": 0.0312609791411302,
+      "test_roc_auc": 0.6260478932789036,
+      "test_pr_auc": 0.017499938097086547,
+      "test_brier": 0.006511017680168152
+    }
+  },
+  "test_metrics_calibrated": {
+    "roc_auc": 0.636517713952471,
+    "pr_auc": 0.017566793163308857,
+    "brier": 0.006518999055208543,
+    "n_test": 2907,
+    "positive_test": 19
+  },
+  "random_state": 42,
+  "disclaimer": "队列风险筛查模型，不是诊断；需要外部验证后才能用于临床。"
+}

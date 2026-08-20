@@ -1,0 +1,66 @@
+{
+  "disease": "diabetes",
+  "task": "Wave1→Wave2 incidence",
+  "model": "logistic",
+  "features": [
+    "age",
+    "gender",
+    "edu",
+    "systo",
+    "diasto",
+    "pulse",
+    "bmi",
+    "mwaist",
+    "lgrip",
+    "rgrip",
+    "bl_glu",
+    "bl_hbalc",
+    "bl_cho",
+    "sleep",
+    "smokev",
+    "smoken",
+    "drinkev",
+    "drinkl",
+    "exercise",
+    "totmet",
+    "srh",
+    "cesd10",
+    "total_cognition",
+    "adlab_c",
+    "iadl",
+    "chronic",
+    "diabe",
+    "hearte",
+    "stroke",
+    "dyslipe",
+    "lunge"
+  ],
+  "n_total": 13858,
+  "n_positive": 223,
+  "positive_rate": 0.01609178813681628,
+  "candidate_scores": {
+    "logistic": {
+      "cv_roc_auc_mean": 0.7238323172911723,
+      "cv_pr_auc_mean": 0.087775316294638,
+      "test_roc_auc": 0.6796398158334352,
+      "test_pr_auc": 0.11770699937344835,
+      "test_brier": 0.1726294208365477
+    },
+    "xgboost": {
+      "cv_roc_auc_mean": 0.7320413977501855,
+      "cv_pr_auc_mean": 0.06118535516021587,
+      "test_roc_auc": 0.6902456912357902,
+      "test_pr_auc": 0.15149523842355642,
+      "test_brier": 0.015139641240239143
+    }
+  },
+  "test_metrics_calibrated": {
+    "roc_auc": 0.6746200545980524,
+    "pr_auc": 0.1206005232665437,
+    "brier": 0.015424987247285226,
+    "n_test": 2772,
+    "positive_test": 45
+  },
+  "random_state": 42,
+  "disclaimer": "队列风险筛查模型，不是诊断；需要外部验证后才能用于临床。"
+}

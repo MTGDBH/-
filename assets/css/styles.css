@@ -1021,6 +1021,7 @@ ul, ol { list-style: none; }
   .entry-grid { grid-template-columns: repeat(2, 1fr); }
   .subscore-grid { grid-template-columns: repeat(2, 1fr); }
   .quick-row { grid-template-columns: repeat(2, 1fr); height: auto; }
+  .disease-risk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ========================================================================
@@ -1972,6 +1973,11 @@ ul, ol { list-style: none; }
   .login-card { padding: 36px 24px; }
   .login-screen { padding: 16px; }
   .login-brand h1 { font-size: 26px; }
+  .disease-risk-panel { padding: 22px 18px 18px; }
+  .disease-risk-head { align-items: flex-start; }
+  .disease-risk-title { font-size: 18px; }
+  .disease-risk-sub { max-width: 230px; }
+  .disease-risk-grid { grid-template-columns: 1fr; }
 }
 
 /* ========================================================================
@@ -2288,6 +2294,52 @@ ul, ol { list-style: none; }
 /* ===== 零散小补丁 ===== */
 .entry-tip { font-size: 13px; color: #9C8B7A; font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif; }
 .score-footer-tip { font-size: 13px; color: #9C8B7A; font-family: "Source Han Sans CN", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif; }
+
+/* ===== 健康评估页：疾病风险筛查 ===== */
+.disease-risk-panel {
+  margin-top: 24px;
+  padding: 28px 32px 22px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px rgba(122,81,40,0.06);
+}
+.disease-risk-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.disease-risk-title { color: #3D2E1F; font-size: 20px; font-weight: 700; line-height: 1.4; }
+.disease-risk-sub { margin-top: 5px; color: #9C8B7A; font-size: 13px; line-height: 1.5; }
+.risk-horizon-badge { flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; background: #FAF0E1; color: #A45F3D; font-size: 12px; font-weight: 600; }
+.disease-risk-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.disease-risk-card { min-width: 0; padding: 18px; border: 1px solid #EDE5DA; border-top: 3px solid #F4A261; border-radius: 18px; background: #FFFCF8; }
+.disease-risk-card.purple { border-top-color: #9C7BC9; }
+.disease-risk-card.green { border-top-color: #7FB069; }
+.disease-risk-card.red { border-top-color: #E0784E; }
+.risk-card-top { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.risk-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; flex: 0 0 38px; border-radius: 12px; background: #FFE9D9; color: #A45F3D; font-size: 17px; font-weight: 700; }
+.purple .risk-icon { background: #F1E8F5; color: #6A4D90; }
+.green .risk-icon { background: #E5F0DC; color: #5A8045; }
+.red .risk-icon { background: #FBE4DD; color: #A04632; }
+.risk-name { color: #3D2E1F; font-size: 15px; font-weight: 700; }
+.risk-desc { margin-top: 2px; color: #9C8B7A; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.risk-state { margin-left: auto; padding: 4px 7px; border-radius: 999px; white-space: nowrap; font-size: 10px; font-weight: 600; }
+.risk-state.low { background: #E5F0DC; color: #5A8045; }
+.risk-state.mid { background: #FFE9D9; color: #A45F3D; }
+.risk-state.high { background: #FBE4DD; color: #A04632; }
+.risk-state.muted { background: #F5F0EA; color: #9C8B7A; }
+.risk-number-row { display: flex; align-items: baseline; gap: 3px; margin-top: 18px; }
+.risk-number { color: #3D2E1F; font-size: 32px; font-weight: 800; line-height: 1; }
+.risk-unit { color: #9C8B7A; font-size: 13px; }
+.risk-confidence { margin-left: auto; color: #9C8B7A; font-size: 10px; }
+.risk-bar { height: 7px; margin-top: 12px; overflow: hidden; border-radius: 99px; background: #F1E8DF; }
+.risk-bar span { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: #F4A261; }
+.purple .risk-bar span { background: #9C7BC9; }
+.green .risk-bar span { background: #7FB069; }
+.red .risk-bar span { background: #E0784E; }
+.risk-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; color: #9C8B7A; font-size: 10px; }
+.risk-empty { min-height: 62px; padding-top: 18px; color: #9C8B7A; font-size: 12px; line-height: 1.7; }
+.risk-empty a { color: #F4A261; text-decoration: none; font-weight: 600; }
+.risk-loading { grid-column: 1 / -1; padding: 30px; color: #9C8B7A; text-align: center; font-size: 13px; }
+.risk-loading-dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #F4A261; animation: riskPulse 1.2s infinite ease-in-out; }
+@keyframes riskPulse { 0%,100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
+.disease-risk-foot { margin-top: 18px; color: #B2A396; font-size: 11px; line-height: 1.5; }
 .msg-ai { display: flex; gap: 10px; align-items: flex-start; }
 
 /* ========================================================================
@@ -2698,6 +2750,10 @@ ul, ol { list-style: none; }
   box-shadow: 0 2px 12px rgba(122,81,40,0.06);
   margin-bottom: 20px;
 }
+.pred-quality-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 10px 2px 0; color: #9C8B7A; font-size: 11px; line-height: 1.5; }
+.pred-quality-row > span + span { padding-left: 14px; border-left: 1px solid #EDE5DA; }
+.pred-quality-ok { color: #5A8045; font-weight: 700; }
+.pred-quality-off { color: #A45F3D; font-weight: 700; }
 .pred-metric-head {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px;

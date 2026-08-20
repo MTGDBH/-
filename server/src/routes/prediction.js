@@ -5,6 +5,7 @@ import express from 'express';
 import db from '../db.js';
 import { scoreMetric } from '../lib/scoring.js';
 import { runPythonTool } from '../lib/htnPredictor.js';
+import { predictDisease, DISEASES } from '../lib/diseasePredictor.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -94,6 +95,9 @@ async function analyzeCurve(metric, unit, points, futureDays) {
       model: result.model, confidence: result.confidence, modelScore: result.model_score,
       dataPoints: result.data_points, rawPoints: result.raw_points,
       removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
+      forecastDays: result.forecast?.days || 0, forecastModel: result.forecast?.model || null,
+      dateStart: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[0]).slice(0, 10) : null,
+      dateEnd: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[result.curve.timestamps.length - 1]).slice(0, 10) : null,
       forecastReason: result.forecast?.reason || null,
       medicalBounds: result.medical_bounds || null,
       warning: result.warning,
@@ -107,6 +111,20 @@ function generatePeerLine(baseValue, totalDays) {
 }
 
 // ===== 路由 =====
+
+// 多疾病两年新发风险（由当前用户指标构建输入，禁止客户端直接传模型字段）
+router.get('/disease/:disease', async (req, res) => {
+  const disease = String(req.params.disease || '');
+  if (!DISEASES.has(disease)) return res.status(400).json({ error: '不支持的疾病类型', supported: [...DISEASES] });
+  try {
+    const result = await predictDisease(req.user.id, req.user, disease);
+    if (!result.success) return res.status(result.error === 'no_data' ? 200 : 503).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[disease-risk] unexpected error:', e);
+    res.status(500).json({ success: false, error: 'prediction service internal error' });
+  }
+});
 
 // 获取所有可用指标类型（内置 + 用户自定义）
 router.get('/metrics', (req, res) => {
@@ -261,6 +279,8 @@ router.get('/overview/composite', async (req, res) => {
     analysis: compositeResult?.success ? {
       model: compositeResult.model, confidence: compositeResult.confidence,
       warning: compositeResult.warning, forecastAvailable: !!compositeResult.forecast?.available,
+      forecastDays: compositeResult.forecast?.days || 0,
+      forecastReason: compositeResult.forecast?.reason || null,
     } : null,
     peer: peerLine,
     peerBaseScore,

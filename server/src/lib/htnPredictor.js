@@ -109,7 +109,13 @@ export function runPythonTool(scriptPath, input, timeoutMs) {
 
     let child;
     try {
-      child = spawn(python, [scriptPath], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+      child = spawn(python, [scriptPath], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        windowsHide: true,
+        // Windows 中文系统默认代码页可能是 GBK；所有 Python 工具统一以 UTF-8 输出，
+        // 否则 GraphRAG 的证据、行动建议和模型免责声明会在 Node 中变成乱码。
+        env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
+      });
     } catch (e) {
       return resolve({ success: false, error: { code: 'PYTHON_NOT_FOUND', message: `无法启动 Python: ${e.message}` } });
     }

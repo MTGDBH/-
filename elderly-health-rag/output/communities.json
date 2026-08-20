@@ -1,0 +1,61 @@
+[
+  {
+    "id": "community:hypertension",
+    "disease": "hypertension",
+    "entity_ids": [
+      "danger_sign:单侧无力",
+      "danger_sign:呼吸困难",
+      "danger_sign:意识改变",
+      "danger_sign:胸痛",
+      "disease:hypertension",
+      "intervention:减少盐",
+      "intervention:复测",
+      "intervention:活动",
+      "intervention:睡眠",
+      "intervention:记录",
+      "measurement:体重",
+      "measurement:活动",
+      "measurement:睡眠",
+      "measurement:血压",
+      "risk_factor:体重",
+      "risk_factor:吸烟",
+      "risk_factor:盐",
+      "risk_factor:血压"
+    ],
+    "entity_count": 18,
+    "chunk_count": 4
+  },
+  {
+    "id": "community:diabetes",
+    "disease": "diabetes",
+    "entity_ids": [
+      "danger_sign:意识模糊",
+      "disease:diabetes",
+      "intervention:复测",
+      "intervention:活动",
+      "intervention:睡眠",
+      "intervention:联系家属",
+      "intervention:记录",
+      "measurement:活动",
+      "measurement:睡眠",
+      "measurement:血糖",
+      "risk_factor:血糖"
+    ],
+    "entity_count": 11,
+    "chunk_count": 4
+  },
+  {
+    "id": "community:heart_disease",
+    "disease": "heart_disease",
+    "entity_ids": [],
+    "entity_count": 0,
+    "chunk_count": 0
+  },
+  {
+    "id": "community:stroke",
+    "disease": "stroke",
+    "entity_ids": [],
+    "entity_count": 0,
+    "chunk_count": 0
+  }
+]
