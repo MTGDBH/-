@@ -98,6 +98,9 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'system', content: `用户健康摘要：${JSON.stringify(healthSummary)}` },
   ];
+  if (intent.trendHit && !intent.forecastRequested) {
+    systemMsgs.push({ role: 'system', content: '本次用户只询问历史趋势或近期变化，禁止主动输出未来天数、预测数值或外推结果；如需未来预测，等待用户明确询问。' });
+  }
   const model = cfg.model || 'gpt-4o-mini';
 
   // 第一轮：带工具列表，让模型自主决定是否调用
@@ -173,7 +176,12 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   }
 
   if (!finalText.trim()) throw new Error('LLM 返回空内容');
-  return normalizeAgentResult(safeParseJSON(finalText));
+  const normalized = normalizeAgentResult(safeParseJSON(finalText));
+  // 仅供主流程做证据审计，不直接返回给浏览器。
+  normalized.__toolResults = toolContext?.toolResults?.map((item) => {
+    try { return JSON.parse(item.content); } catch { return null; }
+  }).filter(Boolean) || [];
+  return normalized;
 }
 
 async function postJSON(url, headers, body) {
@@ -181,6 +189,8 @@ async function postJSON(url, headers, body) {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    // 网络异常不能让老人端请求无限挂起；超时后由主流程转入真实工具兜底。
+    signal: AbortSignal.timeout(Number(process.env.DEEPSEEK_TIMEOUT_MS || 45000)),
   });
   if (!res.ok) {
     const text = await res.text();
@@ -329,10 +339,10 @@ function safeParseJSON(text) {
     const end = tail.search(/"\s*,\s*"(?:plan|confidence)"\s*:/);
     if (valueStart > 0 && end > 0) {
       const content = tail.slice(0, end).replace(/\\n/g, '\n').replace(/\\"/g, '"');
-      return { content, plan: [] };
+      return { content, plan: [], __parse_failed: true };
     }
     if (valueStart > 0 && tail.length > 0) {
-      return { content: tail.replace(/\\n/g, '\n').replace(/\\"/g, '"').slice(0, 2000), plan: [] };
+      return { content: tail.replace(/\\n/g, '\n').replace(/\\"/g, '"').slice(0, 2000), plan: [], __parse_failed: true };
     }
   }
   try {
@@ -344,7 +354,7 @@ function safeParseJSON(text) {
       const extracted = parseMaybe(m[0]) || parseMaybe(escapeRawNewlines(m[0]));
       if (extracted) return extracted;
     }
-    return { content: text.slice(0, 200), plan: [] };
+    return { content: text.slice(0, 200), plan: [], __parse_failed: true };
   }
 }
 
@@ -353,6 +363,7 @@ const PLAN_COLORS = new Set(['orange', 'green', 'purple', 'red', 'gray']);
 /** 限制 LLM 输出结构、长度和 UI 枚举，避免任意内容直接进入前端。 */
 function normalizeAgentResult(raw) {
   const content = typeof raw?.content === 'string' ? raw.content.trim().slice(0, 2000) : '';
+  const degraded = raw?.degraded === true || raw?.__parse_failed === true || !content;
   const plan = Array.isArray(raw?.plan) ? raw.plan.slice(0, 5).map((p) => {
     if (!p || typeof p !== 'object') return null;
     const title = typeof p.title === 'string' ? p.title.trim().slice(0, 80) : '';
@@ -377,16 +388,25 @@ function normalizeAgentResult(raw) {
       reasoning: typeof c.reasoning === 'string' ? c.reasoning.slice(0, 500) : '',
     };
   }
-  return { content: content || '我暂时无法生成可靠回答，请稍后再试。', plan, confidence };
+  return {
+    content: content || '我暂时无法生成可靠回答，请稍后再试。',
+    plan,
+    confidence,
+    // 内部状态：非结构化/空回复不能被当成正常 LLM 结果，主流程会转入工具兜底。
+    degraded,
+  };
 }
 
 // GraphRAG 结果不是“参考文本”而已：把结构化行动、原因和证据强制带回最终回答。
 function applyGraphGrounding(result, graph) {
   const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, 4) : [];
   if (!recs.length) return result;
-  const actions = recs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
+  const missingRecs = recs.filter(r => !String(result.content || '').includes(String(r.action || '')));
+  const actions = missingRecs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
   const citations = [...new Set(recs.map(r => r.evidence).filter(Boolean))].join('、');
-  const grounded = `${result.content}\n\n结合当前数据，优先执行：\n${actions}\n依据：${citations || '知识图谱健康管理条目'}`;
+  const grounded = actions
+    ? `${result.content}\n\n结合当前数据，优先执行：\n${actions}\n依据：${citations || '知识图谱健康管理条目'}`
+    : result.content;
   const plan = recs.slice(0, 3).map((r, i) => ({
     icon: r.priority === 'urgent' ? '急' : '测',
     title: r.priority === 'urgent' ? '需要立即关注' : '建议：' + (r.action.length > 24 ? r.action.slice(0, 24) + '…' : r.action),
@@ -476,7 +496,7 @@ async function mockBehaviorReply(user) {
 /**
  * Mock 模式工具调用：趋势分析（真实数据 → health_curve.py）
  */
-async function mockTrendReply(user) {
+async function mockTrendReply(user, allowForecast = true) {
   let result;
   try {
     result = await analyzeHealthTrend(user?.id, { metric: 'all', days: 90 });
@@ -496,12 +516,18 @@ async function mockTrendReply(user) {
     };
   }
   const lines = list.slice(0, 5).map(m => {
+    const metricName = {
+      systo: '收缩压', diasto: '舒张压', bp: '血压', glucose: '血糖',
+      hba1c: '糖化血红蛋白', cholesterol: '胆固醇', uricacid: '尿酸',
+      pulse: '心率', weight: '体重', bmi: 'BMI', steps: '步数', sleep: '睡眠',
+    }[m.metric] || m.metric;
     const long = TREND_CN[m.long_term_trend] || m.long_term_trend;
     const recent = TREND_CN[m.recent_trend] || m.recent_trend;
     const fluc = TREND_CN[m.fluctuation] || m.fluctuation;
-    let s = `${m.metric === 'systo' ? '收缩压' : m.metric === 'diasto' ? '舒张压' : m.metric}（${m.unit}）：当前 ${m.latest_value}，长期${long}、近期${recent}，${fluc}`;
+    let s = `${metricName}（${m.unit}）：当前 ${m.latest_value}，长期${long}、近期${recent}，${fluc}`;
     if (m.abnormal_spike) s += '，曾出现明显异常波动';
-    if (m.forecast?.available && m.forecast.estimated_value != null) s += `；按当前走势估计 ${m.forecast.days} 天后约 ${m.forecast.estimated_value}（仅供参考）`;
+    if (allowForecast && m.forecast?.available && m.forecast.estimated_value != null) s += `；按当前走势估计 ${m.forecast.days} 天后约 ${m.forecast.estimated_value}（仅供参考）`;
+    else if (!allowForecast) s += '；本次只分析历史变化，未进行未来数值外推';
     else if (m.forecast?.reason) s += `；${m.forecast.reason}`;
     return s;
   });
@@ -528,6 +554,87 @@ function combineRiskTrend(riskR, trendR) {
   const plan = [...(riskR?.plan || []), ...(trendR?.plan || [])].slice(0, 5);
   const conf = riskR?.confidence?.type === 'data' ? riskR.confidence : (trendR?.confidence || { type: 'common_sense' });
   return { content: parts.join('\n\n'), plan, confidence: conf };
+}
+
+// 用户只问历史趋势时，不让模型顺带输出未经请求的未来外推。
+function stripUnrequestedForecast(content, allowForecast) {
+  if (allowForecast || !content) return content;
+  const forecastLine = /未来|预测|外推|\d+\s*天后|可能会到|将会/;
+  const lines = String(content).split('\n');
+  const removed = lines.some(line => forecastLine.test(line));
+  const filtered = lines.filter(line => !forecastLine.test(line)).join('\n');
+  return `${filtered}${removed ? '\n\n本次仅分析历史变化，未进行未来数值预测。' : ''}`
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// 轻量证据校验：发现“胆固醇 5.1%”这类单位错配时降低可信度，避免把模型排版错误当成健康事实。
+function detectUnitIssues(content, healthSummary) {
+  const latest = healthSummary?.context?.latest || {};
+  const definitions = [
+    { type: 'bp', label: '血压', units: ['mmHg', '毫米汞柱'], wrong: ['%', 'mmol/L', 'bpm'] },
+    { type: 'glucose', label: '血糖', units: ['mmol/L'], wrong: ['%', 'mmHg', 'bpm'] },
+    { type: 'hba1c', label: '糖化血红蛋白', units: ['%'], wrong: ['mmol/L', 'mmHg'] },
+    { type: 'cholesterol', label: '胆固醇', units: ['mmol/L'], wrong: ['%', 'mmHg'] },
+    { type: 'uricacid', label: '尿酸', units: ['μmol/L', 'umol/L'], wrong: ['%', 'mmol/L', 'mmHg'] },
+    { type: 'weight', label: '体重', units: ['kg', '公斤'], wrong: ['%', 'mmHg', '步'] },
+    { type: 'steps', label: '步数', units: ['步'], wrong: ['mmHg', 'mmol/L', '%'] },
+    { type: 'sleep', label: '睡眠', units: ['小时', 'h'], wrong: ['mmHg', '%', '步'] },
+  ];
+  const issues = [];
+  for (const def of definitions) {
+    if (!String(content || '').includes(def.label)) continue;
+    const snippet = String(content).split('\n').find(line => line.includes(def.label)) || '';
+    const wrong = def.wrong.filter(unit => snippet.includes(unit));
+    if (wrong.length) issues.push(`${def.label}附近出现单位 ${wrong.join('/')}，期望 ${def.units.join('/')}`);
+  }
+  return issues;
+}
+
+function applyResponseGuards(result, userMessage, healthSummary, intent) {
+  let content = stripUnrequestedForecast(result.content, intent.forecastRequested);
+  const unitIssues = detectUnitIssues(content, healthSummary);
+  let confidence = result.confidence;
+  if (unitIssues.length && confidence?.type === 'data') {
+    confidence = {
+      ...confidence,
+      score: Math.min(Number(confidence.score || 60), 55),
+      reasoning: `${confidence.reasoning || ''} 已发现单位表达需要复核：${unitIssues.join('；')}`.slice(0, 500),
+    };
+  }
+  return { ...result, content, confidence, degraded: result.degraded || unitIssues.length > 0, __guardIssues: unitIssues };
+}
+
+function diseaseFromMessage(message) {
+  return /糖尿病|血糖/.test(message) ? 'diabetes'
+    : /脑卒中|中风/.test(message) ? 'stroke'
+      : /心脏|心血管/.test(message) ? 'heart_disease' : 'hypertension';
+}
+
+// LLM 失败或结构化输出不合格时，直接使用真实工具组织可交付回复。
+async function deterministicFallbackReply(userMessage, user, intent) {
+  const [riskReply, trendReply] = await Promise.all([
+    intent.riskHit ? mockRiskReply(user) : null,
+    intent.trendHit ? mockTrendReply(user, intent.forecastRequested) : null,
+  ]);
+  if (intent.behaviorHit) return { source: 'tool_fallback', ...(await mockBehaviorReply(user)) };
+  if (intent.diseaseRiskHit) {
+    const disease = diseaseFromMessage(userMessage);
+    const d = await predictDisease(user?.id, user, disease);
+    const extra = d?.success
+      ? {
+        content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`,
+        plan: [],
+        confidence: {
+          type: 'data', score: d.confidence === 'low' ? 65 : 82,
+          sources: [`${disease}风险模型`, `缺失指标 ${d.missing_features?.length || 0} 项`],
+          reasoning: '基于当前账户真实指标和纵向队列模型。',
+        },
+      }
+      : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+    return { source: 'tool_fallback', ...combineRiskTrend(extra, combineRiskTrend(riskReply, trendReply)) };
+  }
+  return { source: 'tool_fallback', ...combineRiskTrend(riskReply, trendReply) };
 }
 
 /**
@@ -601,12 +708,14 @@ export async function chat(history, userMessage, healthSummary, user) {
   const diseaseRiskHit = DISEASE_RISK_INTENT.test(userMessage || '');
   const trendHit = TREND_INTENT.test(userMessage || '');
   const behaviorHit = routeIntent(userMessage).behavior;
+  const forecastRequested = /未来|预测|外推|几天后|多少天后|以后会|将会/.test(userMessage || '');
+  const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, forecastRequested };
 
   if (hasRealLLM()) {
+    let graphEvidence = null;
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
       let graphContext = '';
-      let graphEvidence = null;
       if (/为什么|怎么办|建议|注意|危险|饮食|复测/.test(userMessage || '')) {
         const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
         const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {});
@@ -615,29 +724,32 @@ export async function chat(history, userMessage, healthSummary, user) {
           graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 3) || [], recommendations: kg.recommendations || [], disclaimer: kg.disclaimer })}`;
         }
       }
-      const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, { riskHit, trendHit, diseaseRiskHit, behaviorHit });
-      const normalized = applyGraphGrounding(normalizeAgentResult(result), graphEvidence);
+      const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, intent);
+      const grounded = applyGraphGrounding(normalizeAgentResult(result), graphEvidence);
+      // 非 JSON、空内容等降级结果必须重新走真实工具，不能把失败文案展示给老人。
+      if (grounded.degraded) {
+        const fallback = await deterministicFallbackReply(userMessage, user, intent);
+        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
+        return fallbackGrounded;
+      }
+      const normalized = applyResponseGuards(grounded, userMessage, healthSummary, intent);
+      if (normalized.degraded) {
+        const fallback = await deterministicFallbackReply(userMessage, user, intent);
+        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
+        return fallbackGrounded;
+      }
       // 工具已返回真实数据时，即使模型因截断漏掉 confidence，也不能把数据回答标成闲聊。
       if ((riskHit || trendHit || diseaseRiskHit || graphContext) && normalized.confidence.type === 'common_sense') {
         normalized.confidence = { type: 'data', score: 60, sources: ['后端健康分析工具结果'], reasoning: '回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。' };
       }
-      return { source: 'openai', ...normalized };
+      const { __toolResults: _toolResults, degraded: _degraded, __guardIssues: _guardIssues, ...safeResult } = normalized;
+      return { source: 'openai', ...safeResult };
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
       if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
-        const [r1, r2] = await Promise.all([
-          riskHit ? mockRiskReply(user) : null,
-          trendHit ? mockTrendReply(user) : null,
-        ]);
-        if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
-        if (diseaseRiskHit) {
-          const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
-          const d = await predictDisease(user?.id, user, disease);
-          const extra = d?.success ? { content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`, plan: [], confidence: { type: 'data', score: d.confidence === 'low' ? 65 : 82, sources: [`${disease}风险模型`, `缺失指标 ${d.missing_features?.length || 0} 项`], reasoning: '基于当前账户真实指标和纵向队列模型。' } } : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
-          return { source: 'tool', ...combineRiskTrend(extra, combineRiskTrend(r1, r2)) };
-        }
-        return { source: 'tool', ...combineRiskTrend(r1, r2) };
+        const fallback = await deterministicFallbackReply(userMessage, user, intent);
+        return graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
       }
     }
   }
@@ -645,7 +757,7 @@ export async function chat(history, userMessage, healthSummary, user) {
   if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
     const [r1, r2] = await Promise.all([
       riskHit ? mockRiskReply(user) : null,
-      trendHit ? mockTrendReply(user) : null,
+      trendHit ? mockTrendReply(user, forecastRequested) : null,
     ]);
     if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
     if (diseaseRiskHit) {

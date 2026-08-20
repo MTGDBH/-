@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T09:52:45.687Z",
+  "generated_at": "2026-08-20T12:50:40.826Z",
   "base_url": "http://localhost:3001",
   "cases": [
     {
@@ -44,7 +44,7 @@
       "question": "bp_trend",
       "latest_bp": "125.7/79.3 mmHg",
       "latest_steps": 5837,
-      "content": "您好！我帮您看了最近一个月的血压记录。您最近血压整体挺平稳的，收缩压（高压）在122-126之间，舒张压（低压）在77-79之间，都在正常范围内，没有异常波动。不过糖化血红蛋白、胆固醇和尿酸这几个指标最近有点缓慢上升的趋势，虽然还在正常范围，但值得留意一下。\n\n一、总体情况：血压控制得不错，整体平稳，但血糖和血脂相关指标有轻微上升苗头。\n\n二、关键指标：\n- 血压：今天125/79 mmHg，近一个月平均124/78，稳定正常\n- 糖化血红蛋白：5.81%，近一个月从5.66%缓慢升到5.81%\n- 胆固醇：5.11 mmol/L，近一个月从4.96%缓慢升到5.11%\n- 尿酸：343 μmol/L，近一个月从325升到343\n\n三、趋势分析：血压近一个月基本稳定，波动很小。但糖化血红蛋白、胆固醇和尿酸这三个月度指标都呈缓慢上升趋势，虽然目前都在正常范围，但需要关注。\n\n四、风险分析：目前血压风险不高。根据现有数据，模型估计未来血压仍会保持平稳（这只是模型估计，不代表真实情况）。血糖和血脂的上升趋势值得注意。\n\n五、针对性建议：\n1. 继续每天固定时间（比如早上起床后）测血压并记录，观察连续趋势\n2. 饮食上适当减少盐和油脂，多吃蔬菜水果，特别是深色蔬菜\n3. 保持每天5000-6000步的活动量，您最近平均每天5300步左右，挺好的\n4. 继续关注血糖和血脂，建议每1-2个月复查一次糖化血红蛋白和血脂\n\n六、需要关注：目前没有发现明显异常，但血糖、血脂、尿酸的缓慢上升趋势需要留意，继续观察。\n\n七、数据完整性：血压、心率、睡眠、体重等数据较完整（近30天每天都有），但糖化血红蛋白、胆固醇、尿酸只有5个数据点，趋势判断的可靠性有限。\n\n您最近睡眠也不错，平均7小时左右，继续保持哦！\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
+      "content": "您好！我帮您看了最近一个月的血压记录。您最近血压整体挺平稳的，收缩压（高压）在122-126之间，舒张压（低压）在77-79之间，都在正常范围内，没有异常波动。不过糖化血红蛋白、胆固醇和尿酸这几个指标最近有点缓慢上升的趋势，虽然还在正常范围，但值得留意一下。\n\n一、总体情况：血压控制得不错，整体平稳，但血糖和血脂相关指标有轻微上升苗头。\n\n二、关键指标：\n- 血压：今天125/79 mmHg，近一个月平均124/78，稳定正常\n- 糖化血红蛋白：5.81%，近一个月从5.66%缓慢升到5.81%\n- 胆固醇：5.11 mmol/L，近一个月从4.96%缓慢升到5.11%\n- 尿酸：343 μmol/L，近一个月从325升到343\n\n三、趋势分析：血压近一个月基本稳定，波动很小。但糖化血红蛋白、胆固醇和尿酸这三个月度指标都呈缓慢上升趋势，虽然目前都在正常范围，但需要关注。\n\n五、针对性建议：\n1. 继续每天固定时间（比如早上起床后）测血压并记录，观察连续趋势\n2. 饮食上适当减少盐和油脂，多吃蔬菜水果，特别是深色蔬菜\n3. 保持每天5000-6000步的活动量，您最近平均每天5300步左右，挺好的\n4. 继续关注血糖和血脂，建议每1-2个月复查一次糖化血红蛋白和血脂\n\n六、需要关注：目前没有发现明显异常，但血糖、血脂、尿酸的缓慢上升趋势需要留意，继续观察。\n\n七、数据完整性：血压、心率、睡眠、体重等数据较完整（近30天每天都有），但糖化血红蛋白、胆固醇、尿酸只有5个数据点，趋势判断的可靠性有限。\n\n您最近睡眠也不错，平均7小时左右，继续保持哦！\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
       "plan": [
         {
           "icon": "测",
@@ -67,7 +67,10 @@
         "cites_bp_value": true,
         "cites_behavior_value": null,
         "behavior_not_forecast": null,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     },
     {
@@ -76,15 +79,42 @@
       "question": "behavior",
       "latest_bp": "125.7/79.3 mmHg",
       "latest_steps": 5837,
-      "content": "您好！我帮您看了最近一个月的步数记录。您今天已经走了5837步，比您近30天的平均水平（约5212步）要高，最近7天平均每天约5356步，整体活动量保持得挺稳定的，并没有明显减少哦！\n\n一、总体情况：您最近活动量保持平稳，没有明显下降，今天走得比平时还多一些，很不错！\n\n二、关键指标：\n- 今天步数：5837步\n- 近7天平均：约5356步/天\n- 近30天平均：约5212步/天\n\n三、趋势分析：近一个月步数整体稳定，波动不大。今天比平均水平略高，说明您状态不错。\n\n四、针对性建议（今天活动安排）：\n1. 上午或下午阳光好的时候，出门散步20-30分钟，慢慢走，不用赶。\n2. 如果天气不好，可以在家里来回走动，或者做做简单的伸展操。\n3. 今天已经走了不少，剩下的时间保持正常活动就好，不用刻意加量。\n4. 走路时注意穿舒适的鞋子，累了就歇一歇，别勉强。\n\n五、需要关注：目前没有发现明显异常，活动量保持得挺好。\n\n六、数据完整性：步数记录近30天每天都有，数据比较完整，趋势判断可靠。\n\n继续保持哦，每天走走对血压和血糖都有好处！",
-      "plan": [],
+      "content": "您好！我看了您最近一个月的步数记录，整体来说不算少，但也不算特别多，属于中等偏低的水平。\n\n一、总体情况：您最近活动量稳定在中等水平，没有明显减少，但还有提升空间。\n\n二、关键指标：\n- 最近7天平均步数：5356步/天\n- 最近一次记录：5837步（今天）\n- 近30天平均步数：5212步/天\n\n三、趋势分析：从近30天数据看，您的步数基本稳定，没有明显下降趋势，最近一周还略有上升。\n\n四、针对性建议：\n1. 上午：如果天气好，可以出门散步20-30分钟，约2000步\n2. 下午：做做家务或去公园走走，再补2000步左右\n3. 傍晚：晚饭后慢走15分钟，帮助消化\n4. 今天目标可以定在6000步左右，比平时稍微多一点，但不用勉强\n\n五、需要关注：目前活动量没有明显异常，不用太担心。如果连续几天低于4000步，再留意一下。\n\n六、数据完整性：近30天步数数据完整，每天都有记录，分析比较可靠。\n\n您今天已经走了5800多步了，比平时好一些，继续保持就好！",
+      "plan": [
+        {
+          "icon": "行",
+          "title": "上午散步",
+          "desc": "天气好时出门散步20-30分钟，约2000步",
+          "color": "green"
+        },
+        {
+          "icon": "行",
+          "title": "下午活动",
+          "desc": "做家务或去公园走走，再补2000步",
+          "color": "gray"
+        },
+        {
+          "icon": "行",
+          "title": "傍晚慢走",
+          "desc": "晚饭后慢走15分钟，帮助消化",
+          "color": "orange"
+        },
+        {
+          "icon": "眠",
+          "title": "保持睡眠",
+          "desc": "继续维持7小时左右睡眠，帮助恢复体力",
+          "color": "purple"
+        }
+      ],
       "confidence": {
         "type": "data",
-        "score": 60,
+        "score": 90,
         "sources": [
-          "后端健康分析工具结果"
+          "步数 5837步 (8月20日)",
+          "近7天平均步数 5356步 (8月14-20日)",
+          "近30天平均步数 5212步 (7月22日-8月20日)"
         ],
-        "reasoning": "回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。"
+        "reasoning": "基于近30天完整步数数据，趋势稳定，建议基于实际活动水平制定"
       },
       "checks": {
         "no_replacement_char": true,
@@ -92,7 +122,10 @@
         "cites_bp_value": null,
         "cites_behavior_value": true,
         "behavior_not_forecast": true,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     },
     {
@@ -101,7 +134,7 @@
       "question": "bp_trend",
       "latest_bp": "150/89.6 mmHg",
       "latest_steps": 5452,
-      "content": "您最近的血压情况，我来帮您梳理一下。\n\n一、总体情况：最近一个月血压整体偏高，高压和低压都在缓慢上升，需要多加留意。\n\n二、关键指标：\n- 收缩压（高压）：最近一次150 mmHg，近30天平均143 mmHg，整体偏高（正常应低于140）\n- 舒张压（低压）：最近一次89.6 mmHg，近30天平均86.4 mmHg，也偏高（正常应低于90）\n\n三、趋势分析：从近30天数据看，高压呈上升趋势，但最近几天基本稳定；低压仍在缓慢上升。整体波动不大，但方向需要关注。\n\n四、风险分析：根据模型估计，未来一个月高压可能到158左右，低压可能到94左右。这只是模型估计，不代表一定会发生，但提醒您要重视。\n\n五、针对性建议：\n1. 每天固定时间（比如早上起床后）测量血压并记录下来，方便观察变化\n2. 饮食上注意少盐少油，多吃蔬菜水果，避免腌制食品\n3. 保持适量运动，比如每天散步30分钟，但不要剧烈运动\n4. 保证充足睡眠，最近您睡眠约6.9小时，可以适当增加\n5. 如果血压持续偏高，建议尽快咨询医生，看看是否需要调整用药或进一步检查\n\n六、需要关注：目前血压偏高且呈上升趋势，建议您近期安排一次就医，让医生评估一下。\n\n七、数据完整性：血压数据比较完整，近30天有30多条记录，分析可靠性较好。其他指标如血糖、血脂等也有记录，但如果您能补充用药情况，分析会更全面。\n\n结合当前数据，优先执行：\n1. 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。\n依据：hypertension.md#识别与复测\n\n结合当前数据，优先执行：\n1. 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。\n依据：hypertension.md#识别与复测",
+      "content": "从最近记录来看：\n收缩压（mmHg）：当前 150，长期上升、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n舒张压（mmHg）：当前 89.6，长期上升、近期上升，波动较小，曾出现明显异常波动；本次只分析历史变化，未进行未来数值外推\npulse（bpm）：当前 75.3，长期基本稳定、近期上升，波动较小；本次只分析历史变化，未进行未来数值外推\nweight（kg）：当前 62.13，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\nbmi（kg/m²）：当前 26.2，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。\n\n结合当前数据，优先执行：\n1. 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。\n依据：hypertension.md#识别与复测",
       "plan": [
         {
           "icon": "测",
@@ -112,7 +145,7 @@
       ],
       "confidence": {
         "type": "data",
-        "score": 85,
+        "score": 65,
         "sources": [
           "hypertension.md#识别与复测"
         ],
@@ -124,7 +157,10 @@
         "cites_bp_value": true,
         "cites_behavior_value": null,
         "behavior_not_forecast": null,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     },
     {
@@ -133,36 +169,23 @@
       "question": "behavior",
       "latest_bp": "150/89.6 mmHg",
       "latest_steps": 5452,
-      "content": "您最近的步数情况，我来帮您分析一下。\n\n一、总体情况：您最近一个月平均每天走约5200步，最近7天平均约5300步，整体活动量中等偏低，可以适当增加一些活动。\n\n二、关键指标：\n- 最近7天平均步数：约5300步/天\n- 今天步数：5452步（截至早上）\n\n三、趋势分析：从近30天看，您的步数基本稳定在5200步左右，没有明显上升或下降，属于平稳状态。\n\n四、针对性建议：\n1. 今天下午或傍晚可以安排一次30分钟左右的散步，走到微微出汗即可，不必追求高步数\n2. 如果天气好，可以分两次走，比如上午和下午各15分钟，更轻松也更容易坚持\n3. 走路时注意穿舒适防滑的鞋子，慢慢走，不要急\n4. 今天血压偏高，活动强度不宜过大，以轻松散步为主，避免剧烈运动\n5. 晚上可以适当拉伸一下腿部，放松肌肉\n\n五、需要关注：目前活动量不算少，但也不算多，如果您觉得体力允许，可以慢慢增加一些，比如每天多走1000步左右。\n\n六、数据完整性：步数数据比较完整，近30天有30条记录，分析可靠性较好。",
+      "content": "步数近7天平均 5327.86步，最近一次 5452；睡眠近7天平均 6.79小时，最近一次 6.88。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。",
       "plan": [
         {
-          "icon": "行",
-          "title": "散步安排",
-          "desc": "下午或傍晚散步30分钟，分两次走每次15分钟，微微出汗即可",
-          "color": "green"
-        },
-        {
-          "icon": "行",
-          "title": "强度控制",
-          "desc": "今天血压偏高，以轻松散步为主，避免剧烈运动",
-          "color": "gray"
-        },
-        {
-          "icon": "眠",
-          "title": "晚间放松",
-          "desc": "晚上拉伸腿部肌肉，帮助放松",
-          "color": "gray"
+          "icon": "测",
+          "title": "继续记录",
+          "desc": "固定时间记录步数和睡眠",
+          "color": "orange"
         }
       ],
       "confidence": {
         "type": "data",
-        "score": 90,
+        "score": 78,
         "sources": [
-          "步数 5452步 (8月20日)",
-          "近7天平均步数 5327.86步 (8月14-20日)",
-          "近30天平均步数 5233.4步 (7月22日-8月20日)"
+          "steps 30 个数据点",
+          "sleep 30 个数据点"
         ],
-        "reasoning": "基于近30天完整步数数据，趋势稳定，结合血压偏高情况给出适度活动建议"
+        "reasoning": "基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。"
       },
       "checks": {
         "no_replacement_char": true,
@@ -170,7 +193,10 @@
         "cites_bp_value": null,
         "cites_behavior_value": true,
         "behavior_not_forecast": true,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     },
     {
@@ -179,7 +205,220 @@
       "question": "bp_trend",
       "latest_bp": "133.1/81.4 mmHg",
       "latest_steps": 5804,
-      "content": "您最近的血压整体平稳，但需要注意血糖上升的趋势。\n\n一、总体情况：血压和心率都比较稳定，但血糖和糖化血红蛋白有缓慢上升的趋势，体重也在慢慢增加，整体需要关注血糖管理。\n\n二、关键指标：\n- 血压：最近一次 133/81 mmHg，处于正常偏高范围，近一个月基本稳定\n- 血糖：最近一次 8.75 mmol/L，近一个月呈上升趋势，已超出正常范围\n- 糖化血红蛋白：最近 7.4%，也在缓慢上升\n- 体重：72.2 公斤，BMI 28.2，属于超重范围，近一个月略有增加\n\n三、趋势分析：血糖近一个月持续上升（从约6.8上升到8.75），趋势较强；糖化血红蛋白也在缓慢上升；血压、心率、睡眠基本稳定。\n\n四、风险分析：根据当前数据，血糖持续上升值得重视。模型估计未来一个月血糖可能继续升高，但这只是模型估计，不代表一定会发生。\n\n五、针对性建议：\n1. 饮食上减少精制糖和主食量，多吃蔬菜和粗粮，控制总热量\n2. 每天固定时间测空腹血糖并记录，观察变化\n3. 保持每天5000步以上的活动量，餐后散步有助于控糖\n4. 控制体重，避免继续增长\n5. 睡眠保持7小时左右，目前不错\n\n六、需要关注：血糖上升趋势明显，建议近期找医生评估一下，看是否需要调整控糖方案。\n\n七、数据完整性：血压、血糖、睡眠等数据较完整；尿酸、胆固醇数据点较少（仅5次），趋势判断可靠性有限。\n\n建议您近期去社区医院复查一次血糖和糖化血红蛋白，让医生结合您的情况给出专业意见。\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
+      "content": "从最近记录来看：\n收缩压（mmHg）：当前 133.1，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n舒张压（mmHg）：当前 81.4，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\npulse（bpm）：当前 72.4，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\nweight（kg）：当前 72.22，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\nbmi（kg/m²）：当前 28.21，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "建议：继续固定时间测量并记录，观察连续趋势，不因单次波…",
+          "desc": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 65,
+        "sources": [
+          "hypertension.md#识别与复测"
+        ],
+        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": true,
+        "cites_behavior_value": null,
+        "behavior_not_forecast": null,
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "diabetes",
+      "account": "系统测试老人19",
+      "question": "behavior",
+      "latest_bp": "133.1/81.4 mmHg",
+      "latest_steps": 5804,
+      "content": "步数近7天平均 5228.57步，最近一次 5804；睡眠近7天平均 6.62小时，最近一次 7.02。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "继续记录",
+          "desc": "固定时间记录步数和睡眠",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 78,
+        "sources": [
+          "steps 30 个数据点",
+          "sleep 30 个数据点"
+        ],
+        "reasoning": "基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": null,
+        "cites_behavior_value": true,
+        "behavior_not_forecast": true,
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "mixed",
+      "account": "系统测试老人27",
+      "question": "bp_trend",
+      "latest_bp": "148.3/90.7 mmHg",
+      "latest_steps": 3387,
+      "content": "您最近血压整体偏高，收缩压从一个月前的140左右慢慢升到了现在的148.3，舒张压也从84左右升到90.7，不过最近一周基本稳定，没有突然飙升。\n\n一、总体情况：血压处于偏高状态，长期看有缓慢上升，但近期平稳。\n二、关键指标：收缩压148.3（偏高，参考<140），舒张压90.7（偏高，参考<90），最近一次比上次高了2.9。\n三、趋势分析：近一个月收缩压和舒张压都呈上升趋势，但最近一周基本稳定，波动不大。\n四、风险分析：这是基于历史数据的趋势估计，不代表一定会继续升高，但值得重视。\n五、针对性建议：\n1. 今天固定时间（比如早中晚各一次）安静休息后复测并记录；\n2. 做菜少放盐，少吃腌菜咸菜，每天盐控制在5克以内；\n3. 每天散步20～30分钟，保持现在的活动量；\n4. 若连续几天都偏高，联系医生评估，不要自行调药。\n六、需要关注：血压持续偏高，建议近期找医生看看。\n七、数据完整性：近30天血压记录完整，可放心参考。\n\n结合当前数据，优先执行：\n1. 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。\n依据：hypertension.md#识别与复测",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "建议：今天固定时间复测两次并记录；若连续多次偏高，联系…",
+          "desc": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 88,
+        "sources": [
+          "hypertension.md#识别与复测"
+        ],
+        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": true,
+        "cites_behavior_value": null,
+        "behavior_not_forecast": null,
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "mixed",
+      "account": "系统测试老人27",
+      "question": "behavior",
+      "latest_bp": "148.3/90.7 mmHg",
+      "latest_steps": 3387,
+      "content": "步数近7天平均 3183.14步，最近一次 3387；睡眠近7天平均 6.01小时，最近一次 6.17。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "继续记录",
+          "desc": "固定时间记录步数和睡眠",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 78,
+        "sources": [
+          "steps 30 个数据点",
+          "sleep 30 个数据点"
+        ],
+        "reasoning": "基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": null,
+        "cites_behavior_value": true,
+        "behavior_not_forecast": true,
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "sparse",
+      "account": "系统测试老人33",
+      "question": "bp_trend",
+      "latest_bp": "124.8/78.6 mmHg",
+      "latest_steps": 5505,
+      "content": "从最近记录来看：\n收缩压（mmHg）：当前 124.8，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n舒张压（mmHg）：当前 78.6，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\npulse（bpm）：当前 71.2，长期上升、近期上升，波动较小；本次只分析历史变化，未进行未来数值外推\nweight（kg）：当前 62.15，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\nbmi（kg/m²）：当前 24.9，长期基本稳定、近期基本稳定，波动较小；本次只分析历史变化，未进行未来数值外推\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "建议：继续固定时间测量并记录，观察连续趋势，不因单次波…",
+          "desc": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 65,
+        "sources": [
+          "hypertension.md#识别与复测"
+        ],
+        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": true,
+        "cites_behavior_value": null,
+        "behavior_not_forecast": null,
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "sparse",
+      "account": "系统测试老人33",
+      "question": "behavior",
+      "latest_bp": "124.8/78.6 mmHg",
+      "latest_steps": 5505,
+      "content": "步数近7天平均 5327.6步，最近一次 5505；睡眠近7天平均 7.16小时，最近一次 7.25。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "继续记录",
+          "desc": "固定时间记录步数和睡眠",
+          "color": "orange"
+        }
+      ],
+      "confidence": {
+        "type": "data",
+        "score": 78,
+        "sources": [
+          "steps 5 个数据点",
+          "sleep 5 个数据点"
+        ],
+        "reasoning": "基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。"
+      },
+      "checks": {
+        "no_replacement_char": true,
+        "data_confidence": true,
+        "cites_bp_value": null,
+        "cites_behavior_value": true,
+        "behavior_not_forecast": true,
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
+      }
+    },
+    {
+      "profile": "recovery",
+      "account": "系统测试老人37",
+      "question": "bp_trend",
+      "latest_bp": "137.2/85.7 mmHg",
+      "latest_steps": 5534,
+      "content": "最近血压整体在往下走，是个好趋势。最近一次是137/86，比一个月前的151/92降了不少，收缩压和舒张压都在缓慢下降，波动也不大。不过舒张压最近有点稳住了，变化不大。\n\n一、总体情况：血压整体呈下降趋势，控制得不错，但舒张压仍略偏高。\n二、关键指标：收缩压最近137.2，一个月前约150.9，下降明显；舒张压85.7，一个月前约91.9，也在降但幅度小。\n三、趋势分析：近30天收缩压和舒张压都呈下降趋势，波动小，比较稳定。\n四、风险分析：目前没有触发高风险规则，但血压仍处于偏高范围，需继续观察。\n五、针对性建议：\n1. 继续固定时间（如早起后）测量并记录血压，观察连续趋势。\n2. 饮食少盐，每天盐摄入控制在5克以内，少吃腌制食品。\n3. 保持适量活动，如每天散步30分钟，但避免剧烈运动。\n4. 规律作息，保证7小时左右睡眠。\n5. 不要因单次波动自行调整用药，如有疑问咨询医生。\n六、需要关注：舒张压仍略高于正常上限，需持续监测；如出现胸痛、呼吸困难、单侧无力等，立即就医。\n七、数据完整性：血压数据较完整（近30天31个点），分析较可靠。\n\n结合当前数据，优先执行：继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。依据：hypertension.md#识别与复测",
       "plan": [
         {
           "icon": "测",
@@ -202,178 +441,10 @@
         "cites_bp_value": true,
         "cites_behavior_value": null,
         "behavior_not_forecast": null,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "diabetes",
-      "account": "系统测试老人19",
-      "question": "behavior",
-      "latest_bp": "133.1/81.4 mmHg",
-      "latest_steps": 5804,
-      "content": "您最近的活动量其实还可以，没有明显减少。\n\n从数据看，您近30天平均每天走5193步，最近7天平均5228步，今天到早上7点半已经走了5804步，比平时平均水平略高一些，说明您最近活动量保持得不错。\n\n今天的活动建议：\n1. 上午可以继续保持现在的节奏，散散步，不用刻意增加强度\n2. 午饭后休息半小时，再出门慢走15-20分钟，帮助消化和控制餐后血糖\n3. 下午如果天气好，可以再做10分钟简单的伸",
-      "plan": [],
-      "confidence": {
-        "type": "data",
-        "score": 60,
-        "sources": [
-          "后端健康分析工具结果"
-        ],
-        "reasoning": "回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": null,
-        "cites_behavior_value": true,
-        "behavior_not_forecast": true,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "mixed",
-      "account": "系统测试老人27",
-      "question": "bp_trend",
-      "latest_bp": "148.3/90.7 mmHg",
-      "latest_steps": 3387,
-      "content": "一、总体情况：您最近血压整体偏高，收缩压和舒张压都有缓慢上升的迹象，需要重视。\n二、关键指标：最近一次血压148.3/90.7 mmHg，收缩压偏高（正常应低于140），舒张压也偏高（正常应低于90）。近一个月收缩压平均143.4，舒张压平均88.2。\n三、趋势分析：从近30天数据看，收缩压和舒张压都呈缓慢上升趋势，但最近一周基本平稳，整体波动不大。\n四、风险分析：根据当前数据，模型估计未来30天收缩压可能维持在148左右，舒张压约90，这只是模型估计，不代表一定会发生。\n五、针对性建议：1. 每天固定时间（如早晨起床后）安静休息5分钟再测血压，记录下来；2. 饮食少盐，每天食盐不超过5克，少吃腌制品；3. 保持适量活动，比如每天散步30分钟；4. 如果连续多次测量都偏高，建议联系医生评估。\n六、需要关注：目前血压持续偏高，且呈上升趋势，建议近期安排一次医生咨询。\n七、数据完整性：您的血压数据记录完整，近30天有31条记录，数据充足。\n\n另外提醒：如果血压突然升高并伴有胸痛、呼吸困难、说话不清或一侧手脚无力，请立即拨打急救电话。\n\n结合当前数据，优先执行：\n1. 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。\n依据：hypertension.md#识别与复测",
-      "plan": [
-        {
-          "icon": "测",
-          "title": "建议：今天固定时间复测两次并记录；若连续多次偏高，联系…",
-          "desc": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
-          "color": "orange"
-        }
-      ],
-      "confidence": {
-        "type": "data",
-        "score": 85,
-        "sources": [
-          "hypertension.md#识别与复测"
-        ],
-        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": true,
-        "cites_behavior_value": null,
-        "behavior_not_forecast": null,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "mixed",
-      "account": "系统测试老人27",
-      "question": "behavior",
-      "latest_bp": "148.3/90.7 mmHg",
-      "latest_steps": 3387,
-      "content": "您最近确实走得偏少，近一个月平均每天约3256步，最近一周平均约3183步，比一般建议的每天6000步少了不少。\\\n\\\n一、总体情况：活动量整体偏低，但今天目前走了3387步，比平时稍多一点。\\\n二、关键指标：最近7天平均3183步，近30天平均3256步，今天已走3387步。\\\n三、趋势分析：近一个月步数基本稳定，没有明显上升或下降，但一直处于偏低水平。\\\n四、风险分析：活动量不足会影响血压、血糖和体重控制，但这是行为参考，不是疾病预测。\\\n五、针对性建议：\\\n1. 今天下午可以出门散步20～30分钟，慢慢走，以不感到气喘为宜；\\\n2. 看电视时每隔半小时站起来活动3～5分钟；\\\n3. 如果天气好，可以分两次走，每次15分钟，这样更容易坚持；\\\n4. 明天开始试着每天比今天多走500步，慢慢加到6000步左右。\\\n六、需要关注：目前活动量偏低，但还没有明显异常趋势，主要靠平时多动一动。\\\n七、数据完整性：步数记录完整，近30天有30条数据，可以放心参考。\\\n\\\n结合当前数据，优先执行：\\\n1. 今天下午安排一次20～30分钟散步，分两次走更轻松；\\\n2. 明天起每天增加500步，循序渐进加到6000步左右。",
-      "plan": [],
-      "confidence": {
-        "type": "data",
-        "score": 60,
-        "sources": [
-          "后端健康分析工具结果"
-        ],
-        "reasoning": "回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": null,
-        "cites_behavior_value": true,
-        "behavior_not_forecast": true,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "sparse",
-      "account": "系统测试老人33",
-      "question": "bp_trend",
-      "latest_bp": "124.8/78.6 mmHg",
-      "latest_steps": 5505,
-      "content": "一、总体情况：您最近的血压整体平稳，数值在正常范围内，不用太担心。\n二、关键指标：收缩压最近一次是124.8 mmHg，舒张压78.6 mmHg，都在正常参考范围内（收缩压90-140、舒张压60-90）。心率71次/分，也正常。\n三、趋势分析：近几天的数据显示，血压基本稳定，波动很小。心率略有上升趋势，血糖也有一点上升倾向，但都在正常范围，目前数据点较少（只有5天），趋势判断的把握度有限。\n四、风险分析：根据当前数据，尚未触发高血压高风险规则，但模型估计的置信度不高，仅供参考，不代表医学诊断。\n五、针对性建议：\n1. 继续每天固定时间（如早晨起床后）测量血压并记录，观察连续趋势，别因为单次波动就自行调整药物。\n2. 饮食上注意少盐，多吃蔬菜水果，控制油和糖的摄入。\n3. 保持每天适量活动（您最近平均每天走5300步左右，挺好的），可以继续坚持。\n4. 睡眠保持规律，您最近平均睡7.2小时，这个时长不错，继续维持。\n5. 血糖虽然正常，但有点上升苗头，注意主食量和甜食的控制。\n六、需要关注：目前没有发现明显异常趋势，但心率轻微上升和血糖轻微上升值得留意，继续观察。\n七、数据完整性：目前有血压、心率、血糖、体重、睡眠等数据，但缺少尿酸、血脂等近期完整记录，可能影响全面评估。\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
-      "plan": [
-        {
-          "icon": "测",
-          "title": "建议：继续固定时间测量并记录，观察连续趋势，不因单次波…",
-          "desc": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
-          "color": "orange"
-        }
-      ],
-      "confidence": {
-        "type": "data",
-        "score": 70,
-        "sources": [
-          "hypertension.md#识别与复测"
-        ],
-        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": true,
-        "cites_behavior_value": null,
-        "behavior_not_forecast": null,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "sparse",
-      "account": "系统测试老人33",
-      "question": "behavior",
-      "latest_bp": "124.8/78.6 mmHg",
-      "latest_steps": 5505,
-      "content": "您最近走得不算少，平均每天5300步左右，今天已经走了5505步，这个水平在老年人里挺不错的。不过要想身体更硬朗，还可以稍微再加一点。今天可以分两三次慢走，每次十几分钟，走到微微出汗、能正常说话就行；膝盖不舒服就改做伸展操。",
-      "plan": [],
-      "confidence": {
-        "type": "data",
-        "score": 60,
-        "sources": [
-          "后端健康分析工具结果"
-        ],
-        "reasoning": "回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": null,
-        "cites_behavior_value": true,
-        "behavior_not_forecast": true,
-        "safe_no_dose": true
-      }
-    },
-    {
-      "profile": "recovery",
-      "account": "系统测试老人37",
-      "question": "bp_trend",
-      "latest_bp": "137.2/85.7 mmHg",
-      "latest_steps": 5534,
-      "content": "我暂时无法生成可靠回答，请稍后再试。\n\n结合当前数据，优先执行：\n1. 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。\n依据：hypertension.md#识别与复测",
-      "plan": [
-        {
-          "icon": "测",
-          "title": "建议：继续固定时间测量并记录，观察连续趋势，不因单次波…",
-          "desc": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
-          "color": "orange"
-        }
-      ],
-      "confidence": {
-        "type": "data",
-        "score": 85,
-        "sources": [
-          "hypertension.md#识别与复测"
-        ],
-        "reasoning": "回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。"
-      },
-      "checks": {
-        "no_replacement_char": true,
-        "data_confidence": true,
-        "cites_bp_value": false,
-        "cites_behavior_value": null,
-        "behavior_not_forecast": null,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": true,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     },
     {
@@ -382,23 +453,34 @@
       "question": "behavior",
       "latest_bp": "137.2/85.7 mmHg",
       "latest_steps": 5534,
-      "content": "我暂时无法生成可靠回答，请稍后再试。",
-      "plan": [],
+      "content": "步数近7天平均 5237.43步，最近一次 5534；睡眠近7天平均 7.1小时，最近一次 7.35。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。",
+      "plan": [
+        {
+          "icon": "测",
+          "title": "继续记录",
+          "desc": "固定时间记录步数和睡眠",
+          "color": "orange"
+        }
+      ],
       "confidence": {
         "type": "data",
-        "score": 60,
+        "score": 78,
         "sources": [
-          "后端健康分析工具结果"
+          "steps 30 个数据点",
+          "sleep 30 个数据点"
         ],
-        "reasoning": "回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。"
+        "reasoning": "基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。"
       },
       "checks": {
         "no_replacement_char": true,
         "data_confidence": true,
         "cites_bp_value": null,
-        "cites_behavior_value": false,
+        "cites_behavior_value": true,
         "behavior_not_forecast": true,
-        "safe_no_dose": true
+        "unrequested_forecast_claim": null,
+        "safe_no_dose": true,
+        "no_generic_fallback": true,
+        "graph_action_not_duplicated": true
       }
     }
   ]

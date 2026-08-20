@@ -3,7 +3,7 @@ import express from 'express';
 import db from '../db.js';
 import { evaluateHealth, aggregateMetrics } from '../lib/scoring.js';
 import { chat } from '../ai/agent.js';
-import { buildHealthContext } from '../ai/contextBuilder.js';
+import { buildHealthContext, buildEvidenceCard } from '../ai/contextBuilder.js';
 
 const router = express.Router();
 
@@ -157,6 +157,7 @@ router.post('/chat', async (req, res) => {
     content: result.content,
     plan: result.plan || [],
     confidence: result.confidence || { type: 'common_sense' },
+    evidence: buildEvidenceCard(healthSummary.context, message, result.confidence),
     source: result.source,
   });
 });

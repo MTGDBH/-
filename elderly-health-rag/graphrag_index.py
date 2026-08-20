@@ -115,6 +115,8 @@ def derive_recommendations(disease, context, question):
     sleep = behavior.get('sleep') or {}
     if isinstance(sleep.get('rolling_7d_average'), (int, float)) and sleep['rolling_7d_average'] < 6:
         recs.append({'priority': 'normal', 'action': '先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。', 'reason': '近7天睡眠平均偏少', 'evidence': 'hypertension.md#生活方式'})
+    elif isinstance(sleep.get('rolling_7d_average'), (int, float)):
+        recs.append({'priority': 'normal', 'action': '继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。', 'reason': '近7天睡眠平均达到基本观察水平', 'evidence': 'hypertension.md#生活方式'})
     return recs[:4]
 
 def main():

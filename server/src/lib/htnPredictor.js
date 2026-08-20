@@ -9,7 +9,7 @@
 //
 // 配置：
 //   HTN_PYTHON       Python 解释器路径（推荐显式设置）；缺省用 python/python3
-//   HTN_TIMEOUT_MS   单次预测超时毫秒数，默认 5000
+//   HTN_TIMEOUT_MS   单次预测超时毫秒数，默认 15000（包含 Windows/Python 模型冷启动）
 // ============================================================
 import { spawn } from 'node:child_process';
 import path from 'node:path';
@@ -20,7 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // 项目根目录（server/src/lib → 上溯 3 级），禁止写死盘符路径
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
 const PREDICT_SCRIPT = path.join(PROJECT_ROOT, 'ml', 'predict_htn.py');
-const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_TIMEOUT_MS = 15000;
 
 // 模型期望的 12 个特征字段（顺序与训练一致）
 export const HTN_FEATURES = [

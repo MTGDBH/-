@@ -170,6 +170,25 @@
         </div>`;
     }
 
+    function renderEvidence(evidence) {
+      if (!evidence || !Array.isArray(evidence.items) || !evidence.items.length) return '';
+      const trendName = { rising: '上升', falling: '下降', stable: '基本稳定', unknown: '暂不判断' };
+      const rows = evidence.items.slice(0, 4).map(item => {
+        const value = item.latest_value == null ? '—' : `${item.latest_value}${item.unit ? ' ' + item.unit : ''}`;
+        const date = item.measured_at ? new Date(item.measured_at).toLocaleDateString('zh-CN') : '—';
+        return `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f2e9df">
+          <span style="color:#6f6257">${escapeHTML(item.metric)} · ${escapeHTML(date)}</span>
+          <span style="color:#3d2e1f;font-weight:600">${escapeHTML(value)} · ${escapeHTML(trendName[item.trend] || '暂不判断')}</span>
+        </div>`;
+      }).join('');
+      return `<div class="agent-evidence" style="margin-top:10px;padding:10px 12px;background:#fffaf4;border:1px solid #f0dfce;border-radius:12px;font-size:12px">
+        <div style="font-weight:700;color:#9a6a42;margin-bottom:3px">依据 · 后端真实健康数据</div>
+        <div style="color:#9c8b7a;margin-bottom:4px">近${Number(evidence.period_days || 90)}天，共 ${Number(evidence.data_points || 0)} 条记录</div>
+        ${rows}
+        ${evidence.missing_metrics && evidence.missing_metrics.length ? `<div style="color:#a87952;margin-top:6px">缺少：${escapeHTML(evidence.missing_metrics.join('、'))}</div>` : ''}
+      </div>`;
+    }
+
     function renderMsg(m) {
       const planHtml = m.plan && m.plan.length ? `
         <div class="msg-plan">${m.plan.map(p => `
@@ -189,6 +208,7 @@
             <div>
               <div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>
               ${planHtml}
+              ${renderEvidence(m.evidence)}
               ${renderActions(m)}
             </div>
           </div>`;
@@ -215,6 +235,7 @@
             content: r.content,
             plan: r.plan,
             confidence: r.confidence || { type: 'common_sense' },
+            evidence: r.evidence,
             id: r.id
           })
         );
