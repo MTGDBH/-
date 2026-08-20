@@ -78,3 +78,5 @@ GraphRAG 的同问题对照也表现出差异：稳定、糖尿病、数据不�
 原始评测回复：[`llm-personalization-raw-2026-08-20.json`](./llm-personalization-raw-2026-08-20.json)
 
 GraphRAG 个性化与上下文消融明细：[`graphrag-personalization-evaluation-2026-08-20.md`](./graphrag-personalization-evaluation-2026-08-20.md)。
+
+多疾病风险概率对照：[`risk-personalization-evaluation-2026-08-20.md`](./risk-personalization-evaluation-2026-08-20.md)。

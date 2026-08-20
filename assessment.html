@@ -133,11 +133,17 @@
       const stateClass = data.risk_level === 'higher' ? 'high' : data.risk_level === 'moderate' ? 'mid' : 'low';
       const confidence = data.confidence === 'low' ? '可信度较低' : data.confidence === 'medium' ? '可信度中等' : '可信度较高';
       const missing = Array.isArray(data.missing_features) ? data.missing_features.length : 0;
+      const completeness = data.data_completeness || {};
+      const nextSteps = Array.isArray(completeness.next_steps) ? completeness.next_steps.slice(0, 2) : [];
+      const completenessText = missing
+        ? `建议先补充：${nextSteps.map(escapeHTML).join('、') || '个人病史和生活方式资料'}`
+        : '模型输入资料较完整，可结合复测继续观察';
       return `<article class="disease-risk-card ${meta.tone}">
         <div class="risk-card-top"><span class="risk-icon">${meta.icon}</span><div><div class="risk-name">${meta.name}</div><div class="risk-desc">${meta.desc}</div></div><span class="risk-state ${stateClass}">${level}</span></div>
         <div class="risk-number-row"><span class="risk-number">${pct.toFixed(2)}</span><span class="risk-unit">%</span><span class="risk-confidence">${confidence}</span></div>
         <div class="risk-bar"><span style="width:${Math.max(3, pct)}%"></span></div>
         <div class="risk-meta"><span>模型：${data.model === 'xgboost' ? 'XGBoost' : 'Logistic'}</span><span>${missing ? '缺少 ' + missing + ' 项数据' : '数据较完整'}</span></div>
+        <div class="risk-desc" style="margin-top:8px;color:#9C8B7A">${completenessText}</div>
       </article>`;
     }
 

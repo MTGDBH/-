@@ -40,5 +40,32 @@ export async function predictDisease(userId, user, disease) {
   if (!Object.keys(metrics).length) return { success: false, error: 'no_data', disease };
   const features = buildFeatures(user, metrics);
   const result = await runPythonTool(SCRIPT, { disease, features });
-  return { ...result, disease, features, data_sources: Object.entries(metrics).map(([type, r]) => ({ type, recorded_at: r.recorded_at, source: r.source })) };
+  const missing = Array.isArray(result?.missing_features)
+    ? result.missing_features
+    : Object.entries(features).filter(([, value]) => value == null).map(([key]) => key);
+  const totalFeatures = Object.keys(features).length;
+  const availableFeatures = Math.max(0, totalFeatures - missing.length);
+  const completeness = totalFeatures ? +(availableFeatures / totalFeatures).toFixed(3) : 0;
+  const nextSteps = {
+    edu: '补充教育程度', mwaist: '记录腰围', lgrip: '记录握力', rgrip: '记录另一侧握力',
+    smokev: '填写吸烟情况', smoken: '填写每日吸烟量', drinkev: '填写饮酒情况', drinkl: '填写饮酒频率',
+    exercise: '填写每周运动情况', totmet: '补充活动量', srh: '填写自评健康', cesd10: '完成情绪量表',
+    total_cognition: '完成认知筛查', adlab_c: '完成日常活动评估', iadl: '完成工具性活动评估',
+    chronic: '补充既往慢病史', diabe: '确认糖尿病史', hearte: '确认心脏病史', stroke: '确认卒中史',
+    dyslipe: '确认血脂异常史', lunge: '确认肺部疾病史',
+  };
+  return {
+    ...result,
+    disease,
+    features,
+    data_sources: Object.entries(metrics).map(([type, r]) => ({ type, recorded_at: r.recorded_at, source: r.source })),
+    data_completeness: {
+      total_features: totalFeatures,
+      available_features: availableFeatures,
+      missing_count: missing.length,
+      ratio: completeness,
+      level: completeness >= 0.8 ? 'high' : completeness >= 0.5 ? 'medium' : 'low',
+      next_steps: missing.map(key => nextSteps[key] || `补充${key}`),
+    },
+  };
 }

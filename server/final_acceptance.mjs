@@ -19,6 +19,7 @@ if (!['openai', 'tool_fallback'].includes(trend.source) || trend.confidence?.typ
 if (!trend.evidence?.items?.length || !trend.evidence.items[0].measured_at || trend.evidence.items[0].data_points < 1) throw new Error('backend evidence card acceptance failed');
 const risk = (await request('/api/prediction/disease/diabetes', { headers: auth })).body;
 if (!risk.success || risk.risk_probability < 0 || risk.risk_probability > 1) throw new Error('disease risk acceptance failed');
+if (!risk.data_completeness || risk.data_completeness.missing_count !== risk.missing_features.length || !Array.isArray(risk.data_completeness.next_steps)) throw new Error('risk completeness acceptance failed');
 const curve = (await request('/api/prediction/bp?days=90&future=30', { headers: auth })).body;
 if (!curve.actual?.length || !curve.fitted?.length || !curve.predicted?.length || !curve.predicted[0].recorded_at || curve.predicted[0].lower > curve.predicted[0].upper) throw new Error('curve acceptance failed');
 const behaviorCurve = (await request('/api/prediction/steps?days=90&future=30', { headers: auth })).body;

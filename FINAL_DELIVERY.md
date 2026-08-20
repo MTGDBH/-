@@ -14,9 +14,11 @@ $py = 'C:\Users\zhaoq\.workbuddy\binaries\python\envs\default\Scripts\python.exe
 & $py D:\BIGCHUANG\-\ml\curve\test_health_curve.py
 & $py D:\BIGCHUANG\-\ml\disease_risk\test_multidisease.py
 & $py D:\BIGCHUANG\-\elderly-health-rag\test_graphrag.py
+& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_personalization.py
+node D:\BIGCHUANG\-\server\data\evaluate_risk_personalization.mjs
 ```
 
-Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次验证：趋势问题、疾病风险问题、知识解释问题、`/api/chat/history` 和四个疾病预测接口。
+Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次验证：趋势问题、疾病风险问题、知识解释问题、`/api/chat/history` 和四个疾病预测接口。风险接口同时返回 `data_completeness`，说明缺失字段和建议补采内容；智能体证据卡片由后端真实上下文生成。
 
 ## 医疗安全边界
 
