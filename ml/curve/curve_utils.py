@@ -68,6 +68,22 @@ def dedup_time(ts, vs):
     return np.array(out_t), np.array(out_v)
 
 
+def aggregate_daily(ts, vs, method='median'):
+    """按本地日聚合重复采集，保留日期级趋势，避免一天多次测量放大权重。"""
+    if len(ts) == 0:
+        return ts, vs
+    days = np.floor(np.asarray(ts, dtype=float) / 86400.0)
+    out_t, out_v = [], []
+    for day in np.unique(days):
+        vals = np.asarray(vs)[days == day]
+        if method == 'sum': value = float(np.sum(vals))
+        elif method == 'mean': value = float(np.mean(vals))
+        else: value = float(np.median(vals))
+        out_t.append(float(day * 86400.0 + 43200.0))
+        out_v.append(value)
+    return np.asarray(out_t), np.asarray(out_v)
+
+
 def clean_series(ts, vs, metric):
     """
     清洗: 医学范围过滤 + MAD 异常点剔除（仅用于拟合，raw 保留）

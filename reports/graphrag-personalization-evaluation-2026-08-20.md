@@ -9,7 +9,7 @@
 | 场景 | 数据画像 | 优先级 | 行动 | 理由 | 证据 |
 |---|---|---|---|---|---|
 | hypertension_same_question | urgent | urgent | 立即安静休息并重新测量；若伴胸痛、呼吸困难、意识改变或单侧无力，立即呼叫急救。 | 当前血压达到危险信号门槛 | who_hypertension_2025.md#并发症 |
-| hypertension_same_question | high | high | 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。 | 最近一次血压 150/95 mmHg 偏高 | who_hypertension_2025.md#识别与复测 |
+| hypertension_same_question | high | high | 今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。 | 最近一次血压 150/95 mmHg 偏高，趋势为未知 | who_hypertension_2025.md#识别与复测 |
 | hypertension_same_question | normal | normal | 继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。 | 已有血压记录但当前未触发高风险规则 | who_hypertension_2025.md#识别与复测 |
 | diabetes_same_question | high | high | 确认这次是否为空腹测量，按同一条件复测并联系医生评估。 | 记录血糖 8.1 mmol/L 需要结合测量条件复核 | who_diabetes_2024.md#监测与并发症 |
 | diabetes_same_question | normal | normal | 继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。 | 血糖需要结合测量时点解释 | who_diabetes_2024.md#监测与并发症 |

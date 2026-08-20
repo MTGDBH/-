@@ -405,6 +405,10 @@
         ? `可信度 ${Math.round(Number(data.analysis.confidence) * 100)}%` : '可信度待积累';
       const dateRange = data.analysis?.dateStart && data.analysis?.dateEnd
         ? `${data.analysis.dateStart} 至 ${data.analysis.dateEnd}` : '日期范围待积累';
+      const modelText = data.analysis?.model ? `模型 ${data.analysis.model}` : '模型待积累';
+      const backtestText = data.analysis?.backtest?.folds ? `滚动回测 ${data.analysis.backtest.folds} 折` : '';
+      const conditionText = nameLabel.includes('血糖') && data.analysis?.measurementConditionCoverage != null
+        ? `测量条件 ${Math.round(data.analysis.measurementConditionCoverage * 100)}%` : '';
       const stats = data.stats;
       const statsHtml = stats ? `
         <div class="pred-metric-stat">平均 <strong>${stats.avg}</strong>${unitLabel ? ` ${unitLabel}` : ''}</div>
@@ -427,7 +431,7 @@
           <div class="pred-metric-svg-wrap">
             <svg id="metric-svg-${m.type}" width="100%" height="220" viewBox="0 0 1060 220" preserveAspectRatio="xMidYMid meet"></svg>
           </div>
-          <div class="pred-quality-row">${quality}<span>${confidenceText}</span><span>${dateRange}</span><span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
+          <div class="pred-quality-row">${quality}<span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
           <div class="pred-legend">${buildLegend({
             ...data,
             actual: chartVisibility.raw ? (data.actual || []) : [],

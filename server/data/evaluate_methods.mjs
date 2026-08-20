@@ -33,6 +33,8 @@ try {
       graph_priority: graph.recommendations?.[0]?.priority || null,
       graph_citations: graph.citations?.length || 0,
       graph_paths: graph.graph_paths?.length || 0,
+      graph_weekly_plan_days: graph.weekly_plan?.length || 0,
+      graph_personalized_factors: graph.personalization?.matched_factors || [],
       agent_source: chat.source,
       agent_content: chat.content,
       agent_has_evidence: Boolean(chat.evidence?.graph || chat.evidence?.items?.length),

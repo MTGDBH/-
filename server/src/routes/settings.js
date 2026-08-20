@@ -1,6 +1,7 @@
 // 设置路由：LLM 模型配置管理
 import express from 'express';
 import db from '../db.js';
+import { getLLMStatus } from '../ai/agent.js';
 
 const router = express.Router();
 
@@ -14,10 +15,10 @@ router.get('/llm', (req, res) => {
   }
 
   // 回退到环境变量
-  if (!cfg.api_key && process.env.OPENAI_API_KEY) {
-    cfg.api_key = process.env.OPENAI_API_KEY;
-    cfg.base_url = cfg.base_url || process.env.OPENAI_BASE_URL || '';
-    cfg.model = cfg.model || process.env.OPENAI_MODEL || '';
+  if (!cfg.api_key && (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY)) {
+    cfg.api_key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
+    cfg.base_url = cfg.base_url || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_BASE_URL : process.env.OPENAI_BASE_URL) || '';
+    cfg.model = cfg.model || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_MODEL : process.env.OPENAI_MODEL) || '';
   }
 
   // 掩码处理：只返回前 4 位 + ****
@@ -27,13 +28,20 @@ router.get('/llm', (req, res) => {
 
   const mode = cfg.api_key ? 'llm' : 'mock';
 
+  const baseUrl = cfg.base_url || (cfg.api_key ? 'https://api.deepseek.com/v1' : 'https://api.deepseek.com/v1');
+  const model = cfg.model || (cfg.api_key ? 'deepseek-chat' : 'deepseek-chat');
   res.json({
     api_key_masked: maskedKey,
     api_key_set: !!cfg.api_key,
-    base_url: cfg.base_url || 'https://api.openai.com/v1',
-    model: cfg.model || 'gpt-4o-mini',
+    base_url: baseUrl,
+    model,
+    provider: /deepseek/i.test(baseUrl) ? 'deepseek' : /openai/i.test(baseUrl) ? 'openai' : 'custom',
     mode,
   });
+});
+
+router.get('/llm/status', (req, res) => {
+  res.json(getLLMStatus());
 });
 
 // 保存 LLM 配置
@@ -52,8 +60,8 @@ router.put('/llm', (req, res) => {
 
   const cfg = {
     api_key: finalKey,
-    base_url: base_url || existing.base_url || 'https://api.openai.com/v1',
-    model: model || existing.model || 'gpt-4o-mini',
+    base_url: base_url || existing.base_url || 'https://api.deepseek.com/v1',
+    model: model || existing.model || 'deepseek-chat',
   };
 
   db.prepare(`
@@ -72,6 +80,7 @@ router.put('/llm', (req, res) => {
     base_url: cfg.base_url,
     model: cfg.model,
     mode: cfg.api_key ? 'llm' : 'mock',
+    provider: /deepseek/i.test(cfg.base_url) ? 'deepseek' : /openai/i.test(cfg.base_url) ? 'openai' : 'custom',
   });
 });
 
@@ -83,17 +92,17 @@ router.post('/llm/test', async (req, res) => {
     try { cfg = { ...cfg, ...JSON.parse(row.value) }; } catch {}
   }
   // 回退到环境变量
-  if (!cfg.api_key && process.env.OPENAI_API_KEY) {
-    cfg.api_key = process.env.OPENAI_API_KEY;
-    cfg.base_url = cfg.base_url || process.env.OPENAI_BASE_URL || '';
-    cfg.model = cfg.model || process.env.OPENAI_MODEL || '';
+  if (!cfg.api_key && (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY)) {
+    cfg.api_key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
+    cfg.base_url = cfg.base_url || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_BASE_URL : process.env.OPENAI_BASE_URL) || '';
+    cfg.model = cfg.model || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_MODEL : process.env.OPENAI_MODEL) || '';
   }
 
   if (!cfg.api_key) {
     return res.json({ success: false, message: '未配置 API Key，当前为 Mock 模式' });
   }
 
-  const base = (cfg.base_url || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const base = (cfg.base_url || 'https://api.deepseek.com/v1').replace(/\/$/, '');
   try {
     const response = await fetch(`${base}/chat/completions`, {
       method: 'POST',
@@ -102,15 +111,15 @@ router.post('/llm/test', async (req, res) => {
         Authorization: `Bearer ${cfg.api_key}`,
       },
       body: JSON.stringify({
-        model: cfg.model || 'gpt-4o-mini',
+        model: cfg.model || 'deepseek-chat',
         messages: [{ role: 'user', content: '你好' }],
         max_tokens: 10,
       }),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      return res.json({ success: false, message: `API 返回 ${response.status}: ${text.slice(0, 200)}` });
+      await response.text();
+      return res.json({ success: false, message: `API 返回 ${response.status}` });
     }
 
     const data = await response.json();

@@ -74,7 +74,7 @@ function statsFromValues(values) {
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays) {
   if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
-  const result = await runPythonTool(CURVE_SCRIPT, { metric, unit, points: points.map(p => ({ t: p.recorded_at, v: p.value })), forecast_days: futureDays });
+  const result = await runPythonTool(CURVE_SCRIPT, { metric, unit, points: points.map(p => ({ t: p.recorded_at, v: p.value, condition: p.measurement_condition || null, source: p.source || null })), forecast_days: futureDays });
   const raw = result?.curve?.raw_timestamps?.map((t, i) => ({
     day: i, value: result.curve.raw_actual[i], recorded_at: isoFromSeconds(t), predicted: false,
     outlier: (result.curve.outlier_indices || []).includes(i),
@@ -88,7 +88,11 @@ async function analyzeCurve(metric, unit, points, futureDays) {
     : [];
   return {
     status: result?.status || (result?.success ? 'ok' : 'error'),
-    actual: raw, predicted, fitted,
+    actual: raw, raw, predicted, fitted,
+    clean: result?.curve?.clean_timestamps?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: result.curve.clean_actual[i] })) || [],
+    smooth: result?.curve?.smooth_timestamps?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: result.curve.smooth[i] })) || fitted,
+    baseline: result?.baseline || null,
+    forecastInterval: result?.forecast?.curve || null,
     stats: result?.stats || statsFromValues(points.map(p => p.value)),
     predTrend: mapTrend(result?.long_term_trend),
     analysis: result?.success ? {
@@ -96,6 +100,12 @@ async function analyzeCurve(metric, unit, points, futureDays) {
       dataPoints: result.data_points, rawPoints: result.raw_points,
       removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
       forecastDays: result.forecast?.days || 0, forecastModel: result.forecast?.model || null,
+      horizonDays: result.forecast?.horizon_days || 0,
+      forecastCoverageTarget: result.forecast?.coverage_target || 0.9,
+      calibrationStatus: result.forecast?.calibration_status || 'not_available',
+      backtest: result.backtest || null,
+      metricPolicy: result.metric_policy || null,
+      measurementConditionCoverage: result.measurement_condition_coverage ?? null,
       dateStart: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[0]).slice(0, 10) : null,
       dateEnd: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[result.curve.timestamps.length - 1]).slice(0, 10) : null,
       forecastReason: result.forecast?.reason || null,
@@ -176,7 +186,7 @@ router.get('/:type', async (req, res) => {
   // 获取历史数据
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
   const points = db.prepare(`
-    SELECT value, value2, recorded_at, source FROM metrics
+    SELECT value, value2, recorded_at, source, measurement_condition FROM metrics
     WHERE user_id = ? AND type = ? AND recorded_at >= ?
     ORDER BY recorded_at ASC
   `).all(req.user.id, type, since);
@@ -202,6 +212,11 @@ router.get('/:type', async (req, res) => {
     type,
     meta,
     actual: actualPoints,
+    raw: curve.raw || actualPoints,
+    clean: curve.clean || [],
+    smooth: curve.smooth || curve.fitted,
+    baseline: curve.baseline || null,
+    forecast_interval: curve.forecastInterval || null,
     predicted: predictedPoints,
     peer: peerLine,
     peerBase: peerBase || null,

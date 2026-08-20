@@ -1,5 +1,5 @@
 {
-  "index_version": "2026-08-20.v2",
+  "index_version": "2026-08-20.v4",
   "generated_at": "2026-08-20",
   "sources": [
     {
@@ -12,7 +12,7 @@
       "document_type": "clinical_standard",
       "evidence_level": "professional_guideline",
       "review_status": "已按公开摘要整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "aha_lifes_essential_8_2022.md",
@@ -24,7 +24,7 @@
       "document_type": "presidential_advisory_summary",
       "evidence_level": "professional_statement",
       "review_status": "已按来源摘要整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "aha_stroke_prevention_2024.md",
@@ -36,7 +36,7 @@
       "document_type": "clinical_guideline_summary",
       "evidence_level": "professional_guideline",
       "review_status": "已按来源摘要整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "cardiovascular.md",
@@ -48,7 +48,7 @@
       "document_type": "legacy_guidance_note",
       "evidence_level": "public_guidance",
       "review_status": "演示条目，需专业人员复核",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "diabetes.md",
@@ -60,7 +60,7 @@
       "document_type": "legacy_guidance_note",
       "evidence_level": "public_guidance",
       "review_status": "演示条目，需专业人员复核",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "dpp_2002.md",
@@ -72,7 +72,7 @@
       "document_type": "randomized_controlled_trial",
       "evidence_level": "randomized_trial",
       "review_status": "作为生活方式预防证据",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "elderly_frailty.md",
@@ -84,7 +84,7 @@
       "document_type": "older_adult_safety_guidance",
       "evidence_level": "authoritative_guidance",
       "review_status": "老年医学人员复核前仅用于演示和健康教育",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "hypertension.md",
@@ -96,7 +96,7 @@
       "document_type": "legacy_guidance_note",
       "evidence_level": "public_guidance",
       "review_status": "演示条目，需专业人员复核",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "kdigo_ckd_2024.md",
@@ -108,7 +108,7 @@
       "document_type": "clinical_guideline_summary",
       "evidence_level": "authoritative_guidance",
       "review_status": "依据公开指南页面整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "older_adult_safety.md",
@@ -120,7 +120,7 @@
       "document_type": "clinical_standard_summary",
       "evidence_level": "professional_guideline",
       "review_status": "用于智能体安全分层",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "older_cvd_risk_review_2020.md",
@@ -132,7 +132,7 @@
       "document_type": "systematic_review",
       "evidence_level": "systematic_review",
       "review_status": "需结合外部验证和竞争风险分析",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "older_physical_activity_review_2022.md",
@@ -144,7 +144,7 @@
       "document_type": "systematic_review_meta_analysis",
       "evidence_level": "systematic_review",
       "review_status": "研究异质性和样本量有限",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "predimed_2018.md",
@@ -156,7 +156,7 @@
       "document_type": "randomized_controlled_trial",
       "evidence_level": "randomized_trial",
       "review_status": "2018 年更正后再发表版本",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "sprint_2015.md",
@@ -168,7 +168,7 @@
       "document_type": "randomized_controlled_trial",
       "evidence_level": "randomized_trial",
       "review_status": "作为血压管理研究证据",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "who_cvd_2025.md",
@@ -180,7 +180,7 @@
       "document_type": "official_fact_sheet",
       "evidence_level": "authoritative_guidance",
       "review_status": "已按来源网页整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "who_diabetes_2024.md",
@@ -192,7 +192,7 @@
       "document_type": "official_fact_sheet",
       "evidence_level": "authoritative_guidance",
       "review_status": "已按来源网页整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "who_hypertension_2025.md",
@@ -204,7 +204,7 @@
       "document_type": "official_fact_sheet",
       "evidence_level": "authoritative_guidance",
       "review_status": "已按来源网页整理",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "file": "who_physical_activity_2020.md",
@@ -216,7 +216,511 @@
       "document_type": "global_guideline_summary",
       "evidence_level": "authoritative_guidance",
       "review_status": "公开指南摘要",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_01",
+      "source_id": "hypertension_curated_01",
+      "sha256": "97a8393e582bd850ce745a3e797773839c1e35f3e2400ce5096d9cc72854214f",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_02",
+      "source_id": "hypertension_curated_02",
+      "sha256": "d5d80e9ea0c8fd729b5c78992d27c4ce4327d86e7919cacf5c3912507c5ffad3",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_03",
+      "source_id": "hypertension_curated_03",
+      "sha256": "82b6d019e28e3ea6d72201085bc2e98f7206f71412c8f5ddd8b691b6460aa8f4",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_04",
+      "source_id": "hypertension_curated_04",
+      "sha256": "800be1a31e5820b7576abf73fab61ece8b3906b9129234c66c7c453a36c6b46f",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_05",
+      "source_id": "hypertension_curated_05",
+      "sha256": "13b3b06aa022eea1c18fa06c0adbfc821e01a112b3a076ac4d54354286e08cbf",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_06",
+      "source_id": "hypertension_curated_06",
+      "sha256": "46f9345f7ac7aa6ed4d1f59f86bca1b3e78c26c10f345871d3fedc9c4cfe5cda",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:hypertension_curated_07",
+      "source_id": "hypertension_curated_07",
+      "sha256": "e4e2f7370f9a9e09a146e2a74fa2c3dee38fc93178a9b1a2afca1b827094469d",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_01",
+      "source_id": "diabetes_curated_01",
+      "sha256": "60fdac2c912eba291959cabd0acb69b90aadbae0c9e578e06032a9068cb64e69",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_02",
+      "source_id": "diabetes_curated_02",
+      "sha256": "fbbc05ed6f82315f79b260668122d2ba6a8fcda5b1d3dd970c89157a60f97757",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_03",
+      "source_id": "diabetes_curated_03",
+      "sha256": "ce02061602ae239eb01f48be3b11fb4ab78f19dee680d705a5fcd892addc0a71",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_04",
+      "source_id": "diabetes_curated_04",
+      "sha256": "3fb2b85dfc1028ff7e1e6252fecb4aa93ba167223861e93582a488db5decb376",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_05",
+      "source_id": "diabetes_curated_05",
+      "sha256": "1d3c8ab2c53f4acba8d1b74332ebbbaf147578f704775327345251f0f285f729",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_06",
+      "source_id": "diabetes_curated_06",
+      "sha256": "e84a55c7d45eab8f7649aba3115c4d52b0eef57c19ed87765f04c56815cb3d54",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:diabetes_curated_07",
+      "source_id": "diabetes_curated_07",
+      "sha256": "a45b7a970158c7828f63002d06084d8eef24adc26a8dbb7bd7dd3d3a3af96be8",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+      "publisher": "WHO/ADA",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_01",
+      "source_id": "cardiovascular_curated_01",
+      "sha256": "377a4568217240b6a708d2126666b27e74b4a6a2de73dbb9edbbef6299bf3d4e",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_02",
+      "source_id": "cardiovascular_curated_02",
+      "sha256": "ef2f39bedc79cdc87ab94614c22998add746ed003ed21277fe279b862519d280",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_03",
+      "source_id": "cardiovascular_curated_03",
+      "sha256": "52474f982c1d7961073ca167ce502cf534d32944479d132e816f1c14d1372bb4",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_04",
+      "source_id": "cardiovascular_curated_04",
+      "sha256": "5d2bca0529785618706263d9aebf502f56d4aa789016d68c685b4d5882add84f",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_05",
+      "source_id": "cardiovascular_curated_05",
+      "sha256": "63691046a88a0b600dcd4f39532c8200c1ec9a965358cc939b881be4e7d10113",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_06",
+      "source_id": "cardiovascular_curated_06",
+      "sha256": "4f1c3514c66abf7b974d5b735174682f67792b0c799a56558f619accedfe0983",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:cardiovascular_curated_07",
+      "source_id": "cardiovascular_curated_07",
+      "sha256": "e6576df6c21f6b44609ecee9d7850da1a12a80cbc22e78bbd79f755d4aa9ad0e",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+      "publisher": "WHO/AHA/ESC",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_01",
+      "source_id": "stroke_curated_01",
+      "sha256": "058242d8eb7b9fcc545d04478a7254dae307b630d04eee41fddaba435d11f4ce",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_02",
+      "source_id": "stroke_curated_02",
+      "sha256": "54380962ff0e6c59e195436d09a3a59ff3da875f7b96fbb2e10a4d9a809585dc",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_03",
+      "source_id": "stroke_curated_03",
+      "sha256": "8f6540c45003c4e231d9df2ec360fa99ec09a9cebe291e96c2aa029697151e8d",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_04",
+      "source_id": "stroke_curated_04",
+      "sha256": "67787bafaa348d0d8c10a4d27f5e3cf365d28cd7c02538ec1c8eb5073d6d3df1",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_05",
+      "source_id": "stroke_curated_05",
+      "sha256": "0ddca339f4e810201bb9604d733d87113e3687c92f2b04516a2b17a22ff782ae",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_06",
+      "source_id": "stroke_curated_06",
+      "sha256": "1cb2c3a5fc4903d157412a0ecfe38db79a488ff638f5b9b35098c6193ee0c964",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:stroke_curated_07",
+      "source_id": "stroke_curated_07",
+      "sha256": "d99c78b8d593a16b518e4293c1d94363fb76fad27df07b4e6e34d99455d2dd02",
+      "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+      "publisher": "AHA/ASA/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_01",
+      "source_id": "chronic_kidney_disease_curated_01",
+      "sha256": "8b2c5216384f9672cf870cbffdfc237cb0c7cedeb1335129a6f77b0399b2f1bc",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_02",
+      "source_id": "chronic_kidney_disease_curated_02",
+      "sha256": "c42e895e9541b5ba9c2f29e877a5b346e3b42617d6f0ade79a5d20821397d576",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_03",
+      "source_id": "chronic_kidney_disease_curated_03",
+      "sha256": "08988175f83ba3440524efdab8856d6664f0e2a4257b349912ecfecf7a7cfaff",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_04",
+      "source_id": "chronic_kidney_disease_curated_04",
+      "sha256": "69f3c36d771bf3e07a041fb9a98ec867593ae8bf165af6ee963d7db9f6918fa5",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_05",
+      "source_id": "chronic_kidney_disease_curated_05",
+      "sha256": "424c90f9cc1f609ada036ec6e2cabc2044e341d9d5b92a817e0d28912e2dc620",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_06",
+      "source_id": "chronic_kidney_disease_curated_06",
+      "sha256": "5a3ffb1f138c0334a884d19f3eae0512fcdf032b7fb3892238f80294601f569b",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:chronic_kidney_disease_curated_07",
+      "source_id": "chronic_kidney_disease_curated_07",
+      "sha256": "331e9e15606257e48b147cf5f0d87762606259c334d2446b7d68a7498232b49a",
+      "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "publisher": "KDIGO/WHO",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_01",
+      "source_id": "frailty_curated_01",
+      "sha256": "2626ad93fbadf82a5894b9d7ec2cde107c8def1fad2fe058155d2d27cb5e539c",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2025,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_02",
+      "source_id": "frailty_curated_02",
+      "sha256": "b28b910e68a5a260d28eb8aae092029a65ea63c36aed6ba107ab5feaac445477",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_guideline",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_03",
+      "source_id": "frailty_curated_03",
+      "sha256": "7300b383a7681164b3ee1d0f396150eaadd50115a4173bc30fb8611420fb1e89",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "systematic_review",
+      "evidence_level": "systematic_review",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_04",
+      "source_id": "frailty_curated_04",
+      "sha256": "ca38a92c929641a835041e617316ed0e8d91577dc142e6d8cf8ab117a7fefe24",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "randomized_trial",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_05",
+      "source_id": "frailty_curated_05",
+      "sha256": "0310b11ec8056d12ffb2639a9091c3153a221403fd182d511e25471c255de65b",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "research_summary",
+      "evidence_level": "observational_study",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_06",
+      "source_id": "frailty_curated_06",
+      "sha256": "3e24f5dd6e3e6b8c0e3818a0d4961358975a1fccbf3db23cc8f2b511e1d74344",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
+    },
+    {
+      "file": "registry:frailty_curated_07",
+      "source_id": "frailty_curated_07",
+      "sha256": "40b14dca4c604527cf6087bbc3abf0d7d8d780ed335dcc5f8ec26b3693cfbb46",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+      "publisher": "WHO/AGS",
+      "publication_year": 2024,
+      "document_type": "guideline",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "index_version": "2026-08-20.v4"
     }
   ],
   "invalid_relations": []

@@ -15,6 +15,13 @@
       "kdigo_ckd_2024:2",
       "older_adult_safety:1",
       "older_physical_activity_review_2022:0",
+      "registry:diabetes_curated_01:0",
+      "registry:diabetes_curated_02:0",
+      "registry:diabetes_curated_03:0",
+      "registry:diabetes_curated_04:0",
+      "registry:diabetes_curated_05:0",
+      "registry:diabetes_curated_06:0",
+      "registry:diabetes_curated_07:0",
       "who_diabetes_2024:0",
       "who_diabetes_2024:1",
       "who_diabetes_2024:2",
@@ -327,6 +334,13 @@
       "cardiovascular:2",
       "older_cvd_risk_review_2020:0",
       "older_cvd_risk_review_2020:1",
+      "registry:cardiovascular_curated_01:0",
+      "registry:cardiovascular_curated_02:0",
+      "registry:cardiovascular_curated_03:0",
+      "registry:cardiovascular_curated_04:0",
+      "registry:cardiovascular_curated_05:0",
+      "registry:cardiovascular_curated_06:0",
+      "registry:cardiovascular_curated_07:0",
       "who_cvd_2025:0",
       "who_cvd_2025:1",
       "who_cvd_2025:2"
@@ -445,6 +459,13 @@
       "aha_stroke_prevention_2024:1",
       "cardiovascular:2",
       "predimed_2018:0",
+      "registry:stroke_curated_01:0",
+      "registry:stroke_curated_02:0",
+      "registry:stroke_curated_03:0",
+      "registry:stroke_curated_04:0",
+      "registry:stroke_curated_05:0",
+      "registry:stroke_curated_06:0",
+      "registry:stroke_curated_07:0",
       "who_hypertension_2025:3"
     ]
   },
@@ -535,7 +556,14 @@
     "chunk_ids": [
       "elderly_frailty:0",
       "elderly_frailty:1",
-      "elderly_frailty:2"
+      "elderly_frailty:2",
+      "registry:frailty_curated_01:0",
+      "registry:frailty_curated_02:0",
+      "registry:frailty_curated_03:0",
+      "registry:frailty_curated_04:0",
+      "registry:frailty_curated_05:0",
+      "registry:frailty_curated_06:0",
+      "registry:frailty_curated_07:0"
     ]
   },
   {
@@ -560,6 +588,13 @@
       "hypertension:2",
       "kdigo_ckd_2024:2",
       "older_physical_activity_review_2022:0",
+      "registry:hypertension_curated_01:0",
+      "registry:hypertension_curated_02:0",
+      "registry:hypertension_curated_03:0",
+      "registry:hypertension_curated_04:0",
+      "registry:hypertension_curated_05:0",
+      "registry:hypertension_curated_06:0",
+      "registry:hypertension_curated_07:0",
       "sprint_2015:1",
       "who_hypertension_2025:0",
       "who_hypertension_2025:1",
@@ -595,6 +630,13 @@
       "kdigo_ckd_2024:1",
       "kdigo_ckd_2024:2",
       "kdigo_ckd_2024:3",
+      "registry:chronic_kidney_disease_curated_01:0",
+      "registry:chronic_kidney_disease_curated_02:0",
+      "registry:chronic_kidney_disease_curated_03:0",
+      "registry:chronic_kidney_disease_curated_04:0",
+      "registry:chronic_kidney_disease_curated_05:0",
+      "registry:chronic_kidney_disease_curated_06:0",
+      "registry:chronic_kidney_disease_curated_07:0",
       "who_hypertension_2025:3"
     ]
   },
@@ -655,6 +697,426 @@
       "who_physical_activity_2020:0",
       "who_physical_activity_2020:1",
       "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_01",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：定义与老年特点",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_02",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：家庭测量与复测",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_03",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：饮食与盐摄入",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_04",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：运动与体重",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_05",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：心脑肾共病",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_06",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:hypertension_curated_07",
+    "type": "evidence_source",
+    "name": "高血压老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:hypertension_curated_07:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_01",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：定义与老年特点",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_02",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：空腹与餐后血糖",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_03",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：HbA1c适用边界",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_04",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：低血糖与虚弱",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_05",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：饮食与活动",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_06",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_curated_07",
+    "type": "evidence_source",
+    "name": "2型糖尿病老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO/ADA",
+    "chunk_ids": [
+      "registry:diabetes_curated_07:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_01",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：共同危险因素",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_02",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：血脂与血压",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_03",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：吸烟与饮酒",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_04",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：运动与饮食模式",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_05",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：老年共病",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_06",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:cardiovascular_curated_07",
+    "type": "evidence_source",
+    "name": "心血管疾病老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "publisher": "WHO/AHA/ESC",
+    "chunk_ids": [
+      "registry:cardiovascular_curated_07:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_01",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：一级预防",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_02",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：血压与卒中",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_03",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：房颤与危险信号",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_04",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：吸烟与久坐",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_05",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：FAST急症识别",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_06",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_curated_07",
+    "type": "evidence_source",
+    "name": "脑卒中老年人证据摘要：关键随机试验",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "AHA/ASA/WHO",
+    "chunk_ids": [
+      "registry:stroke_curated_07:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_01",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：定义与持续时间",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_02",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：eGFR与肌酐",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_03",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：尿白蛋白",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_04",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：血压与糖尿病共病",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_05",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：老年复测边界",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_06",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:chronic_kidney_disease_curated_07",
+    "type": "evidence_source",
+    "name": "慢性肾脏病老年人证据摘要：关键随机试验",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO/WHO",
+    "chunk_ids": [
+      "registry:chronic_kidney_disease_curated_07:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_01",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：衰弱识别",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_01:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_02",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：握力与功能",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_02:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_03",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：跌倒风险",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_03:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_04",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：安全活动与陪同",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_04:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_05",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：营养与蛋白质",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_05:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_06",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_06:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_curated_07",
+    "type": "evidence_source",
+    "name": "老年衰弱与跌倒风险老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "WHO/AGS",
+    "chunk_ids": [
+      "registry:frailty_curated_07:0"
     ]
   },
   {

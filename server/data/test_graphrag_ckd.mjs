@@ -20,9 +20,9 @@ try {
   if (!graph.citations?.some(x => x.publisher === 'KDIGO')) throw new Error('KDIGO citation missing');
   if (!graph.personalization?.matched_factors?.includes('recent_bp')) throw new Error('personalization context missing');
   const chat = (await request('/api/chat', { method: 'POST', headers: auth, body: JSON.stringify({ message: '肾功能和血压有什么关系？' }) })).body;
-  if (!chat.evidence?.graph?.index_version || !chat.evidence.graph.citations?.length) throw new Error('chat graph evidence not persisted');
+  if (!chat.evidence?.graph?.index_version || !chat.evidence.graph.citations?.length || !chat.evidence.graph.weekly_plan?.length) throw new Error('chat graph evidence not persisted');
   const history = (await request('/api/chat/history', { headers: auth })).body;
-  if (!history.some(row => row.graph_evidence?.index_version)) throw new Error('graph evidence history missing');
+  if (!history.some(row => row.graph_evidence?.index_version && row.graph_evidence?.weekly_plan?.length)) throw new Error('graph evidence history missing');
   console.log(JSON.stringify({ pass: true, graph_mode: graph.graph_mode, index_version: graph.index_version, paths: graph.graph_paths.length, citations: graph.citations.length, chat_graph_persisted: true }));
 } finally {
   const deleted = await request('/api/profile/me', { method: 'DELETE', headers: auth });

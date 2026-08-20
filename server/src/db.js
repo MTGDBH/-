@@ -214,6 +214,21 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_chat_user_time ON chat_messages(user_id, created_at);
 
+  CREATE TABLE IF NOT EXISTS llm_call_logs (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    chat_message_id INTEGER REFERENCES chat_messages(id) ON DELETE SET NULL,
+    provider TEXT NOT NULL,
+    model TEXT,
+    status TEXT NOT NULL,
+    latency_ms INTEGER,
+    tool_calls TEXT,
+    fallback_reason TEXT,
+    graph_index_version TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_llm_logs_user_time ON llm_call_logs(user_id, created_at DESC);
+
   CREATE TABLE IF NOT EXISTS alerts (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
@@ -274,6 +289,13 @@ db.exec(`
 addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'evidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'graph_evidence', 'TEXT');
+addColumnIfMissing('chat_messages', 'provider', 'TEXT');
+addColumnIfMissing('chat_messages', 'model', 'TEXT');
+addColumnIfMissing('chat_messages', 'call_status', 'TEXT');
+addColumnIfMissing('chat_messages', 'latency_ms', 'INTEGER');
+addColumnIfMissing('chat_messages', 'tool_calls', 'TEXT');
+addColumnIfMissing('chat_messages', 'fallback_reason', 'TEXT');
+addColumnIfMissing('chat_messages', 'graph_index_version', 'TEXT');
 
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');

@@ -27,7 +27,7 @@ try {
     method: 'POST', headers: auth,
     body: JSON.stringify({ message: '最近身体怎么样？' }),
   })).body;
-  if (!chat.content || !['openai', 'tool', 'tool_fallback'].includes(chat.source)) throw new Error('health summary agent response unavailable');
+  if (!chat.content || !['deepseek', 'openai', 'custom', 'tool', 'tool_fallback', 'mock'].includes(chat.source)) throw new Error('health summary agent response unavailable');
   if (!chat.evidence || !Array.isArray(chat.evidence.items)) throw new Error('evidence card missing');
   const mentionsMetric = /血压|血糖|睡眠/.test(chat.content);
   if (!mentionsMetric) throw new Error(`summary did not mention recorded metrics: ${chat.content}`);

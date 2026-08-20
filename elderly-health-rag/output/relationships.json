@@ -1961,6 +1961,636 @@
   },
   {
     "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_01:0",
+    "evidence": "registry:hypertension_curated_01#高血压老年人证据摘要：定义与老年特点",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_02:0",
+    "evidence": "registry:hypertension_curated_02#高血压老年人证据摘要：家庭测量与复测",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_03:0",
+    "evidence": "registry:hypertension_curated_03#高血压老年人证据摘要：饮食与盐摄入",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_04:0",
+    "evidence": "registry:hypertension_curated_04#高血压老年人证据摘要：运动与体重",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_05:0",
+    "evidence": "registry:hypertension_curated_05#高血压老年人证据摘要：心脑肾共病",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_06:0",
+    "evidence": "registry:hypertension_curated_06#高血压老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "evidence_source:hypertension_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:hypertension_curated_07:0",
+    "evidence": "registry:hypertension_curated_07#高血压老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_01:0",
+    "evidence": "registry:diabetes_curated_01#2型糖尿病老年人证据摘要：定义与老年特点",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_02:0",
+    "evidence": "registry:diabetes_curated_02#2型糖尿病老年人证据摘要：空腹与餐后血糖",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_03:0",
+    "evidence": "registry:diabetes_curated_03#2型糖尿病老年人证据摘要：HbA1c适用边界",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_04:0",
+    "evidence": "registry:diabetes_curated_04#2型糖尿病老年人证据摘要：低血糖与虚弱",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_05:0",
+    "evidence": "registry:diabetes_curated_05#2型糖尿病老年人证据摘要：饮食与活动",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_06:0",
+    "evidence": "registry:diabetes_curated_06#2型糖尿病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "evidence_source:diabetes_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:diabetes_curated_07:0",
+    "evidence": "registry:diabetes_curated_07#2型糖尿病老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_01:0",
+    "evidence": "registry:cardiovascular_curated_01#心血管疾病老年人证据摘要：共同危险因素",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_02:0",
+    "evidence": "registry:cardiovascular_curated_02#心血管疾病老年人证据摘要：血脂与血压",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_03:0",
+    "evidence": "registry:cardiovascular_curated_03#心血管疾病老年人证据摘要：吸烟与饮酒",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_04:0",
+    "evidence": "registry:cardiovascular_curated_04#心血管疾病老年人证据摘要：运动与饮食模式",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_05:0",
+    "evidence": "registry:cardiovascular_curated_05#心血管疾病老年人证据摘要：老年共病",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_06:0",
+    "evidence": "registry:cardiovascular_curated_06#心血管疾病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "evidence_source:cardiovascular_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:cardiovascular_curated_07:0",
+    "evidence": "registry:cardiovascular_curated_07#心血管疾病老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_01:0",
+    "evidence": "registry:stroke_curated_01#脑卒中老年人证据摘要：一级预防",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_02:0",
+    "evidence": "registry:stroke_curated_02#脑卒中老年人证据摘要：血压与卒中",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_03:0",
+    "evidence": "registry:stroke_curated_03#脑卒中老年人证据摘要：房颤与危险信号",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_04:0",
+    "evidence": "registry:stroke_curated_04#脑卒中老年人证据摘要：吸烟与久坐",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_05:0",
+    "evidence": "registry:stroke_curated_05#脑卒中老年人证据摘要：FAST急症识别",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_06:0",
+    "evidence": "registry:stroke_curated_06#脑卒中老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "evidence_source:stroke_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:stroke_curated_07:0",
+    "evidence": "registry:stroke_curated_07#脑卒中老年人证据摘要：关键随机试验",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_01:0",
+    "evidence": "registry:chronic_kidney_disease_curated_01#慢性肾脏病老年人证据摘要：定义与持续时间",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_02:0",
+    "evidence": "registry:chronic_kidney_disease_curated_02#慢性肾脏病老年人证据摘要：eGFR与肌酐",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_03:0",
+    "evidence": "registry:chronic_kidney_disease_curated_03#慢性肾脏病老年人证据摘要：尿白蛋白",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_04:0",
+    "evidence": "registry:chronic_kidney_disease_curated_04#慢性肾脏病老年人证据摘要：血压与糖尿病共病",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_05:0",
+    "evidence": "registry:chronic_kidney_disease_curated_05#慢性肾脏病老年人证据摘要：老年复测边界",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_06:0",
+    "evidence": "registry:chronic_kidney_disease_curated_06#慢性肾脏病老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "evidence_source:chronic_kidney_disease_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:chronic_kidney_disease_curated_07:0",
+    "evidence": "registry:chronic_kidney_disease_curated_07#慢性肾脏病老年人证据摘要：关键随机试验",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_01",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_01:0",
+    "evidence": "registry:frailty_curated_01#老年衰弱与跌倒风险老年人证据摘要：衰弱识别",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_02",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_02:0",
+    "evidence": "registry:frailty_curated_02#老年衰弱与跌倒风险老年人证据摘要：握力与功能",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_03",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_03:0",
+    "evidence": "registry:frailty_curated_03#老年衰弱与跌倒风险老年人证据摘要：跌倒风险",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_04",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_04:0",
+    "evidence": "registry:frailty_curated_04#老年衰弱与跌倒风险老年人证据摘要：安全活动与陪同",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_05",
+    "type": "supportive_evidence",
+    "strength": "moderate",
+    "evidence_level": "observational_study",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_05:0",
+    "evidence": "registry:frailty_curated_05#老年衰弱与跌倒风险老年人证据摘要：营养与蛋白质",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_06",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_06:0",
+    "evidence": "registry:frailty_curated_06#老年衰弱与跌倒风险老年人证据摘要：系统综述与预测因素",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "evidence_source:frailty_curated_07",
+    "type": "supportive_evidence",
+    "strength": "high",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "condition": "must_read_source_summary_with_limitations",
+    "chunk_id": "registry:frailty_curated_07:0",
+    "evidence": "registry:frailty_curated_07#老年衰弱与跌倒风险老年人证据摘要：关键随机试验",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:hypertension",
     "target": "risk_factor:high_salt_diet",
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
@@ -1969,6 +2599,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -1981,6 +2618,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -1993,6 +2637,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2005,6 +2656,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2017,6 +2675,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2029,6 +2694,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2041,6 +2713,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#识别与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2053,6 +2732,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#危险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2065,6 +2751,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#并发症"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2077,6 +2770,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#并发症"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2089,6 +2789,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#并发症"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2101,6 +2808,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#识别与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2113,6 +2827,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#生活方式干预"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2125,6 +2846,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "evidence_ids": [
+      "who_hypertension_2025.md#生活方式干预"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2137,6 +2865,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "evidence_ids": [
+      "who_diabetes_2024.md#2型糖尿病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2149,6 +2884,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_diabetes_2024.md#预防"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2161,6 +2903,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "evidence_ids": [
+      "who_diabetes_2024.md#2型糖尿病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2173,6 +2922,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_diabetes_2024.md#诊断与治疗"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2185,6 +2941,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "ada_older_adults_2025.md#综合评估"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2197,6 +2960,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_diabetes_2024.md#长期影响"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2209,6 +2979,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_diabetes_2024.md#长期影响"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2221,6 +2998,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_diabetes_2024.md#长期影响"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2233,6 +3017,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "ada_older_adults_2025.md#生活方式"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2245,6 +3036,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "ada_older_adults_2025.md#生活方式"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2257,6 +3055,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "ada_older_adults_2025.md#老年人综合评估"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2269,6 +3074,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_cvd_2025.md#风险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2281,6 +3093,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_cvd_2025.md#风险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2293,6 +3112,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_cvd_2025.md#风险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2305,6 +3131,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "who_cvd_2025.md#风险因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2317,6 +3150,13 @@
     "evidence_level": "professional_statement",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://professional.heart.org/en/science-news/lifes-essential-8",
+    "evidence_ids": [
+      "aha_lifes_essential_8_2022.md#八项指标"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2329,6 +3169,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#血压管理"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2341,6 +3188,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#身体活动"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2353,6 +3207,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#饮食模式"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2365,6 +3226,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#社会决定因素"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2377,6 +3245,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29",
+    "evidence_ids": [
+      "cardiovascular.md#危险信号"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2389,6 +3264,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_lifes_essential_8_2022.md#饮食"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2401,6 +3283,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_lifes_essential_8_2022.md#身体活动"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2413,6 +3302,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#饮食模式"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2425,6 +3321,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "dpp_2002.md#试验结论"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2437,6 +3340,13 @@
     "evidence_level": "professional_statement",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://professional.heart.org/en/science-news/lifes-essential-8",
+    "evidence_ids": [
+      "aha_lifes_essential_8_2022.md#八项指标"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2449,6 +3359,13 @@
     "evidence_level": "public_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "",
+    "evidence_ids": [
+      "aha_stroke_prevention_2024.md#血压管理"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2461,6 +3378,13 @@
     "evidence_level": "randomized_trial",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/29897866/",
+    "evidence_ids": [
+      "predimed_2018.md#试验要点"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2473,6 +3397,13 @@
     "evidence_level": "randomized_trial",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/29897866/",
+    "evidence_ids": [
+      "predimed_2018.md#试验要点"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2485,6 +3416,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "association",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31958478/",
+    "evidence_ids": [
+      "older_cvd_risk_review_2020.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2497,6 +3435,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "association",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31958478/",
+    "evidence_ids": [
+      "older_cvd_risk_review_2020.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2509,6 +3454,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "association",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31958478/",
+    "evidence_ids": [
+      "older_cvd_risk_review_2020.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2521,6 +3473,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34664329/",
+    "evidence_ids": [
+      "older_physical_activity_review_2022.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2533,6 +3492,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34664329/",
+    "evidence_ids": [
+      "older_physical_activity_review_2022.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2545,6 +3511,13 @@
     "evidence_level": "systematic_review",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34664329/",
+    "evidence_ids": [
+      "older_physical_activity_review_2022.md#主要发现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2558,6 +3531,13 @@
     "chunk_id": "kdigo_ckd_2024:1",
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#评估与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2570,6 +3550,13 @@
     "chunk_id": "kdigo_ckd_2024:1",
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#评估与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2582,6 +3569,13 @@
     "chunk_id": "kdigo_ckd_2024:1",
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#评估与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2594,6 +3588,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#血压与共病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2606,6 +3607,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#血压与共病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2618,6 +3626,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#老年人安全边界"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2630,6 +3645,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#老年人安全边界"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2642,6 +3664,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#血压与共病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2654,6 +3683,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#血压与共病"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2666,6 +3702,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#评估与复测"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2678,6 +3721,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "evidence_ids": [
+      "kdigo_ckd_2024.md#老年人安全边界"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2690,6 +3740,13 @@
     "chunk_id": "who_physical_activity_2020:0",
     "evidence_level": "authoritative_guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789240015128",
+    "evidence_ids": [
+      "who_physical_activity_2020.md#活动与久坐"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2702,6 +3759,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789240015128",
+    "evidence_ids": [
+      "who_physical_activity_2020.md#个体化执行"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2715,6 +3779,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789240015128",
+    "evidence_ids": [
+      "who_physical_activity_2020.md#个体化执行"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2727,6 +3798,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789240015128",
+    "evidence_ids": [
+      "who_physical_activity_2020.md#安全提醒"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2739,6 +3817,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "older_adult_safety.md#功能和虚弱"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2751,6 +3836,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "older_adult_safety.md#建议呈现"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2763,6 +3855,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "older_adult_safety.md#低血糖与用药"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2775,6 +3874,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "older_adult_safety.md#低血糖与用药"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2787,6 +3893,13 @@
     "evidence_level": "professional_guideline",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "evidence_ids": [
+      "older_adult_safety.md#低血糖与用药"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2799,6 +3912,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#可观察指标"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2811,6 +3931,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#可观察指标"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2823,6 +3950,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#可观察指标"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2835,6 +3969,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#安全行动"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2847,6 +3988,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#安全行动"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2859,6 +4007,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#评估维度"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   },
   {
@@ -2871,6 +4026,13 @@
     "evidence_level": "authoritative_guidance",
     "causal_status": "guidance",
     "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "evidence_ids": [
+      "elderly_frailty.md#安全行动"
+    ],
+    "review_status": "pending_medical_review",
     "last_verified": "2026-08-20"
   }
 ]

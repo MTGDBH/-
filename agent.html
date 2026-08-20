@@ -189,6 +189,7 @@
         <div style="font-weight:700;color:#7d5b40">知识依据 · ${escapeHTML(graph.graph_mode || '本地混合检索')} ${graph.index_version ? `· ${escapeHTML(graph.index_version)}` : ''}</div>
         ${graphCitations.map(c => { const label = typeof c === 'string' ? c : (c.label || c.citation || '知识来源'); const url = typeof c === 'object' ? c.url : ''; return `<div style="margin-top:3px;color:#6f6257">${url ? `<a href="${escapeHTML(url)}" target="_blank" rel="noopener" style="color:#8a6b51;text-decoration:underline">${escapeHTML(label)}</a>` : escapeHTML(label)}</div>`; }).join('')}
         ${graphReasons.length ? `<div style="margin-top:5px;color:#8a6b51">为什么针对您：${graphReasons.map(escapeHTML).join('；')}</div>` : ''}
+        ${Array.isArray(graph?.weekly_plan) && graph.weekly_plan.length ? `<div style="margin-top:7px;padding-top:6px;border-top:1px solid #f0dfce;color:#6f6257"><div style="font-weight:700;color:#9a6a42">未来7天行动</div>${graph.weekly_plan.slice(0,7).map(x => `<div style="margin-top:3px"><span style="color:#a45f3d;font-weight:600">${escapeHTML(x.day_label || '本周')}</span>：${escapeHTML(x.action || '')}</div>`).join('')}</div>` : ''}
       </div>` : '';
       return `<div class="agent-evidence" style="margin-top:10px;padding:10px 12px;background:#fffaf4;border:1px solid #f0dfce;border-radius:12px;font-size:12px">
         ${rows ? `<div style="font-weight:700;color:#9a6a42;margin-bottom:3px">依据 · 后端真实健康数据</div>
@@ -200,6 +201,11 @@
     }
 
     function renderMsg(m) {
+      const llmMeta = m.llm || {};
+      const providerLabel = llmMeta.call_status === 'success'
+        ? `${llmMeta.provider || m.source || '模型'}${llmMeta.model ? ' · ' + llmMeta.model : ''}`
+        : (llmMeta.call_status === 'fallback' ? `本地工具结果${llmMeta.fallback_reason ? ' · ' + llmMeta.fallback_reason : ''}` : (m.source === 'mock' ? '本地 Mock 结果' : m.source === 'tool' ? '健康工具结果' : '本地 GraphRAG 结果'));
+      const sourceHtml = m.role === 'assistant' ? `<div style="margin:4px 0 5px;color:#a88970;font-size:11px">回答来源：${escapeHTML(providerLabel)}</div>` : '';
       const planHtml = m.plan && m.plan.length ? `
         <div class="msg-plan">${m.plan.map(p => `
           <div class="plan-card-mini" style="background:${planColorBg(p.color)}">
@@ -217,6 +223,7 @@
             <div class="msg-avatar">康</div>
             <div>
               <div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>
+              ${sourceHtml}
               ${planHtml}
               ${renderEvidence(m.evidence)}
               ${renderActions(m)}
@@ -246,6 +253,8 @@
             plan: r.plan,
             confidence: r.confidence || { type: 'common_sense' },
             evidence: r.evidence,
+            source: r.source,
+            llm: r.llm,
             id: r.id
           })
         );
@@ -440,6 +449,8 @@
           plan: r.plan,
           confidence: r.confidence || { type: 'common_sense' },
           evidence: r.evidence,
+          source: r.source,
+          llm: r.llm,
           id: r.id
         });
         msgEl.outerHTML = newHtml;

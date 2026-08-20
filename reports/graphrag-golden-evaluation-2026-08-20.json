@@ -10,7 +10,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "htn_02",
@@ -19,7 +19,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "htn_03",
@@ -28,7 +28,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "htn_04",
@@ -37,7 +37,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "dm_01",
@@ -46,7 +46,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "dm_02",
@@ -55,7 +55,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "dm_03",
@@ -64,7 +64,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "cvd_01",
@@ -73,7 +73,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "cvd_02",
@@ -82,7 +82,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "stroke_01",
@@ -91,7 +91,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "stroke_02",
@@ -100,25 +100,25 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "ckd_01",
       "disease": "chronic_kidney_disease",
-      "results": 4,
-      "citations": 4,
+      "results": 6,
+      "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "ckd_02",
       "disease": "chronic_kidney_disease",
-      "results": 4,
-      "citations": 4,
+      "results": 6,
+      "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "ckd_03",
@@ -127,25 +127,25 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "frailty_01",
       "disease": "frailty",
-      "results": 3,
-      "citations": 3,
+      "results": 6,
+      "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "frailty_02",
       "disease": "frailty",
-      "results": 3,
-      "citations": 3,
+      "results": 6,
+      "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "behavior_01",
@@ -154,16 +154,16 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "behavior_02",
       "disease": "frailty",
-      "results": 3,
-      "citations": 3,
+      "results": 6,
+      "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "care_01",
@@ -172,7 +172,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     },
     {
       "id": "safety_01",
@@ -181,7 +181,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v2"
+      "index_version": "2026-08-20.v4"
     }
   ]
 }

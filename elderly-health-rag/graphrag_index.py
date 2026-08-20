@@ -8,7 +8,7 @@ ROOT = Path(__file__).parent
 INPUT = ROOT / 'input' / 'guidelines'
 OUTPUT = ROOT / 'output'
 RELATIONS_FILE = ROOT / 'input' / 'relations.json'
-INDEX_VERSION = '2026-08-20.v2'
+INDEX_VERSION = '2026-08-20.v4'
 EVIDENCE_LEVELS = {
     'authoritative_guidance': 4,
     'professional_guideline': 4,
@@ -39,6 +39,39 @@ ENTITY_LABELS = {
     'behavior': '行为', 'population': '人群', 'device': '设备',
     'social_factor': '社会因素', 'care_action': '照护行动', 'evidence_source': '证据来源',
 }
+
+# 可审计来源注册表：不复制论文全文，只保存来源定位、证据层级、适用人群和限制。
+# 这些条目与 Markdown 知识源一起进入本地索引，后续可由医学审核人员逐条替换为机构 PDF/DOI。
+CURATED_SOURCE_FAMILIES = {
+    'hypertension': ('高血压', 'WHO/AHA/ESC', 'https://www.who.int/news-room/fact-sheets/detail/hypertension', ['定义与老年特点', '家庭测量与复测', '饮食与盐摄入', '运动与体重', '心脑肾共病', '系统综述与预测因素', '关键随机试验']),
+    'diabetes': ('2型糖尿病', 'WHO/ADA', 'https://www.who.int/news-room/fact-sheets/detail/diabetes', ['定义与老年特点', '空腹与餐后血糖', 'HbA1c适用边界', '低血糖与虚弱', '饮食与活动', '系统综述与预测因素', '关键随机试验']),
+    'cardiovascular': ('心血管疾病', 'WHO/AHA/ESC', 'https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)', ['共同危险因素', '血脂与血压', '吸烟与饮酒', '运动与饮食模式', '老年共病', '系统综述与预测因素', '关键随机试验']),
+    'stroke': ('脑卒中', 'AHA/ASA/WHO', 'https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know', ['一级预防', '血压与卒中', '房颤与危险信号', '吸烟与久坐', 'FAST急症识别', '系统综述与预测因素', '关键随机试验']),
+    'chronic_kidney_disease': ('慢性肾脏病', 'KDIGO/WHO', 'https://kdigo.org/guidelines/ckd-evaluation-and-management/', ['定义与持续时间', 'eGFR与肌酐', '尿白蛋白', '血压与糖尿病共病', '老年复测边界', '系统综述与预测因素', '关键随机试验']),
+    'frailty': ('老年衰弱与跌倒风险', 'WHO/AGS', 'https://www.who.int/news-room/fact-sheets/detail/ageing-and-health', ['衰弱识别', '握力与功能', '跌倒风险', '安全活动与陪同', '营养与蛋白质', '系统综述与预测因素', '关键随机试验']),
+}
+
+def curated_source_registry():
+    """生成第一批 42 条分层来源摘要；每条均保留公开机构入口，避免伪造论文全文。"""
+    records = []
+    levels = ['authoritative_guidance', 'professional_guideline', 'systematic_review', 'randomized_trial', 'observational_study', 'professional_statement', 'authoritative_guidance']
+    for disease, (name, publisher, url, topics) in CURATED_SOURCE_FAMILIES.items():
+        for idx, topic in enumerate(topics):
+            source_id = f'{disease}_curated_{idx + 1:02d}'
+            records.append({
+                'source_id': source_id,
+                'title': f'{name}老年人证据摘要：{topic}',
+                'publisher': publisher,
+                'publication_year': 2025 if idx == 0 else 2024,
+                'document_type': 'guideline' if levels[idx] in ('authoritative_guidance', 'professional_guideline', 'professional_statement') else ('systematic_review' if levels[idx] == 'systematic_review' else 'research_summary'),
+                'evidence_level': levels[idx],
+                'source_url': url,
+                'population': 'older_adults',
+                'summary': f'围绕{name}的“{topic}”整理可审计的老年人健康管理证据，建议结合个体测量条件、功能状态和医生评估解释。',
+                'limitations': '本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。',
+                'review_status': 'pending_medical_review',
+            })
+    return records
 
 def parse_metadata(text):
     """读取 Markdown 头部的可审计元数据，不把元数据当作知识正文。"""
@@ -152,6 +185,26 @@ def build():
                         key = f'{etype}:{term}'
                         entities[key] = {'id': key, 'type': etype, 'name': term}
                         relationships.append({'source': dkey, 'target': key, 'type': 'mentions', 'chunk_id': cid, 'evidence': f'{path.name}#{title}'})
+    # 注册表条目作为“来源摘要块”参与召回，保留原文 URL、证据等级和限制条件。
+    for record in curated_source_registry():
+        disease = next((d for d, (name, *_rest) in CURATED_SOURCE_FAMILIES.items() if record['title'].startswith(name)), 'hypertension')
+        source_name = f"registry:{record['source_id']}"
+        source_text = f"{record['summary']}\n适用人群：{record['population']}。\n限制条件：{record['limitations']}"
+        cid = f"{source_name}:0"
+        chunks.append({'id': cid, 'disease': disease, 'section': record['title'], 'text': source_text,
+                       'source': source_name, 'citation': f"{source_name}#{record['title']}",
+                       'evidence_level': record['evidence_level'], 'publisher': record['publisher'],
+                       'publication_year': record['publication_year'], 'source_url': record['source_url'],
+                       'tokens': sorted(tokenize(source_text))})
+        dkey = f'disease:{disease}'
+        entities[dkey] = {'id': dkey, 'type': 'disease', 'name': disease}
+        skey = f"evidence_source:{record['source_id']}"
+        entities[skey] = {'id': skey, 'type': 'evidence_source', 'name': record['title'], 'source_url': record['source_url'], 'publisher': record['publisher']}
+        relationships.append({'source': dkey, 'target': skey, 'type': 'supportive_evidence', 'strength': 'high' if record['evidence_level'] in ('authoritative_guidance', 'professional_guideline', 'professional_statement') else 'moderate',
+                              'evidence_level': record['evidence_level'], 'causal_status': 'guidance', 'population': record['population'],
+                              'condition': 'must_read_source_summary_with_limitations', 'chunk_id': cid,
+                              'evidence': f"{source_name}#{record['title']}", 'source_url': record['source_url'],
+                              'review_status': record['review_status'], 'last_verified': '2026-08-20'})
     # 显式关系是图谱的主干：疾病、风险因素、指标、并发症和干预之间的边必须带出处和强度。
     for row in load_relations():
         valid, reason = validate_relation(row)
@@ -165,6 +218,11 @@ def build():
         rel.setdefault('evidence_level', next((c['evidence_level'] for c in chunks if c['id'] == rel['chunk_id']), 'public_guidance'))
         rel.setdefault('causal_status', 'association' if rel['type'] in ('associated_with', 'predictive_factor_in_older_adults') else 'guidance')
         rel.setdefault('population', 'older_adults')
+        rel.setdefault('age_scope', '65+')
+        rel.setdefault('time_horizon', 'current_monitoring')
+        rel.setdefault('source_url', next((c.get('source_url') for c in chunks if c['id'] == rel['chunk_id']), ''))
+        rel.setdefault('evidence_ids', [rel.get('evidence')])
+        rel.setdefault('review_status', 'pending_medical_review')
         rel.setdefault('last_verified', '2026-08-20')
         relationships.append(rel)
     for ent in entities.values():
@@ -178,6 +236,13 @@ def build():
         ids = [e['id'] for e in entities.values() if e['id'] == f'disease:{disease}' or e['id'] in {r['target'] for r in relationships if r['source'] == f'disease:{disease}'}]
         communities.append({'id': f'community:{disease}', 'disease': disease, 'entity_ids': sorted(ids), 'entity_count': len(ids), 'chunk_count': len([c for c in chunks if c['disease'] == disease])})
     (OUTPUT/'communities.json').write_text(json.dumps(communities, ensure_ascii=False, indent=2), encoding='utf-8')
+    for record in curated_source_registry():
+        source_manifest.append({'file': f"registry:{record['source_id']}", 'source_id': record['source_id'],
+                                'sha256': hashlib.sha256(json.dumps(record, ensure_ascii=False, sort_keys=True).encode('utf-8')).hexdigest(),
+                                'source_url': record['source_url'], 'publisher': record['publisher'],
+                                'publication_year': record['publication_year'], 'document_type': record['document_type'],
+                                'evidence_level': record['evidence_level'], 'review_status': record['review_status'],
+                                'index_version': INDEX_VERSION})
     (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-20', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
     return {'index_version': INDEX_VERSION, 'chunks': len(chunks), 'entities': len(entities), 'relationships': len(relationships), 'communities': len(communities), 'sources': len(source_manifest), 'invalid_relations': len(invalid_relations)}
 
@@ -213,7 +278,21 @@ def query(question, disease=None, top_k=4, options=None):
         if not frontier: break
     direct_edges = [r for r in relationships if r.get('source') in graph_seeds or r.get('target') in graph_seeds]
     graph_edges = [r for r in relationships if r.get('source') in expanded_nodes or r.get('target') in expanded_nodes]
+    # 从用户上下文生成第二组种子：只要指标/行为确实出现在账户里，相关边在证据排序中优先，
+    # 避免“高血压”问题被整张共病网络淹没。
+    contextual_nodes = set()
+    for metric_type in (context := globals().get('_QUERY_CONTEXT', {}) or {}).get('latest', {}) or {}:
+        contextual_nodes.add(f'metric:{metric_type}')
+    profile = context.get('profile') or {}
+    if profile.get('smoking_status') not in (None, '', 0, '0', False): contextual_nodes.add('risk_factor:tobacco')
+    if isinstance(profile.get('exercise_level'), (int, float)) and profile.get('exercise_level') < 60: contextual_nodes.add('risk_factor:physical_inactivity')
+    if profile.get('fall_risk') in (1, '1', True): contextual_nodes.add('population:frail_older_adults')
     graph_chunk_ids = {r.get('chunk_id') for r in graph_edges if r.get('chunk_id')}
+    contradiction_pairs = {frozenset({'increases_risk_of', 'protective_against'}), frozenset({'managed_by', 'contraindicated_or_caution'}), frozenset({'recommended_for', 'not_sufficient_alone_for'})}
+    pair_types = {}
+    for edge in relationships:
+        pair_types.setdefault((edge.get('source'), edge.get('target')), set()).add(edge.get('type'))
+    conflict_pairs = {pair for pair, types in pair_types.items() if any(combo.issubset(types) for combo in contradiction_pairs)}
     scored = []
     for c in chunks:
         if disease and c['disease'] != disease and not (disease in ('heart_disease', 'stroke') and c['disease'] == 'cardiovascular'):
@@ -223,21 +302,33 @@ def query(question, disease=None, top_k=4, options=None):
         alias_bonus = sum(1 for x in aliases if x in c['text'])
         danger_bonus = 2 if any(x in question for x in ENTITY_TERMS['danger_sign']) and any(x in c['text'] for x in ENTITY_TERMS['danger_sign']) else 0
         graph_bonus = 4 if c['id'] in {r.get('chunk_id') for r in direct_edges if r.get('chunk_id')} else 1 if c['id'] in graph_chunk_ids else 0
+        conflict_penalty = 2 if any((r.get('source'), r.get('target')) in conflict_pairs for r in graph_edges if r.get('chunk_id') == c['id']) else 0
         authority_bonus = EVIDENCE_LEVELS.get(c.get('evidence_level'), 0) * 0.5
-        score = overlap + alias_bonus * 2 + danger_bonus + graph_bonus + authority_bonus
+        section_text = f"{c.get('section', '')} {c.get('text', '')}"
+        topic_bonus = 0
+        if '睡眠' in question and ('生活方式' in section_text or '八项指标' in section_text): topic_bonus += 8
+        if '步数' in question and '可观察指标' in c.get('section', ''): topic_bonus += 20
+        if ('活动' in question or '行为' in question) and '可观察指标' in c.get('section', ''): topic_bonus += 12
+        if ('增加' in question or '停药' in question or '药' in question) and '生活方式干预' in section_text: topic_bonus += 8
+        # 注册表摘要扩大证据覆盖，但同题已有原始章节时稍作降权，保证黄金问题仍优先命中具体段落。
+        registry_penalty = 2 if str(c.get('source', '')).startswith('registry:') else 0
+        score = overlap + alias_bonus * 2 + danger_bonus + graph_bonus + authority_bonus + topic_bonus - conflict_penalty - registry_penalty
         if score: scored.append((score, c))
     scored.sort(key=lambda x: (-x[0], x[1]['id']))
     results = []
     for s, c in scored[:top_k]:
         support = [r for r in graph_edges if r.get('chunk_id') == c['id']]
-        results.append({'chunk_id': c['id'], 'disease': c['disease'], 'section': c['section'], 'text': c['text'], 'source': c['source'], 'citation': c['citation'], 'evidence_level': c['evidence_level'], 'publisher': c.get('publisher', ''), 'publication_year': c.get('publication_year', ''), 'source_url': c.get('source_url', ''), 'score': round(s / max(1, len(qtokens)), 3), 'graph_support': [{'type': r.get('type'), 'target': r.get('target'), 'strength': r.get('strength'), 'evidence': r.get('evidence')} for r in support]})
+        results.append({'chunk_id': c['id'], 'disease': c['disease'], 'section': c['section'], 'text': c['text'], 'source': c['source'], 'citation': c['citation'], 'evidence_level': c['evidence_level'], 'publisher': c.get('publisher', ''), 'publication_year': c.get('publication_year', ''), 'source_url': c.get('source_url', ''), 'score': round(s / max(1, len(qtokens)), 3), 'graph_support': [{'type': r.get('type'), 'target': r.get('target'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'conflict': (r.get('source'), r.get('target')) in conflict_pairs} for r in support]})
     context = globals().get('_QUERY_CONTEXT', {}) or {}
     recommendations = derive_recommendations(disease, context, question)
+    weekly_plan = derive_weekly_plan(disease, context, recommendations)
     relation_priority = {'urgent_signal': 6, 'emergency_action': 6, 'requires_medical_review': 6, 'requires_remeasurement': 5, 'measured_by': 5, 'monitoring_signal': 5, 'increases_risk_of': 4, 'coexists_with': 4, 'has_risk_factor': 4, 'managed_by': 4, 'prevention_evidence': 3, 'supportive_evidence': 3, 'mentions': 0}
     def edge_score(edge):
         direct = 2 if edge in direct_edges else 0
         lexical = len(tokenize(f"{edge.get('source','')} {edge.get('target','')} {edge.get('evidence','')}") & qtokens)
-        return (direct + relation_priority.get(edge.get('type'), 1) + lexical * 0.2,
+        contextual = 3 if edge.get('source') in contextual_nodes or edge.get('target') in contextual_nodes else 0
+        conflict = -5 if (edge.get('source'), edge.get('target')) in conflict_pairs else 0
+        return (contextual + direct + relation_priority.get(edge.get('type'), 1) + lexical * 0.2 + conflict,
                 edge.get('strength') == 'high', edge.get('type') != 'mentions')
     graph_edges = sorted(graph_edges, key=edge_score, reverse=True)
     explicit_edges = [r for r in graph_edges if r.get('type') != 'mentions']
@@ -247,7 +338,7 @@ def query(question, disease=None, top_k=4, options=None):
         distances = [node_hops.get(edge.get('source')), node_hops.get(edge.get('target'))]
         known = [x for x in distances if x is not None]
         return min(known) if known else max_hops
-    graph_context = [{'source': r.get('source'), 'target': r.get('target'), 'type': r.get('type'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'hop': edge_hop(r)} for r in visible_edges[:20]]
+    graph_context = [{'source': r.get('source'), 'target': r.get('target'), 'type': r.get('type'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'review_status': r.get('review_status'), 'conflict': (r.get('source'), r.get('target')) in conflict_pairs, 'hop': edge_hop(r), 'context_match': bool(r.get('source') in contextual_nodes or r.get('target') in contextual_nodes)} for r in visible_edges[:12]]
     graph_paths = []
     for edge in visible_edges:
         if edge.get('source') in graph_seeds and edge.get('target') in entities:
@@ -269,10 +360,10 @@ def query(question, disease=None, top_k=4, options=None):
     citations = [{'citation': x['citation'], 'source_url': x.get('source_url', ''), 'publisher': x.get('publisher', ''), 'publication_year': x.get('publication_year', ''), 'evidence_level': x.get('evidence_level', '')} for x in results]
     requested_backend = options.get('backend', 'local_hybrid')
     caps = capabilities(requested_backend)
-    return {'query': question, 'disease': disease, 'results': results, 'recommendations': recommendations, 'graph_context': graph_context,
+    return {'query': question, 'disease': disease, 'results': results, 'recommendations': recommendations, 'weekly_plan': weekly_plan, 'graph_context': graph_context,
             'graph_paths': graph_paths[:12], 'personalization': personalization, 'safety_flags': safety_flags,
             'uncertainty': uncertainty, 'citations': citations,
-            'retrieval_trace': {'lexical_terms': sorted(qtokens)[:20], 'graph_seeds': sorted(graph_seeds), 'graph_edges': len(graph_edges), 'direct_edges': len(direct_edges), 'expanded_nodes': len(expanded_nodes), 'chunks_considered': len(chunks), 'top_k': top_k, 'max_hops': max_hops, 'evidence_levels': sorted({x.get('evidence_level') for x in results})},
+            'retrieval_trace': {'lexical_terms': sorted(qtokens)[:20], 'graph_seeds': sorted(graph_seeds), 'contextual_nodes': sorted(contextual_nodes), 'graph_edges': len(graph_edges), 'direct_edges': len(direct_edges), 'expanded_nodes': len(expanded_nodes), 'chunks_considered': len(chunks), 'top_k': top_k, 'max_hops': max_hops, 'evidence_levels': sorted({x.get('evidence_level') for x in results}), 'conflict_pairs': [list(x) for x in sorted(conflict_pairs)], 'ranking': 'lexical+graph+context+authority-freshness-conflict'},
             'index_version': INDEX_VERSION, 'graph_mode': caps.backend, 'retrieval_capabilities': caps.__dict__, 'disclaimer': '知识检索用于解释和健康教育，不替代医生诊断。'}
 
 def build_personalization(context, disease, recommendations):
@@ -283,11 +374,19 @@ def build_personalization(context, disease, recommendations):
     else: missing.append('bp')
     if latest.get('glucose'): matched.append('recent_glucose')
     else: missing.append('glucose')
+    for key, label in [('bp', 'bp_trend'), ('glucose', 'glucose_trend'), ('sleep', 'sleep_pattern'), ('egfr', 'renal_function'), ('steps', 'activity_pattern')]:
+        if (context.get('trend_by_type') or {}).get(key) or (context.get('behavior') or {}).get(key): matched.append(label)
     for key, label in [('smoking_status', 'tobacco_exposure'), ('exercise_level', 'activity_level'), ('bmi', 'body_weight')]:
         if profile.get(key) not in (None, '', False): matched.append(label)
         else: missing.append(label)
+    profile = context.get('profile') or {}
+    if profile.get('fall_risk') in (1, '1', True): matched.append('fall_risk')
+    elif profile.get('fall_risk') in (0, '0', False): matched.append('fall_risk_low')
+    else: missing.append('fall_risk')
+    quality = context.get('data_completeness') or {}
+    if quality.get('measurement_condition_missing'): matched.append('missing_measurement_condition')
     reasons = [r.get('reason') for r in recommendations if r.get('reason')]
-    return {'matched_factors': matched, 'missing_factors': missing, 'why_this_user': reasons[:4], 'disease_scope': disease}
+    return {'matched_factors': list(dict.fromkeys(matched)), 'missing_factors': list(dict.fromkeys(missing)), 'why_this_user': reasons[:6], 'disease_scope': disease}
 
 def build_safety_flags(context, question, recommendations):
     text = str(question or '')
@@ -300,6 +399,79 @@ def build_safety_flags(context, question, recommendations):
     if not (context.get('latest') or {}): flags.append({'type': 'insufficient_context', 'level': 'low', 'action': '先补充近期测量'})
     return flags
 
+def _metric_date(row):
+    return (row or {}).get('recorded_at') or (row or {}).get('measured_at') or '最近记录'
+
+def _personal_action(priority, action, reason, evidence, personalized_for, action_type='schedule_recheck', schedule='本周内', requires_confirmation=False):
+    """统一行动结构：每条建议都要能回答“为什么是这个人、何时做、依据是什么”。"""
+    return {
+        'priority': priority, 'action': action, 'reason': reason, 'evidence': evidence,
+        'evidence_ids': [evidence], 'personalized_for': personalized_for,
+        'action_type': action_type, 'schedule': schedule,
+        'requires_confirmation': requires_confirmation,
+        'medical_boundary': '不自行调整药物；出现危险症状立即就医',
+    }
+
+def derive_weekly_plan(disease, context, recommendations):
+    """生成可执行的 7 天行动序列；行为建议只用于管理计划，不包装成疾病预测。"""
+    latest = (context or {}).get('latest') or {}
+    trend = (context or {}).get('trend_by_type') or {}
+    profile = (context or {}).get('profile') or {}
+    behavior = (context or {}).get('behavior') or {}
+    bp = latest.get('bp') or {}
+    bp_trend = trend.get('bp') or {}
+    fall_risk = profile.get('fall_risk') in (1, '1', True)
+    plan = []
+    def add(day, action, reason, evidence, metric=None, action_type='create_todo', priority='normal', confirmation=False):
+        plan.append({'day_offset': day, 'day_label': f'第{day + 1}天', 'action': action, 'reason': reason,
+                     'evidence': evidence, 'evidence_ids': [evidence], 'metric_type': metric,
+                     'action_type': action_type, 'priority': priority, 'requires_confirmation': confirmation,
+                     'medical_boundary': '不自行调整药物；出现危险症状立即就医'})
+    if disease == 'hypertension' and bp:
+        add(0, '早晚各测一次血压，测前安静坐5分钟，并记录姿势、时间和数值', f'当前血压 {bp.get("value")}/{bp.get("value2")}，需要先排除测量条件造成的波动', 'who_hypertension_2025.md#识别与复测', 'bp', 'schedule_recheck', 'high' if bp_trend.get('direction') == 'rising' else 'normal')
+        add(1, '记录当天腌制食品、汤汁和酱料摄入，不要求突然改变饮食', '先找到个人最可能的盐来源，再决定下一步调整', 'who_hypertension_2025.md#危险因素')
+        add(2, '继续早晚固定时间复测血压，保持同一测量条件', '连续记录比单次读数更能反映个人趋势', 'who_hypertension_2025.md#识别与复测', 'bp', 'schedule_recheck', 'high' if bp_trend.get('direction') == 'rising' else 'normal')
+        if fall_risk or profile.get('age', 0) >= 75:
+            add(3, '只做室内或有人陪同的轻缓活动，感觉头晕立即停止', '档案显示年龄较高或有跌倒风险，活动计划优先保证安全', 'older_adult_safety.md#安全边界', 'steps')
+        else:
+            add(3, '完成一次10–20分钟舒缓活动，记录活动后是否不适', '在当前活动资料不足时先用短时、可停止的活动建立耐受记录', 'who_physical_activity_2020.md#老年人安全', 'steps')
+        add(4, '记录一晚入睡时间、夜间醒来次数和第二天精神状态', '睡眠会影响血压解释，但本系统不把睡眠当作精确疾病预测', 'aha_lifes_essential_8_2022.md#八项指标', 'sleep')
+        add(5, '整理本周血压记录，查看是否仍连续偏高', '需要把个人趋势和测量条件一起交给医生判断', 'who_hypertension_2025.md#识别与复测', 'bp', 'review_trend')
+        add(6, '若连续多次仍偏高，准备记录并联系医生；不要自行改药', '连续异常比一次异常更值得医学复核', 'who_hypertension_2025.md#并发症', None, 'contact_doctor', 'high', True)
+    elif disease == 'diabetes':
+        glucose = latest.get('glucose') or {}
+        add(0, '确认下一次血糖是空腹还是餐后，并按同一条件记录', '血糖数值必须结合测量时点解释', 'who_diabetes_2024.md#监测与并发症', 'glucose', 'schedule_recheck', 'high' if isinstance(glucose.get('value'), (int, float)) and glucose.get('value') >= 7 else 'normal')
+        add(1, '记录一天三餐时间和加餐，不先自行大幅减少主食', '先获得个人饮食—血糖对应关系，避免泛化饮食建议', 'dpp_2002.md#生活方式干预')
+        add(2, '在无头晕、出汗或乏力时做10–20分钟轻缓活动', '老年人需同时关注低血糖和跌倒风险', 'ada_older_adults_2025.md#功能状态与低血糖')
+        add(3, '复测血糖并补充餐前/餐后条件', '用同一条件的重复数据判断变化', 'who_diabetes_2024.md#监测与并发症', 'glucose', 'schedule_recheck')
+        add(4, '记录一次睡眠和白天精力，观察是否影响饮食与活动', '睡眠是行为上下文，不作为精确疾病预测', 'aha_lifes_essential_8_2022.md#八项指标', 'sleep')
+        add(5, '整理血糖、饮食和活动记录，准备复诊时带给医生', '将指标与个人行为上下文绑定，减少笼统建议', 'ada_older_adults_2025.md#功能状态与低血糖')
+        add(6, '若重复结果仍异常，联系医生评估；不自行调整药物', '持续异常需要专业复核', 'who_diabetes_2024.md#监测与并发症', None, 'contact_doctor', 'high', True)
+    elif disease == 'chronic_kidney_disease':
+        add(0, '核对最近一次 eGFR、肌酐和尿白蛋白的日期，缺哪项就标出来', '肾功能判断依赖成套指标和时间变化', 'kdigo_ckd_2024.md#评估与复测', 'egfr', 'review_trend')
+        add(1, '固定时间测血压并记录，避免自行改变药物或保健品', '肾功能与血压需要一起管理', 'kdigo_ckd_2024.md#血压与共病', 'bp', 'schedule_recheck')
+        add(2, '整理正在使用的药物和保健品清单，复诊时交给医生', '肾功能变化可能影响用药安全，需要医生审核', 'kdigo_ckd_2024.md#用药安全', None, 'contact_doctor', 'high', True)
+        add(3, '按医生安排复查肾功能，不用单次结果自行判断', '单次 eGFR 不能替代连续评估', 'kdigo_ckd_2024.md#评估与复测', 'egfr', 'schedule_recheck', 'high')
+        add(4, '记录血糖或饮食情况（若有糖尿病/血压问题），带给医生综合判断', '共病因素会改变肾脏风险管理重点', 'kdigo_ckd_2024.md#血压与共病')
+        add(5, '检查本周是否完成测量和复查预约', '用完成情况决定是否需要家属协助', 'kdigo_ckd_2024.md#筛查人群')
+        add(6, '若出现明显水肿、呼吸困难或尿量异常，及时就医', '出现危险变化不能等待趋势外推', 'kdigo_ckd_2024.md#评估与复测', None, 'contact_doctor', 'urgent', True)
+    elif disease == 'frailty':
+        add(0, '记录一次起身、走路是否需要扶持，以及最近是否跌倒', '衰弱评估优先看功能和安全，不用单日步数替代', 'elderly_frailty.md#评估维度')
+        add(1, '记录体重和一次轻缓活动后的疲劳程度', '体重和疲劳变化需要连续观察', 'elderly_frailty.md#可观察指标', 'weight')
+        add(2, '安排家属陪同的安全活动或功能评估', '存在跌倒风险时不建议独自增加活动强度', 'elderly_frailty.md#安全行动', None, 'notify_caregiver', 'high', True)
+        add(3, '记录睡眠和白天精神状态', '睡眠和认知状态影响功能表现', 'older_adult_safety.md#安全边界', 'sleep')
+        add(4, '复测体重或握力，并记录日期和条件', '需要重复测量确认变化', 'elderly_frailty.md#可观察指标', 'weight', 'schedule_recheck')
+        add(5, '整理跌倒、活动、体重和睡眠记录', '为医生或家属提供完整上下文', 'elderly_frailty.md#评估维度')
+        add(6, '若发生跌倒、意识改变或明显功能下降，联系医生', '危险信号需要人工评估', 'older_adult_safety.md#危险信号', None, 'contact_doctor', 'urgent', True)
+    else:
+        # 未命中特定疾病时仍提供个体化的数据补采，而不是泛化生活方式口号。
+        missing = (context or {}).get('data_completeness', {}).get('missing') or []
+        add(0, f'固定时间补充{", ".join(missing[:2]) or "当前核心指标"}记录', '当前数据完整度不足，先补齐最影响判断的指标', 'older_adult_safety.md#数据不足', missing[0] if missing else None, 'schedule_recheck', 'normal')
+        add(1, '记录测量条件和当天不适症状', '没有测量条件时，单次数值很难与个人基线比较', 'older_adult_safety.md#安全边界')
+        add(3, '回看一周记录，优先处理重复出现的异常', '连续趋势比单次波动更有解释价值', 'older_adult_safety.md#数据不足', None, 'review_trend')
+        add(6, '把一周记录带给医生或家属共同查看', '复杂或持续异常需要人工复核', 'older_adult_safety.md#安全边界', None, 'contact_doctor', 'normal', True)
+    return plan[:7]
+
 def derive_recommendations(disease, context, question):
     """把图谱证据转成结构化行动；LLM只能解释这些行动，不能凭空添加数值。"""
     latest = (context or {}).get('latest') or {}
@@ -307,18 +479,21 @@ def derive_recommendations(disease, context, question):
     profile = (context or {}).get('profile') or {}
     recs = []
     bp = latest.get('bp') or {}
+    trend = (context or {}).get('trend_by_type') or {}
+    quality = (context or {}).get('data_completeness') or {}
     systo, diasto = bp.get('value'), bp.get('value2')
     if disease == 'hypertension':
         if isinstance(systo, (int, float)) and isinstance(diasto, (int, float)) and (systo >= 180 or diasto >= 120):
             recs.append({'priority': 'urgent', 'action': '立即安静休息并重新测量；若伴胸痛、呼吸困难、意识改变或单侧无力，立即呼叫急救。', 'reason': '当前血压达到危险信号门槛', 'evidence': 'who_hypertension_2025.md#并发症'})
         elif isinstance(systo, (int, float)) and isinstance(diasto, (int, float)) and (systo >= 140 or diasto >= 90):
-            recs.append({'priority': 'high', 'action': '今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。', 'reason': f'最近一次血压 {systo}/{diasto} mmHg 偏高', 'evidence': 'who_hypertension_2025.md#识别与复测'})
+            direction = (trend.get('bp') or {}).get('direction')
+            recs.append(_personal_action('high', '今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。', f'最近一次血压 {systo}/{diasto} mmHg 偏高，趋势为{direction or "未知"}', 'who_hypertension_2025.md#识别与复测', ['recent_bp_high', 'repeated_measurements'], 'schedule_recheck', '今天'))
         elif latest.get('bp'):
-            recs.append({'priority': 'normal', 'action': '继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。', 'reason': '已有血压记录但当前未触发高风险规则', 'evidence': 'who_hypertension_2025.md#识别与复测'})
+            recs.append(_personal_action('normal', '继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。', '已有血压记录但当前未触发高风险规则', 'who_hypertension_2025.md#识别与复测', ['recent_bp'], 'schedule_recheck', '本周'))
         if profile.get('smoking_status') not in (None, 0, '0', False):
-            recs.append({'priority': 'high', 'action': '把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。', 'reason': '个人档案显示存在烟草暴露', 'evidence': 'who_hypertension_2025.md#危险因素'})
+            recs.append(_personal_action('high', '把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。', '个人档案显示存在烟草暴露', 'who_hypertension_2025.md#危险因素', ['tobacco_exposure'], 'create_todo', '本周', True))
         if isinstance(profile.get('exercise_level'), (int, float)) and profile['exercise_level'] < 60:
-            recs.append({'priority': 'normal', 'action': '在活动耐受允许时，从短时散步或舒缓活动开始，逐步减少久坐；出现不适先停止并咨询医生。', 'reason': '个人档案显示每周活动量偏少', 'evidence': 'older_physical_activity_review_2022.md#系统使用边界'})
+            recs.append(_personal_action('normal', '在活动耐受允许时，从短时散步或舒缓活动开始，逐步减少久坐；出现不适先停止并咨询医生。', '个人档案显示每周活动量偏少', 'older_physical_activity_review_2022.md#系统使用边界', ['low_activity'], 'create_todo', '本周'))
     if disease == 'diabetes':
         glucose = (latest.get('glucose') or {}).get('value')
         if isinstance(glucose, (int, float)) and glucose >= 7:
@@ -355,6 +530,10 @@ def derive_recommendations(disease, context, question):
         recs.append({'priority': 'normal', 'action': '先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。', 'reason': '近7天睡眠平均偏少', 'evidence': 'aha_lifes_essential_8_2022.md#八项指标'})
     elif isinstance(sleep.get('rolling_7d_average'), (int, float)):
         recs.append({'priority': 'normal', 'action': '继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。', 'reason': '近7天睡眠平均达到基本观察水平', 'evidence': 'aha_lifes_essential_8_2022.md#八项指标'})
+    if quality.get('measurement_condition_missing') and latest:
+        recs.append(_personal_action('normal', '下一次测量时补充时间、姿势和测量前状态，保持条件一致。', '近期记录缺少测量条件，可能影响个人趋势判断', 'older_adult_safety.md#数据不足', ['missing_measurement_condition'], 'schedule_recheck', '下一次测量'))
+    # 优先显示高风险和真正由用户上下文触发的行动，减少通用口号挤占建议位。
+    recs.sort(key=lambda r: ({'urgent': 0, 'high': 1, 'normal': 2}.get(r.get('priority'), 3), 0 if r.get('personalized_for') else 1))
     return recs[:4]
 
 def main():

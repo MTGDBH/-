@@ -196,11 +196,29 @@ router.post('/chat', async (req, res) => {
   const confidenceJson = result.confidence ? JSON.stringify(result.confidence) : null;
   const evidence = buildEvidenceCard(healthSummary.context, message, result.confidence);
   const mergedEvidence = (evidence || result.evidence) ? { ...(evidence || {}), graph: result.evidence || null } : null;
-  const evidenceJson = mergedEvidence ? JSON.stringify(mergedEvidence) : null;
-  const graphEvidenceJson = result.evidence ? JSON.stringify(result.evidence) : null;
-  const ins = db.prepare(`
-    INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence, graph_evidence) VALUES (?, 'assistant', ?, ?, ?, ?, ?)
-  `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson, graphEvidenceJson);
+    const evidenceJson = mergedEvidence ? JSON.stringify(mergedEvidence) : null;
+    const graphEvidenceJson = result.evidence ? JSON.stringify(result.evidence) : null;
+    const llm = result.llm || {
+      provider: result.source || 'unknown',
+      model: null,
+      call_status: result.source === 'mock' ? 'mock' : result.source === 'tool' ? 'tool' : 'fallback',
+      fallback_reason: result.source === 'mock' ? '未配置 DeepSeek' : null,
+    };
+    const graphIndexVersion = result.evidence?.index_version || result.evidence?.retrieval_trace?.index_version || null;
+    const ins = db.prepare(`
+      INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence, graph_evidence,
+        provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version)
+      VALUES (?, 'assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson, graphEvidenceJson,
+      llm.provider || result.source || 'unknown', llm.model || null, llm.call_status || 'unknown',
+      Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
+      JSON.stringify(llm.tool_calls || []), llm.fallback_reason || null, graphIndexVersion);
+    db.prepare(`
+      INSERT INTO llm_call_logs (user_id, chat_message_id, provider, model, status, latency_ms, tool_calls, fallback_reason, graph_index_version)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(req.user.id, ins.lastInsertRowid, llm.provider || result.source || 'unknown', llm.model || null,
+      llm.call_status || 'unknown', Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
+      JSON.stringify(llm.tool_calls || []), llm.fallback_reason || null, graphIndexVersion);
 
   res.json({
     id: ins.lastInsertRowid,
@@ -208,15 +226,16 @@ router.post('/chat', async (req, res) => {
     content: result.content,
     plan: result.plan || [],
     confidence: result.confidence || { type: 'common_sense' },
-    evidence: mergedEvidence,
-    source: result.source,
-  });
+      evidence: mergedEvidence,
+      source: result.source,
+      llm,
+    });
 });
 
 router.get('/chat/history', (req, res) => {
   const rows = db.prepare(`
-    SELECT id, role, content, plan, confidence, evidence, graph_evidence, created_at FROM (
-      SELECT id, role, content, plan, confidence, evidence, graph_evidence, created_at FROM chat_messages
+      SELECT id, role, content, plan, confidence, evidence, graph_evidence, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM (
+       SELECT id, role, content, plan, confidence, evidence, graph_evidence, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM chat_messages
       WHERE user_id = ? ORDER BY id DESC LIMIT 50
     ) ORDER BY id ASC
   `).all(req.user.id);
@@ -225,7 +244,8 @@ router.get('/chat/history', (req, res) => {
     plan: r.plan ? JSON.parse(r.plan) : null,
     confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
     evidence: r.evidence ? JSON.parse(r.evidence) : null,
-    graph_evidence: r.graph_evidence ? JSON.parse(r.graph_evidence) : null,
+      graph_evidence: r.graph_evidence ? JSON.parse(r.graph_evidence) : null,
+      llm: { provider: r.provider, model: r.model, call_status: r.call_status, latency_ms: r.latency_ms, tool_calls: r.tool_calls ? JSON.parse(r.tool_calls) : [], fallback_reason: r.fallback_reason, graph_index_version: r.graph_index_version },
   })));
 });
 

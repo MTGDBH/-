@@ -69,18 +69,43 @@ function getLLMConfig() {
   if (row) {
     try {
       const cfg = JSON.parse(row.value);
-      if (cfg.api_key) return cfg;
+      if (cfg.api_key) {
+        const baseUrl = cfg.base_url || 'https://api.deepseek.com/v1';
+        return { ...cfg, base_url: baseUrl, model: cfg.model || 'deepseek-chat', provider: providerFromBaseUrl(baseUrl) };
+      }
     } catch {}
   }
-  // 回退到环境变量
-  if (process.env.OPENAI_API_KEY) {
+  // DeepSeek 是默认 provider；OPENAI_* 仅作为兼容旧配置的回退。
+  const key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
+  if (key) {
+    const baseUrl = process.env.DEEPSEEK_API_KEY
+      ? (process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1')
+      : (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
     return {
-      api_key: process.env.OPENAI_API_KEY,
-      base_url: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      api_key: key,
+      base_url: baseUrl,
+      model: process.env.DEEPSEEK_API_KEY ? (process.env.DEEPSEEK_MODEL || 'deepseek-chat') : (process.env.OPENAI_MODEL || 'gpt-4o-mini'),
+      provider: providerFromBaseUrl(baseUrl),
     };
   }
   return null; // 无配置 → Mock 模式
+}
+
+function providerFromBaseUrl(baseUrl = '') {
+  return /deepseek/i.test(String(baseUrl)) ? 'deepseek' : /openai/i.test(String(baseUrl)) ? 'openai' : 'custom';
+}
+
+export function getLLMStatus() {
+  const cfg = getLLMConfig();
+  const row = db.prepare('SELECT provider, model, status, latency_ms, fallback_reason, graph_index_version, created_at FROM llm_call_logs ORDER BY id DESC LIMIT 1').get();
+  return {
+    configured: !!cfg,
+    provider: cfg?.provider || 'none',
+    model: cfg?.model || null,
+    base_url: cfg?.base_url ? String(cfg.base_url).replace(/(https?:\/\/[^/]+).*/, '$1/***') : null,
+    mode: cfg ? 'llm' : 'mock',
+    last_call: row || null,
+  };
 }
 
 const hasRealLLM = () => !!getLLMConfig();
@@ -91,7 +116,9 @@ const hasRealLLM = () => !!getLLMConfig();
  */
 async function callOpenAI(messages, healthSummary, user, intent = {}) {
   const cfg = getLLMConfig();
-  const base = (cfg.base_url || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const startedAt = Date.now();
+  const provider = cfg?.provider || providerFromBaseUrl(cfg?.base_url);
+  const base = (cfg.base_url || 'https://api.deepseek.com/v1').replace(/\/$/, '');
   const url = `${base}/chat/completions`;
   const headers = {
     'Content-Type': 'application/json',
@@ -196,6 +223,13 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   normalized.__toolResults = toolContext?.toolResults?.map((item) => {
     try { return JSON.parse(item.content); } catch { return null; }
   }).filter(Boolean) || [];
+  normalized.__llm = {
+    provider,
+    model,
+    call_status: 'success',
+    latency_ms: Date.now() - startedAt,
+    tool_calls: toolContext?.assistant?.tool_calls?.map(tc => tc.function?.name).filter(Boolean) || [],
+  };
   return normalized;
 }
 
@@ -208,8 +242,8 @@ async function postJSON(url, headers, body) {
     signal: AbortSignal.timeout(Number(process.env.DEEPSEEK_TIMEOUT_MS || 45000)),
   });
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`OpenAI API ${res.status}: ${text}`);
+    await res.text();
+    throw new Error(`LLM API HTTP ${res.status}`);
   }
   return res.json();
 }
@@ -225,10 +259,19 @@ function mockAgent(userMessage, healthSummary) {
 
   const score = healthSummary?.total_score ?? 86;
   const subs = healthSummary?.subscores ?? {};
+  const latest = healthSummary?.context?.latest || {};
+  const currentBp = latest.bp;
+  const currentGlucose = latest.glucose;
 
   // 1. 基于健康数据的建议（高可信度）
   if (/血压|高压|低压/.test(msg)) {
-    content = '我看到你最近血压有点偏高，别紧张，咱们一步步来。';
+    if (currentBp?.value != null && (Number(currentBp.value) >= 140 || Number(currentBp.value2) >= 90)) {
+      content = `我看到你最近一次血压是 ${currentBp.value}/${currentBp.value2 ?? '—'} mmHg，先按同一条件复测，不凭一次读数下结论。`;
+    } else if (currentBp?.value != null) {
+      content = `目前记录到的血压是 ${currentBp.value}/${currentBp.value2 ?? '—'} mmHg，暂未因单次读数判断异常，先继续观察连续变化。`;
+    } else {
+      content = '我可以帮你解释血压和相关疾病的关系，但当前没有可用的血压数值，先补充一次规范测量。';
+    }
     plan.push({ icon: '食', title: '饮食：少盐少油', desc: '盐 < 5g/日，多蔬菜', color: 'orange' });
     plan.push({ icon: '行', title: '运动：散步 30 分钟', desc: '午后 14:00 出门', color: 'green' });
     plan.push({ icon: '眠', title: '作息：22:30 入睡', desc: '保证 7 小时睡眠', color: 'purple' });
@@ -240,7 +283,9 @@ function mockAgent(userMessage, healthSummary) {
       reasoning: '基于近7天血压监测数据，慢病子项评分低于80分，结合《中国高血压防治指南》给出低盐饮食和规律运动建议，建议溯源至具体血压数值。',
     };
   } else if (/血糖|糖/.test(msg)) {
-    content = '血糖要平稳，咱们管住嘴、迈开腿。';
+    content = currentGlucose?.value != null
+      ? `目前记录到血糖 ${currentGlucose.value} ${currentGlucose.unit || 'mmol/L'}，需要结合空腹或餐后条件一起看。`
+      : '我可以帮你解释血糖相关风险，但当前没有可用的血糖数值，先补充一次并注明空腹或餐后。';
     plan.push({ icon: '食', title: '饮食：少糖多纤维', desc: '主食减半，多吃粗粮', color: 'orange' });
     plan.push({ icon: '行', title: '运动：餐后散步', desc: '饭后 20 分钟', color: 'green' });
     plan.push({ icon: '眠', title: '作息：固定三餐', desc: '定时定量', color: 'purple' });
@@ -408,6 +453,8 @@ function normalizeAgentResult(raw) {
     content: content || '我暂时无法生成可靠回答，请稍后再试。',
     plan,
     confidence,
+    __llm: raw?.__llm || null,
+    __toolResults: raw?.__toolResults || [],
     // 内部状态：非结构化/空回复不能被当成正常 LLM 结果，主流程会转入工具兜底。
     degraded,
   };
@@ -429,6 +476,9 @@ const GRAPH_NODE_NAMES = {
   recent_bp: '近期血压记录', recent_glucose: '近期血糖记录', tobacco_exposure: '烟草暴露',
   activity_level: '活动量', body_weight: '体重资料', bp: '血压', glucose: '血糖',
   activity_pattern: '活动模式', fall_risk: '跌倒风险',
+  fall_risk_low: '跌倒风险较低', bp_trend: '血压趋势', glucose_trend: '血糖趋势', sleep_pattern: '睡眠模式',
+  renal_function: '肾功能指标', missing_measurement_condition: '测量条件缺失', recent_bp_high: '近期血压偏高',
+  repeated_measurements: '重复测量', low_activity: '活动量偏少',
 };
 function graphNodeName(id = '') {
   const tail = String(id).split(':').pop();
@@ -478,6 +528,11 @@ function applyGraphGrounding(result, graph) {
   const sections = [baseContent];
   if (actions) sections.push(`结合当前数据，优先做这几件事：\n${actions}`);
   if (relationLines) sections.push(`疾病关系与影响因素：\n${relationLines}`);
+  const weekly = Array.isArray(graph?.weekly_plan) ? graph.weekly_plan.slice(0, 7) : [];
+  if (weekly.length) {
+    const weeklyLines = weekly.map(x => `${x.day_label || '本周'}：${x.action}${x.reason ? `（${x.reason}）` : ''}`).join('\n');
+    sections.push(`未来7天行动安排：\n${weeklyLines}`);
+  }
   const matched = graph?.personalization?.matched_factors || [];
   const missing = graph?.personalization?.missing_factors || [];
   if (matched.length || missing.length) sections.push(`为什么这样建议：已结合${matched.length ? matched.map(graphNodeName).join('、') : '当前可用数据'}；${missing.length ? `还缺少${missing.map(graphNodeName).join('、')}，因此降低判断强度。` : '目前没有发现关键资料缺口。'}`);
@@ -501,6 +556,7 @@ function applyGraphGrounding(result, graph) {
       index_version: graph.index_version || null,
       citations: citationItems.slice(0, 6),
       paths: (graph.graph_paths || []).slice(0, 6),
+      weekly_plan: weekly,
       personalization: graph.personalization || null,
       uncertainty: graph.uncertainty || null,
     },
@@ -944,7 +1000,9 @@ export async function chat(history, userMessage, healthSummary, user) {
   const actionHit = routeIntent(userMessage).action;
   const forecastRequested = /未来|预测|外推|几天后|多少天后|以后会|将会/.test(userMessage || '');
   const graphIntentHit = /为什么|怎么办|建议|注意|危险|饮食|复测|关系|相关|影响|并发|共同|整体|身体怎么样/.test(userMessage || '');
+  const graphSuggestionHit = /为什么|怎么办|建议|注意|危险|饮食|复测|关系|相关|影响|并发|共同/.test(userMessage || '');
   const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, deviceHit, alertsHit, healthSummaryHit, actionHit, forecastRequested };
+  const configuredLLM = getLLMConfig();
 
   // 行动请求先生成可确认的结构化计划，不让 LLM 越过用户确认直接执行敏感操作。
   if (actionHit && !riskHit && !diseaseRiskHit && !trendHit && !behaviorHit && !deviceHit && !alertsHit && !healthSummaryHit) {
@@ -962,7 +1020,7 @@ export async function chat(history, userMessage, healthSummary, user) {
         const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience, topK: 6, maxHops: 2, includeTrace: true });
         if (kg?.results?.length || kg?.recommendations?.length) {
           graphEvidence = kg;
-          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 4) || [], recommendations: kg.recommendations || [], personalization: kg.personalization || {}, safety_flags: kg.safety_flags || [], disclaimer: kg.disclaimer })}`;
+          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 4) || [], recommendations: kg.recommendations || [], weekly_plan: kg.weekly_plan || [], personalization: kg.personalization || {}, safety_flags: kg.safety_flags || [], disclaimer: kg.disclaimer })}`;
         }
       }
       const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, intent);
@@ -983,24 +1041,25 @@ export async function chat(history, userMessage, healthSummary, user) {
       if ((riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit || graphContext) && normalized.confidence.type === 'common_sense') {
         normalized.confidence = { type: 'data', score: 60, sources: ['后端健康分析工具结果'], reasoning: '回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。' };
       }
-      const { __toolResults: _toolResults, degraded: _degraded, __guardIssues: _guardIssues, ...safeResult } = normalized;
-      return { source: 'openai', ...safeResult };
+      const { __toolResults: _toolResults, __llm, degraded: _degraded, __guardIssues: _guardIssues, ...safeResult } = normalized;
+      return { source: __llm?.provider || configuredLLM?.provider || 'custom', llm: __llm || { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'success' }, ...safeResult };
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
       if (riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit) {
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
-        return graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
+        const groundedFallback = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
+        return { ...groundedFallback, llm: { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'fallback', fallback_reason: safeFallbackReason(err), latency_ms: null } };
       }
     }
   }
   // 无 DeepSeek 配置或接口暂时不可用时，GraphRAG 仍然可以返回本地可审计依据，避免退化成无证据模板。
-  if (graphIntentHit && !riskHit && !trendHit && !behaviorHit && !deviceHit && !alertsHit && !healthSummaryHit && !actionHit) {
+  if (graphSuggestionHit && !riskHit && !behaviorHit && !deviceHit && !alertsHit && !healthSummaryHit && !actionHit) {
     try {
       const disease = /衰弱|跌倒|功能下降|握力/.test(userMessage) ? 'frailty' : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(userMessage) ? 'chronic_kidney_disease' : /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
       const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience: user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly', topK: 6, maxHops: 2 });
-      const base = mockAgent(userMessage, healthSummary);
-      return { source: 'tool_fallback', ...applyGraphGrounding(base, kg) };
+      const base = trendHit ? await deterministicFallbackReply(userMessage, user, intent) : mockAgent(userMessage, healthSummary);
+      return { source: 'tool_fallback', llm: { provider: configuredLLM?.provider || 'none', model: configuredLLM?.model || null, call_status: configuredLLM ? 'fallback' : 'not_configured', fallback_reason: configuredLLM ? 'GraphRAG 本地降级' : '未配置 DeepSeek' }, ...applyGraphGrounding(base, kg) };
     } catch (err) {
       console.error('[agent] local GraphRAG fallback failed:', err.message);
     }
@@ -1024,4 +1083,13 @@ export async function chat(history, userMessage, healthSummary, user) {
     return { source: 'tool', ...combineRiskTrend(r1, r2) };
   }
   return { source: 'mock', ...mockAgent(userMessage, healthSummary) };
+}
+
+function safeFallbackReason(err) {
+  const message = String(err?.message || 'LLM 调用失败');
+  if (/401|403/.test(message)) return 'DeepSeek 鉴权失败';
+  if (/429/.test(message)) return 'DeepSeek 请求频率受限';
+  if (/timeout|aborted|timed out/i.test(message)) return 'DeepSeek 请求超时';
+  if (/5\d\d/.test(message)) return 'DeepSeek 服务暂时不可用';
+  return 'DeepSeek 调用失败，已使用本地工具结果';
 }

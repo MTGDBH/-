@@ -3,13 +3,16 @@ import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import db from './db.js';
 import authRouter, { sessionMiddleware, requireAuth } from './auth.js';
+import { getLLMStatus } from './ai/agent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
+// 从 server/.env 加载本地演示配置；密钥仍只存在环境/设置表，不进入代码和前端。
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -47,7 +50,8 @@ app.use(sessionMiddleware);
 
 // ===== 公共路由（不要求登录）=====
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, time: new Date().toISOString(), mode: process.env.OPENAI_API_KEY ? 'llm' : 'mock' });
+  const llm = getLLMStatus();
+  res.json({ ok: true, time: new Date().toISOString(), mode: llm.mode, provider: llm.provider, model: llm.model });
 });
 app.use('/api/auth', authRouter);
 
@@ -90,7 +94,8 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  const mode = process.env.OPENAI_API_KEY ? `LLM (${process.env.OPENAI_MODEL || 'gpt-4o-mini'})` : 'Mock';
+  const llm = getLLMStatus();
+  const mode = llm.configured ? `LLM (${llm.provider}/${llm.model})` : 'Mock（未配置 DeepSeek）';
   console.log(`\n🩺 老年人健康管家 API 已启动`);
   console.log(`   地址:  http://localhost:${PORT}`);
   console.log(`   模式:  ${mode}`);

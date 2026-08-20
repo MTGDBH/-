@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T15:07:54.115356+00:00",
+  "generated_at": "2026-08-20T15:48:00.122011+00:00",
   "cases": 4,
   "variants": 9,
   "passed": true,
@@ -26,7 +26,7 @@
       "recommendation_count": 1,
       "priority": "high",
       "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
-      "reason": "最近一次血压 150/95 mmHg 偏高",
+      "reason": "最近一次血压 150/95 mmHg 偏高，趋势为未知",
       "evidence": "who_hypertension_2025.md#识别与复测",
       "graph_mode": "local_hybrid",
       "has_trace": true

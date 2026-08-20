@@ -12,6 +12,13 @@
       "disease:heart_disease",
       "disease:hypertension",
       "disease:stroke",
+      "evidence_source:hypertension_curated_01",
+      "evidence_source:hypertension_curated_02",
+      "evidence_source:hypertension_curated_03",
+      "evidence_source:hypertension_curated_04",
+      "evidence_source:hypertension_curated_05",
+      "evidence_source:hypertension_curated_06",
+      "evidence_source:hypertension_curated_07",
       "intervention:home_bp_remeasurement",
       "intervention:regular_activity",
       "intervention:salt_reduction",
@@ -40,8 +47,8 @@
       "risk_factor:血压",
       "risk_factor:跌倒"
     ],
-    "entity_count": 36,
-    "chunk_count": 9
+    "entity_count": 43,
+    "chunk_count": 16
   },
   {
     "id": "community:diabetes",
@@ -52,6 +59,13 @@
       "disease:diabetes",
       "disease:heart_disease",
       "disease:stroke",
+      "evidence_source:diabetes_curated_01",
+      "evidence_source:diabetes_curated_02",
+      "evidence_source:diabetes_curated_03",
+      "evidence_source:diabetes_curated_04",
+      "evidence_source:diabetes_curated_05",
+      "evidence_source:diabetes_curated_06",
+      "evidence_source:diabetes_curated_07",
       "intervention:annual_complication_screening",
       "intervention:healthy_diet",
       "intervention:regular_activity",
@@ -85,8 +99,8 @@
       "risk_factor:血脂",
       "risk_factor:跌倒"
     ],
-    "entity_count": 37,
-    "chunk_count": 11
+    "entity_count": 44,
+    "chunk_count": 18
   },
   {
     "id": "community:heart_disease",
@@ -108,6 +122,13 @@
     "entity_ids": [
       "disease:hypertension",
       "disease:stroke",
+      "evidence_source:stroke_curated_01",
+      "evidence_source:stroke_curated_02",
+      "evidence_source:stroke_curated_03",
+      "evidence_source:stroke_curated_04",
+      "evidence_source:stroke_curated_05",
+      "evidence_source:stroke_curated_06",
+      "evidence_source:stroke_curated_07",
       "intervention:活动",
       "measurement:活动",
       "measurement:血压",
@@ -119,8 +140,8 @@
       "risk_factor:血压",
       "symptom:face_arm_speech_emergency"
     ],
-    "entity_count": 12,
-    "chunk_count": 3
+    "entity_count": 19,
+    "chunk_count": 10
   },
   {
     "id": "community:chronic_kidney_disease",
@@ -133,6 +154,13 @@
       "disease:chronic_kidney_disease",
       "disease:diabetes",
       "disease:hypertension",
+      "evidence_source:chronic_kidney_disease_curated_01",
+      "evidence_source:chronic_kidney_disease_curated_02",
+      "evidence_source:chronic_kidney_disease_curated_03",
+      "evidence_source:chronic_kidney_disease_curated_04",
+      "evidence_source:chronic_kidney_disease_curated_05",
+      "evidence_source:chronic_kidney_disease_curated_06",
+      "evidence_source:chronic_kidney_disease_curated_07",
       "intervention:复测",
       "intervention:就医",
       "intervention:记录",
@@ -155,8 +183,8 @@
       "risk_factor:血糖",
       "risk_factor:跌倒"
     ],
-    "entity_count": 28,
-    "chunk_count": 4
+    "entity_count": 35,
+    "chunk_count": 11
   },
   {
     "id": "community:frailty",
@@ -167,6 +195,13 @@
       "danger_sign:意识改变",
       "disease:chronic_kidney_disease",
       "disease:frailty",
+      "evidence_source:frailty_curated_01",
+      "evidence_source:frailty_curated_02",
+      "evidence_source:frailty_curated_03",
+      "evidence_source:frailty_curated_04",
+      "evidence_source:frailty_curated_05",
+      "evidence_source:frailty_curated_06",
+      "evidence_source:frailty_curated_07",
       "intervention:就医",
       "intervention:活动",
       "intervention:睡眠",
@@ -183,7 +218,7 @@
       "risk_factor:体重",
       "risk_factor:跌倒"
     ],
-    "entity_count": 20,
-    "chunk_count": 3
+    "entity_count": 27,
+    "chunk_count": 10
   }
 ]

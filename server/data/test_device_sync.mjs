@@ -19,7 +19,7 @@ try {
   const afterBad = (await request('/api/devices', { headers: auth })).body.find(x => x.id === device.id);
   if (!String(bad.body.error).includes('physical range') || afterBad?.status !== 'error' || !afterBad?.sync_error) throw new Error('device failure state was not recorded');
   const chat = (await request('/api/chat', { method: 'POST', headers: auth, body: JSON.stringify({ message: '\u84dd\u7259\u8bbe\u5907\u540c\u6b65\u600e\u4e48\u6837\uff1f' }) })).body;
-  if (!chat.content || !['openai', 'tool', 'tool_fallback'].includes(chat.source)) throw new Error('device agent response unavailable');
+  if (!chat.content || !['deepseek', 'openai', 'custom', 'tool', 'tool_fallback', 'mock'].includes(chat.source)) throw new Error('device agent response unavailable');
   console.log(JSON.stringify({ pass: true, metric_source: synced.body.metric.source, battery: synced.body.device.battery_level, agent_source: chat.source }));
 } finally {
   const deleted = await request('/api/profile/me', { method: 'DELETE', headers: auth });
