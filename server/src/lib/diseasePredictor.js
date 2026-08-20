@@ -21,16 +21,21 @@ function buildFeatures(user, metrics) {
   const weight = v('weight');
   return {
     age: user?.age ?? null, gender: user?.gender === 'female' ? 0 : user?.gender === 'male' ? 1 : null,
-    edu: null, systo: v('bp'), diasto: v('bp', 'value2'), pulse: v('hr'),
+    edu: user?.education_level ?? null, systo: v('bp'), diasto: v('bp', 'value2'), pulse: v('hr'),
     bmi: weight != null && height ? +(weight / (height * height)).toFixed(4) : null,
     mwaist: v('waist'), lgrip: v('grip'), rgrip: v('grip'),
     bl_glu: v('glucose') != null ? +(v('glucose') * 18).toFixed(4) : null,
     bl_hbalc: v('hba1c'), bl_cho: v('cholesterol') != null ? +(v('cholesterol') * 38.67).toFixed(4) : null,
     bl_ua: v('uricacid') != null ? +(v('uricacid') / 59.48).toFixed(4) : null,
-    sleep: v('sleep'), smokev: null, smoken: null, drinkev: null, drinkl: null,
-    exercise: null, totmet: null, srh: null, cesd10: null, total_cognition: null,
-    adlab_c: null, iadl: null, chronic: null, diabe: null, hearte: null, stroke: null,
-    dyslipe: null, lunge: null,
+    sleep: v('sleep'),
+    smokev: user?.smoking_status ?? null, smoken: user?.cigarettes_per_day ?? null,
+    drinkev: user?.drinking_status ?? null, drinkl: user?.drinking_frequency ?? null,
+    exercise: user?.exercise_level ?? null, totmet: user?.exercise_level ?? null,
+    srh: user?.self_rated_health ?? null, cesd10: null, total_cognition: null,
+    adlab_c: null, iadl: null,
+    chronic: [user?.chronic_diabetes, user?.chronic_heart, user?.chronic_stroke].some(v => v != null) ? 1 : null,
+    diabe: user?.chronic_diabetes ?? null, hearte: user?.chronic_heart ?? null, stroke: user?.chronic_stroke ?? null,
+    dyslipe: user?.dyslipidemia ?? null, lunge: user?.lung_disease ?? null,
   };
 }
 

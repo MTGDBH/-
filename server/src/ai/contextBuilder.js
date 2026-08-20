@@ -45,6 +45,20 @@ export function buildHealthContext(user, days = 90) {
     todos,
     alerts,
     missing_common_metrics: ['bp', 'glucose', 'hr', 'sleep'].filter(t => !latest[t]),
+    // 仅保留用于健康教育个性化的非敏感档案字段；不把临时模型预测写入长期上下文。
+    profile: {
+      age: user.age ?? null,
+      gender: user.gender ?? null,
+      bmi: user.bmi ?? null,
+      smoking_status: user.smoking_status ?? null,
+      drinking_status: user.drinking_status ?? null,
+      exercise_level: user.exercise_level ?? null,
+      chronic_diabetes: user.chronic_diabetes ?? null,
+      chronic_heart: user.chronic_heart ?? null,
+      chronic_stroke: user.chronic_stroke ?? null,
+      dyslipidemia: user.dyslipidemia ?? null,
+      lung_disease: user.lung_disease ?? null,
+    },
   };
 }
 
@@ -74,7 +88,8 @@ export function buildEvidenceCard(context, message = '', confidence = {}) {
       trend_delta: trend?.delta ?? null,
     };
   }).filter(x => x.latest_value != null).slice(0, 8);
-  const dataRelated = /血压|血糖|心率|睡眠|步数|活动|体重|趋势|风险|预测|建议|注意/.test(message);
+  // 总体健康问题也属于数据型问题，不能因为没有点名某个指标而丢失证据卡片。
+  const dataRelated = /血压|血糖|心率|睡眠|步数|活动|体重|趋势|风险|预测|建议|注意|健康|身体|总体|各项/.test(message);
   if (!dataRelated || !items.length) return null;
   return {
     generated_by: 'backend_health_context',

@@ -46,6 +46,21 @@ addColumnIfMissing('users', 'height', 'REAL');
 addColumnIfMissing('users', 'emergency_name', 'TEXT');
 addColumnIfMissing('users', 'emergency_phone', 'TEXT');
 addColumnIfMissing('users', 'notification_prefs', 'TEXT');
+addColumnIfMissing('users', 'role', "TEXT DEFAULT 'senior'");
+db.prepare("UPDATE users SET role = 'senior' WHERE role IS NULL OR role = ''").run();
+// 风险评估档案：可由老人/家属逐步补充，缺失时模型必须降低可信度
+addColumnIfMissing('users', 'education_level', 'INTEGER');
+addColumnIfMissing('users', 'smoking_status', 'INTEGER');
+addColumnIfMissing('users', 'cigarettes_per_day', 'REAL');
+addColumnIfMissing('users', 'drinking_status', 'INTEGER');
+addColumnIfMissing('users', 'drinking_frequency', 'REAL');
+addColumnIfMissing('users', 'exercise_level', 'REAL');
+addColumnIfMissing('users', 'self_rated_health', 'INTEGER');
+addColumnIfMissing('users', 'chronic_diabetes', 'INTEGER');
+addColumnIfMissing('users', 'chronic_heart', 'INTEGER');
+addColumnIfMissing('users', 'chronic_stroke', 'INTEGER');
+addColumnIfMissing('users', 'dyslipidemia', 'INTEGER');
+addColumnIfMissing('users', 'lung_disease', 'INTEGER');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS sessions (
@@ -55,6 +70,27 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
+  CREATE TABLE IF NOT EXISTS care_relationships (
+    id INTEGER PRIMARY KEY,
+    senior_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    member_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    member_role TEXT NOT NULL DEFAULT 'caregiver',
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(senior_id, member_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_care_member ON care_relationships(member_id, status);
+
+  CREATE TABLE IF NOT EXISTS care_invitations (
+    id INTEGER PRIMARY KEY,
+    senior_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_by INTEGER REFERENCES users(id),
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
 
   CREATE TABLE IF NOT EXISTS metrics (
     id INTEGER PRIMARY KEY,
@@ -112,6 +148,31 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
   CREATE INDEX IF NOT EXISTS idx_todos_user_date ON todos(user_id, date);
+
+  CREATE TABLE IF NOT EXISTS action_requests (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    action_type TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending_confirmation',
+    confirmed_at TEXT,
+    executed_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_action_requests_user_status ON action_requests(user_id, status);
+
+  CREATE TABLE IF NOT EXISTS agent_actions (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    action_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'suggested',
+    confirmed_at TEXT,
+    executed_at TEXT,
+    followup_metric TEXT,
+    followup_result TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
 
   CREATE TABLE IF NOT EXISTS devices (
     id INTEGER PRIMARY KEY,
@@ -178,11 +239,15 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_custom_metrics_user ON custom_metrics(user_id);
 `);
 
-// 兼容已有库：给 chat_messages 补 confidence 列
+// 兼容已有库：给 chat_messages 补置信度和证据列，确保刷新/新对话仍能显示可追溯依据
 addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
+addColumnIfMissing('chat_messages', 'evidence', 'TEXT');
 
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');
+// 设备同步状态扩展
+addColumnIfMissing('devices', 'battery_level', 'INTEGER');
+addColumnIfMissing('devices', 'sync_error', 'TEXT');
 
 // ============= 核心指标定义（单一数据源）=============
 // 15 种核心指标 + ecg（历史展示保留，ml_enabled=0 不进 ML）

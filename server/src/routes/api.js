@@ -115,6 +115,47 @@ router.get('/devices', (req, res) => {
   res.json(rows);
 });
 
+router.post('/devices', (req, res) => {
+  const { name, kind, battery_level } = req.body || {};
+  if (!name || !kind) return res.status(400).json({ error: 'name and kind are required' });
+  const battery = battery_level == null ? null : Math.max(0, Math.min(100, Number(battery_level)));
+  const r = db.prepare('INSERT INTO devices (user_id, name, kind, status, battery_level) VALUES (?, ?, ?, ?, ?)')
+    .run(req.user.id, String(name).slice(0, 80), String(kind).slice(0, 40), 'connected', Number.isFinite(battery) ? battery : null);
+  res.status(201).json(db.prepare('SELECT * FROM devices WHERE id = ?').get(r.lastInsertRowid));
+});
+
+router.patch('/devices/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const device = db.prepare('SELECT * FROM devices WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!device) return res.status(404).json({ error: 'device not found' });
+  const fields = []; const values = [];
+  if (req.body.status !== undefined && ['connected', 'disconnected', 'error'].includes(req.body.status)) { fields.push('status = ?'); values.push(req.body.status); }
+  if (req.body.battery_level !== undefined) { const b = Number(req.body.battery_level); if (Number.isFinite(b) && b >= 0 && b <= 100) { fields.push('battery_level = ?'); values.push(Math.round(b)); } }
+  if (req.body.sync_error !== undefined) { fields.push('sync_error = ?'); values.push(req.body.sync_error ? String(req.body.sync_error).slice(0, 240) : null); }
+  if (!fields.length) return res.json(device);
+  values.push(id, req.user.id);
+  db.prepare(`UPDATE devices SET ${fields.join(', ')} WHERE id = ? AND user_id = ?`).run(...values);
+  res.json(db.prepare('SELECT * FROM devices WHERE id = ?').get(id));
+});
+
+// 真实 Web Bluetooth 与模拟设备共用这一入库接口，统一写入 metrics.source=device。
+router.post('/devices/:id/sync', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const device = db.prepare('SELECT * FROM devices WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!device) return res.status(404).json({ error: 'device not found' });
+  const { type, value, value2, unit, recorded_at, battery_level } = req.body || {};
+  const def = type ? db.prepare('SELECT type, unit, min_value, max_value FROM metric_defs WHERE type = ?').get(type) : null;
+  const numeric = Number(value);
+  if (!def || !Number.isFinite(numeric)) return res.status(400).json({ error: 'unsupported metric or invalid value' });
+  if (def.min_value != null && numeric < def.min_value || def.max_value != null && numeric > def.max_value) return res.status(400).json({ error: 'value outside physical range' });
+  const at = recorded_at && !Number.isNaN(Date.parse(recorded_at)) ? new Date(recorded_at).toISOString() : new Date().toISOString();
+  const inserted = db.prepare('INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, device_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(req.user.id, type, numeric, value2 == null ? null : Number(value2), unit || def.unit, at, 'device', id);
+  db.prepare('UPDATE devices SET status = ?, last_sync = ?, battery_level = ?, sync_error = NULL WHERE id = ? AND user_id = ?')
+    .run('connected', new Date().toISOString(), battery_level == null ? device.battery_level : Math.max(0, Math.min(100, Number(battery_level))), id, req.user.id);
+  res.status(201).json({ device: db.prepare('SELECT * FROM devices WHERE id = ?').get(id), metric: db.prepare('SELECT * FROM metrics WHERE id = ?').get(inserted.lastInsertRowid) });
+});
+
 // ============= 对话 =============
 router.post('/chat', async (req, res) => {
   const { message } = req.body;
@@ -147,9 +188,11 @@ router.post('/chat', async (req, res) => {
 
   const planJson = result.plan ? JSON.stringify(result.plan) : null;
   const confidenceJson = result.confidence ? JSON.stringify(result.confidence) : null;
+  const evidence = buildEvidenceCard(healthSummary.context, message, result.confidence);
+  const evidenceJson = evidence ? JSON.stringify(evidence) : null;
   const ins = db.prepare(`
-    INSERT INTO chat_messages (user_id, role, content, plan, confidence) VALUES (?, 'assistant', ?, ?, ?)
-  `).run(req.user.id, result.content || '', planJson, confidenceJson);
+    INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence) VALUES (?, 'assistant', ?, ?, ?, ?)
+  `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson);
 
   res.json({
     id: ins.lastInsertRowid,
@@ -157,15 +200,15 @@ router.post('/chat', async (req, res) => {
     content: result.content,
     plan: result.plan || [],
     confidence: result.confidence || { type: 'common_sense' },
-    evidence: buildEvidenceCard(healthSummary.context, message, result.confidence),
+    evidence,
     source: result.source,
   });
 });
 
 router.get('/chat/history', (req, res) => {
   const rows = db.prepare(`
-    SELECT id, role, content, plan, confidence, created_at FROM (
-      SELECT id, role, content, plan, confidence, created_at FROM chat_messages
+    SELECT id, role, content, plan, confidence, evidence, created_at FROM (
+      SELECT id, role, content, plan, confidence, evidence, created_at FROM chat_messages
       WHERE user_id = ? ORDER BY id DESC LIMIT 50
     ) ORDER BY id ASC
   `).all(req.user.id);
@@ -173,6 +216,7 @@ router.get('/chat/history', (req, res) => {
     ...r,
     plan: r.plan ? JSON.parse(r.plan) : null,
     confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
+    evidence: r.evidence ? JSON.parse(r.evidence) : null,
   })));
 });
 

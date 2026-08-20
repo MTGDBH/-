@@ -82,6 +82,7 @@ router.post('/login', (req, res) => {
 // ===== 注册 =====
 router.post('/register', (req, res) => {
   const { name, gender, age, password } = req.body;
+  const role = ['senior', 'caregiver', 'doctor'].includes(req.body.role) ? req.body.role : 'senior';
   if (!name || !name.trim()) {
     return res.status(400).json({ error: '请输入姓名' });
   }
@@ -100,9 +101,9 @@ router.post('/register', (req, res) => {
   const avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
 
   const result = db.prepare(`
-    INSERT INTO users (name, gender, age, password, avatar_color)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(name.trim(), gender || 'unknown', age || null, password, avatarColor);
+    INSERT INTO users (name, gender, age, password, avatar_color, role)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(name.trim(), gender || 'unknown', age || null, password, avatarColor, role);
 
   // 自动创建 session（注册即登录）
   const token = newToken();

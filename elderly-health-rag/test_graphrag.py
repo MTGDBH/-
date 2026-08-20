@@ -11,5 +11,7 @@ def main():
     result = json.loads(query.stdout.decode('utf-8'))
     assert result['results'] and all(x.get('citation') and x.get('evidence_level') for x in result['results'])
     assert result['graph_mode'] == 'local_hybrid'
+    assert result.get('graph_context') and any(x.get('type') != 'mentions' for x in result['graph_context'])
+    assert any(x.get('source_url') for x in result['results']), 'authoritative source metadata missing'
     print('GraphRAG tests: PASS', report)
 if __name__ == '__main__': main()

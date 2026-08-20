@@ -54,6 +54,7 @@
       bindSend();
       bindPrompts();
       bindMsgActions();
+      bindPlanActions();
       renderQuickPrompts('plan');
     });
     Auth.init();
@@ -198,7 +199,7 @@
               <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
               <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
             </div>
-            <div class="plan-card-check" style="color:${planColorFg(p.color)}">✓</div>
+            <button class="plan-card-check" data-action="plan" data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}" style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>
           </div>
         `).join('')}</div>` : '';
       if (m.role === 'assistant') {
@@ -288,8 +289,34 @@
           case 'tts':        doTTS(btn); break;
           case 'regenerate': doRegenerate(btn); break;
           case 'confidence': doConfidence(btn); break;
+          case 'plan':       doPlanAction(btn); break;
         }
       });
+    }
+
+    function bindPlanActions() {
+      document.getElementById('plan-list').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="plan"]');
+        if (btn) doPlanAction(btn);
+      });
+    }
+
+    async function doPlanAction(btn) {
+      const title = decodeURIComponent(btn.dataset.title || '完成健康计划');
+      const desc = decodeURIComponent(btn.dataset.desc || '');
+      const sensitive = /用药|药物|就医|医生|家属|通知/.test(title + desc);
+      if (sensitive && !window.confirm(`这项建议涉及${/用药|药物/.test(title + desc) ? '用药' : '就医/联系他人'}，确认要创建待办吗？`)) return;
+      const actionType = btn.dataset.actionType || (/复测|复查|测量|监测/.test(title) ? 'schedule_recheck' : /通知家属/.test(title) ? 'notify_caregiver' : /联系医生|就医/.test(title) ? 'contact_doctor' : 'create_todo');
+      try {
+        // 敏感行动先以 pending_confirmation 写入服务端，确认后再执行；不能只依赖浏览器端的 confirm。
+        const r = await API.post('/api/actions', { action_type: actionType, title, desc, kind: sensitive ? 'sensitive' : 'agent', confirmed: !sensitive });
+        if (sensitive && r.requires_confirmation && r.request?.id) {
+          await API.post(`/api/actions/${r.request.id}/confirm`, {});
+        }
+        btn.textContent = '✓';
+        btn.disabled = true;
+        toast(sensitive ? '已确认并记录行动' : '已创建今日待办', 'success');
+      } catch (err) { toast(err.message, 'error'); }
     }
 
     function doCopy(btn) {
@@ -430,7 +457,7 @@
               <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
               <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
             </div>
-            <div class="plan-card-check" style="color:${planColorFg(p.color)}">✓</div>
+              <button class="plan-card-check" data-action="plan" data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}" style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>
           </div>
         `).join('') || '<div class="empty">暂无方案，先在左边和小康聊聊</div>';
       } catch (err) {

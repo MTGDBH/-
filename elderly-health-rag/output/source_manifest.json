@@ -1,17 +1,142 @@
 [
   {
+    "file": "ada_older_adults_2025.md",
+    "sha256": "21ef1493650ef8833e39c34c160d4b8bc5559fc980dbe58e5924d59904195941",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "publisher": "American Diabetes Association",
+    "publication_year": "2025",
+    "document_type": "clinical_standard",
+    "evidence_level": "professional_guideline",
+    "review_status": "已按公开摘要整理"
+  },
+  {
+    "file": "aha_lifes_essential_8_2022.md",
+    "sha256": "0fbe9b306d70ab97704d48e57ab0ede1d20a3ef6b144b1069e90930604e08ae1",
+    "source_url": "https://professional.heart.org/en/science-news/lifes-essential-8",
+    "publisher": "American Heart Association",
+    "publication_year": "2022",
+    "document_type": "presidential_advisory_summary",
+    "evidence_level": "professional_statement",
+    "review_status": "已按来源摘要整理"
+  },
+  {
+    "file": "aha_stroke_prevention_2024.md",
+    "sha256": "a7833a0bbc299349b91ac09c50d90dfa9057fa4f3f1a8cd3341a4a0af58d16f2",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "American Heart Association / American Stroke Association",
+    "publication_year": "2024",
+    "document_type": "clinical_guideline_summary",
+    "evidence_level": "professional_guideline",
+    "review_status": "已按来源摘要整理"
+  },
+  {
     "file": "cardiovascular.md",
     "sha256": "70112d09c5fc0db5bea9e3e5ce1a8b97634680a10d2c9a66a6fd894c480d084f",
+    "source_url": "",
+    "publisher": "WHO cardiovascular diseases fact sheet",
+    "publication_year": "",
+    "document_type": "guideline_note",
+    "evidence_level": "public_guidance",
     "review_status": "演示知识，需医学审核后生产使用"
   },
   {
     "file": "diabetes.md",
     "sha256": "01de1fa1ef4a709ce8db7b987967aaffe303fbf766b8470b64290bae6cb3a9fd",
+    "source_url": "",
+    "publisher": "WHO diabetes fact sheet",
+    "publication_year": "",
+    "document_type": "guideline_note",
+    "evidence_level": "public_guidance",
     "review_status": "演示知识，需医学审核后生产使用"
+  },
+  {
+    "file": "dpp_2002.md",
+    "sha256": "78d3938e1815ad2494f5b730f7c377ffe766bc3c4042aad4817d14cc3d2ac216",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/12453955/",
+    "publisher": "Diabetes Prevention Program Research Group / New England Journal of Medicine",
+    "publication_year": "2002",
+    "document_type": "randomized_controlled_trial",
+    "evidence_level": "randomized_trial",
+    "review_status": "作为生活方式预防证据"
   },
   {
     "file": "hypertension.md",
     "sha256": "47fdd6915f54bd89e2c76ee49012884c209202dcf398894fc9fdbc006da9ade6",
+    "source_url": "",
+    "publisher": "WHO hypertension fact sheet",
+    "publication_year": "",
+    "document_type": "guideline_note",
+    "evidence_level": "public_guidance",
     "review_status": "演示知识，需医学审核后生产使用"
+  },
+  {
+    "file": "older_cvd_risk_review_2020.md",
+    "sha256": "2c99dbe41537f47d5ba0f1164cb95cce430ed740fff54a3e87cc0fabb0d6b75d",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31958478/",
+    "publisher": "Preventive Medicine / van Bussel et al.",
+    "publication_year": "2020",
+    "document_type": "systematic_review",
+    "evidence_level": "systematic_review",
+    "review_status": "需结合外部验证和竞争风险分析"
+  },
+  {
+    "file": "older_physical_activity_review_2022.md",
+    "sha256": "d592c91762320ad868d3a1c9654b0d29eb41791329dfbdb9b3dc179de9e1e8f6",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34664329/",
+    "publisher": "Journal of Clinical Nursing / Tan and Siah",
+    "publication_year": "2022",
+    "document_type": "systematic_review_meta_analysis",
+    "evidence_level": "systematic_review",
+    "review_status": "研究异质性和样本量有限"
+  },
+  {
+    "file": "predimed_2018.md",
+    "sha256": "717f8fc7e70e77157a9d95641c79dab340c81a05527a9076ec272f91aa298198",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/29897866/",
+    "publisher": "PREDIMED Study Investigators / New England Journal of Medicine",
+    "publication_year": "2018",
+    "document_type": "randomized_controlled_trial",
+    "evidence_level": "randomized_trial",
+    "review_status": "2018 年更正后再发表版本"
+  },
+  {
+    "file": "sprint_2015.md",
+    "sha256": "acb4e9a1d49b960dd7f9cd87309579dbd8c33e2bc2b45f7f3ba040861acacd4d",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/26551272/",
+    "publisher": "SPRINT Research Group / New England Journal of Medicine",
+    "publication_year": "2015",
+    "document_type": "randomized_controlled_trial",
+    "evidence_level": "randomized_trial",
+    "review_status": "作为血压管理研究证据"
+  },
+  {
+    "file": "who_cvd_2025.md",
+    "sha256": "276708fe63cd8d7da2478a59ed1340c7570e8f7e8ea673131e38feb2a425a843",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29",
+    "publisher": "WHO",
+    "publication_year": "2025",
+    "document_type": "official_fact_sheet",
+    "evidence_level": "authoritative_guidance",
+    "review_status": "已按来源网页整理"
+  },
+  {
+    "file": "who_diabetes_2024.md",
+    "sha256": "30652f16a37e00affcad094ed20d7013947bb72a8ebb9dda53f4e3b9717cf3d3",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "publisher": "WHO",
+    "publication_year": "2024",
+    "document_type": "official_fact_sheet",
+    "evidence_level": "authoritative_guidance",
+    "review_status": "已按来源网页整理"
+  },
+  {
+    "file": "who_hypertension_2025.md",
+    "sha256": "d024b9789f0a917feb2de049bca77aba7bb9b3e2301aafc6021f75cca7b89846",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "WHO",
+    "publication_year": "2025",
+    "document_type": "official_fact_sheet",
+    "evidence_level": "authoritative_guidance",
+    "review_status": "已按来源网页整理"
   }
 ]

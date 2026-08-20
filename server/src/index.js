@@ -69,6 +69,8 @@ import alertsRouter from './routes/alerts.js';
 import trendRouter from './routes/trend.js';
 import settingsRouter from './routes/settings.js';
 import predictionRouter from './routes/prediction.js';
+import actionsRouter from './routes/actions.js';
+import careRouter from './routes/care.js';
 
 app.use('/api/health', healthRouter);
 app.use('/api', apiRouter);
@@ -78,6 +80,8 @@ app.use('/api/alerts', alertsRouter);
 app.use('/api/trend', trendRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/prediction', predictionRouter);
+app.use('/api/actions', actionsRouter);
+app.use('/api/care', careRouter);
 
 // 错误处理
 app.use((err, _req, res, _next) => {

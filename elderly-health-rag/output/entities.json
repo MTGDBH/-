@@ -1,19 +1,22 @@
 [
   {
-    "id": "disease:cardiovascular",
+    "id": "disease:diabetes",
     "type": "disease",
-    "name": "cardiovascular",
-    "chunk_ids": []
-  },
-  {
-    "id": "measurement:血压",
-    "type": "measurement",
-    "name": "血压",
+    "name": "diabetes",
     "chunk_ids": [
-      "cardiovascular:1",
-      "hypertension:1",
-      "hypertension:2",
-      "hypertension:3"
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:1",
+      "ada_older_adults_2025:2",
+      "diabetes:0",
+      "diabetes:1",
+      "diabetes:2",
+      "dpp_2002:0",
+      "dpp_2002:1",
+      "older_physical_activity_review_2022:0",
+      "who_diabetes_2024:0",
+      "who_diabetes_2024:1",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:1"
     ]
   },
   {
@@ -21,66 +24,18 @@
     "type": "measurement",
     "name": "血糖",
     "chunk_ids": [
-      "cardiovascular:1",
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:2",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "diabetes:0",
       "diabetes:1",
       "diabetes:2",
-      "diabetes:3"
-    ]
-  },
-  {
-    "id": "measurement:血脂",
-    "type": "measurement",
-    "name": "血脂",
-    "chunk_ids": [
-      "cardiovascular:1"
-    ]
-  },
-  {
-    "id": "measurement:体重",
-    "type": "measurement",
-    "name": "体重",
-    "chunk_ids": [
-      "cardiovascular:1",
-      "hypertension:2"
-    ]
-  },
-  {
-    "id": "measurement:活动",
-    "type": "measurement",
-    "name": "活动",
-    "chunk_ids": [
-      "cardiovascular:1",
-      "diabetes:2",
-      "hypertension:2"
-    ]
-  },
-  {
-    "id": "risk_factor:吸烟",
-    "type": "risk_factor",
-    "name": "吸烟",
-    "chunk_ids": [
-      "cardiovascular:1",
-      "hypertension:2"
-    ]
-  },
-  {
-    "id": "risk_factor:体重",
-    "type": "risk_factor",
-    "name": "体重",
-    "chunk_ids": [
-      "cardiovascular:1",
-      "hypertension:2"
-    ]
-  },
-  {
-    "id": "risk_factor:血压",
-    "type": "risk_factor",
-    "name": "血压",
-    "chunk_ids": [
-      "cardiovascular:1",
-      "hypertension:1",
-      "hypertension:2",
-      "hypertension:3"
+      "who_cvd_2025:1",
+      "who_diabetes_2024:0",
+      "who_diabetes_2024:1",
+      "who_diabetes_2024:2"
     ]
   },
   {
@@ -88,18 +43,74 @@
     "type": "risk_factor",
     "name": "血糖",
     "chunk_ids": [
-      "cardiovascular:1",
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:2",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "diabetes:0",
       "diabetes:1",
       "diabetes:2",
-      "diabetes:3"
+      "who_cvd_2025:1",
+      "who_diabetes_2024:0",
+      "who_diabetes_2024:1",
+      "who_diabetes_2024:2"
     ]
   },
   {
-    "id": "risk_factor:血脂",
-    "type": "risk_factor",
-    "name": "血脂",
+    "id": "measurement:体重",
+    "type": "measurement",
+    "name": "体重",
     "chunk_ids": [
-      "cardiovascular:1"
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "dpp_2002:0",
+      "dpp_2002:1",
+      "hypertension:1",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "measurement:活动",
+    "type": "measurement",
+    "name": "活动",
+    "chunk_ids": [
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "aha_lifes_essential_8_2022:2",
+      "aha_stroke_prevention_2024:0",
+      "cardiovascular:0",
+      "diabetes:1",
+      "dpp_2002:0",
+      "dpp_2002:1",
+      "hypertension:1",
+      "older_physical_activity_review_2022:0",
+      "older_physical_activity_review_2022:1",
+      "who_cvd_2025:0",
+      "who_diabetes_2024:0",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:1",
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "risk_factor:体重",
+    "type": "risk_factor",
+    "name": "体重",
+    "chunk_ids": [
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "dpp_2002:0",
+      "dpp_2002:1",
+      "hypertension:1",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:2"
     ]
   },
   {
@@ -107,9 +118,23 @@
     "type": "intervention",
     "name": "活动",
     "chunk_ids": [
-      "cardiovascular:1",
-      "diabetes:2",
-      "hypertension:2"
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "aha_lifes_essential_8_2022:2",
+      "aha_stroke_prevention_2024:0",
+      "cardiovascular:0",
+      "diabetes:1",
+      "dpp_2002:0",
+      "dpp_2002:1",
+      "hypertension:1",
+      "older_physical_activity_review_2022:0",
+      "older_physical_activity_review_2022:1",
+      "who_cvd_2025:0",
+      "who_diabetes_2024:0",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:1",
+      "who_hypertension_2025:2"
     ]
   },
   {
@@ -117,9 +142,26 @@
     "type": "intervention",
     "name": "复测",
     "chunk_ids": [
-      "cardiovascular:2",
-      "diabetes:1",
-      "hypertension:1"
+      "ada_older_adults_2025:2",
+      "cardiovascular:1",
+      "diabetes:0",
+      "hypertension:0",
+      "older_physical_activity_review_2022:1",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:0"
+    ]
+  },
+  {
+    "id": "intervention:记录",
+    "type": "intervention",
+    "name": "记录",
+    "chunk_ids": [
+      "ada_older_adults_2025:2",
+      "diabetes:0",
+      "hypertension:0",
+      "older_physical_activity_review_2022:1",
+      "who_diabetes_2024:2",
+      "who_hypertension_2025:0"
     ]
   },
   {
@@ -127,48 +169,62 @@
     "type": "intervention",
     "name": "就医",
     "chunk_ids": [
-      "cardiovascular:2"
+      "ada_older_adults_2025:2",
+      "cardiovascular:1",
+      "who_cvd_2025:2"
     ]
   },
   {
-    "id": "danger_sign:胸痛",
-    "type": "danger_sign",
-    "name": "胸痛",
-    "chunk_ids": [
-      "cardiovascular:3",
-      "hypertension:3"
-    ]
-  },
-  {
-    "id": "danger_sign:呼吸困难",
-    "type": "danger_sign",
-    "name": "呼吸困难",
-    "chunk_ids": [
-      "cardiovascular:3",
-      "hypertension:3"
-    ]
-  },
-  {
-    "id": "danger_sign:言语不清",
-    "type": "danger_sign",
-    "name": "言语不清",
-    "chunk_ids": [
-      "cardiovascular:3"
-    ]
-  },
-  {
-    "id": "disease:diabetes",
+    "id": "disease:cardiovascular",
     "type": "disease",
-    "name": "diabetes",
-    "chunk_ids": []
+    "name": "cardiovascular",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "aha_lifes_essential_8_2022:2",
+      "cardiovascular:0",
+      "cardiovascular:1",
+      "cardiovascular:2",
+      "older_cvd_risk_review_2020:0",
+      "who_cvd_2025:0",
+      "who_cvd_2025:1",
+      "who_cvd_2025:2"
+    ]
   },
   {
-    "id": "intervention:记录",
-    "type": "intervention",
-    "name": "记录",
+    "id": "measurement:血压",
+    "type": "measurement",
+    "name": "血压",
     "chunk_ids": [
-      "diabetes:1",
-      "hypertension:1"
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "aha_stroke_prevention_2024:0",
+      "cardiovascular:0",
+      "hypertension:0",
+      "hypertension:1",
+      "hypertension:2",
+      "sprint_2015:1",
+      "who_cvd_2025:0",
+      "who_cvd_2025:1",
+      "who_diabetes_2024:1",
+      "who_hypertension_2025:0",
+      "who_hypertension_2025:2",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "measurement:血脂",
+    "type": "measurement",
+    "name": "血脂",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "older_cvd_risk_review_2020:0",
+      "older_physical_activity_review_2022:0",
+      "who_cvd_2025:0",
+      "who_cvd_2025:1",
+      "who_diabetes_2024:1"
     ]
   },
   {
@@ -176,8 +232,47 @@
     "type": "measurement",
     "name": "睡眠",
     "chunk_ids": [
-      "diabetes:2",
-      "hypertension:2"
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "diabetes:1",
+      "hypertension:1",
+      "older_physical_activity_review_2022:1"
+    ]
+  },
+  {
+    "id": "risk_factor:血压",
+    "type": "risk_factor",
+    "name": "血压",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "aha_stroke_prevention_2024:0",
+      "cardiovascular:0",
+      "hypertension:0",
+      "hypertension:1",
+      "hypertension:2",
+      "sprint_2015:1",
+      "who_cvd_2025:0",
+      "who_cvd_2025:1",
+      "who_diabetes_2024:1",
+      "who_hypertension_2025:0",
+      "who_hypertension_2025:2",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "risk_factor:血脂",
+    "type": "risk_factor",
+    "name": "血脂",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "cardiovascular:0",
+      "older_cvd_risk_review_2020:0",
+      "older_physical_activity_review_2022:0",
+      "who_cvd_2025:0",
+      "who_cvd_2025:1",
+      "who_diabetes_2024:1"
     ]
   },
   {
@@ -185,8 +280,74 @@
     "type": "intervention",
     "name": "睡眠",
     "chunk_ids": [
-      "diabetes:2",
-      "hypertension:2"
+      "aha_lifes_essential_8_2022:0",
+      "aha_lifes_essential_8_2022:1",
+      "diabetes:1",
+      "hypertension:1",
+      "older_physical_activity_review_2022:1"
+    ]
+  },
+  {
+    "id": "disease:stroke",
+    "type": "disease",
+    "name": "stroke",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:0",
+      "aha_stroke_prevention_2024:1",
+      "cardiovascular:2",
+      "predimed_2018:0",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "risk_factor:盐",
+    "type": "risk_factor",
+    "name": "盐",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:1",
+      "hypertension:1",
+      "who_cvd_2025:0",
+      "who_hypertension_2025:1",
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "risk_factor:吸烟",
+    "type": "risk_factor",
+    "name": "吸烟",
+    "chunk_ids": [
+      "cardiovascular:0",
+      "hypertension:1",
+      "older_cvd_risk_review_2020:0"
+    ]
+  },
+  {
+    "id": "danger_sign:胸痛",
+    "type": "danger_sign",
+    "name": "胸痛",
+    "chunk_ids": [
+      "cardiovascular:2",
+      "hypertension:2",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "danger_sign:呼吸困难",
+    "type": "danger_sign",
+    "name": "呼吸困难",
+    "chunk_ids": [
+      "cardiovascular:2",
+      "hypertension:2",
+      "who_cvd_2025:2",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "danger_sign:言语不清",
+    "type": "danger_sign",
+    "name": "言语不清",
+    "chunk_ids": [
+      "cardiovascular:2"
     ]
   },
   {
@@ -194,7 +355,7 @@
     "type": "intervention",
     "name": "联系家属",
     "chunk_ids": [
-      "diabetes:3"
+      "diabetes:2"
     ]
   },
   {
@@ -202,21 +363,23 @@
     "type": "danger_sign",
     "name": "意识模糊",
     "chunk_ids": [
-      "diabetes:3"
+      "diabetes:2"
     ]
   },
   {
     "id": "disease:hypertension",
     "type": "disease",
     "name": "hypertension",
-    "chunk_ids": []
-  },
-  {
-    "id": "risk_factor:盐",
-    "type": "risk_factor",
-    "name": "盐",
     "chunk_ids": [
-      "hypertension:2"
+      "hypertension:0",
+      "hypertension:1",
+      "hypertension:2",
+      "older_physical_activity_review_2022:0",
+      "sprint_2015:1",
+      "who_hypertension_2025:0",
+      "who_hypertension_2025:1",
+      "who_hypertension_2025:2",
+      "who_hypertension_2025:3"
     ]
   },
   {
@@ -224,7 +387,8 @@
     "type": "intervention",
     "name": "减少盐",
     "chunk_ids": [
-      "hypertension:2"
+      "hypertension:1",
+      "who_hypertension_2025:2"
     ]
   },
   {
@@ -232,7 +396,8 @@
     "type": "danger_sign",
     "name": "意识改变",
     "chunk_ids": [
-      "hypertension:3"
+      "hypertension:2",
+      "who_hypertension_2025:3"
     ]
   },
   {
@@ -240,7 +405,299 @@
     "type": "danger_sign",
     "name": "单侧无力",
     "chunk_ids": [
-      "hypertension:3"
+      "hypertension:2"
+    ]
+  },
+  {
+    "id": "disease:older_physical_activity_review_2022",
+    "type": "disease",
+    "name": "older_physical_activity_review_2022",
+    "chunk_ids": [
+      "older_physical_activity_review_2022:0",
+      "older_physical_activity_review_2022:1"
+    ]
+  },
+  {
+    "id": "disease:predimed_2018",
+    "type": "disease",
+    "name": "predimed_2018",
+    "chunk_ids": []
+  },
+  {
+    "id": "risk_factor:high_salt_diet",
+    "type": "risk_factor",
+    "name": "high_salt_diet",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "risk_factor:physical_inactivity",
+    "type": "risk_factor",
+    "name": "physical_inactivity",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "risk_factor:obesity",
+    "type": "risk_factor",
+    "name": "obesity",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_diabetes_2024:0",
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "risk_factor:tobacco",
+    "type": "risk_factor",
+    "name": "tobacco",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "risk_factor:alcohol",
+    "type": "risk_factor",
+    "name": "alcohol",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "risk_factor:age_over_65",
+    "type": "risk_factor",
+    "name": "age_over_65",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_hypertension_2025:1"
+    ]
+  },
+  {
+    "id": "metric:bp",
+    "type": "metric",
+    "name": "bp",
+    "label": "指标",
+    "chunk_ids": [
+      "who_hypertension_2025:0"
+    ]
+  },
+  {
+    "id": "disease:heart_disease",
+    "type": "disease",
+    "name": "heart_disease",
+    "label": "疾病",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "older_cvd_risk_review_2020:0",
+      "predimed_2018:0",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "disease:chronic_kidney_disease",
+    "type": "disease",
+    "name": "chronic_kidney_disease",
+    "label": "疾病",
+    "chunk_ids": [
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "intervention:home_bp_remeasurement",
+    "type": "intervention",
+    "name": "home_bp_remeasurement",
+    "label": "干预",
+    "chunk_ids": [
+      "who_hypertension_2025:0"
+    ]
+  },
+  {
+    "id": "intervention:salt_reduction",
+    "type": "intervention",
+    "name": "salt_reduction",
+    "label": "干预",
+    "chunk_ids": [
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "intervention:regular_activity",
+    "type": "intervention",
+    "name": "regular_activity",
+    "label": "干预",
+    "chunk_ids": [
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "risk_factor:family_history",
+    "type": "risk_factor",
+    "name": "family_history",
+    "label": "风险因素",
+    "chunk_ids": [
+      "who_diabetes_2024:0"
+    ]
+  },
+  {
+    "id": "metric:glucose",
+    "type": "metric",
+    "name": "glucose",
+    "label": "指标",
+    "chunk_ids": []
+  },
+  {
+    "id": "metric:hba1c",
+    "type": "metric",
+    "name": "hba1c",
+    "label": "指标",
+    "chunk_ids": [
+      "older_physical_activity_review_2022:0"
+    ]
+  },
+  {
+    "id": "intervention:healthy_diet",
+    "type": "intervention",
+    "name": "healthy_diet",
+    "label": "干预",
+    "chunk_ids": []
+  },
+  {
+    "id": "intervention:annual_complication_screening",
+    "type": "intervention",
+    "name": "annual_complication_screening",
+    "label": "干预",
+    "chunk_ids": [
+      "ada_older_adults_2025:0"
+    ]
+  },
+  {
+    "id": "risk_factor:high_bp",
+    "type": "risk_factor",
+    "name": "high_bp",
+    "label": "风险因素",
+    "chunk_ids": []
+  },
+  {
+    "id": "risk_factor:high_glucose",
+    "type": "risk_factor",
+    "name": "high_glucose",
+    "label": "风险因素",
+    "chunk_ids": []
+  },
+  {
+    "id": "risk_factor:high_lipids",
+    "type": "risk_factor",
+    "name": "high_lipids",
+    "label": "风险因素",
+    "chunk_ids": []
+  },
+  {
+    "id": "metric:cholesterol",
+    "type": "metric",
+    "name": "cholesterol",
+    "label": "指标",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0"
+    ]
+  },
+  {
+    "id": "risk_factor:sedentary_behavior",
+    "type": "risk_factor",
+    "name": "sedentary_behavior",
+    "label": "风险因素",
+    "chunk_ids": []
+  },
+  {
+    "id": "risk_factor:unhealthy_diet",
+    "type": "risk_factor",
+    "name": "unhealthy_diet",
+    "label": "风险因素",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:1"
+    ]
+  },
+  {
+    "id": "risk_factor:social_determinants",
+    "type": "risk_factor",
+    "name": "social_determinants",
+    "label": "风险因素",
+    "chunk_ids": []
+  },
+  {
+    "id": "symptom:face_arm_speech_emergency",
+    "type": "symptom",
+    "name": "face_arm_speech_emergency",
+    "label": "症状",
+    "chunk_ids": [
+      "cardiovascular:2"
+    ]
+  },
+  {
+    "id": "intervention:mediterranean_diet",
+    "type": "intervention",
+    "name": "mediterranean_diet",
+    "label": "干预",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:1",
+      "predimed_2018:0"
+    ]
+  },
+  {
+    "id": "intervention:lifestyle_program",
+    "type": "intervention",
+    "name": "lifestyle_program",
+    "label": "干预",
+    "chunk_ids": []
+  },
+  {
+    "id": "metric:sleep",
+    "type": "metric",
+    "name": "sleep",
+    "label": "指标",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0"
+    ]
+  },
+  {
+    "id": "risk_factor:systolic_bp",
+    "type": "risk_factor",
+    "name": "systolic_bp",
+    "label": "风险因素",
+    "chunk_ids": [
+      "older_cvd_risk_review_2020:0"
+    ]
+  },
+  {
+    "id": "risk_factor:smoking",
+    "type": "risk_factor",
+    "name": "smoking",
+    "label": "风险因素",
+    "chunk_ids": [
+      "older_cvd_risk_review_2020:0"
+    ]
+  },
+  {
+    "id": "risk_factor:diabetes",
+    "type": "risk_factor",
+    "name": "diabetes",
+    "label": "风险因素",
+    "chunk_ids": [
+      "older_cvd_risk_review_2020:0"
+    ]
+  },
+  {
+    "id": "intervention:low_to_moderate_activity",
+    "type": "intervention",
+    "name": "low_to_moderate_activity",
+    "label": "干预",
+    "chunk_ids": [
+      "older_physical_activity_review_2022:0"
     ]
   }
 ]

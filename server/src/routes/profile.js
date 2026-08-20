@@ -11,9 +11,23 @@ router.get('/me', (req, res) => {
 });
 
 router.put('/me', (req, res) => {
-  const { name, age, height, emergency_name, emergency_phone, notification_prefs } = req.body;
+  const {
+    name, age, height, emergency_name, emergency_phone, notification_prefs,
+    education_level, smoking_status, cigarettes_per_day, drinking_status,
+    drinking_frequency, exercise_level, self_rated_health, chronic_diabetes,
+    chronic_heart, chronic_stroke, dyslipidemia, lung_disease,
+  } = req.body;
   const fields = [];
   const values = [];
+  const numberOrNull = (value, min, max, integer = false) => {
+    if (value === undefined || value === null || value === '') return null;
+    const n = integer ? parseInt(value, 10) : parseFloat(value);
+    return Number.isFinite(n) && n >= min && n <= max ? n : null;
+  };
+  const binaryOrNull = (value) => {
+    if (value === undefined || value === null || value === '') return null;
+    return Number(value) === 1 ? 1 : Number(value) === 0 ? 0 : null;
+  };
 
   if (name !== undefined) { fields.push('name = ?'); values.push(name); }
   if (age !== undefined) { fields.push('age = ?'); values.push(parseInt(age, 10) || null); }
@@ -21,6 +35,16 @@ router.put('/me', (req, res) => {
   if (emergency_name !== undefined) { fields.push('emergency_name = ?'); values.push(emergency_name); }
   if (emergency_phone !== undefined) { fields.push('emergency_phone = ?'); values.push(emergency_phone); }
   if (notification_prefs !== undefined) { fields.push('notification_prefs = ?'); values.push(JSON.stringify(notification_prefs)); }
+  if (education_level !== undefined) { fields.push('education_level = ?'); values.push(numberOrNull(education_level, 1, 4, true)); }
+  if (smoking_status !== undefined) { fields.push('smoking_status = ?'); values.push(binaryOrNull(smoking_status)); }
+  if (cigarettes_per_day !== undefined) { fields.push('cigarettes_per_day = ?'); values.push(numberOrNull(cigarettes_per_day, 0, 100)); }
+  if (drinking_status !== undefined) { fields.push('drinking_status = ?'); values.push(binaryOrNull(drinking_status)); }
+  if (drinking_frequency !== undefined) { fields.push('drinking_frequency = ?'); values.push(numberOrNull(drinking_frequency, 0, 365)); }
+  if (exercise_level !== undefined) { fields.push('exercise_level = ?'); values.push(numberOrNull(exercise_level, 0, 200)); }
+  if (self_rated_health !== undefined) { fields.push('self_rated_health = ?'); values.push(numberOrNull(self_rated_health, 1, 5, true)); }
+  for (const [input, column] of [['chronic_diabetes', 'chronic_diabetes'], ['chronic_heart', 'chronic_heart'], ['chronic_stroke', 'chronic_stroke'], ['dyslipidemia', 'dyslipidemia'], ['lung_disease', 'lung_disease']]) {
+    if (req.body[input] !== undefined) { fields.push(`${column} = ?`); values.push(binaryOrNull(req.body[input])); }
+  }
 
   if (fields.length === 0) return res.json(req.user);
 
@@ -49,7 +73,18 @@ router.post('/password', (req, res) => {
 
 // 注销账号（demo 仅保留逻辑：删除用户，会级联清理数据）
 router.delete('/me', (req, res) => {
-  db.prepare('DELETE FROM users WHERE id = ?').run(req.user.id);
+  // 按依赖顺序清理演示账号数据，避免 sessions/metrics 等外键阻止注销。
+  const removeAccount = db.transaction((userId) => {
+    const tables = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(row => row.name));
+    for (const table of ['sessions', 'metrics', 'assessments', 'todos', 'action_requests', 'alerts', 'chat_messages', 'custom_metrics', 'devices', 'agent_actions']) {
+      if (!tables.has(table)) continue;
+      db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
+    }
+    if (tables.has('care_relationships')) db.prepare('DELETE FROM care_relationships WHERE senior_id = ? OR member_id = ?').run(userId, userId);
+    if (tables.has('care_invitations')) db.prepare('DELETE FROM care_invitations WHERE senior_id = ? OR used_by = ?').run(userId, userId);
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  });
+  removeAccount(req.user.id);
   res.setHeader('Set-Cookie', 'sid=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
   res.json({ ok: true });
 });

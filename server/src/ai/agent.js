@@ -7,6 +7,9 @@ import { analyzeHealthTrend } from './tools/healthTrend.js';
 import { predictDisease } from '../lib/diseasePredictor.js';
 import { queryKnowledgeGraph } from './tools/knowledgeGraph.js';
 import { analyzeBehavior } from './tools/behaviorPattern.js';
+import { getDeviceStatus } from './tools/deviceStatus.js';
+import { getHealthSummary as getHealthSummaryTool } from './tools/healthSummary.js';
+import { getAlertStatus } from './tools/alertStatus.js';
 import { routeIntent } from './intentRouter.js';
 
 export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康数据智能分析助手与健康管家。
@@ -106,6 +109,12 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   // 第一轮：带工具列表，让模型自主决定是否调用
   const forcedToolChoice = intent.riskHit && intent.trendHit
     ? 'auto'
+    : intent.deviceHit
+      ? { type: 'function', function: { name: 'device_status' } }
+    : intent.healthSummaryHit
+      ? { type: 'function', function: { name: 'health_summary' } }
+    : intent.alertsHit
+      ? { type: 'function', function: { name: 'alert_status' } }
     : intent.diseaseRiskHit
       ? { type: 'function', function: { name: 'disease_risk_predict' } }
     : intent.riskHit
@@ -119,7 +128,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     model,
     messages: [...systemMsgs, ...messages],
     temperature: 0.6,
-    tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA, DISEASE_RISK_TOOL_SCHEMA, BEHAVIOR_TOOL_SCHEMA],
+  tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA, DISEASE_RISK_TOOL_SCHEMA, BEHAVIOR_TOOL_SCHEMA, DEVICE_TOOL_SCHEMA, HEALTH_SUMMARY_TOOL_SCHEMA, ALERT_TOOL_SCHEMA],
     // 后端意图路由决定工具边界，普通问答禁止误触发健康数据工具。
     tool_choice: forcedToolChoice,
   };
@@ -147,6 +156,12 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
       } else if (fn === 'analyze_health_trend') {
         // 只透传 metric/days（白名单校验在工具内）；userId 来自 req.user
         r = await analyzeHealthTrend(user?.id, { metric: args.metric, days: args.days });
+      } else if (fn === 'device_status') {
+        r = getDeviceStatus(user?.id);
+      } else if (fn === 'health_summary') {
+        r = getHealthSummaryTool(user);
+      } else if (fn === 'alert_status') {
+        r = getAlertStatus(user?.id);
       } else {
         r = { success: false, error: `unknown tool: ${fn}` };
       }
@@ -373,6 +388,7 @@ function normalizeAgentResult(raw) {
       title,
       desc: typeof p.desc === 'string' ? p.desc.trim().slice(0, 180) : '',
       color: PLAN_COLORS.has(p.color) ? p.color : 'gray',
+      action_type: ['create_todo', 'schedule_recheck', 'notify_caregiver', 'contact_doctor'].includes(p.action_type) ? p.action_type : undefined,
     };
   }).filter(Boolean) : [];
   const c = raw?.confidence;
@@ -397,27 +413,68 @@ function normalizeAgentResult(raw) {
   };
 }
 
-// GraphRAG 结果不是“参考文本”而已：把结构化行动、原因和证据强制带回最终回答。
+const GRAPH_NODE_NAMES = {
+  hypertension: '高血压', diabetes: '糖尿病', heart_disease: '心脏病', stroke: '脑卒中',
+  chronic_kidney_disease: '慢性肾脏病', high_salt_diet: '高盐饮食', physical_inactivity: '身体活动不足',
+  obesity: '超重/肥胖', tobacco: '烟草暴露', alcohol: '过量饮酒', high_bp: '血压偏高',
+  high_glucose: '血糖偏高', high_lipids: '血脂偏高', sedentary_behavior: '久坐行为', unhealthy_diet: '不健康饮食',
+  bp: '血压', glucose: '血糖', hba1c: '糖化血红蛋白', cholesterol: '血脂', sleep: '睡眠',
+  healthy_diet: '健康饮食', regular_activity: '规律活动', salt_reduction: '减少盐摄入', mediterranean_diet: '地中海式饮食',
+  low_to_moderate_activity: '低至中等强度活动', systolic_bp: '收缩压', smoking: '吸烟',
+};
+function graphNodeName(id = '') {
+  const tail = String(id).split(':').pop();
+  return GRAPH_NODE_NAMES[tail] || tail.replaceAll('_', ' ');
+}
+function graphCitationLabel(citation = '') {
+  const [file, section] = String(citation).split('#');
+  const names = {
+    who_hypertension_2025: 'WHO《高血压事实表》2025', who_diabetes_2024: 'WHO《糖尿病事实表》2024',
+    who_cvd_2025: 'WHO《心血管疾病事实表》2025', aha_lifes_essential_8_2022: 'AHA Life’s Essential 8（2022）',
+    aha_stroke_prevention_2024: 'AHA/ASA 脑卒中一级预防要点（2024）', ada_older_adults_2025: 'ADA 老年人糖尿病标准（2025）',
+    dpp_2002: 'DPP 生活方式干预试验（2002）', sprint_2015: 'SPRINT 血压试验（2015）',
+    predimed_2018: 'PREDIMED 地中海饮食试验（2018）', older_cvd_risk_review_2020: '老年心血管风险系统综述（2020）',
+    older_physical_activity_review_2022: '老年慢病身体活动系统综述（2022）',
+  };
+  const key = file.replace(/\.md$/, '');
+  return `${names[key] || file}${section ? ` · ${section}` : ''}`;
+}
+
+// GraphRAG 结果不是“参考文本”而已：把结构化行动、关系链和证据整理成老人能读懂的版式。
 function applyGraphGrounding(result, graph) {
   const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, 4) : [];
   if (!recs.length) return result;
   const missingRecs = recs.filter(r => !String(result.content || '').includes(String(r.action || '')));
   const actions = missingRecs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
-  const citations = [...new Set(recs.map(r => r.evidence).filter(Boolean))].join('、');
-  const grounded = actions
-    ? `${result.content}\n\n结合当前数据，优先执行：\n${actions}\n依据：${citations || '知识图谱健康管理条目'}`
-    : result.content;
+  const relationLines = (graph.graph_context || [])
+    .filter(r => r.type && r.type !== 'mentions' && r.strength)
+    .slice(0, 3)
+    .map(r => `- ${graphNodeName(r.source)} → ${graphNodeName(r.target)}：${r.type === 'increases_risk_of' ? '风险增加' : r.type === 'has_risk_factor' ? '相关风险因素' : r.type === 'managed_by' ? '可通过该方向管理' : '存在关联'}（${graphCitationLabel(r.evidence)}）`)
+    .join('\n');
+  const citations = [...new Set(recs.map(r => r.evidence).filter(Boolean))].map(graphCitationLabel);
+  const evidenceLines = [...new Set(citations)].slice(0, 4).map(x => `- ${x}`).join('\n');
+  const baseContent = String(result.content || '').trim() || (recs[0]?.priority === 'urgent'
+    ? '先说结论：当前情况包含需要立即处理的危险信号，请先寻求急救帮助。'
+    : recs[0]?.priority === 'high'
+      ? '先说结论：当前数据提示需要尽快复测并观察连续变化，不能只凭一次读数下诊断。'
+      : '先说结论：目前适合继续记录和复测，再根据连续数据判断变化。');
+  const sections = [baseContent];
+  if (actions) sections.push(`结合当前数据，优先做这几件事：\n${actions}`);
+  if (relationLines) sections.push(`疾病关系与影响因素：\n${relationLines}`);
+  sections.push(`依据：\n${evidenceLines || '- 当前疾病知识图谱的结构化条目'}\n\n提示：这些建议用于健康教育和复测安排，不代表诊断；涉及用药、治疗目标或急症，请联系医生。`);
+  const grounded = sections.filter(Boolean).join('\n\n');
   const plan = recs.slice(0, 3).map((r, i) => ({
     icon: r.priority === 'urgent' ? '急' : '测',
-    title: r.priority === 'urgent' ? '需要立即关注' : '建议：' + (r.action.length > 24 ? r.action.slice(0, 24) + '…' : r.action),
+    title: r.priority === 'urgent' ? '立即关注' : r.priority === 'high' ? '尽快复测' : '继续记录',
     desc: r.action,
     color: r.priority === 'urgent' ? 'red' : i === 0 ? 'orange' : 'green',
+    action_type: r.priority === 'urgent' ? 'contact_doctor' : /复测|复查|记录/.test(r.action) ? 'schedule_recheck' : 'create_todo',
   }));
   return {
     ...result,
-    content: grounded.slice(0, 2000),
+    content: grounded.slice(0, 2600),
     plan: plan.length ? plan : result.plan,
-    confidence: { type: 'data', score: Math.min(90, Math.max(65, result.confidence?.score || 70)), sources: citations ? citations.split('、') : ['GraphRAG 结构化建议'], reasoning: '回答已使用用户当前指标上下文，并由疾病知识图谱返回结构化行动与证据。' },
+    confidence: { type: 'data', score: Math.min(90, Math.max(65, result.confidence?.score || 70)), sources: citations.length ? citations : ['GraphRAG 结构化建议'], reasoning: '回答使用用户当前指标上下文，并由显式疾病关系图返回行动、影响因素与可审计证据。' },
   };
 }
 
@@ -469,6 +526,33 @@ export const BEHAVIOR_TOOL_SCHEMA = {
   },
 };
 
+export const DEVICE_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'device_status',
+    description: '读取当前用户已连接设备、最近同步时间、电量、同步失败原因和最近设备采集值。用户询问蓝牙、设备连接或同步时调用。',
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+};
+
+export const HEALTH_SUMMARY_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'health_summary',
+    description: '批量读取当前用户最近90天的健康摘要，包括最新指标、行为数据、缺失指标、提醒和待办。用户询问总体身体情况时调用。',
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+};
+
+export const ALERT_TOOL_SCHEMA = {
+  type: 'function',
+  function: {
+    name: 'alert_status',
+    description: '读取当前登录用户的待处理预警、严重程度、触发指标和日期。用户询问提醒、预警或异常记录时调用。',
+    parameters: { type: 'object', properties: {}, additionalProperties: false },
+  },
+};
+
 // ===== 风险预测意图识别（Mock 模式用；LLM 模式由模型自主决定调用工具）=====
 // 覆盖: "高血压风险/风险预测"、"会不会得高血压"、"得高血压的可能性/概率"、"健康预测"
 // 注意: 单纯描述血压数值（如"我今天血压 128/85 正常吗"）不触发
@@ -491,6 +575,84 @@ async function mockBehaviorReply(user) {
   if (!rows.length) return { content: '最近还没有足够的步数或睡眠记录，先连续记录几天，我再帮你看变化。', plan: [], confidence: { type: 'common_sense' } };
   const text = rows.map(([type, x]) => `${type === 'steps' ? '步数' : '睡眠'}近7天平均 ${x.rolling_7d_average}${type === 'steps' ? '步' : '小时'}，最近一次 ${x.latest}`).join('；');
   return { content: `${text}。这是生活行为的变化参考，不代表疾病预测。建议固定时间记录，连续一周后再比较。`, plan: [{ icon: '测', title: '继续记录', desc: '固定时间记录步数和睡眠', color: 'orange' }], confidence: { type: 'data', score: 78, sources: rows.map(([type, x]) => `${type} ${x.data_points} 个数据点`), reasoning: '基于近30天行为数据和7天滚动平均，不将行为指标当作医学预测。' } };
+}
+
+function mockDeviceReply(user) {
+  const result = getDeviceStatus(user?.id);
+  if (!result.devices.length) return {
+    content: '目前还没有连接健康设备。可以先在设备管理中添加血压计、血氧仪或心率设备；也可以继续手动记录。',
+    plan: [{ icon: '设', title: '添加健康设备', desc: '连接后数据会自动进入趋势分析', color: 'orange' }],
+    confidence: { type: 'data', score: 90, sources: ['设备登记状态'], reasoning: '当前账户没有已登记设备。' },
+  };
+  const deviceText = result.devices.map(d => `${d.name}（${d.status === 'connected' ? '已连接' : d.status === 'error' ? '同步异常' : '未连接'}${d.battery_level == null ? '' : `，电量 ${d.battery_level}%`}）`).join('、');
+  const latest = result.recent_device_metrics[0];
+  const latestText = latest ? `最近一次设备采集为 ${latest.type} ${latest.value}${latest.value2 == null ? '' : '/' + latest.value2}${latest.unit || ''}（${new Date(latest.recorded_at).toLocaleString('zh-CN')}）。` : '最近还没有设备采集值。';
+  const failure = result.sync_failures ? `有 ${result.sync_failures} 台设备同步异常，请检查蓝牙连接和电量。` : '设备同步状态正常。';
+  return {
+    content: `当前设备：${deviceText}。${latestText}${failure}`,
+    plan: result.sync_failures ? [{ icon: '设', title: '检查设备同步', desc: '确认蓝牙开启、设备有电并靠近手机', color: 'orange' }] : [{ icon: '测', title: '继续自动同步', desc: '设备数据会进入趋势和预警分析', color: 'green' }],
+    confidence: { type: 'data', score: 92, sources: [`设备 ${result.devices.length} 台`, `设备采集记录 ${result.recent_device_metrics.length} 条`], reasoning: '来自当前账户设备登记表和设备来源的最近采集记录。' },
+  };
+}
+
+function mockHealthSummaryReply(user) {
+  const result = getHealthSummaryTool(user);
+  if (!result.latest.length) return {
+    content: '最近90天还没有足够的健康记录，暂时不能判断总体情况。先连续记录血压、血糖、睡眠等关键指标。',
+    plan: [{ icon: '测', title: '开始连续记录', desc: '固定时间记录至少一周', color: 'orange' }],
+    confidence: { type: 'common_sense' },
+  };
+  const trendCn = { rising: '上升', falling: '下降', stable: '基本稳定', unknown: '暂不判断' };
+  const lines = result.latest.slice(0, 4).map(x => `${x.metric} ${x.value}${x.unit}（${trendCn[x.trend] || '暂不判断'}）`).join('；');
+  const alertText = result.alerts?.filter(a => a.status === 'pending').length ? `目前有 ${result.alerts.filter(a => a.status === 'pending').length} 条待处理提醒。` : '目前没有待处理提醒。';
+  const missing = result.missing_common_metrics?.length ? `还缺少${result.missing_common_metrics.join('、')}等记录。` : '常用指标记录较齐全。';
+  return {
+    content: `先看最近90天的记录：${lines}。${alertText}${missing}这些是健康管理参考，不是诊断。建议继续固定时间记录，再根据连续趋势调整计划。`,
+    plan: [{ icon: '测', title: '保持记录', desc: '固定时间测量并观察连续变化', color: 'orange' }, { icon: '复', title: '查看提醒', desc: '优先处理页面中的待确认提醒', color: 'purple' }],
+    confidence: { type: 'data', score: result.completeness >= 0.7 ? 82 : 62, sources: [`近90天 ${result.data_points} 条健康记录`, `最新指标 ${result.latest.length} 项`], reasoning: '基于后端健康摘要工具汇总最新指标、趋势、提醒和缺失项。' },
+  };
+}
+
+function mockAlertReply(user) {
+  const result = getAlertStatus(user?.id);
+  if (!result.pending) {
+    return {
+      content: '目前没有待处理的提醒。后端会在发现异常值或连续趋势明显变化时再提醒您，普通波动不会反复打扰。',
+      plan: [],
+      confidence: { type: 'data', score: 94, sources: ['当前账户提醒记录'], reasoning: '读取当前账户 alerts 表，没有待处理提醒。' },
+    };
+  }
+  const lines = result.alerts.filter(a => a.status === 'pending').slice(0, 4)
+    .map(a => `${a.title}${a.created_at ? `（${new Date(a.created_at).toLocaleDateString('zh-CN')}）` : ''}：${a.message}`).join('\n');
+  return {
+    content: `目前有 ${result.pending} 条待处理提醒：\n${lines}\n请先按提醒内容复测或处理；提醒是健康管理参考，不代表诊断。`,
+    plan: [{ icon: '复', title: '优先处理提醒', desc: '按提醒内容复测并在提醒中心确认', color: 'orange' }],
+    confidence: { type: 'data', score: 92, sources: result.alerts.filter(a => a.status === 'pending').slice(0, 4).map(a => `${a.title} ${a.created_at || ''}`), reasoning: '直接读取当前账户待处理提醒，未自行生成异常数值。' },
+  };
+}
+
+function mockActionReply(message) {
+  const text = String(message || '');
+  if (/通知家属|告诉女儿|告诉儿子|联系家属/.test(text)) {
+    return {
+      content: '这项操作会记录并通知已配置的家属，需要您确认后执行。请点击下面的行动按钮；如果还没有家属联系方式，请先到个人资料补充。',
+      plan: [{ icon: '家', title: '通知家属', desc: '根据当前对话内容记录一条家属通知请求', action_type: 'notify_caregiver', color: 'orange' }],
+      confidence: { type: 'data', score: 90, sources: ['当前对话行动请求'], reasoning: '敏感行动仅生成待确认请求，不会未经确认直接通知家属。' },
+    };
+  }
+  if (/联系医生|就医|预约复查/.test(text)) {
+    return {
+      content: '这项操作涉及联系医生，需要您确认后记录。请点击下面的行动按钮；它只会生成待处理记录，不会替代医生诊断。',
+      plan: [{ icon: '医', title: '联系医生', desc: '记录一次结合近期健康数据的就医咨询请求', action_type: 'contact_doctor', color: 'red' }],
+      confidence: { type: 'data', score: 90, sources: ['当前对话行动请求'], reasoning: '就医类行动需要二次确认，系统不会自动替用户诊断或用药。' },
+    };
+  }
+  const title = /睡眠|休息/.test(text) ? '早点休息' : /血糖/.test(text) ? '记录空腹血糖' : '测量血压';
+  return {
+    content: `可以。我先为您准备“${title}”的待办，点击下面按钮后会记录到今天的计划中。`,
+    plan: [{ icon: '测', title, desc: '固定时间完成记录，并保留测量结果', action_type: 'schedule_recheck', color: 'orange' }],
+    confidence: { type: 'data', score: 95, sources: ['当前对话行动请求'], reasoning: '根据用户明确提出的测量/复测请求生成待办建议。' },
+  };
 }
 
 /**
@@ -611,27 +773,51 @@ function diseaseFromMessage(message) {
       : /心脏|心血管/.test(message) ? 'heart_disease' : 'hypertension';
 }
 
+const DISEASE_CN = { hypertension: '高血压', diabetes: '糖尿病', heart_disease: '心脏病', stroke: '脑卒中' };
+
+// 风险输出必须随着数据完整度降低表述强度，避免把筛查概率误解成诊断。
+function composeDiseaseRiskReply(disease, result) {
+  if (!result?.success) return { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+  const name = DISEASE_CN[disease] || disease;
+  const missing = Array.isArray(result.missing_features) ? result.missing_features : [];
+  const completeness = result.data_completeness || {};
+  const level = result.confidence === 'low' || completeness.level === 'low' ? 'low' : result.confidence === 'medium' || completeness.level === 'medium' ? 'medium' : 'high';
+  const pct = Number(result.risk_percent);
+  const percentText = Number.isFinite(pct) ? `约 ${pct}%` : '暂无法给出稳定数值';
+  const content = level === 'low'
+    ? `目前资料还不完整（缺少 ${missing.length} 项），模型只能给出${name}未来两年的初步筛查值 ${percentText}，可信度较低，不能据此判断是否患病。建议先补充个人健康资料和必要复测，再重新评估。`
+    : level === 'medium'
+      ? `根据目前记录，模型给出的${name}未来两年初步筛查值为 ${percentText}。资料仍有缺失，这不是诊断；补充资料并持续复测后，结果会更稳妥。`
+      : `根据目前记录，模型估计${name}未来两年筛查风险 ${percentText}。这是健康管理参考，不代表医学诊断。`;
+  const plan = [];
+  if (missing.length) plan.push({ icon: '补', title: '完善风险资料', desc: `优先补充 ${Math.min(3, missing.length)} 项缺失信息后再评估`, color: 'orange' });
+  plan.push({ icon: '测', title: '继续记录指标', desc: '固定时间复测并保留连续记录', color: 'green' });
+  if (level === 'low') plan.push({ icon: '问', title: '需要时咨询医生', desc: '不要仅凭这次概率自行诊断或调整用药', color: 'purple' });
+  return {
+    content,
+    plan,
+    confidence: {
+      type: 'data', score: level === 'low' ? 45 : level === 'medium' ? 68 : 82,
+      sources: [`${name}风险模型`, `缺失指标 ${missing.length} 项`, `${result.data_sources?.length || 0} 类实际数据来源`],
+      reasoning: `当前风险结果为队列筛查参考；数据完整度 ${Math.round((completeness.ratio || 0) * 100)}%，可信度按缺失特征数量降级。`,
+    },
+  };
+}
+
 // LLM 失败或结构化输出不合格时，直接使用真实工具组织可交付回复。
 async function deterministicFallbackReply(userMessage, user, intent) {
   const [riskReply, trendReply] = await Promise.all([
     intent.riskHit ? mockRiskReply(user) : null,
     intent.trendHit ? mockTrendReply(user, intent.forecastRequested) : null,
   ]);
+  if (intent.healthSummaryHit) return { source: 'tool_fallback', ...mockHealthSummaryReply(user) };
+  if (intent.alertsHit) return { source: 'tool_fallback', ...mockAlertReply(user) };
+  if (intent.deviceHit) return { source: 'tool_fallback', ...mockDeviceReply(user) };
   if (intent.behaviorHit) return { source: 'tool_fallback', ...(await mockBehaviorReply(user)) };
   if (intent.diseaseRiskHit) {
     const disease = diseaseFromMessage(userMessage);
     const d = await predictDisease(user?.id, user, disease);
-    const extra = d?.success
-      ? {
-        content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`,
-        plan: [],
-        confidence: {
-          type: 'data', score: d.confidence === 'low' ? 65 : 82,
-          sources: [`${disease}风险模型`, `缺失指标 ${d.missing_features?.length || 0} 项`],
-          reasoning: '基于当前账户真实指标和纵向队列模型。',
-        },
-      }
-      : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+    const extra = composeDiseaseRiskReply(disease, d);
     return { source: 'tool_fallback', ...combineRiskTrend(extra, combineRiskTrend(riskReply, trendReply)) };
   }
   return { source: 'tool_fallback', ...combineRiskTrend(riskReply, trendReply) };
@@ -708,8 +894,17 @@ export async function chat(history, userMessage, healthSummary, user) {
   const diseaseRiskHit = DISEASE_RISK_INTENT.test(userMessage || '');
   const trendHit = TREND_INTENT.test(userMessage || '');
   const behaviorHit = routeIntent(userMessage).behavior;
+  const deviceHit = routeIntent(userMessage).device;
+  const alertsHit = routeIntent(userMessage).alerts;
+  const healthSummaryHit = routeIntent(userMessage).healthSummary;
+  const actionHit = routeIntent(userMessage).action;
   const forecastRequested = /未来|预测|外推|几天后|多少天后|以后会|将会/.test(userMessage || '');
-  const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, forecastRequested };
+  const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, deviceHit, alertsHit, healthSummaryHit, actionHit, forecastRequested };
+
+  // 行动请求先生成可确认的结构化计划，不让 LLM 越过用户确认直接执行敏感操作。
+  if (actionHit && !riskHit && !diseaseRiskHit && !trendHit && !behaviorHit && !deviceHit && !alertsHit && !healthSummaryHit) {
+    return { source: 'tool', ...mockActionReply(userMessage) };
+  }
 
   if (hasRealLLM()) {
     let graphEvidence = null;
@@ -739,7 +934,7 @@ export async function chat(history, userMessage, healthSummary, user) {
         return fallbackGrounded;
       }
       // 工具已返回真实数据时，即使模型因截断漏掉 confidence，也不能把数据回答标成闲聊。
-      if ((riskHit || trendHit || diseaseRiskHit || graphContext) && normalized.confidence.type === 'common_sense') {
+      if ((riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit || graphContext) && normalized.confidence.type === 'common_sense') {
         normalized.confidence = { type: 'data', score: 60, sources: ['后端健康分析工具结果'], reasoning: '回答基于当前账户的真实指标或风险工具；模型未返回完整可信度说明，已降低表述强度。' };
       }
       const { __toolResults: _toolResults, degraded: _degraded, __guardIssues: _guardIssues, ...safeResult } = normalized;
@@ -747,23 +942,26 @@ export async function chat(history, userMessage, healthSummary, user) {
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
-      if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
+      if (riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit) {
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
         return graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
       }
     }
   }
   // Mock 模式：风险/趋势意图 → 真实工具调用（真实数据）
-  if (riskHit || trendHit || diseaseRiskHit || behaviorHit) {
+  if (riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit) {
     const [r1, r2] = await Promise.all([
       riskHit ? mockRiskReply(user) : null,
       trendHit ? mockTrendReply(user, forecastRequested) : null,
     ]);
+    if (healthSummaryHit) return { source: 'tool', ...mockHealthSummaryReply(user) };
+    if (alertsHit) return { source: 'tool', ...mockAlertReply(user) };
+    if (deviceHit) return { source: 'tool', ...mockDeviceReply(user) };
     if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
     if (diseaseRiskHit) {
       const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
       const d = await predictDisease(user?.id, user, disease);
-      const extra = d?.success ? { content: `未来两年${disease}风险模型估计约 ${d.risk_percent}%，这是筛查参考，不是诊断。`, plan: [], confidence: { type: 'data', score: d.confidence === 'low' ? 65 : 82, sources: [`${disease}风险模型`], reasoning: '基于当前账户真实指标和纵向队列模型。' } } : { content: '目前数据或模型不足，暂不能可靠估计这项风险。', plan: [], confidence: { type: 'common_sense' } };
+      const extra = composeDiseaseRiskReply(disease, d);
       return { source: 'tool', ...combineRiskTrend(extra, combineRiskTrend(r1, r2)) };
     }
     return { source: 'tool', ...combineRiskTrend(r1, r2) };
