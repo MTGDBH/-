@@ -6,6 +6,30 @@ import { triggerTrendAlerts } from '../lib/trendAlerts.js';
 
 const router = express.Router();
 
+const CONDITION_ALIASES = {
+  fasting: 'fasting', '空腹': 'fasting', '空腹血糖': 'fasting',
+  postprandial_2h: 'postprandial_2h', 'postprandial': 'postprandial_2h', '餐后': 'postprandial_2h', '餐后2小时': 'postprandial_2h',
+  random: 'random', '随机': 'random',
+  resting: 'resting', '静息': 'resting', '静息心率': 'resting',
+  active: 'active', '活动': 'active',
+  morning_rest: 'morning_rest', '晨起': 'morning_rest', '早晨静息': 'morning_rest',
+  evening_rest: 'evening_rest', '晚间静息': 'evening_rest', '晚上静息': 'evening_rest',
+  morning_fasting: 'morning_fasting', '晨起空腹': 'morning_fasting',
+  other: 'other', unknown: 'unknown', '未注明': 'unknown', '': 'unknown',
+};
+
+function normalizeMeasurementCondition(type, value) {
+  const raw = String(value ?? '').trim().toLowerCase();
+  const normalized = CONDITION_ALIASES[raw] || 'unknown';
+  const allowed = {
+    glucose: new Set(['fasting', 'postprandial_2h', 'random', 'unknown']),
+    hr: new Set(['resting', 'active', 'unknown']),
+    bp: new Set(['morning_rest', 'evening_rest', 'other', 'unknown']),
+    weight: new Set(['morning_fasting', 'other', 'unknown']),
+  }[type];
+  return allowed && !allowed.has(normalized) ? 'unknown' : normalized;
+}
+
 // 指标定义（单一数据源：metric_defs 表）
 router.get('/metric-defs', (_req, res) => {
   const defs = db.prepare(`
@@ -104,6 +128,7 @@ router.post('/metrics', (req, res) => {
   }
   // 兼容旧数据/调用方：source 白名单外的值归一为 manual
   const src = ['manual', 'device', 'synthetic'].includes(source) ? source : 'manual';
+  const normalizedCondition = normalizeMeasurementCondition(type, measurement_condition);
   const def = db.prepare('SELECT type, unit, value_type, min_value, max_value FROM metric_defs WHERE type = ?').get(type);
   const numeric = Number(value);
   if (!def || !Number.isFinite(numeric)) return res.status(400).json({ error: 'unsupported metric or invalid value' });
@@ -122,12 +147,12 @@ router.post('/metrics', (req, res) => {
     const existing = db.prepare('SELECT * FROM metrics WHERE id = ?').get(duplicate.id);
     return res.status(200).json({ ...existing, duplicate: true, quality: { valid: true, duplicate: true, flags: ['duplicate_measurement'] } });
   }
-  const quality = { valid: true, duplicate: false, flags: [], source: src, timestamp_quality: recorded_at ? 'provided' : 'server_time', condition_present: Boolean(measurement_condition || note) };
+  const quality = { valid: true, duplicate: false, flags: [], source: src, timestamp_quality: recorded_at ? 'provided' : 'server_time', condition_present: normalizedCondition !== 'unknown', measurement_condition: normalizedCondition };
   const r = db.prepare(`
     INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, data_quality)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(req.user.id, type, value, value2 ?? null, unit ?? null,
-         parsedAt.toISOString(), src, note ?? null, device_id ?? null, measurement_condition ?? null, JSON.stringify(quality));
+         parsedAt.toISOString(), src, note ?? null, device_id ?? null, normalizedCondition, JSON.stringify(quality));
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
   // 趋势提醒异步执行，不阻塞指标保存；普通变化不会产生提醒。
   if (src !== 'synthetic') {

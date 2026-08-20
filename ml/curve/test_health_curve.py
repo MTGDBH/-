@@ -80,7 +80,7 @@ ok('recent=rising', r['recent_trend'] == 'rising', f"recent={r['recent_trend']}"
 print('=== 8. 缺失值（null 点被忽略）===')
 raw = [{'t': iso(d), 'v': v if d % 3 != 1 else None} for d, v in enumerate([128, 129, 130, 131, 132, 133, 134, 135])]
 r = analyze('systo', 'mmHg', raw)
-ok('可分析（非全缺失）', r['status'] == 'ok', r.get('status'))
+ok('有效日不足时只保留观测点', r['status'] == 'insufficient_data', r.get('status'))
 
 print('=== 9. 无序时间（自动升序）===')
 r = analyze('systo', 'mmHg', pts([132, 128, 134, 130, 136, 126, 138], [6, 2, 5, 1, 4, 0, 3]))
@@ -105,14 +105,23 @@ ok('glucose 可分析', r_glu['status'] == 'ok')
 ok('hbalc 无数据 → insufficient_data', r_empty['status'] == 'insufficient_data', r_empty.get('status'))
 
 print('=== 13. forecast ===')
-r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140, 142],
-                                 days=list(range(22, -1, -2))), forecast_days=30)
+r = analyze('systo', 'mmHg', pts([120 + int(i * 0.6) for i in range(35)],
+                                 days=list(range(34, -1, -1))), forecast_days=7)
 ok('forecast.available=true', r['forecast']['available'] is True, str(r['forecast']))
 ok('estimated_value 合理（>latest）', r['forecast']['estimated_value'] is not None and r['forecast']['estimated_value'] > r['latest_value'],
    str(r['forecast']))
 ok('curve 三数组齐全', len(r['curve']['timestamps']) == len(r['curve']['actual']) == len(r['curve']['fitted']))
 
-print('=== 14. conservative forecast gate ===')
+print('=== 14. 条件分组 ===')
+glu = []
+for i in range(30):
+    glu.append({'t': iso(35 - i), 'v': 5.2 + i * 0.01, 'condition': 'fasting'})
+r = analyze('glucose', 'mmol/L', glu, forecast_days=7, condition_group='fasting')
+ok('空腹血糖可按条件预测', r['forecast']['available'] is True, str(r['forecast']))
+r = analyze('glucose', 'mmol/L', [dict(p, condition='unknown') for p in glu], forecast_days=7, condition_group='unknown')
+ok('未标记血糖不混合预测', r['forecast']['available'] is False and 'unknown' in r['forecast']['reason'], str(r['forecast']))
+
+print('=== 15. conservative forecast gate ===')
 r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138]), forecast_days=30)
 ok('跨度不足不预测', r['forecast']['available'] is False and '14天' in r['forecast']['reason'],
    str(r['forecast']))

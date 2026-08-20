@@ -17,7 +17,7 @@ const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwa
 // 指标元数据：以 metric_defs 表为单一数据源
 // 展示附加属性（dual/invasive）仅在此保留，指标定义本身不重复维护
 const ALL_METRICS = new Map(
-  db.prepare('SELECT type, name, unit, color, icon, value_type FROM metric_defs ORDER BY sort')
+  db.prepare('SELECT type, name, unit, color, icon, value_type, normal_min, normal_max FROM metric_defs ORDER BY sort')
     .all()
     .map(r => {
       const dual = r.value_type === 'dual';
@@ -72,15 +72,25 @@ function statsFromValues(values) {
 }
 
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
-async function analyzeCurve(metric, unit, points, futureDays) {
+async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
   if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
-  const result = await runPythonTool(CURVE_SCRIPT, { metric, unit, points: points.map(p => ({ t: p.recorded_at, v: p.value, condition: p.measurement_condition || null, source: p.source || null })), forecast_days: futureDays });
+  const result = await runPythonTool(CURVE_SCRIPT, {
+    metric,
+    unit,
+    condition_group: conditionGroup,
+    points: points.map(p => ({ id: p.id, t: p.recorded_at, v: p.value, condition: p.measurement_condition || 'unknown', source: p.source || null })),
+    forecast_days: futureDays,
+  });
+  const sourceById = new Map(points.map(point => [point.id, point]));
   const raw = result?.curve?.raw_timestamps?.map((t, i) => ({
+    id: result.curve.raw_ids?.[i] ?? i,
     day: i, value: result.curve.raw_actual[i], recorded_at: isoFromSeconds(t), predicted: false,
-    outlier: (result.curve.outlier_indices || []).includes(i),
+    outlier: (result.curve.raw_outlier_indices || []).includes(i),
+    measurement_condition: sourceById.get(result.curve.raw_ids?.[i])?.measurement_condition || conditionGroup || 'unknown',
+    source: sourceById.get(result.curve.raw_ids?.[i])?.source || null,
   })) || points.map((p, i) => ({ ...p, day: i, predicted: false, outlier: false }));
-  const fittedValues = result?.curve?.fitted_raw || result?.curve?.fitted || [];
-  const fittedTimes = result?.curve?.fitted_raw ? result?.curve?.raw_timestamps : result?.curve?.timestamps;
+  const fittedValues = result?.curve?.fitted || [];
+  const fittedTimes = result?.curve?.timestamps || [];
   const fitted = fittedTimes?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: fittedValues[i] })) || [];
   const fc = result?.forecast?.curve;
   const predicted = result?.forecast?.available && fc?.timestamps?.length
@@ -92,11 +102,13 @@ async function analyzeCurve(metric, unit, points, futureDays) {
     clean: result?.curve?.clean_timestamps?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: result.curve.clean_actual[i] })) || [],
     smooth: result?.curve?.smooth_timestamps?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: result.curve.smooth[i] })) || fitted,
     baseline: result?.baseline || null,
+    schemaVersion: result?.schema_version || 'curve.v2',
+    conditionGroup,
     forecastInterval: result?.forecast?.curve || null,
     stats: result?.stats || statsFromValues(points.map(p => p.value)),
     predTrend: mapTrend(result?.long_term_trend),
     analysis: result?.success ? {
-      model: result.model, confidence: result.confidence, modelScore: result.model_score,
+      model: result.model, confidence: result.confidence, confidenceLevel: result.confidence_level, modelScore: result.model_score,
       dataPoints: result.data_points, rawPoints: result.raw_points,
       removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
       forecastDays: result.forecast?.days || 0, forecastModel: result.forecast?.model || null,
@@ -109,6 +121,7 @@ async function analyzeCurve(metric, unit, points, futureDays) {
       dateStart: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[0]).slice(0, 10) : null,
       dateEnd: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[result.curve.timestamps.length - 1]).slice(0, 10) : null,
       forecastReason: result.forecast?.reason || null,
+      eligibility: result.eligibility || null,
       medicalBounds: result.medical_bounds || null,
       warning: result.warning,
     } : { error: result?.error || 'curve service unavailable' },
@@ -118,6 +131,27 @@ async function analyzeCurve(metric, unit, points, futureDays) {
 /** 同龄人平均参考线：保持为常数，避免把统计参考值伪装成测量波动。 */
 function generatePeerLine(baseValue, totalDays) {
   return Array.from({ length: totalDays }, () => +Number(baseValue).toFixed(2));
+}
+
+function toCurveSeries(id, label, unit, condition, curve, color) {
+  return {
+    id,
+    label,
+    unit,
+    condition: condition || 'all',
+    color,
+    observed: curve?.raw || curve?.actual || [],
+    trend: curve?.fitted || curve?.smooth || [],
+    baseline: curve?.baseline || null,
+    forecast: {
+      ...(curve?.forecastInterval || {}),
+      available: !!curve?.analysis?.forecastAvailable,
+      points: curve?.predicted || [],
+      reason: curve?.analysis?.forecastReason || null,
+      model: curve?.analysis?.forecastModel || curve?.analysis?.model || null,
+    },
+    analysis: curve?.analysis || null,
+  };
 }
 
 // ===== 路由 =====
@@ -186,17 +220,45 @@ router.get('/:type', async (req, res) => {
   // 获取历史数据
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
   const points = db.prepare(`
-    SELECT value, value2, recorded_at, source, measurement_condition FROM metrics
+    SELECT id, value, value2, recorded_at, source, measurement_condition FROM metrics
     WHERE user_id = ? AND type = ? AND recorded_at >= ?
     ORDER BY recorded_at ASC
   `).all(req.user.id, type, since);
 
-  // 血压的收缩压使用统一曲线服务；舒张压由独立趋势工具提供。
-  const curveMetric = type === 'bp' ? 'systo' : type;
-  const curve = type === 'ecg'
-    ? { status: 'not_applicable', actual: points.map((p, i) => ({ ...p, day: i, predicted: false })), predicted: [], fitted: [], stats: statsFromValues(points.map(p => p.value)), predTrend: 'stable' }
-    : await analyzeCurve(curveMetric, meta.unit, points.map(p => ({ ...p, value: p.value })), futureDays);
-  const actualPoints = curve.actual.map((p, i) => ({ ...p, day: i, value2: points[i]?.value2 ?? null }));
+  const sourcePoints = points.map(p => ({ ...p, value: p.value }));
+  let curve;
+  let series = [];
+  if (type === 'bp') {
+    const systolic = await analyzeCurve('systo', meta.unit, sourcePoints, futureDays);
+    const diastolicPoints = sourcePoints.filter(p => p.value2 != null).map(p => ({ ...p, value: p.value2 }));
+    const diastolic = await analyzeCurve('diasto', meta.unit, diastolicPoints, futureDays);
+    curve = systolic;
+    series = [
+      toCurveSeries('bp.systolic', '收缩压', meta.unit, 'all', systolic, '#F4A261'),
+      toCurveSeries('bp.diastolic', '舒张压', meta.unit, 'all', diastolic, '#9C7BC9'),
+    ];
+  } else if (type === 'glucose') {
+    const normalizedConditions = sourcePoints.map(p => String(p.measurement_condition || 'unknown').toLowerCase());
+    const knownConditions = [...new Set(normalizedConditions)].filter(condition => ['fasting', 'postprandial_2h', 'random'].includes(condition));
+    const groups = [...knownConditions, ...(normalizedConditions.includes('unknown') ? ['unknown'] : [])];
+    if (!groups.length) groups.push('unknown');
+    const curves = await Promise.all(groups.map(condition => analyzeCurve('glucose', meta.unit, sourcePoints, futureDays, condition)));
+    curve = curves.find(c => c.conditionGroup === 'fasting') || curves[0];
+    series = curves.map((c, index) => toCurveSeries(`glucose.${groups[index]}`, groups[index] === 'fasting' ? '空腹血糖' : groups[index] === 'postprandial_2h' ? '餐后2小时' : groups[index] === 'random' ? '随机血糖' : '未标记条件', meta.unit, groups[index], c, index ? '#9C7BC9' : '#E0784E'));
+  } else if (type === 'hr') {
+    const hasResting = sourcePoints.some(point => String(point.measurement_condition || '').toLowerCase() === 'resting');
+    const group = hasResting ? 'resting' : 'unknown';
+    curve = await analyzeCurve('pulse', meta.unit, sourcePoints, futureDays, group);
+    series = [toCurveSeries('hr.resting', hasResting ? '静息心率' : '心率（未标记状态）', meta.unit, group, curve, meta.color)];
+  } else if (type === 'ecg') {
+    curve = { status: 'not_applicable', actual: sourcePoints.map((p, i) => ({ ...p, day: i, predicted: false })), predicted: [], fitted: [], stats: statsFromValues(sourcePoints.map(p => p.value)), predTrend: 'stable', analysis: { forecastAvailable: false, forecastReason: '心电图不以连续数值曲线外推' } };
+    series = [toCurveSeries('ecg.observed', meta.name, meta.unit, 'all', curve, meta.color)];
+  } else {
+    const curveMetric = type === 'hr' ? 'pulse' : type;
+    curve = await analyzeCurve(curveMetric, meta.unit, sourcePoints, futureDays);
+    series = [toCurveSeries(type, meta.name, meta.unit, 'all', curve, meta.color)];
+  }
+  const actualPoints = curve.actual || [];
   const predictedPoints = curve.predicted;
 
   // 同龄人平均
@@ -224,6 +286,9 @@ router.get('/:type', async (req, res) => {
     stats,
     predTrend: curve.predTrend,
     fitted: curve.fitted,
+    schema_version: 'curve.v2',
+    series,
+    eligibility: curve.analysis?.eligibility || null,
     analysis: curve.analysis || null,
     status: curve.status,
     days,
@@ -274,11 +339,8 @@ router.get('/overview/composite', async (req, res) => {
     metric: 'health_score', unit: 'score', forecast_days: futureDays,
     points: compositeActual.map(p => ({ t: `${p.date}T00:00:00Z`, v: p.value })),
   });
-  const compositeForecast = compositeResult?.forecast?.curve;
-  const compositePredicted = compositeResult?.forecast?.available && compositeForecast?.timestamps?.length
-    ? compositeForecast.timestamps.map((t, i) => ({
-      day: i + 1, value: compositeForecast.predicted[i], lower: compositeForecast.lower[i], upper: compositeForecast.upper[i], predicted: true,
-    })) : [];
+  // 综合健康分只解释历史构成，不做未来数值外推，避免把多个指标的归一化分数包装成医学预测。
+  const compositePredicted = [];
 
   // 同龄人平均综合健康分
   const ageGroup = getAgeGroup(req.user.age);
