@@ -105,11 +105,17 @@ ok('glucose 可分析', r_glu['status'] == 'ok')
 ok('hbalc 无数据 → insufficient_data', r_empty['status'] == 'insufficient_data', r_empty.get('status'))
 
 print('=== 13. forecast ===')
-r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140, 142]), forecast_days=30)
+r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140, 142],
+                                 days=list(range(22, -1, -2))), forecast_days=30)
 ok('forecast.available=true', r['forecast']['available'] is True, str(r['forecast']))
 ok('estimated_value 合理（>latest）', r['forecast']['estimated_value'] is not None and r['forecast']['estimated_value'] > r['latest_value'],
    str(r['forecast']))
 ok('curve 三数组齐全', len(r['curve']['timestamps']) == len(r['curve']['actual']) == len(r['curve']['fitted']))
+
+print('=== 14. conservative forecast gate ===')
+r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138]), forecast_days=30)
+ok('跨度不足不预测', r['forecast']['available'] is False and '14天' in r['forecast']['reason'],
+   str(r['forecast']))
 
 print('=== CLI 管道测试 ===')
 payload = json.dumps({'metric': 'systo', 'unit': 'mmHg', 'points': pts([128, 129, 127, 128, 130, 128, 129, 127, 128, 129])})

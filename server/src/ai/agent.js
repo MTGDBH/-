@@ -80,7 +80,7 @@ const hasRealLLM = () => !!getLLMConfig();
  * 调用真实 LLM（支持 risk_predict 工具调用）
  * 容错：第一/二轮偶发空回复 → 不带工具重试一次；仍空则抛错（由 chat() 降级）
  */
-async function callOpenAI(messages, healthSummary, user) {
+async function callOpenAI(messages, healthSummary, user, intent = {}) {
   const cfg = getLLMConfig();
   const base = (cfg.base_url || 'https://api.openai.com/v1').replace(/\/$/, '');
   const url = `${base}/chat/completions`;
@@ -95,12 +95,20 @@ async function callOpenAI(messages, healthSummary, user) {
   const model = cfg.model || 'gpt-4o-mini';
 
   // 第一轮：带工具列表，让模型自主决定是否调用
+  const forcedToolChoice = intent.riskHit && intent.trendHit
+    ? 'auto'
+    : intent.riskHit
+      ? { type: 'function', function: { name: 'risk_predict' } }
+      : intent.trendHit
+        ? { type: 'function', function: { name: 'analyze_health_trend' } }
+        : 'none';
   const body1 = {
     model,
     messages: [...systemMsgs, ...messages],
     temperature: 0.6,
     tools: [RISK_TOOL_SCHEMA, ANALYZE_TREND_TOOL_SCHEMA],
-    tool_choice: 'auto',
+    // 后端意图路由决定工具边界，普通问答禁止误触发健康数据工具。
+    tool_choice: forcedToolChoice,
   };
   const data = await postJSON(url, headers, body1);
   const choice = data.choices?.[0]?.message || {};
@@ -150,7 +158,7 @@ async function callOpenAI(messages, healthSummary, user) {
   }
 
   if (!finalText.trim()) throw new Error('LLM 返回空内容');
-  return safeParseJSON(finalText);
+  return normalizeAgentResult(safeParseJSON(finalText));
 }
 
 async function postJSON(url, headers, body) {
@@ -184,8 +192,8 @@ function mockAgent(userMessage, healthSummary) {
     plan.push({ icon: '食', title: '饮食：少盐少油', desc: '盐 < 5g/日，多蔬菜', color: 'orange' });
     plan.push({ icon: '行', title: '运动：散步 30 分钟', desc: '午后 14:00 出门', color: 'green' });
     plan.push({ icon: '眠', title: '作息：22:30 入睡', desc: '保证 7 小时睡眠', color: 'purple' });
-    plan.push({ icon: '药', title: '用药：18:00 降压药', desc: '饭后服用', color: 'red' });
-    plan.push({ icon: '复', title: '复查：下周三 心内科', desc: '8月21日 9:00', color: 'gray' });
+    plan.push({ icon: '药', title: '用药：按医嘱按时服用', desc: '不自行增减药量，具体药品以个人用药记录为准', color: 'red' });
+    plan.push({ icon: '复', title: '复查：按医生安排', desc: '如持续偏高或伴不适，联系医生评估', color: 'gray' });
     confidence = {
       type: 'data', score: 88,
       sources: ['慢病子项评分 ' + (subs.chronic ?? 'N/A') + ' 分', '健康总分 ' + score + ' 分', '近7天血压数据'],
@@ -235,9 +243,7 @@ function mockAgent(userMessage, healthSummary) {
     };
   } else if (/药/.test(msg)) {
     content = '用药要按时，咱们看看今天的安排。';
-    plan.push({ icon: '药', title: '08:00 降压药', desc: '已服用 ✓', color: 'red' });
-    plan.push({ icon: '药', title: '18:00 降压药', desc: '饭后服用', color: 'red' });
-    plan.push({ icon: '药', title: '21:00 钙片', desc: '随晚餐服用', color: 'red' });
+    plan.push({ icon: '药', title: '用药：查看个人用药记录', desc: '按医嘱按时服用，不自行调整剂量', color: 'red' });
     confidence = {
       type: 'data', score: 90,
       sources: ['用户用药配置', '慢病子项评分 ' + (subs.chronic ?? 'N/A') + ' 分'],
@@ -250,7 +256,7 @@ function mockAgent(userMessage, healthSummary) {
       plan.push({ icon: '行', title: '运动：每日 30 分钟', desc: '散步、太极任选', color: 'green' });
       plan.push({ icon: '眠', title: '作息：22:30 入睡', desc: '7 小时为目标', color: 'purple' });
       plan.push({ icon: '药', title: '用药：按时服药', desc: '关注血压', color: 'red' });
-      plan.push({ icon: '复', title: '复查：下周复诊', desc: '心内科 9:00', color: 'gray' });
+      plan.push({ icon: '复', title: '复查：按医生安排', desc: '如持续异常，联系医生评估', color: 'gray' });
     }
     confidence = {
       type: 'data', score: 92,
@@ -286,6 +292,38 @@ function safeParseJSON(text) {
     }
     return { content: text.slice(0, 200), plan: [] };
   }
+}
+
+const PLAN_COLORS = new Set(['orange', 'green', 'purple', 'red', 'gray']);
+
+/** 限制 LLM 输出结构、长度和 UI 枚举，避免任意内容直接进入前端。 */
+function normalizeAgentResult(raw) {
+  const content = typeof raw?.content === 'string' ? raw.content.trim().slice(0, 2000) : '';
+  const plan = Array.isArray(raw?.plan) ? raw.plan.slice(0, 5).map((p) => {
+    if (!p || typeof p !== 'object') return null;
+    const title = typeof p.title === 'string' ? p.title.trim().slice(0, 80) : '';
+    if (!title) return null;
+    return {
+      icon: typeof p.icon === 'string' ? p.icon.slice(0, 2) : '测',
+      title,
+      desc: typeof p.desc === 'string' ? p.desc.trim().slice(0, 180) : '',
+      color: PLAN_COLORS.has(p.color) ? p.color : 'gray',
+    };
+  }).filter(Boolean) : [];
+  const c = raw?.confidence;
+  const sourceList = Array.isArray(c?.sources)
+    ? c.sources.filter(s => typeof s === 'string').slice(0, 8).map(s => s.slice(0, 160))
+    : [];
+  let confidence = { type: 'common_sense' };
+  if (c?.type === 'data' && Number.isFinite(Number(c.score)) && sourceList.length > 0) {
+    confidence = {
+      type: 'data',
+      score: Math.max(0, Math.min(100, Math.round(Number(c.score)))),
+      sources: sourceList,
+      reasoning: typeof c.reasoning === 'string' ? c.reasoning.slice(0, 500) : '',
+    };
+  }
+  return { content: content || '我暂时无法生成可靠回答，请稍后再试。', plan, confidence };
 }
 
 // ===== 风险预测工具注册（标准 Tool schema）=====
@@ -362,6 +400,7 @@ async function mockTrendReply(user) {
     let s = `${m.metric === 'systo' ? '收缩压' : m.metric === 'diasto' ? '舒张压' : m.metric}（${m.unit}）：当前 ${m.latest_value}，长期${long}、近期${recent}，${fluc}`;
     if (m.abnormal_spike) s += '，曾出现明显异常波动';
     if (m.forecast?.available && m.forecast.estimated_value != null) s += `；按当前走势估计 ${m.forecast.days} 天后约 ${m.forecast.estimated_value}（仅供参考）`;
+    else if (m.forecast?.reason) s += `；${m.forecast.reason}`;
     return s;
   });
   const content = `从最近记录来看：\n${lines.join('\n')}\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。`;
@@ -442,7 +481,7 @@ async function mockRiskReply(user) {
     type: 'data',
     score: missing.length >= 3 ? 85 : 93,
     sources: [`XGBoost 模型（${result.model_version}）`, result.summary, missing.length ? `缺失指标：${missing.join('、')}` : '指标完整'],
-    reasoning: `基于 CHARLS 老年人群真实数据训练的 XGBoost 模型 + Isotonic 概率校准输出，阈值 ${result.threshold} 分层；模型为风险评估工具，非医学诊断。`,
+    reasoning: `基于 CHARLS 老年人群真实数据训练的 XGBoost 模型 + ${result.calibration_method || '元数据指定'} 概率校准输出，阈值 ${result.threshold} 分层；模型为风险评估工具，非医学诊断。`,
   };
 
   return { content, plan, confidence };
@@ -462,8 +501,8 @@ export async function chat(history, userMessage, healthSummary, user) {
   if (hasRealLLM()) {
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
-      const result = await callOpenAI(messages, healthSummary, user);
-      return { source: 'openai', ...result };
+      const result = await callOpenAI(messages, healthSummary, user, { riskHit, trendHit });
+      return { source: 'openai', ...normalizeAgentResult(result) };
     } catch (err) {
       console.error('[agent] OpenAI 调用失败，回退到 mock:', err.message);
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）

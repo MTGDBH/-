@@ -2,6 +2,7 @@
 import express from 'express';
 import db from '../db.js';
 import { evaluateHealth } from '../lib/scoring.js';
+import { triggerTrendAlerts } from '../lib/trendAlerts.js';
 
 const router = express.Router();
 
@@ -110,6 +111,12 @@ router.post('/metrics', (req, res) => {
          recorded_at || new Date().toISOString(),
          src, note ?? null, device_id ?? null);
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
+  // 趋势提醒异步执行，不阻塞指标保存；普通变化不会产生提醒。
+  if (src !== 'synthetic') {
+    triggerTrendAlerts(req.user.id, type).catch(err =>
+      console.error('[trend-alert] analysis failed:', err.message)
+    );
+  }
   res.json(row);
 });
 

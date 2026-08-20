@@ -1,0 +1,3 @@
+# Python runtime for the Node -> Python health analysis tools.
+# Keep this aligned with the version used to generate the model artifacts.
+xgboost==3.4.1

@@ -30,18 +30,14 @@
       <div class="pred-composite-svg-wrap">
         <svg id="composite-chart" width="100%" height="280" viewBox="0 0 1060 280" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
-      <div class="pred-legend">
-        <div class="pred-legend-item"><div class="pred-legend-line" style="background:#F4A261"></div>我的健康分（实际）</div>
-        <div class="pred-legend-item" style="color:#F4A261"><div class="pred-legend-dash"></div>我的健康分（预测）</div>
-        <div class="pred-legend-item"><div class="pred-legend-line" style="background:#9C8B7A"></div>同龄人平均</div>
-      </div>
+      <div class="pred-legend" id="composite-legend"></div>
     </div>
 
     <!-- 各指标预测图 -->
     <div id="metric-charts"></div>
 
     <div style="text-align:center;padding:20px 0 40px;color:#9C8B7A;font-size:13px;font-family:var(--font-cn)">
-      <p>预测算法基于历史线性回归 + 波动噪声，仅供参考 · 后续将接入更精准的时序模型</p>
+      <p>历史曲线采用稳健平滑，未来虚线为通过时间顺序验证后的保守外推，仅供健康管理参考</p>
       <p>同龄人平均数据来自年龄段统计参考值</p>
     </div>
   </main>
@@ -88,6 +84,95 @@
       }
     }
 
+    // 用单调三次 Hermite Path 绘制趋势线：比 polyline 连线平滑，同时避免普通样条过冲。
+    function monotonePath(points) {
+      if (!points || points.length === 0) return '';
+      if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+      const n = points.length;
+      const slopes = [];
+      for (let i = 0; i < n - 1; i++) {
+        const dx = points[i + 1].x - points[i].x || 1;
+        slopes.push((points[i + 1].y - points[i].y) / dx);
+      }
+      const tangents = Array(n).fill(0);
+      tangents[0] = slopes[0];
+      tangents[n - 1] = slopes[n - 2];
+      for (let i = 1; i < n - 1; i++) {
+        if (slopes[i - 1] * slopes[i] <= 0) tangents[i] = 0;
+        else {
+          const h0 = points[i].x - points[i - 1].x || 1;
+          const h1 = points[i + 1].x - points[i].x || 1;
+          const w0 = 2 * h1 + h0;
+          const w1 = h1 + 2 * h0;
+          tangents[i] = (w0 + w1) / (w0 / slopes[i - 1] + w1 / slopes[i]);
+        }
+      }
+      for (let i = 0; i < n - 1; i++) {
+        if (slopes[i] === 0) { tangents[i] = 0; tangents[i + 1] = 0; continue; }
+        const a = tangents[i] / slopes[i];
+        const b = tangents[i + 1] / slopes[i];
+        const norm = a * a + b * b;
+        if (norm > 9) {
+          const tau = 3 / Math.sqrt(norm);
+          tangents[i] = tau * a * slopes[i];
+          tangents[i + 1] = tau * b * slopes[i];
+        }
+      }
+      let d = `M ${points[0].x} ${points[0].y}`;
+      for (let i = 0; i < n - 1; i++) {
+        const p0 = points[i], p1 = points[i + 1];
+        const dx = (p1.x - p0.x) / 3;
+        d += ` C ${p0.x + dx} ${p0.y + tangents[i] * dx}, ${p1.x - dx} ${p1.y - tangents[i + 1] * dx}, ${p1.x} ${p1.y}`;
+      }
+      return d;
+    }
+
+    // 统一时间轴：历史点和未来点按真实时间间隔定位，并在轴上显示可读日期。
+    function pointTime(point, fallbackIndex = 0) {
+      const parsed = Date.parse(point?.recorded_at || point?.date || '');
+      return Number.isFinite(parsed) ? parsed : fallbackIndex * 86400000;
+    }
+
+    function formatAxisDate(timestamp) {
+      const d = new Date(timestamp);
+      if (!Number.isFinite(d.getTime())) return '';
+      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatPointTime(point) {
+      const t = pointTime(point);
+      const d = new Date(t);
+      return Number.isFinite(d.getTime()) ? d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+    }
+
+    function buildTimeAxis(timeline, xToPx, top, bottom, actualLength, predictedLength) {
+      if (!timeline.length) return '';
+      const indices = new Set([0, timeline.length - 1]);
+      if (actualLength > 1) indices.add(actualLength - 1);
+      // 最多 5 个标签，避免记录较密时日期互相覆盖。
+      const slots = Math.min(5, timeline.length);
+      for (let i = 1; i < slots - 1; i += 1) indices.add(Math.round(i * (timeline.length - 1) / (slots - 1)));
+      return [...indices].sort((a, b) => a - b).map(i => {
+        const x = xToPx(i);
+        const isBoundary = predictedLength > 0 && i === actualLength - 1;
+        return `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="${isBoundary ? '#B8D7F5' : '#F3EEE8'}" stroke-width="${isBoundary ? 1.2 : 1}" stroke-dasharray="${isBoundary ? '4,4' : '2,5'}"/>` +
+          `<text x="${x}" y="${bottom + 17}" text-anchor="middle" fill="${isBoundary ? '#2563EB' : '#9C8B7A'}" font-size="11" font-family="sans-serif">${formatAxisDate(timeline[i])}</text>`;
+      }).join('');
+    }
+
+    function legendItem(label, color, dashed = false) {
+      return `<div class="pred-legend-item" style="color:${color}"><div class="${dashed ? 'pred-legend-dash' : 'pred-legend-line'}" style="${dashed ? `border-color:${color}` : `background:${color}`}" ></div>${label}</div>`;
+    }
+
+    function buildLegend(data, actualLabel = '我的数据（实际）', forecastLabel = '预测趋势', actualColor = '#F4A261') {
+      const items = [];
+      if (data.actual?.length) items.push(legendItem(actualLabel, actualColor));
+      if (data.fitted?.length) items.push(legendItem('历史拟合', '#A45F3D', true));
+      if (data.predicted?.length) items.push(legendItem(forecastLabel, '#2563EB', true));
+      if (data.peer?.length) items.push(legendItem('同龄人平均', '#9C8B7A'));
+      return items.join('') || '<span class="pred-metric-tag">暂无可绘制曲线</span>';
+    }
+
     // ===== 综合健康拟合图 =====
     function renderComposite(data) {
       const svg = document.getElementById('composite-chart');
@@ -96,7 +181,13 @@
       const peer = data.peer;
 
       const sub = document.getElementById('composite-sub');
-      sub.textContent = `综合 ${data.metricCount} 项指标归一化拟合 · 年龄段：${data.ageGroup} · 同龄人均值 ${data.peerBaseScore} 分`;
+      const legend = document.getElementById('composite-legend');
+      if (legend) legend.innerHTML = buildLegend(data, '我的健康分（实际）', '我的健康分（预测）');
+      const metricCount = Number.isFinite(Number(data.metricCount)) ? data.metricCount : 0;
+      const ageGroup = data.ageGroup || '未分组';
+      const peerBaseScore = data.peerBaseScore ?? '—';
+      sub.textContent = `综合 ${metricCount} 项指标归一化拟合 · 年龄段：${ageGroup} · 同龄人均值 ${peerBaseScore} 分` +
+        (data.status === 'insufficient_data' ? ' · 数据不足，暂不外推' : data.analysis?.confidence ? ` · 可信度 ${Math.round(data.analysis.confidence * 100)}%` : '');
 
       const allPoints = [
         ...actual.map((p, i) => ({ x: i, y: p.value, predicted: false })),
@@ -111,25 +202,33 @@
       const W = 1060, H = 280, padL = 50, padR = 30, padT = 30, padB = 40;
       const totalLen = allPoints.length;
       const peerLen = Math.max(totalLen, peer.length);
+      const timeline = [...actual, ...predicted].map((p, i) => pointTime(p, i));
+      const tStart = timeline[0] ?? 0;
+      const tEnd = timeline[timeline.length - 1] ?? tStart;
+      const tSpan = Math.max(tEnd - tStart, 1);
 
-      const allVals = [...allPoints.map(p => p.y), ...peer];
+      const allVals = [...allPoints.map(p => p.y), ...peer,
+        ...predicted.flatMap(p => [p.lower, p.upper]).filter(Number.isFinite)];
       const yMin = Math.min(...allVals) - 5;
       const yMax = Math.max(...allVals) + 5;
       const yLo = Math.max(0, yMin);
       const yHi = Math.min(100, yMax);
 
-      const xToPx = (i) => padL + (totalLen <= 1 ? (W - padL - padR) / 2 : (i / (totalLen - 1)) * (W - padL - padR));
+      const xToPx = (i) => padL + (totalLen <= 1 ? (W - padL - padR) / 2 : ((timeline[i] - tStart) / tSpan) * (W - padL - padR));
       const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
 
       // 分割线位置
-      const dividerX = actual.length > 0 ? xToPx(actual.length - 1) : padL;
+      const dividerX = predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
 
       // 实际线
       const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+      const fittedPath = monotonePath((data.fitted || []).map((p, i) => ({ x: xToPx(i), y: yToPx(p.value) })));
       // 预测线（从最后一个实际点开始）
       const predStart = actual.length > 0 ? actual[actual.length - 1] : null;
       const predPoints = predStart ? [{ x: actual.length - 1, y: predStart.value }, ...predicted.map((p, i) => ({ x: actual.length + i, y: p.value }))] : [];
-      const predPolyline = predPoints.map(p => `${xToPx(p.x)},${yToPx(p.y)}`).join(' ');
+      const predPath = monotonePath(predPoints.map(p => ({ x: xToPx(p.x), y: yToPx(p.y) })));
+      const predBand = predicted.length && predicted.every(p => Number.isFinite(p.lower) && Number.isFinite(p.upper))
+        ? `<polygon points="${predicted.map((p, i) => `${xToPx(actual.length + i)},${yToPx(p.upper)}`).join(' ')} ${predicted.slice().reverse().map((p, i) => `${xToPx(actual.length + predicted.length - 1 - i)},${yToPx(p.lower)}`).join(' ')}" fill="#2563EB" opacity="0.16"/>` : '';
 
       // 同龄人线
       const peerPolyline = peer.slice(0, totalLen).map((v, i) => `${xToPx(i)},${yToPx(v)}`).join(' ');
@@ -141,30 +240,37 @@
       }).join('');
 
       // 分割线
-      const dividerLine = actual.length > 0 ? `
+      const dividerLine = dividerX != null ? `
         <line x1="${dividerX}" y1="${padT}" x2="${dividerX}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1.5" stroke-dasharray="6,4"/>
         <text x="${dividerX + 6}" y="${padT + 14}" class="pred-divider-label" font-family="sans-serif" fill="#9C8B7A" font-size="11">预测起点 →</text>
       ` : '';
+      const forecastShade = dividerX != null
+        ? `<rect x="${dividerX}" y="${padT}" width="${W - padR - dividerX}" height="${H - padT - padB}" fill="#2563EB" opacity="0.035"/>`
+        : '';
+      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, predicted.length);
 
       // 数据点
       const dots = actual.map((p, i) =>
-        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3" fill="#F4A261" stroke="#fff" stroke-width="1.5"/>`
+        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3.5" fill="#F4A261" stroke="#fff" stroke-width="1.5"><title>${formatPointTime(p)} · ${p.value}</title></circle>`
       ).join('');
 
       svg.innerHTML = `
         ${yLabels}
         <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
         <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1"/>
+        ${timeAxis}
+        ${forecastShade}
         <!-- 同龄人线 -->
         <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
         <!-- 实际线 -->
-        <polyline points="${actualPolyline}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="${actualPolyline}" fill="none" stroke="#F4A261" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 历史拟合线 -->
+        <path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>
         <!-- 预测线 -->
-        <polyline points="${predPolyline}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        ${predBand}
+        <path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>
         ${dividerLine}
         ${dots}
-        <text x="${padL}" y="${H - 8}" fill="#9C8B7A" font-size="12" font-family="sans-serif">${actual.length > 0 ? actual[0].date : ''}</text>
-        <text x="${W - padR}" y="${H - 8}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">+${futureDays}天预测</text>
       `;
     }
 
@@ -197,13 +303,18 @@
     }
 
     function renderMetricCard(data, m) {
+      const unitLabel = m.unit || '';
+      const nameLabel = m.name || m.type || '健康指标';
       const trendMap = { up: '↑ 上升趋势', down: '↓ 下降趋势', stable: '→ 趋势平稳' };
       const trendClass = data.predTrend;
       const trendText = trendMap[data.predTrend] || '—';
-      const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${m.unit ? m.unit : ''}` : '无同龄人参考';
+      const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${unitLabel}` : '无同龄人参考';
+      const forecastNote = data.analysis?.forecastAvailable
+        ? '已达到预测门槛，虚线为短期趋势估计'
+        : (data.analysis?.forecastReason || '历史数据不足，暂不外推');
       const stats = data.stats;
       const statsHtml = stats ? `
-        <div class="pred-metric-stat">平均 <strong>${stats.avg}</strong> ${m.unit}</div>
+        <div class="pred-metric-stat">平均 <strong>${stats.avg}</strong>${unitLabel ? ` ${unitLabel}` : ''}</div>
         <div class="pred-metric-stat">范围 <strong>${stats.min}~${stats.max}</strong></div>
         <div class="pred-metric-stat">记录 <strong>${stats.count}</strong> 条</div>
       ` : '<div class="pred-metric-stat">暂无统计</div>';
@@ -212,10 +323,10 @@
         <div class="pred-metric-card">
           <div class="pred-metric-head">
             <div class="pred-metric-title-row">
-              <div class="pred-metric-icon" style="background:${m.color}">${m.icon}</div>
+              <div class="pred-metric-icon" style="background:${m.color}">${m.icon || '测'}</div>
               <div>
-                <div class="pred-metric-name">${m.name}趋势预测</div>
-                <div class="pred-metric-tag">${m.unit ? '单位：' + m.unit : '定性指标'} · ${peerText}</div>
+                <div class="pred-metric-name">${nameLabel}趋势预测</div>
+                <div class="pred-metric-tag">${unitLabel ? '单位：' + unitLabel : '定性指标'} · ${peerText} · ${forecastNote}</div>
               </div>
             </div>
             <span class="pred-metric-badge ${trendClass}">${trendText}</span>
@@ -223,11 +334,7 @@
           <div class="pred-metric-svg-wrap">
             <svg id="metric-svg-${m.type}" width="100%" height="220" viewBox="0 0 1060 220" preserveAspectRatio="xMidYMid meet"></svg>
           </div>
-          <div class="pred-legend">
-            <div class="pred-legend-item"><div class="pred-legend-line" style="background:${m.color}"></div>我的数据（实际）</div>
-            <div class="pred-legend-item" style="color:${m.color}"><div class="pred-legend-dash"></div>预测趋势</div>
-            <div class="pred-legend-item"><div class="pred-legend-line" style="background:#9C8B7A"></div>同龄人平均</div>
-          </div>
+          <div class="pred-legend">${buildLegend(data, '我的数据（实际）', '预测趋势', m.color)}</div>
           <div class="pred-metric-stats">${statsHtml}</div>
         </div>
       `;
@@ -240,6 +347,7 @@
       const actual = data.actual;
       const predicted = data.predicted;
       const peer = data.peer;
+      const unitLabel = m.unit || '';
 
       if (actual.length === 0 && predicted.length === 0) {
         svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="14" font-family="sans-serif">暂无数据</text>';
@@ -248,10 +356,18 @@
 
       const W = 1060, H = 220, padL = 50, padR = 30, padT = 25, padB = 35;
       const total = actual.length + predicted.length;
+      const timeline = [...actual, ...predicted].map((p, i) => {
+        const t = Date.parse(p.recorded_at || p.date || '');
+        return Number.isFinite(t) ? t : i;
+      });
+      const tStart = timeline[0] ?? 0;
+      const tEnd = timeline[timeline.length - 1] ?? tStart;
+      const tSpan = Math.max(tEnd - tStart, 1);
 
       const allVals = [
         ...actual.map(p => p.value),
         ...predicted.map(p => p.value),
+        ...predicted.flatMap(p => [p.lower, p.upper]).filter(Number.isFinite),
         ...peer,
       ];
       if (data.peerBase) allVals.push(data.peerBase.value);
@@ -262,26 +378,30 @@
       const yLo = yMin - yRange * 0.15;
       const yHi = yMax + yRange * 0.15;
 
-      const xToPx = (i) => padL + (total <= 1 ? (W - padL - padR) / 2 : (i / (total - 1)) * (W - padL - padR));
+      // 按真实时间间隔排布，避免长时间缺测被误画成等距连续变化。
+      const xToPx = (i) => padL + (total <= 1 ? (W - padL - padR) / 2 : ((timeline[i] - tStart) / tSpan) * (W - padL - padR));
       const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
 
       // 分割线
-      const dividerX = actual.length > 0 ? xToPx(actual.length - 1) : padL;
+      const dividerX = predicted.length && actual.length > 0 ? xToPx(actual.length - 1) : null;
 
       // 实际线
       const actualPolyline = actual.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+      const fittedPath = monotonePath((data.fitted || []).map((p, i) => ({ x: xToPx(i), y: yToPx(p.value) })));
       // 预测线
       const predStart = actual.length > 0 ? actual[actual.length - 1] : null;
       const predPoints = predStart ? [{ x: actual.length - 1, y: predStart.value }, ...predicted.map((p, i) => ({ x: actual.length + i, y: p.value }))] : predicted.map((p, i) => ({ x: i, y: p.value }));
-      const predPolyline = predPoints.map(p => `${xToPx(p.x)},${yToPx(p.y)}`).join(' ');
+      const predPath = monotonePath(predPoints.map(p => ({ x: xToPx(p.x), y: yToPx(p.y) })));
+      const predBand = predicted.length && predicted.every(p => Number.isFinite(p.lower) && Number.isFinite(p.upper))
+        ? `<polygon points="${predicted.map((p, i) => `${xToPx(actual.length + i)},${yToPx(p.upper)}`).join(' ')} ${predicted.slice().reverse().map((p, i) => `${xToPx(actual.length + predicted.length - 1 - i)},${yToPx(p.lower)}`).join(' ')}" fill="#2563EB" opacity="0.16"/>` : '';
 
       // 同龄人线
       const peerPolyline = peer.slice(0, total).map((v, i) => `${xToPx(i)},${yToPx(v)}`).join(' ');
 
       // Y轴标签
-      const yLabels = [yLo, yHi].map(v => {
+      const yLabels = [yLo, (yLo + yHi) / 2, yHi].map(v => {
         const y = yToPx(v);
-        return `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">${v.toFixed(1)}</text>`;
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#F0EDE8" stroke-width="1" stroke-dasharray="4,4"/><text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">${v.toFixed(1)}</text>`;
       }).join('');
 
       // 同龄人参考线（虚线）
@@ -291,14 +411,18 @@
 
       // 数据点
       const dots = actual.map((p, i) =>
-        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3" fill="${m.color}" stroke="#fff" stroke-width="1.5"/>`
+        `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="${p.outlier ? 4.5 : 3.5}" fill="${p.outlier ? '#A04632' : m.color}" stroke="#fff" stroke-width="1.5"><title>${formatPointTime(p)} · ${p.value}${unitLabel ? ` ${unitLabel}` : ''}</title></circle>`
       ).join('');
 
       // 分割线
-      const dividerLine = actual.length > 0 ? `
+      const dividerLine = dividerX != null ? `
         <line x1="${dividerX}" y1="${padT}" x2="${dividerX}" y2="${H - padB}" stroke="#E8DCC9" stroke-width="1.5" stroke-dasharray="6,4"/>
         <text x="${dividerX + 4}" y="${padT + 12}" class="pred-divider-label" font-family="sans-serif" fill="#9C8B7A" font-size="10">预测→</text>
       ` : '';
+      const forecastShade = dividerX != null
+        ? `<rect x="${dividerX}" y="${padT}" width="${W - padR - dividerX}" height="${H - padT - padB}" fill="#2563EB" opacity="0.035"/>`
+        : '';
+      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actual.length, predicted.length);
 
       svg.innerHTML = `
         ${yLabels}
@@ -308,13 +432,16 @@
         <!-- 同龄人线 -->
         <polyline points="${peerPolyline}" fill="none" stroke="#9C8B7A" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
         <!-- 实际线 -->
-        <polyline points="${actualPolyline}" fill="none" stroke="${m.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${timeAxis}
+        ${forecastShade}
+        <polyline points="${actualPolyline}" fill="none" stroke="${m.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 历史拟合线 -->
+        <path d="${fittedPath}" fill="none" stroke="#A45F3D" stroke-width="1.8" stroke-dasharray="2,3" opacity="0.85"/>
         <!-- 预测线 -->
-        <polyline points="${predPolyline}" fill="none" stroke="${m.color}" stroke-width="2.5" stroke-dasharray="6,4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        ${predBand}
+        <path d="${predPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>
         ${dividerLine}
         ${dots}
-        <text x="${padL}" y="${H - 8}" fill="#9C8B7A" font-size="11" font-family="sans-serif">${actual.length > 0 ? actual[0].recorded_at.slice(0,10) : ''}</text>
-        <text x="${W - padR}" y="${H - 8}" text-anchor="end" fill="#9C8B7A" font-size="11" font-family="sans-serif">+${futureDays}天</text>
       `;
     }
   </script>

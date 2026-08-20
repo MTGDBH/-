@@ -18,7 +18,7 @@ import sys
 import time
 import numpy as np
 
-from curve_models import MODELS, ewma_smooth
+from curve_models import MODELS, robust_local_smooth
 from curve_utils import (parse_points, dedup_time, clean_series, model_metrics,
                          time_ordered_split, classify_trend, detect_spike,
                          MEDICAL_BOUNDS)
@@ -50,13 +50,16 @@ def _pick_model(train_x, train_y, val_x, val_y):
 
 
 def analyze(metric, unit, points, forecast_days=30):
+    forecast_days = int(max(7, min(30, int(forecast_days or 30))))
     ts, vs = parse_points(points)
     ts, vs = dedup_time(ts, vs)
     n_raw = len(vs)
     if n_raw < MIN_POINTS:
         return {
             'success': True, 'status': 'insufficient_data', 'metric': metric,
-            'unit': unit, 'data_points': n_raw, 'warning': f'有效数据点不足（{n_raw}/{MIN_POINTS}），无法进行趋势分析',
+            'unit': unit, 'data_points': n_raw,
+            'medical_bounds': MEDICAL_BOUNDS.get(metric),
+            'warning': f'有效数据点不足（{n_raw}/{MIN_POINTS}），无法进行趋势分析',
         }
 
     ts_clean, vs_clean, removed = clean_series(ts, vs, metric)
@@ -65,6 +68,7 @@ def analyze(metric, unit, points, forecast_days=30):
         return {
             'success': True, 'status': 'insufficient_data', 'metric': metric,
             'unit': unit, 'data_points': n_raw,
+            'medical_bounds': MEDICAL_BOUNDS.get(metric),
             'warning': f'清洗后有效数据点不足（{n_clean}/{MIN_POINTS}），无法进行趋势分析',
         }
 
@@ -115,16 +119,25 @@ def analyze(metric, unit, points, forecast_days=30):
         train_x, train_y, val_x, val_y = split
         model_info = _pick_model(train_x, train_y, val_x, val_y)
 
-    # 拟合曲线（选中的模型或默认 huber，用于实际/fitted 曲线输出）
-    fitted = []
+    # 验证只用于选模型，选完后用全部清洗数据重新拟合。
     if model_info is not None:
         model_name = model_info['name']
-        _, predict = MODELS[model_name]
-        fitted_y = predict(model_info['coef'], x)
+        fit, predict = MODELS[model_name]
+        full_coef = fit(x, vs_clean)
+        model_fitted_y = predict(full_coef, x)
     else:
         model_name = 'huber'
-        _, predict = MODELS[model_name]
-        fitted_y = predict(l_coef if model_name == 'huber' else l_coef, x)
+        fit, predict = MODELS[model_name]
+        full_coef = fit(x, vs_clean)
+        model_fitted_y = predict(full_coef, x)
+
+    # 历史展示使用稳健局部趋势，避免单个尖峰拖动整条拟合线；模型拟合值保留给诊断。
+    fitted_y = robust_local_smooth(x, vs_clean)
+    bounds = MEDICAL_BOUNDS.get(metric)
+    if bounds:
+        fitted_y = np.clip(fitted_y, bounds[0], bounds[1])
+        model_fitted_y = np.clip(model_fitted_y, bounds[0], bounds[1])
+    fitted_raw_y = np.interp(ts, ts_clean, fitted_y)
 
     # 置信度：验证 R² / 数据量 / 波动综合
     confidence = 0.5
@@ -138,19 +151,40 @@ def analyze(metric, unit, points, forecast_days=30):
     confidence = round(max(0.1, min(0.95, confidence)), 2)
 
     # Forecast：7~30 天外推（明确为模型估计）
-    forecast_available = (
-        n_clean >= 10 and model_info is not None
+    forecast_available = bool(
+        n_clean >= 10 and span_days >= 14 and model_info is not None
         and model_info['score']['r2'] >= 0.2 and fluctuation != 'high'
     )
-    forecast = {'available': forecast_available, 'days': int(forecast_days),
+    forecast_reason = None if forecast_available else (
+        '需要至少10个有效点、覆盖14天且时间顺序验证可信，当前仅提供历史趋势'
+    )
+    forecast = {'available': forecast_available, 'days': forecast_days,
                 'estimated_value': None,
-                'note': '短期趋势外推，为模型估计值，不代表真实未来'}
+                'reason': forecast_reason,
+                'note': '短期趋势外推，为模型估计值，不代表真实未来',
+                'curve': {'timestamps': [], 'predicted': [], 'lower': [], 'upper': []}}
     if forecast_available:
-        _, predict = MODELS[model_name]
-        h = int(max(7, min(30, forecast_days)))
-        est = float(predict(model_info['coef'], x[-1] + h))
-        forecast['days'] = h
+        h = forecast_days
+        future_x = x[-1] + np.arange(1, h + 1, dtype=float)
+        pred_y = np.asarray(predict(full_coef, future_x), dtype=float)
+        full_resid = vs_clean - np.asarray(predict(full_coef, x), dtype=float)
+        # 即使历史点完全落在直线上，也保留一个与指标量级相关的最小测量误差，
+        # 避免前端显示“零宽度的确定性预测区间”。
+        sigma = max(float(np.std(full_resid, ddof=1)) if len(full_resid) > 1 else 0.0,
+                    abs(med) * 0.01, 1e-6)
+        widen = np.sqrt(1.0 + np.arange(1, h + 1, dtype=float) / max(len(vs_clean), 1))
+        margin = 1.96 * sigma * widen
+        if bounds:
+            pred_y = np.clip(pred_y, bounds[0], bounds[1])
+        future_ts = ts_clean[-1] + np.arange(1, h + 1, dtype=float) * 86400.0
+        est = float(pred_y[-1])
         forecast['estimated_value'] = round(est, 2)
+        forecast['curve'] = {
+            'timestamps': [float(v) for v in future_ts],
+            'predicted': [round(float(v), 2) for v in pred_y],
+            'lower': [round(float(v), 2) for v in (np.clip(pred_y - margin, bounds[0], bounds[1]) if bounds else pred_y - margin)],
+            'upper': [round(float(v), 2) for v in (np.clip(pred_y + margin, bounds[0], bounds[1]) if bounds else pred_y + margin)],
+        }
 
     latest = float(vs[-1])
     previous = float(vs[-2]) if n_clean >= 2 else latest
@@ -160,6 +194,7 @@ def analyze(metric, unit, points, forecast_days=30):
     out = {
         'success': True, 'status': 'ok', 'metric': metric, 'unit': unit,
         'data_points': n_clean, 'raw_points': n_raw,
+        'medical_bounds': MEDICAL_BOUNDS.get(metric),
         'removed_outliers': int(len(removed)),
         'time_span_days': round(span_days, 1),
         'stats': {
@@ -184,10 +219,15 @@ def analyze(metric, unit, points, forecast_days=30):
         'model_score': model_info['score'] if model_info else None,
         'confidence': confidence,
         'forecast': forecast,
-        'curve': {
-            'timestamps': [ts_clean[i].item() for i in range(len(ts_clean))],
-            'actual': [round(float(v), 2) for v in vs_clean],
-            'fitted': [round(float(v), 2) for v in fitted_y],
+            'curve': {
+                'timestamps': [ts_clean[i].item() for i in range(len(ts_clean))],
+                'actual': [round(float(v), 2) for v in vs_clean],
+                'fitted': [round(float(v), 2) for v in fitted_y],
+                'model_fitted': [round(float(v), 2) for v in model_fitted_y],
+                'fitted_raw': [round(float(v), 2) for v in fitted_raw_y],
+            'raw_timestamps': [ts[i].item() for i in range(len(ts))],
+            'raw_actual': [round(float(v), 2) for v in vs],
+            'outlier_indices': [int(i) for i in removed],
         },
         'warning': None,
     }

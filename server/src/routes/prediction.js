@@ -1,11 +1,17 @@
 // 健康预测路由
-// 简单时间序列预测：线性回归 + 历史波动噪声
+// 健康指标曲线：统一调用 ml/curve/health_curve.py，Node 只负责数据与契约转换。
 // 同龄人平均：按年龄段返回各指标参考均值
 import express from 'express';
 import db from '../db.js';
 import { scoreMetric } from '../lib/scoring.js';
+import { runPythonTool } from '../lib/htnPredictor.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const router = express.Router();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CURVE_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'curve', 'health_curve.py');
+const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'health_score']);
 
 // 指标元数据：以 metric_defs 表为单一数据源
 // 展示附加属性（dual/invasive）仅在此保留，指标定义本身不重复维护
@@ -48,72 +54,56 @@ function getAgeGroup(age) {
   return '80+';
 }
 
-/**
- * 简单线性回归预测
- * 返回预测点数组
- */
-function linearPredict(points, futureDays) {
-  if (points.length === 0) return [];
-  if (points.length === 1) {
-    // 只有一个点，用常数预测 + 小波动
-    const v = points[0].value;
-    const result = [];
-    for (let i = 1; i <= futureDays; i++) {
-      result.push({
-        day: i,
-        value: +(v + (Math.random() - 0.5) * v * 0.03).toFixed(2),
-        predicted: true,
-      });
-    }
-    return result;
-  }
-
-  const n = points.length;
-  const xs = points.map((_, i) => i);
-  const ys = points.map(p => p.value);
-
-  // 线性回归 y = a*x + b
-  const sumX = xs.reduce((a, b) => a + b, 0);
-  const sumY = ys.reduce((a, b) => a + b, 0);
-  const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
-  const sumXX = xs.reduce((s, x) => s + x * x, 0);
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX || 1);
-  const intercept = (sumY - slope * sumX) / n;
-
-  // 历史残差标准差（用于噪声）
-  const residuals = ys.map((y, i) => y - (slope * i + intercept));
-  const residualMean = residuals.reduce((a, b) => a + b, 0) / n;
-  const variance = residuals.reduce((s, r) => s + (r - residualMean) ** 2, 0) / n;
-  const stdDev = Math.sqrt(variance) || Math.abs(ys[0]) * 0.02 || 1;
-
-  // 预测：线性趋势 + 小幅随机游走（衰减噪声）
-  const result = [];
-  let lastPred = ys[n - 1];
-  for (let i = 1; i <= futureDays; i++) {
-    const trendVal = slope * (n - 1 + i) + intercept;
-    // 混合 70% 趋势 + 30% 随机游走
-    const noise = (Math.random() - 0.5) * stdDev * 0.8;
-    const blended = trendVal * 0.7 + lastPred * 0.3 + noise;
-    lastPred = blended;
-    result.push({
-      day: i,
-      value: +blended.toFixed(2),
-      predicted: true,
-    });
-  }
-  return result;
+function isoFromSeconds(seconds) {
+  return new Date(Number(seconds) * 1000).toISOString();
 }
 
-/**
- * 生成同龄人平均曲线（带轻微波动使其看起来真实）
- */
-function generatePeerLine(baseValue, totalDays, seed = 0) {
-  const result = [];
-  for (let i = 0; i < totalDays; i++) {
-    const noise = Math.sin(i * 0.3 + seed) * baseValue * 0.02;
-    result.push(+(baseValue + noise).toFixed(2));
-  }
-  return result;
+function mapTrend(direction) {
+  return direction === 'rising' ? 'up' : direction === 'falling' ? 'down' : 'stable';
+}
+
+function statsFromValues(values) {
+  if (!values.length) return null;
+  return {
+    avg: +(values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
+    min: Math.min(...values), max: Math.max(...values), count: values.length,
+  };
+}
+
+/** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
+async function analyzeCurve(metric, unit, points, futureDays) {
+  if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
+  const result = await runPythonTool(CURVE_SCRIPT, { metric, unit, points: points.map(p => ({ t: p.recorded_at, v: p.value })), forecast_days: futureDays });
+  const raw = result?.curve?.raw_timestamps?.map((t, i) => ({
+    day: i, value: result.curve.raw_actual[i], recorded_at: isoFromSeconds(t), predicted: false,
+    outlier: (result.curve.outlier_indices || []).includes(i),
+  })) || points.map((p, i) => ({ ...p, day: i, predicted: false, outlier: false }));
+  const fittedValues = result?.curve?.fitted_raw || result?.curve?.fitted || [];
+  const fittedTimes = result?.curve?.fitted_raw ? result?.curve?.raw_timestamps : result?.curve?.timestamps;
+  const fitted = fittedTimes?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: fittedValues[i] })) || [];
+  const fc = result?.forecast?.curve;
+  const predicted = result?.forecast?.available && fc?.timestamps?.length
+    ? fc.timestamps.map((t, i) => ({ day: i + 1, value: fc.predicted[i], lower: fc.lower[i], upper: fc.upper[i], recorded_at: isoFromSeconds(t), predicted: true }))
+    : [];
+  return {
+    status: result?.status || (result?.success ? 'ok' : 'error'),
+    actual: raw, predicted, fitted,
+    stats: result?.stats || statsFromValues(points.map(p => p.value)),
+    predTrend: mapTrend(result?.long_term_trend),
+    analysis: result?.success ? {
+      model: result.model, confidence: result.confidence, modelScore: result.model_score,
+      dataPoints: result.data_points, rawPoints: result.raw_points,
+      removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
+      forecastReason: result.forecast?.reason || null,
+      medicalBounds: result.medical_bounds || null,
+      warning: result.warning,
+    } : { error: result?.error || 'curve service unavailable' },
+  };
+}
+
+/** 同龄人平均参考线：保持为常数，避免把统计参考值伪装成测量波动。 */
+function generatePeerLine(baseValue, totalDays) {
+  return Array.from({ length: totalDays }, () => +Number(baseValue).toFixed(2));
 }
 
 // ===== 路由 =====
@@ -157,10 +147,10 @@ router.delete('/custom-metrics/:id', (req, res) => {
 });
 
 // 单指标预测
-router.get('/:type', (req, res) => {
+router.get('/:type', async (req, res) => {
   const { type } = req.params;
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
-  const futureDays = Math.min(parseInt(req.query.future || '30', 10), 90);
+  const futureDays = Math.min(parseInt(req.query.future || '30', 10), 30);
 
   const meta = ALL_METRICS.get(type);
   if (!meta) return res.status(400).json({ error: '未知指标类型' });
@@ -173,32 +163,22 @@ router.get('/:type', (req, res) => {
     ORDER BY recorded_at ASC
   `).all(req.user.id, type, since);
 
-  // 预测
-  const actualPoints = points.map((p, i) => ({ day: i, value: p.value, value2: p.value2, recorded_at: p.recorded_at, predicted: false }));
-  const predictedPoints = linearPredict(points, futureDays);
+  // 血压的收缩压使用统一曲线服务；舒张压由独立趋势工具提供。
+  const curveMetric = type === 'bp' ? 'systo' : type;
+  const curve = type === 'ecg'
+    ? { status: 'not_applicable', actual: points.map((p, i) => ({ ...p, day: i, predicted: false })), predicted: [], fitted: [], stats: statsFromValues(points.map(p => p.value)), predTrend: 'stable' }
+    : await analyzeCurve(curveMetric, meta.unit, points.map(p => ({ ...p, value: p.value })), futureDays);
+  const actualPoints = curve.actual.map((p, i) => ({ ...p, day: i, value2: points[i]?.value2 ?? null }));
+  const predictedPoints = curve.predicted;
 
   // 同龄人平均
   const ageGroup = getAgeGroup(req.user.age);
   const peerBase = PEER_AVERAGES[ageGroup]?.[type];
   const totalDays = actualPoints.length + predictedPoints.length;
-  const peerLine = peerBase ? generatePeerLine(peerBase.value, totalDays, type.charCodeAt(0)) : [];
+  const peerLine = peerBase ? generatePeerLine(peerBase.value, totalDays) : [];
 
   // 统计
-  const values = points.map(p => p.value);
-  const stats = values.length ? {
-    avg: +(values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
-    min: Math.min(...values),
-    max: Math.max(...values),
-    count: values.length,
-  } : null;
-
-  // 预测趋势
-  let predTrend = 'stable';
-  if (predictedPoints.length >= 2) {
-    const diff = predictedPoints[predictedPoints.length - 1].value - predictedPoints[0].value;
-    const pct = Math.abs(diff) / (Math.abs(predictedPoints[0].value) || 1) * 100;
-    if (pct > 3) predTrend = diff > 0 ? 'up' : 'down';
-  }
+  const stats = curve.stats;
 
   res.json({
     type,
@@ -209,16 +189,19 @@ router.get('/:type', (req, res) => {
     peerBase: peerBase || null,
     ageGroup,
     stats,
-    predTrend,
+    predTrend: curve.predTrend,
+    fitted: curve.fitted,
+    analysis: curve.analysis || null,
+    status: curve.status,
     days,
     futureDays,
   });
 });
 
 // 综合健康预测（所有指标的归一化拟合曲线）
-router.get('/overview/composite', (req, res) => {
+router.get('/overview/composite', async (req, res) => {
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
-  const futureDays = Math.min(parseInt(req.query.future || '30', 10), 90);
+  const futureDays = Math.min(parseInt(req.query.future || '30', 10), 30);
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
 
   // 获取所有指标的历史数据
@@ -253,21 +236,32 @@ router.get('/overview/composite', (req, res) => {
     };
   }).filter(Boolean);
 
-  // 预测综合健康分
-  const compositePredicted = linearPredict(
-    compositeActual.map((p, i) => ({ value: p.value, day: i })),
-    futureDays
-  ).map(p => ({ ...p, predicted: true }));
+  // 综合分也走同一套 Python 曲线服务；数据不足时只展示历史，不伪造预测。
+  const compositeResult = await runPythonTool(CURVE_SCRIPT, {
+    metric: 'health_score', unit: 'score', forecast_days: futureDays,
+    points: compositeActual.map(p => ({ t: `${p.date}T00:00:00Z`, v: p.value })),
+  });
+  const compositeForecast = compositeResult?.forecast?.curve;
+  const compositePredicted = compositeResult?.forecast?.available && compositeForecast?.timestamps?.length
+    ? compositeForecast.timestamps.map((t, i) => ({
+      day: i + 1, value: compositeForecast.predicted[i], lower: compositeForecast.lower[i], upper: compositeForecast.upper[i], predicted: true,
+    })) : [];
 
   // 同龄人平均综合健康分
   const ageGroup = getAgeGroup(req.user.age);
   const peerBaseScore = ageGroup === '60-69' ? 82 : ageGroup === '70-79' ? 78 : 73;
   const totalDays = compositeActual.length + compositePredicted.length;
-  const peerLine = generatePeerLine(peerBaseScore, totalDays, 999);
+  const peerLine = generatePeerLine(peerBaseScore, totalDays);
 
   res.json({
     actual: compositeActual,
     predicted: compositePredicted,
+    fitted: compositeResult?.curve?.fitted?.map((value, i) => ({ date: compositeResult.curve.timestamps[i], value })) || [],
+    status: compositeResult?.status || (compositeResult?.success ? 'ok' : 'error'),
+    analysis: compositeResult?.success ? {
+      model: compositeResult.model, confidence: compositeResult.confidence,
+      warning: compositeResult.warning, forecastAvailable: !!compositeResult.forecast?.available,
+    } : null,
     peer: peerLine,
     peerBaseScore,
     ageGroup,

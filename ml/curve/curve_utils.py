@@ -14,8 +14,11 @@ import numpy as np
 MEDICAL_BOUNDS = {
     'systo': (60, 260), 'diasto': (40, 150), 'pulse': (40, 150),
     'weight': (20, 200), 'bmi': (10, 60), 'mwaist': (40, 160),
-    'glucose': (1, 33), 'hbalc': (3, 20), 'cholesterol': (1, 20),
+    'glucose': (1, 33), 'hbalc': (3, 20), 'hba1c': (3, 20), 'cholesterol': (1, 20),
     'uricacid': (50, 1200), 'sleep': (0, 16),
+    'waist': (40, 160), 'spo2': (50, 100), 'steps': (0, 100000), 'temp': (30, 45),
+    'resp': (5, 60), 'grip': (0, 100), 'bodyfat': (5, 70),
+    'health_score': (0, 100),
 }
 
 

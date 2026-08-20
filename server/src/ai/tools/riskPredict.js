@@ -2,7 +2,7 @@
 // Agent Tool: risk_predict —— 高血压风险预测
 //
 // 数据流: 用户最近的健康数据(DB) → buildHtnPredictionInput(单位换算)
-//         → predictHtn(Python XGBoost + Isotonic 校准) → 影响因素分析
+//         → predictHtn(Python XGBoost + 元数据指定的概率校准) → 影响因素分析
 //
 // 供 Agent 使用：用户问"高血压风险/健康预测"时调用
 // ============================================================

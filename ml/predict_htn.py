@@ -8,7 +8,7 @@ Phase 2.1: 高血压风险预测 Python Tool（Node.js 可调用的 CLI 封装�
 输入: 12 个特征（systo diasto pulse bmi mwaist lgrip rgrip
              bl_glu bl_hbalc bl_cho bl_ua sleep），允许 null（转 NaN）
 输出: JSON { success, risk_probability, risk_percent, risk_level,
-            threshold, model_version, warning, ... }
+            threshold, calibration_method, model_version, warning, ... }
 
 单位说明（与 CHARLS 训练数据一致）:
   bl_glu/bl_cho 单位为 mg/dl，bl_ua 单位为 mg/dl；
@@ -27,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 MODEL_DIR = HERE / 'models' / 'htn_xgb'
 MODEL_FILE = MODEL_DIR / 'candidate_model.json'
 CALIB_FILE = MODEL_DIR / 'calibrator_isotonic.pkl'
+PLATT_CALIB_FILE = MODEL_DIR / 'calibrator_platt.pkl'
 THRESH_FILE = MODEL_DIR / 'threshold.json'
 META_FILE = MODEL_DIR / 'candidate_metadata.json'
 
@@ -47,22 +48,32 @@ _loaded = {}
 
 
 def _load_artifacts():
-    """加载模型 + Isotonic calibrator + threshold + metadata（只加载一次）"""
+    """加载模型、校准器、阈值和元数据（只加载一次）。"""
     if _loaded:
         return _loaded
     import xgboost as xgb
 
     model = xgb.XGBClassifier()
     model.load_model(str(MODEL_FILE))
-    with open(CALIB_FILE, 'rb') as f:
-        calibrator = pickle.load(f)
     with open(THRESH_FILE, 'r', encoding='utf-8') as f:
         threshold = json.load(f)['recommended_threshold']
     with open(META_FILE, 'r', encoding='utf-8') as f:
         meta = json.load(f)
+    calibration_method = meta.get('calibration', {}).get('selected', 'isotonic')
+    if calibration_method == 'platt':
+        # 阈值文件也是 Platt 概率尺度；缺文件时不能静默退回 Isotonic。
+        if not PLATT_CALIB_FILE.exists():
+            raise FileNotFoundError(f'缺少 Platt 校准器: {PLATT_CALIB_FILE}')
+        calib_file = PLATT_CALIB_FILE
+    else:
+        calibration_method = 'isotonic'
+        calib_file = CALIB_FILE
+    with open(calib_file, 'rb') as f:
+        calibrator = pickle.load(f)
     model_version = f"htn_xgb_{meta.get('dataset_version', 'v1')}_{meta.get('created_at', '')[:10]}"
     _loaded.update(model=model, calibrator=calibrator, threshold=float(threshold),
-                   model_version=model_version, meta=meta)
+                   calibration_method=calibration_method, model_version=model_version,
+                   meta=meta)
     return _loaded
 
 
@@ -114,7 +125,13 @@ def run_prediction(features):
         assert list(model.get_booster().feature_names) == FEATURE_NAMES, '特征顺序与训练不一致!'
 
         raw_prob = float(model.predict_proba(row)[0, 1])
-        cal_prob = float(calibrator.predict([raw_prob])[0])  # Isotonic 校准
+        if arts['calibration_method'] == 'platt':
+            import numpy as np
+            raw_logit = np.log(np.clip(raw_prob, 1e-6, 1 - 1e-6) /
+                               np.clip(1 - raw_prob, 1e-6, 1))
+            cal_prob = float(calibrator.predict_proba([[raw_logit]])[0, 1])
+        else:
+            cal_prob = float(calibrator.predict([raw_prob])[0])  # 兼容旧版 Isotonic
         cal_prob = max(0.0, min(1.0, cal_prob))
 
         risk_level = 'higher_than_threshold' if cal_prob >= threshold else 'lower_than_threshold'
@@ -131,6 +148,7 @@ def run_prediction(features):
             'risk_percent': round(cal_prob * 100, 1),
             'risk_level': risk_level,
             'threshold': threshold,
+            'calibration_method': arts['calibration_method'],
             'model_version': arts['model_version'],
             'missing_features': missing,
             'warning': warn,

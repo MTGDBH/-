@@ -1,79 +1,69 @@
 {
-  "brier_raw": 0.1584109216928482,
-  "brier_platt": 0.25,
-  "brier_isotonic": 0.043057473427525,
-  "calibration_slope_raw": 0.7092,
-  "calibration_intercept_raw": -2.6757,
+  "brier_raw": 0.042327772825956345,
+  "brier_platt": 0.04271834451114909,
+  "brier_isotonic": 0.04270211718918966,
+  "calibration_slope_raw": 0.9415,
+  "calibration_intercept_raw": -0.1575,
   "calibration_curve_raw": [
     {
       "bin_mid": 0.05,
-      "mean_pred": 0.0635,
-      "frac_pos": 0.0195
+      "mean_pred": 0.0349,
+      "frac_pos": 0.0344
     },
     {
       "bin_mid": 0.15,
-      "mean_pred": 0.1511,
-      "frac_pos": 0.0249
+      "mean_pred": 0.1347,
+      "frac_pos": 0.1387
     },
     {
       "bin_mid": 0.25,
-      "mean_pred": 0.2491,
-      "frac_pos": 0.0229
+      "mean_pred": 0.2397,
+      "frac_pos": 0.2143
     },
     {
       "bin_mid": 0.35,
-      "mean_pred": 0.3459,
-      "frac_pos": 0.0252
+      "mean_pred": 0.3357,
+      "frac_pos": 0.5
     },
     {
       "bin_mid": 0.45,
-      "mean_pred": 0.4522,
-      "frac_pos": 0.0535
-    },
-    {
-      "bin_mid": 0.55,
-      "mean_pred": 0.5407,
-      "frac_pos": 0.0687
-    },
-    {
-      "bin_mid": 0.65,
-      "mean_pred": 0.6479,
-      "frac_pos": 0.1027
-    },
-    {
-      "bin_mid": 0.75,
-      "mean_pred": 0.745,
-      "frac_pos": 0.1566
-    },
-    {
-      "bin_mid": 0.85,
-      "mean_pred": 0.834,
-      "frac_pos": 0.2778
+      "mean_pred": 0.4474,
+      "frac_pos": 1.0
     }
   ],
   "calibration_curve_platt": [
     {
-      "bin_mid": 0.55,
-      "mean_pred": 0.5,
-      "frac_pos": 0.0466
+      "bin_mid": 0.05,
+      "mean_pred": 0.0419,
+      "frac_pos": 0.0384
+    },
+    {
+      "bin_mid": 0.15,
+      "mean_pred": 0.1274,
+      "frac_pos": 0.1739
+    },
+    {
+      "bin_mid": 0.25,
+      "mean_pred": 0.2314,
+      "frac_pos": 0.6667
     }
   ],
   "calibration_curve_isotonic": [
     {
       "bin_mid": 0.05,
-      "mean_pred": 0.0435,
-      "frac_pos": 0.0401
+      "mean_pred": 0.0378,
+      "frac_pos": 0.0338
     },
     {
       "bin_mid": 0.15,
-      "mean_pred": 0.1336,
-      "frac_pos": 0.15
+      "mean_pred": 0.1101,
+      "frac_pos": 0.1324
     },
     {
       "bin_mid": 0.25,
-      "mean_pred": 0.2222,
-      "frac_pos": 0.6
+      "mean_pred": 0.2038,
+      "frac_pos": 0.2857
     }
   ],
-  "note": "校准器仅在训练集 OOF 上拟合; slope/intercept 为 test 上诊断性拟合(理想 slope=1, intercept=0)"
+  "note": "校准器仅在训练集 OOF 原始概率上拟合; threshold 也在校准后 OOF 概率上选择; slope/intercept 为 test 诊断值"
 }

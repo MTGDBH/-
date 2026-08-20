@@ -32,8 +32,12 @@ server/
 
 ### Windows
 ```cmd
-start.bat
+start-node22.bat
 ```
+
+Windows 若本机 Node 主版本为 24，建议使用 `start-node22.bat`。项目的
+`better-sqlite3` 原生模块按 Node 22 ABI 运行；该脚本会通过 npx 缓存 Node 22，
+避免本机安装 Visual Studio C++ 构建工具或手工重编译。
 
 ### 手动
 ```bash

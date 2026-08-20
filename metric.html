@@ -68,7 +68,7 @@
     async function main() {
       try {
         const types = await API.get('/api/trend/types');
-        META = Object.fromEntries(types.map(t => [t.key, t]));
+        META = Object.fromEntries(types.map(t => [t.type, t]));
         if (!META[type]) {
           document.getElementById('loading').innerHTML = '未知指标类型';
           return;

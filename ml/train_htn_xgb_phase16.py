@@ -6,7 +6,7 @@ Phase 1.6: XGBoost 基线优化 + 风险概率校准（产品候选评估）
   1) 特征消融: A 全32 / B 去exercise+totmet / C APP核心12 / D 核心+人口学+慢病史
   2) education 敏感性: edu 1-4 vs 官方 raeduc_c 10级
   3) 缺失处理对照: 原生NaN vs 训练折内median+missing indicator
-  4) Threshold 分析: OOF 上选 F1 / Youden J / Recall优先 候选，test 仅最终应用
+  4) Threshold 分析: 在校准后的 OOF 概率上选 F1 / Youden J / Recall优先，test 仅最终应用
   5) Calibration: Platt/Sigmoid vs Isotonic（仅用训练集内 OOF 拟合）
   6) 最终模型选择（CV 指标 + APP 可获得性，非仅 AUC）
   7) SHAP 跳过（未安装）
@@ -45,8 +45,9 @@ N_FOLDS = 5
 EXCLUDE = {'ID', 'wave1', 'y_htn_incidence'}
 
 BASE_PARAMS = dict(objective='binary:logistic', eval_metric='auc', random_state=RANDOM_STATE,
-                   n_estimators=300, learning_rate=0.05, max_depth=3,
+                   n_estimators=300, learning_rate=0.05, max_depth=2, min_child_weight=3,
                    subsample=0.8, colsample_bytree=0.8, tree_method='hist')
+POS_WEIGHT = 1.0  # 保留原始概率尺度，避免 class weight 造成过度自信；类别不平衡由 PR-AUC/阈值处理。
 
 APP_CORE = ['systo', 'diasto', 'pulse', 'bmi', 'mwaist', 'lgrip', 'rgrip',
             'bl_glu', 'bl_hbalc', 'bl_cho', 'bl_ua', 'sleep']
@@ -67,7 +68,7 @@ def run_cv(X, y, collect_oof=False):
     rows, oof = [], np.zeros(len(y))
     for fold, (tr, va) in enumerate(skf.split(X, y)):
         Xtr, ytr, Xva = X.iloc[tr], y.iloc[tr], X.iloc[va]
-        spw = round(float((ytr == 0).sum() / (ytr == 1).sum()), 4)
+        spw = POS_WEIGHT
         m = xgb.XGBClassifier(**{**BASE_PARAMS, 'scale_pos_weight': spw})
         m.fit(Xtr, ytr)
         p = m.predict_proba(Xva)[:, 1]
@@ -79,7 +80,7 @@ def run_cv(X, y, collect_oof=False):
 
 
 def train_eval(Xtr, ytr, Xte, yte):
-    spw = round(float((ytr == 0).sum() / (ytr == 1).sum()), 4)
+    spw = POS_WEIGHT
     m = xgb.XGBClassifier(**{**BASE_PARAMS, 'scale_pos_weight': spw})
     m.fit(Xtr, ytr)
     p = m.predict_proba(Xte)[:, 1]
@@ -181,7 +182,7 @@ def main():
     rows_mi = []
     for fold, (tr, va) in enumerate(skf.split(X_tr, y_tr)):
         Xtr_f, Xva_f = median_indicator(X_tr[all_feats].iloc[tr], X_tr[all_feats].iloc[va], all_feats)
-        spw = round(float((y_tr.iloc[tr] == 0).sum() / (y_tr.iloc[tr] == 1).sum()), 4)
+        spw = POS_WEIGHT
         m = xgb.XGBClassifier(**{**BASE_PARAMS, 'scale_pos_weight': spw})
         m.fit(Xtr_f, y_tr.iloc[tr])
         p = m.predict_proba(Xva_f)[:, 1]
@@ -220,55 +221,70 @@ def main():
     print(f"  候选特征集: {cand_set} ({len(cand_feats)} 特征), CV PR-AUC {best['cv_prauc']}")
     print('  说明: 排除含 exercise/totmet/srh/cesd10/total_cognition 的集合（APP 当前不可获得）; 依据 CV PR-AUC 选择，未使用 test')
 
-    # ---------- 5. Threshold 分析（OOF 训练集内部） ----------
-    print('\n[5] Threshold 分析 (OOF 选择)')
-    _, oof = run_cv(X_tr[cand_feats], y_tr, collect_oof=True)
-    grid = np.unique(np.round(oof, 4))
+    # ---------- 5. Threshold 分析（校准后的 OOF 训练集内部） ----------
+    print('\n[5] Threshold 分析 (校准后 OOF 选择)')
+    _, oof_raw = run_cv(X_tr[cand_feats], y_tr, collect_oof=True)
+    # 阈值必须和 predict_htn.py 使用的校准概率处于同一尺度。
+    # 使用 Platt（logistic）校准：保持概率排序，避免 Isotonic 在小样本分箱后
+    # 产生大量相同概率，导致外部人群的排序能力和阈值稳定性下降。
+    oof_logit_for_threshold = np.log(np.clip(oof_raw, 1e-6, 1 - 1e-6) /
+                                     np.clip(1 - oof_raw, 1e-6, 1))
+    platt_for_threshold = LogisticRegression(max_iter=1000).fit(
+        oof_logit_for_threshold.reshape(-1, 1), y_tr)
+    oof_cal = platt_for_threshold.predict_proba(
+        oof_logit_for_threshold.reshape(-1, 1))[:, 1]
+    grid = np.unique(np.round(oof_cal, 4))
 
-    def _f1(t): return f1_score(y_tr, (oof >= t).astype(int), zero_division=0)
+    def _f1(t): return f1_score(y_tr, (oof_cal >= t).astype(int), zero_division=0)
     def _youden(t):
-        tn, fp, fn, tp = confusion_matrix(y_tr, (oof >= t).astype(int)).ravel()
+        tn, fp, fn, tp = confusion_matrix(y_tr, (oof_cal >= t).astype(int)).ravel()
         return tp / (tp + fn) + tn / (tn + fp) - 1
     def _spec(t):
-        tn, fp, fn, tp = confusion_matrix(y_tr, (oof >= t).astype(int)).ravel()
+        tn, fp, fn, tp = confusion_matrix(y_tr, (oof_cal >= t).astype(int)).ravel()
         return tn / (tn + fp)
-    def _recall(t): return recall_score(y_tr, (oof >= t).astype(int), zero_division=0)
+    def _recall(t): return recall_score(y_tr, (oof_cal >= t).astype(int), zero_division=0)
 
     t_f1 = max(grid, key=_f1)
     t_youden = max(grid, key=_youden)
     spec_ok = [t for t in grid if _spec(t) >= 0.60]
     t_recall = max(spec_ok, key=_recall) if spec_ok else 0.5
 
-    _, cand_test_prob = train_eval(X_tr[cand_feats], y_tr, X_te[cand_feats], y_te)
+    _, cand_test_raw = train_eval(X_tr[cand_feats], y_tr, X_te[cand_feats], y_te)
+    cand_test_logit = np.log(np.clip(cand_test_raw, 1e-6, 1 - 1e-6) /
+                              np.clip(1 - cand_test_raw, 1e-6, 1))
+    cand_test_prob = platt_for_threshold.predict_proba(
+        cand_test_logit.reshape(-1, 1))[:, 1]
     thr_rows = []
     for name, t in [('threshold_0.5', 0.5), ('F1_max', t_f1), ('Youden_J', t_youden), ('Recall_priority', t_recall)]:
-        om = full_metrics(y_tr, oof, t)
+        om = full_metrics(y_tr, oof_cal, t)
         tm = full_metrics(y_te, cand_test_prob, t)
-        thr_rows.append({'candidate': name, 'threshold': round(float(t), 4), 'selected_on': 'oof(train only)',
+        thr_rows.append({'candidate': name, 'threshold': round(float(t), 4), 'selected_on': 'calibrated_oof(train only)',
                          'oof_precision': om['precision'], 'oof_recall': om['recall'], 'oof_f1': om['f1'],
                          'oof_specificity': om['specificity'], 'oof_sensitivity': om['sensitivity'],
                          'test_precision': tm['precision'], 'test_recall': tm['recall'], 'test_f1': tm['f1'],
                          'test_specificity': tm['specificity'], 'test_sensitivity': tm['sensitivity']})
-    print(f"  OOF 候选: 0.5 / F1={t_f1:.4f} / Youden={t_youden:.4f} / Recall优先={t_recall:.4f}")
+    print(f"  校准后 OOF 候选: 0.5 / F1={t_f1:.4f} / Youden={t_youden:.4f} / Recall优先={t_recall:.4f}")
     pd.DataFrame(thr_rows).to_csv(REPORT_DIR / 'threshold_analysis.csv', index=False, encoding='utf-8-sig')
 
     rec_thr = float(t_youden)  # 推荐: Youden J（OOF 选出）
     thr_json = {'recommended_threshold': round(rec_thr, 4),
-                'selection_method': 'Youden J 最大化，仅在训练集 OOF 上选择，未使用 test',
-                'note': '0.5 仅为工程默认值，非医学最优',
+                 'selection_method': 'Youden J 最大化，在训练集 OOF 的 Platt 校准概率上选择，未使用 test',
+                 'probability_scale': 'platt_calibrated',
+                 'note': '0.5 仅为工程默认值，非医学最优；线上比较校准后概率',
                 'candidates': [{k: (round(v, 4) if isinstance(v, float) else v) for k, v in r.items()} for r in thr_rows]}
     with open(MODEL_DIR / 'threshold.json', 'w', encoding='utf-8') as f:
         json.dump(thr_json, f, ensure_ascii=False, indent=2)
 
     # ---------- 6. Calibration（仅 OOF 拟合） ----------
     print('\n[6] 概率校准 (Platt vs Isotonic, OOF 拟合)')
-    oof_logit = np.log(np.clip(oof, 1e-6, 1 - 1e-6) / np.clip(1 - oof, 1e-6, 1))
+    oof_logit = np.log(np.clip(oof_raw, 1e-6, 1 - 1e-6) / np.clip(1 - oof_raw, 1e-6, 1))
     platt = LogisticRegression(max_iter=1000).fit(oof_logit.reshape(-1, 1), y_tr)
-    iso = IsotonicRegression(out_of_bounds='clip').fit(oof, y_tr)
-    test_logit = np.log(np.clip(cand_test_prob, 1e-6, 1 - 1e-6) / np.clip(1 - cand_test_prob, 1e-6, 1))
-    p_platt = 1 / (1 + np.exp(-platt.predict(test_logit.reshape(-1, 1))))
-    p_iso = iso.predict(cand_test_prob)
-    brier_raw = float(brier_score_loss(y_te, cand_test_prob))
+    iso = IsotonicRegression(out_of_bounds='clip').fit(oof_raw, y_tr)
+    test_logit = np.log(np.clip(cand_test_raw, 1e-6, 1 - 1e-6) / np.clip(1 - cand_test_raw, 1e-6, 1))
+    # LogisticRegression.predict() 返回类别标签；校准概率必须使用 predict_proba。
+    p_platt = platt.predict_proba(test_logit.reshape(-1, 1))[:, 1]
+    p_iso = iso.predict(cand_test_raw)
+    brier_raw = float(brier_score_loss(y_te, cand_test_raw))
     brier_platt = float(brier_score_loss(y_te, p_platt))
     brier_iso = float(brier_score_loss(y_te, p_iso))
     print(f"  Brier: raw={brier_raw:.4f} platt={brier_platt:.4f} isotonic={brier_iso:.4f}")
@@ -287,10 +303,10 @@ def main():
     calib = {'brier_raw': brier_raw, 'brier_platt': brier_platt, 'brier_isotonic': brier_iso,
              'calibration_slope_raw': round(float(lr_diag.coef_[0][0]), 4),
              'calibration_intercept_raw': round(float(lr_diag.intercept_[0]), 4),
-             'calibration_curve_raw': _curve(cand_test_prob),
+              'calibration_curve_raw': _curve(cand_test_raw),
              'calibration_curve_platt': _curve(p_platt),
              'calibration_curve_isotonic': _curve(p_iso),
-             'note': '校准器仅在训练集 OOF 上拟合; slope/intercept 为 test 上诊断性拟合(理想 slope=1, intercept=0)'}
+             'note': '校准器仅在训练集 OOF 原始概率上拟合; threshold 也在校准后 OOF 概率上选择; slope/intercept 为 test 诊断值'}
     with open(REPORT_DIR / 'calibration_results.json', 'w', encoding='utf-8') as f:
         json.dump(calib, f, ensure_ascii=False, indent=2)
     with open(MODEL_DIR / 'calibrator_platt.pkl', 'wb') as f:
@@ -300,7 +316,7 @@ def main():
 
     # ---------- 7. 最终候选模型 ----------
     print('\n[7] 保存最终候选模型')
-    spw = round(float((y_tr == 0).sum() / (y_tr == 1).sum()), 4)
+    spw = POS_WEIGHT
     cand_model = xgb.XGBClassifier(**{**BASE_PARAMS, 'scale_pos_weight': spw})
     cand_model.fit(X_tr[cand_feats], y_tr)
     cand_model.save_model(MODEL_DIR / 'candidate_model.json')
@@ -318,11 +334,12 @@ def main():
             'n_train': int(len(X_tr)), 'n_test': int(len(X_te)),
             'n_pos_train': int(y_tr.sum()), 'n_neg_train': int((y_tr == 0).sum()),
             'recommended_threshold': round(rec_thr, 4),
-            'threshold_note': 'Youden J 最大化，OOF 选择，未用 test',
+            'threshold_note': 'Youden J 最大化，在 Platt 校准后的 OOF 概率上选择，未用 test',
             'missing_handling': 'XGBoost 原生 NaN',
             'calibration': {'platt': {'brier': brier_platt, 'file': 'calibrator_platt.pkl'},
                             'isotonic': {'brier': brier_iso, 'file': 'calibrator_isotonic.pkl'},
-                            'selected': 'isotonic' if brier_iso < brier_platt else 'platt'},
+                            'selected': 'platt',
+                            'selection_note': '固定使用 Platt；不使用 test Brier 选择校准器'},
             'ablation_summary': ablation, 'missing_strategy': missing_rows}
     with open(MODEL_DIR / 'candidate_metadata.json', 'w', encoding='utf-8') as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
@@ -333,19 +350,25 @@ def main():
     reloaded = xgb.XGBClassifier()
     reloaded.load_model(MODEL_DIR / 'candidate_model.json')
     rp = reloaded.predict_proba(X_te[cand_feats])[:, 1]
-    assert np.allclose(rp, cand_test_prob, rtol=1e-8, atol=1e-10), '重载预测不一致!'
+    assert np.allclose(rp, cand_test_raw, rtol=1e-8, atol=1e-10), '重载预测不一致!'
     assert list(X_te[cand_feats].columns) == cand_feats, '特征顺序不一致!'
-    with open(MODEL_DIR / 'calibrator_isotonic.pkl', 'rb') as f:
-        iso2 = pickle.load(f)
-    assert np.allclose(iso2.predict(cand_test_prob), p_iso, rtol=1e-6, atol=1e-8), 'calibrator 重载不一致!'
+    with open(MODEL_DIR / 'calibrator_platt.pkl', 'rb') as f:
+        platt2 = pickle.load(f)
+    reload_logit = np.log(np.clip(cand_test_raw, 1e-6, 1 - 1e-6) /
+                          np.clip(1 - cand_test_raw, 1e-6, 1))
+    assert np.allclose(platt2.predict_proba(reload_logit.reshape(-1, 1))[:, 1],
+                       p_platt, rtol=1e-6, atol=1e-8), 'calibrator 重载不一致!'
     print('  模型重载 ✅ 预测一致 ✅ 特征顺序 ✅ calibrator 重载 ✅')
 
     # ---------- 9. Sensitivity 外部验证（候选模型直接应用，不训练） ----------
     print('\n[9] Sensitivity 数据集外部验证（候选模型直接预测）')
     sdf, _ = load(SENS_CSV)
     sy = sdf['y_htn_incidence'].astype(int)
-    sp = cand_model.predict_proba(sdf[cand_feats])[:, 1]
-    sens_ext = {'note': '候选模型(主数据训练)直接应用于 sensitivity 全样本，未重新训练',
+    sp_raw = cand_model.predict_proba(sdf[cand_feats])[:, 1]
+    sp_logit = np.log(np.clip(sp_raw, 1e-6, 1 - 1e-6) /
+                      np.clip(1 - sp_raw, 1e-6, 1))
+    sp = platt.predict_proba(sp_logit.reshape(-1, 1))[:, 1]
+    sens_ext = {'note': '候选模型(主数据训练)应用 Platt 校准后直接预测 sensitivity，全样本未重新训练',
                 'n': int(len(sy)), 'pos': int(sy.sum()),
                 'roc_auc': round(float(roc_auc_score(sy, sp)), 4),
                 'pr_auc': round(float(average_precision_score(sy, sp)), 4),
