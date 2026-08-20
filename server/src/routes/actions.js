@@ -76,6 +76,35 @@ router.post('/', (req, res) => {
   res.status(201).json({ requires_confirmation: false, ...executed });
 });
 
+// 复测闭环：行动执行后可以安排具体指标的复测，并在下一次采集后回填结果。
+router.get('/followups', (req, res) => {
+  const rows = db.prepare('SELECT * FROM followups WHERE user_id = ? ORDER BY due_at ASC, id DESC').all(req.user.id);
+  res.json({ items: rows });
+});
+
+router.post('/:id/followup', (req, res) => {
+  const actionId = parseInt(req.params.id, 10);
+  const request = db.prepare('SELECT * FROM action_requests WHERE id = ? AND user_id = ?').get(actionId, req.user.id);
+  if (!request) return res.status(404).json({ error: 'action not found' });
+  if (request.status !== 'executed') return res.status(400).json({ error: 'action must be executed before follow-up' });
+  const metricType = req.body?.metric_type ? String(req.body.metric_type).slice(0, 40) : null;
+  const due = req.body?.due_at && !Number.isNaN(Date.parse(req.body.due_at)) ? new Date(req.body.due_at).toISOString() : new Date(Date.now() + 86400000).toISOString();
+  const inserted = db.prepare('INSERT INTO followups (user_id, action_request_id, metric_type, due_at) VALUES (?, ?, ?, ?)').run(req.user.id, actionId, metricType, due);
+  res.status(201).json(db.prepare('SELECT * FROM followups WHERE id = ?').get(inserted.lastInsertRowid));
+});
+
+router.post('/followups/:id/complete', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const followup = db.prepare('SELECT * FROM followups WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!followup) return res.status(404).json({ error: 'follow-up not found' });
+  if (followup.status === 'completed') return res.json(followup);
+  const metricId = req.body?.result_metric_id == null ? null : Number(req.body.result_metric_id);
+  if (metricId != null && !db.prepare('SELECT id FROM metrics WHERE id = ? AND user_id = ?').get(metricId, req.user.id)) return res.status(400).json({ error: 'result metric not found' });
+  db.prepare('UPDATE followups SET status = ?, result_metric_id = ?, result_note = ?, completed_at = ? WHERE id = ? AND user_id = ?')
+    .run('completed', metricId, req.body?.result_note ? String(req.body.result_note).slice(0, 300) : null, new Date().toISOString(), id, req.user.id);
+  res.json(db.prepare('SELECT * FROM followups WHERE id = ?').get(id));
+});
+
 router.post('/:id/confirm', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const existing = db.prepare('SELECT id FROM action_requests WHERE id = ? AND user_id = ? AND status = ?').get(id, req.user.id, 'pending_confirmation');

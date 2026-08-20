@@ -1,7 +1,7 @@
 import db from '../../db.js';
 import { buildHealthContext } from '../contextBuilder.js';
 
-const NAMES = { bp: '血压', glucose: '血糖', hr: '心率', sleep: '睡眠', weight: '体重', steps: '步数', spo2: '血氧', cholesterol: '胆固醇', hba1c: '糖化血红蛋白' };
+const NAMES = { bp: '血压', glucose: '血糖', hr: '心率', sleep: '睡眠', weight: '体重', steps: '步数', spo2: '血氧', cholesterol: '胆固醇', hba1c: '糖化血红蛋白', egfr: 'eGFR', creatinine: '肌酐', urine_albumin: '尿白蛋白' };
 
 export function getHealthSummary(user) {
   const context = buildHealthContext(user, 90);
@@ -19,7 +19,10 @@ export function getHealthSummary(user) {
     missing_common_metrics: context.missing_common_metrics,
     alerts: context.alerts,
     todos: context.todos,
-    completeness: context.data_points ? Math.min(1, +(context.data_points / 30).toFixed(3)) : 0,
+    completeness: context.data_completeness || {
+      ratio: context.data_points ? Math.min(1, +(context.data_points / 30).toFixed(3)) : 0,
+      missing: context.missing_common_metrics || [],
+    },
+    profile: context.profile,
   };
 }
-

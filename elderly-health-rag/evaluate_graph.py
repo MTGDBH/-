@@ -9,6 +9,7 @@ CASES = [
     ('hypertension', '血压正常怎么办', {'latest': {'bp': {'value': 124, 'value2': 79}}}, 'normal'),
     ('diabetes', '血糖怎么复测', {'latest': {'glucose': {'value': 7.2}}}, 'high'),
     ('stroke', '突然单侧无力怎么办', {}, 'urgent'),
+    ('chronic_kidney_disease', '肾功能怎么复测', {'latest': {'egfr': {'value': 54}}}, 'high'),
 ]
 
 def main():

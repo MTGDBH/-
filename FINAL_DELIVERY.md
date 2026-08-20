@@ -4,7 +4,7 @@
 
 1. **时间趋势**：对血压、心率、体重、血糖等具有相对连续性的指标进行稳健历史拟合和保守 0–30 天外推；步数、睡眠只做行为趋势，不做精确医学预测。输出原始点、清洗点、拟合线、预测点、预测上下界、异常点、可信度和数据门槛原因。
 2. **疾病风险**：用 CHARLS Wave1→Wave2 的新发结局训练四类两年筛查模型；Logistic 与 XGBoost 使用训练集交叉验证选择，测试集只做最终评估，概率经校准并输出缺失特征和模型卡。
-3. **GraphRAG**：WHO、AHA/ASA、ADA、随机试验和系统综述等 14 份知识源 → 可复现索引 → 63 个实体/218 条显式与词法关系/疾病社区 → 关键词+图邻域检索。每个回答依据带来源、章节、证据等级、关系链和免责声明。
+3. **GraphRAG**：WHO、AHA/ASA、ADA、KDIGO、随机试验和系统综述等 18 份知识源 → 可复现索引 → 97 个实体/356 条显式关系/6 个疾病社区 → 关键词+证据等级+图邻域检索。每个回答依据带来源、章节、证据等级、关系路径、个性化因素、安全标记和免责声明；索引同时输出版本、SHA256、审核状态和冲突检查结果。
 4. **智能体**：DeepSeek 负责自然语言解释，后端按意图调用健康摘要、趋势、行为模式、设备、风险和 GraphRAG 知识工具；用户数据由服务端按登录身份读取，预测与常识分开，数据不足时禁止编造。
 
 ## 验收命令
@@ -16,6 +16,9 @@ $py = 'C:\Users\zhaoq\.workbuddy\binaries\python\envs\default\Scripts\python.exe
 & $py D:\BIGCHUANG\-\elderly-health-rag\test_graphrag.py
 & $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_personalization.py
 & $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_graph.py
+& $py D:\BIGCHUANG\-\elderly-health-rag\validate_graph.py
+& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_golden.py
+& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_counterfactual.py
 node D:\BIGCHUANG\-\server\data\evaluate_risk_personalization.mjs
 node D:\BIGCHUANG\-\server\data\test_risk_profile.mjs
 node D:\BIGCHUANG\-\server\data\test_actions.mjs
@@ -38,6 +41,9 @@ Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次�
 - 老人一次性授权家属或医生，只允许授权关系读取只读健康摘要；
 - 蓝牙/模拟设备统一通过 `/api/devices/:id/sync` 写入 `metrics.source=device`，智能体可查询同步状态；
 - 注销账号会按外键依赖清理会话、健康记录、授权关系、行动和提醒数据。
+- GraphRAG 聊天回复会把索引版本、引用、关系路径和个性化理由保存到聊天历史，刷新页面后仍可追溯。
+- 指标保存会记录测量条件和质量标记；重复值、物理范围异常、缺少测量条件和设备同步失败会进入数据质量/设备可靠性审计，不会被静默当作高可信证据。
+- 复测提醒与待办形成闭环：创建、确认、执行、到期、回填结果均有状态记录；敏感行动仍需要用户确认。
 
 ## 医疗安全边界
 

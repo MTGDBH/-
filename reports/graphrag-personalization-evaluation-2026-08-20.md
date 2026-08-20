@@ -1,7 +1,7 @@
 # GraphRAG 个性化建议评估（2026-08-20）
 
 - 结果：PASS
-- 场景数：3；上下文变体数：7
+- 场景数：4；上下文变体数：9
 - 评价范围：知识证据可追溯、同题不同数据的行动差异、行为指标安全边界。
 
 ## 结果
@@ -15,6 +15,8 @@
 | diabetes_same_question | normal | normal | 继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。 | 血糖需要结合测量时点解释 | who_diabetes_2024.md#监测与并发症 |
 | behavior_boundary | short_sleep | normal | 先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。 | 近7天睡眠平均偏少 | aha_lifes_essential_8_2022.md#八项指标 |
 | behavior_boundary | adequate_sleep | normal | 继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。 | 近7天睡眠平均达到基本观察水平 | aha_lifes_essential_8_2022.md#八项指标 |
+| ckd_same_question | reduced_egfr | high | 按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。 | eGFR 记录为 54，需要结合复测和医生评估 | kdigo_ckd_2024.md#评估与复测 |
+| ckd_same_question | missing_renal_metrics | normal | 如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。 | 当前缺少可判断肾功能的核心指标 | kdigo_ckd_2024.md#筛查人群 |
 
 ## 失败项
 
@@ -27,6 +29,7 @@
 | hypertension_same_question | — | 3 | 3 | 100.0% |
 | diabetes_same_question | — | 2 | 2 | 100.0% |
 | behavior_boundary | — | 2 | 2 | 100.0% |
+| ckd_same_question | 如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。 | 2 | 1 | 50.0% |
 
 ## 解释与限制
 

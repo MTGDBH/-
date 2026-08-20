@@ -1,0 +1,367 @@
+{
+  "models": [
+    {
+      "disease": "diabetes",
+      "n": 13858,
+      "overall": {
+        "positive_rate": 0.0161,
+        "roc_auc": 0.7981,
+        "brier": 0.01539,
+        "calibration_bins": [
+          {
+            "bin": "0.0-0.1",
+            "n": 13802,
+            "predicted": 0.0152,
+            "observed": 0.0151
+          },
+          {
+            "bin": "0.1-0.2",
+            "n": 40,
+            "predicted": 0.1469,
+            "observed": 0.25
+          },
+          {
+            "bin": "0.2-0.3",
+            "n": 8,
+            "predicted": 0.235,
+            "observed": 0.0
+          },
+          {
+            "bin": "0.3-0.4",
+            "n": 4,
+            "predicted": 0.348,
+            "observed": 0.5
+          },
+          {
+            "bin": "0.4-0.5",
+            "n": 2,
+            "predicted": 0.435,
+            "observed": 1.0
+          },
+          {
+            "bin": "0.5-0.6",
+            "n": 2,
+            "predicted": 0.5565,
+            "observed": 0.0
+          }
+        ]
+      },
+      "groups": [
+        {
+          "group": "age_65_74",
+          "n": 2569,
+          "positive": 55,
+          "positive_rate": 0.0214,
+          "roc_auc": 0.7743,
+          "brier": 0.02043,
+          "predicted_mean": 0.01793
+        },
+        {
+          "group": "age_75_plus",
+          "n": 1070,
+          "positive": 18,
+          "positive_rate": 0.0168,
+          "roc_auc": 0.7402,
+          "brier": 0.01582,
+          "predicted_mean": 0.01808
+        },
+        {
+          "group": "female",
+          "n": 7234,
+          "positive": 139,
+          "positive_rate": 0.0192,
+          "roc_auc": 0.7955,
+          "brier": 0.01825,
+          "predicted_mean": 0.01693
+        },
+        {
+          "group": "male",
+          "n": 6624,
+          "positive": 84,
+          "positive_rate": 0.0127,
+          "roc_auc": 0.7962,
+          "brier": 0.01227,
+          "predicted_mean": 0.01489
+        },
+        {
+          "group": "missing_core_bp",
+          "n": 2664,
+          "positive": 41,
+          "positive_rate": 0.0154,
+          "roc_auc": 0.7529,
+          "brier": 0.01482,
+          "predicted_mean": 0.01671
+        }
+      ],
+      "limitations": [
+        "这是同一队列内的分组审计，不是外部验证；小组样本量不足时不报告。",
+        "年龄和性别差异不代表因果关系。"
+      ]
+    },
+    {
+      "disease": "heart_disease",
+      "n": 13069,
+      "overall": {
+        "positive_rate": 0.0233,
+        "roc_auc": 0.6644,
+        "brier": 0.02266,
+        "calibration_bins": [
+          {
+            "bin": "0.0-0.1",
+            "n": 13069,
+            "predicted": 0.0233,
+            "observed": 0.0233
+          }
+        ]
+      },
+      "groups": [
+        {
+          "group": "age_65_74",
+          "n": 2320,
+          "positive": 65,
+          "positive_rate": 0.028,
+          "roc_auc": 0.6039,
+          "brier": 0.0272,
+          "predicted_mean": 0.02375
+        },
+        {
+          "group": "age_75_plus",
+          "n": 963,
+          "positive": 23,
+          "positive_rate": 0.0239,
+          "roc_auc": 0.5938,
+          "brier": 0.02329,
+          "predicted_mean": 0.02374
+        },
+        {
+          "group": "female",
+          "n": 6716,
+          "positive": 178,
+          "positive_rate": 0.0265,
+          "roc_auc": 0.6451,
+          "brier": 0.02575,
+          "predicted_mean": 0.02379
+        },
+        {
+          "group": "male",
+          "n": 6353,
+          "positive": 126,
+          "positive_rate": 0.0198,
+          "roc_auc": 0.6761,
+          "brier": 0.0194,
+          "predicted_mean": 0.02273
+        },
+        {
+          "group": "missing_core_bp",
+          "n": 2459,
+          "positive": 58,
+          "positive_rate": 0.0236,
+          "roc_auc": 0.5758,
+          "brier": 0.02301,
+          "predicted_mean": 0.0239
+        }
+      ],
+      "limitations": [
+        "这是同一队列内的分组审计，不是外部验证；小组样本量不足时不报告。",
+        "年龄和性别差异不代表因果关系。"
+      ]
+    },
+    {
+      "disease": "hypertension",
+      "n": 11010,
+      "overall": {
+        "positive_rate": 0.046,
+        "roc_auc": 0.7811,
+        "brier": 0.04075,
+        "calibration_bins": [
+          {
+            "bin": "0.0-0.1",
+            "n": 10601,
+            "predicted": 0.0407,
+            "observed": 0.0364
+          },
+          {
+            "bin": "0.1-0.2",
+            "n": 300,
+            "predicted": 0.1376,
+            "observed": 0.2333
+          },
+          {
+            "bin": "0.2-0.3",
+            "n": 62,
+            "predicted": 0.2466,
+            "observed": 0.3387
+          },
+          {
+            "bin": "0.3-0.4",
+            "n": 28,
+            "predicted": 0.3361,
+            "observed": 0.5
+          },
+          {
+            "bin": "0.4-0.5",
+            "n": 11,
+            "predicted": 0.4445,
+            "observed": 0.8182
+          },
+          {
+            "bin": "0.5-0.6",
+            "n": 5,
+            "predicted": 0.5496,
+            "observed": 0.8
+          },
+          {
+            "bin": "0.7-0.8",
+            "n": 3,
+            "predicted": 0.7222,
+            "observed": 0.6667
+          }
+        ]
+      },
+      "groups": [
+        {
+          "group": "age_65_74",
+          "n": 1818,
+          "positive": 105,
+          "positive_rate": 0.0578,
+          "roc_auc": 0.7804,
+          "brier": 0.05013,
+          "predicted_mean": 0.05402
+        },
+        {
+          "group": "age_75_plus",
+          "n": 714,
+          "positive": 43,
+          "positive_rate": 0.0602,
+          "roc_auc": 0.7387,
+          "brier": 0.05224,
+          "predicted_mean": 0.05168
+        },
+        {
+          "group": "female",
+          "n": 5661,
+          "positive": 252,
+          "positive_rate": 0.0445,
+          "roc_auc": 0.7736,
+          "brier": 0.03949,
+          "predicted_mean": 0.04561
+        },
+        {
+          "group": "male",
+          "n": 5349,
+          "positive": 254,
+          "positive_rate": 0.0475,
+          "roc_auc": 0.7886,
+          "brier": 0.04208,
+          "predicted_mean": 0.04663
+        },
+        {
+          "group": "missing_core_bp",
+          "n": 2031,
+          "positive": 98,
+          "positive_rate": 0.0483,
+          "roc_auc": 0.6929,
+          "brier": 0.04549,
+          "predicted_mean": 0.04211
+        }
+      ],
+      "limitations": [
+        "这是同一队列内的分组审计，不是外部验证；小组样本量不足时不报告。",
+        "年龄和性别差异不代表因果关系。"
+      ]
+    },
+    {
+      "disease": "stroke",
+      "n": 14534,
+      "overall": {
+        "positive_rate": 0.0065,
+        "roc_auc": 0.8754,
+        "brier": 0.00607,
+        "calibration_bins": [
+          {
+            "bin": "0.0-0.1",
+            "n": 14521,
+            "predicted": 0.0065,
+            "observed": 0.0059
+          },
+          {
+            "bin": "0.1-0.2",
+            "n": 6,
+            "predicted": 0.1392,
+            "observed": 0.5
+          },
+          {
+            "bin": "0.2-0.3",
+            "n": 2,
+            "predicted": 0.2344,
+            "observed": 0.0
+          },
+          {
+            "bin": "0.3-0.4",
+            "n": 4,
+            "predicted": 0.3227,
+            "observed": 1.0
+          },
+          {
+            "bin": "0.4-0.5",
+            "n": 1,
+            "predicted": 0.4252,
+            "observed": 1.0
+          }
+        ]
+      },
+      "groups": [
+        {
+          "group": "age_65_74",
+          "n": 2670,
+          "positive": 22,
+          "positive_rate": 0.0082,
+          "roc_auc": 0.8869,
+          "brier": 0.00762,
+          "predicted_mean": 0.00728
+        },
+        {
+          "group": "age_75_plus",
+          "n": 1073,
+          "positive": 17,
+          "positive_rate": 0.0158,
+          "roc_auc": 0.8948,
+          "brier": 0.01414,
+          "predicted_mean": 0.0085
+        },
+        {
+          "group": "female",
+          "n": 7646,
+          "positive": 41,
+          "positive_rate": 0.0054,
+          "roc_auc": 0.8836,
+          "brier": 0.00505,
+          "predicted_mean": 0.00657
+        },
+        {
+          "group": "male",
+          "n": 6888,
+          "positive": 53,
+          "positive_rate": 0.0077,
+          "roc_auc": 0.8661,
+          "brier": 0.0072,
+          "predicted_mean": 0.00678
+        },
+        {
+          "group": "missing_core_bp",
+          "n": 2782,
+          "positive": 23,
+          "positive_rate": 0.0083,
+          "roc_auc": 0.8064,
+          "brier": 0.00814,
+          "predicted_mean": 0.00654
+        }
+      ],
+      "limitations": [
+        "这是同一队列内的分组审计，不是外部验证；小组样本量不足时不报告。",
+        "年龄和性别差异不代表因果关系。"
+      ]
+    }
+  ],
+  "generated_at": "2026-08-20T15:09:33.781171+00:00"
+}

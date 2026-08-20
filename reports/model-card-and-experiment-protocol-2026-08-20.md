@@ -26,10 +26,10 @@
 
 ## 2.1 GraphRAG 知识底座更新
 
-- 当前索引包含 14 份来源摘要、38 个文本片段、63 个实体和 218 条关系；来源包括 WHO、AHA/ASA、ADA、随机对照试验和系统综述。
+- 当前索引包含 17 份来源摘要、48 个文本片段、92 个实体和 326 条关系；来源包括 WHO、AHA/ASA、ADA、KDIGO、随机对照试验和系统综述。
 - 关系边显式区分危险因素、观测指标、共病/风险增加、干预证据、预测因素和急症信号，并保留来源、章节、证据强度和来源 URL。
 - 关系型问题允许跨病种检索，例如“高血压和糖尿病之间有什么关系”会同时返回两病种证据，并把共同危险因素和并发症风险分开表达。
-- 建议输出统一为“先说结论→结合当前数据→疾病关系与影响因素→依据→安全提示”，避免模型把文献段落直接堆在老人端。
+- 建议输出统一为“先说结论→结合当前数据→疾病关系与影响因素→为什么针对您→依据→安全提示”，同时保存 `index_version`、`graph_paths`、`personalization` 和 `uncertainty`。
 
 ## 7. 行动、授权与设备闭环
 
@@ -81,9 +81,10 @@
 python elderly-health-rag/test_graphrag.py
 python elderly-health-rag/evaluate_graph.py
 python elderly-health-rag/evaluate_personalization.py
+python elderly-health-rag/validate_graph.py
 
 # Node 22 全链路验收（服务运行在 localhost:3001）
 powershell -ExecutionPolicy Bypass -File server/final_acceptance.ps1
 ```
 
-当前验收脚本覆盖登录、DeepSeek/真实工具趋势回答、证据卡片、疾病风险、趋势曲线、行为预测门槛、GraphRAG 和历史对话。
+当前验收脚本覆盖登录、DeepSeek/真实工具趋势回答、证据卡片、疾病风险、趋势曲线、行为预测门槛、GraphRAG、CKD 关系路径和历史对话中的 GraphRAG 证据快照。

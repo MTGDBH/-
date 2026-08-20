@@ -415,12 +415,20 @@ function normalizeAgentResult(raw) {
 
 const GRAPH_NODE_NAMES = {
   hypertension: '高血压', diabetes: '糖尿病', heart_disease: '心脏病', stroke: '脑卒中',
-  chronic_kidney_disease: '慢性肾脏病', high_salt_diet: '高盐饮食', physical_inactivity: '身体活动不足',
+  chronic_kidney_disease: '慢性肾脏病', frailty: '老年衰弱', high_salt_diet: '高盐饮食', physical_inactivity: '身体活动不足',
   obesity: '超重/肥胖', tobacco: '烟草暴露', alcohol: '过量饮酒', high_bp: '血压偏高',
   high_glucose: '血糖偏高', high_lipids: '血脂偏高', sedentary_behavior: '久坐行为', unhealthy_diet: '不健康饮食',
   bp: '血压', glucose: '血糖', hba1c: '糖化血红蛋白', cholesterol: '血脂', sleep: '睡眠',
   healthy_diet: '健康饮食', regular_activity: '规律活动', salt_reduction: '减少盐摄入', mediterranean_diet: '地中海式饮食',
   low_to_moderate_activity: '低至中等强度活动', systolic_bp: '收缩压', smoking: '吸烟',
+  egfr: 'eGFR', creatinine: '肌酐', urine_albumin: '尿白蛋白', dehydration: '脱水风险',
+  polypharmacy: '多重用药', frail_older_adults: '虚弱老人', cognitive_impairment: '认知受损',
+  sedentary_pattern: '久坐模式', kidney_function_recheck: '肾功能复测', clinician_review: '医生评估',
+  fall_risk_review: '跌倒风险评估', caregiver_involvement: '家属协助', hypoglycemia: '低血糖风险',
+  do_not_self_adjust_medication: '不要自行调整用药',
+  recent_bp: '近期血压记录', recent_glucose: '近期血糖记录', tobacco_exposure: '烟草暴露',
+  activity_level: '活动量', body_weight: '体重资料', bp: '血压', glucose: '血糖',
+  activity_pattern: '活动模式', fall_risk: '跌倒风险',
 };
 function graphNodeName(id = '') {
   const tail = String(id).split(':').pop();
@@ -435,6 +443,9 @@ function graphCitationLabel(citation = '') {
     dpp_2002: 'DPP 生活方式干预试验（2002）', sprint_2015: 'SPRINT 血压试验（2015）',
     predimed_2018: 'PREDIMED 地中海饮食试验（2018）', older_cvd_risk_review_2020: '老年心血管风险系统综述（2020）',
     older_physical_activity_review_2022: '老年慢病身体活动系统综述（2022）',
+    kdigo_ckd_2024: 'KDIGO《慢性肾脏病评估与管理》2024', who_physical_activity_2020: 'WHO《身体活动指南》2020',
+    older_adult_safety: 'ADA 老年人健康安全边界（2025）', cardiovascular: 'WHO 心血管健康管理条目',
+    diabetes: 'WHO 糖尿病健康管理条目', hypertension: 'WHO 高血压健康管理条目', elderly_frailty: 'WHO 老年衰弱健康管理条目',
   };
   const key = file.replace(/\.md$/, '');
   return `${names[key] || file}${section ? ` · ${section}` : ''}`;
@@ -443,7 +454,8 @@ function graphCitationLabel(citation = '') {
 // GraphRAG 结果不是“参考文本”而已：把结构化行动、关系链和证据整理成老人能读懂的版式。
 function applyGraphGrounding(result, graph) {
   const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, 4) : [];
-  if (!recs.length) return result;
+  const hasGraphEvidence = Boolean(graph?.results?.length || graph?.graph_context?.length || graph?.graph_paths?.length);
+  if (!hasGraphEvidence) return result;
   const missingRecs = recs.filter(r => !String(result.content || '').includes(String(r.action || '')));
   const actions = missingRecs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
   const relationLines = (graph.graph_context || [])
@@ -451,9 +463,14 @@ function applyGraphGrounding(result, graph) {
     .slice(0, 3)
     .map(r => `- ${graphNodeName(r.source)} → ${graphNodeName(r.target)}：${r.type === 'increases_risk_of' ? '风险增加' : r.type === 'has_risk_factor' ? '相关风险因素' : r.type === 'managed_by' ? '可通过该方向管理' : '存在关联'}（${graphCitationLabel(r.evidence)}）`)
     .join('\n');
-  const citations = [...new Set(recs.map(r => r.evidence).filter(Boolean))].map(graphCitationLabel);
+  const rawCitations = [...recs.map(r => r.evidence), ...(graph?.results || []).map(r => r.citation)].filter(Boolean);
+  const citations = [...new Set(rawCitations)].map(graphCitationLabel);
+  const citationItems = [...new Map((graph?.results || []).filter(x => x?.citation).map(x => [x.citation, {
+    label: graphCitationLabel(x.citation), url: typeof x.source_url === 'string' ? x.source_url : '',
+    evidence_level: x.evidence_level || '', publisher: x.publisher || '', publication_year: x.publication_year || '',
+  }])).values()];
   const evidenceLines = [...new Set(citations)].slice(0, 4).map(x => `- ${x}`).join('\n');
-  const baseContent = String(result.content || '').trim() || (recs[0]?.priority === 'urgent'
+  const baseContent = String(result.content || '').replace(/undefined|null/g, '').replace(/[ \t]+\n/g, '\n').trim() || (recs[0]?.priority === 'urgent'
     ? '先说结论：当前情况包含需要立即处理的危险信号，请先寻求急救帮助。'
     : recs[0]?.priority === 'high'
       ? '先说结论：当前数据提示需要尽快复测并观察连续变化，不能只凭一次读数下诊断。'
@@ -461,6 +478,11 @@ function applyGraphGrounding(result, graph) {
   const sections = [baseContent];
   if (actions) sections.push(`结合当前数据，优先做这几件事：\n${actions}`);
   if (relationLines) sections.push(`疾病关系与影响因素：\n${relationLines}`);
+  const matched = graph?.personalization?.matched_factors || [];
+  const missing = graph?.personalization?.missing_factors || [];
+  if (matched.length || missing.length) sections.push(`为什么这样建议：已结合${matched.length ? matched.map(graphNodeName).join('、') : '当前可用数据'}；${missing.length ? `还缺少${missing.map(graphNodeName).join('、')}，因此降低判断强度。` : '目前没有发现关键资料缺口。'}`);
+  const safety = (graph?.safety_flags || []).filter(x => x.level === 'urgent');
+  if (safety.length) sections.push(`安全提醒：${safety.map(x => x.action || '请尽快联系医务人员').join('；')}`);
   sections.push(`依据：\n${evidenceLines || '- 当前疾病知识图谱的结构化条目'}\n\n提示：这些建议用于健康教育和复测安排，不代表诊断；涉及用药、治疗目标或急症，请联系医生。`);
   const grounded = sections.filter(Boolean).join('\n\n');
   const plan = recs.slice(0, 3).map((r, i) => ({
@@ -472,8 +494,16 @@ function applyGraphGrounding(result, graph) {
   }));
   return {
     ...result,
-    content: grounded.slice(0, 2600),
+    content: grounded.replace(/(?:[a-z0-9_-]+\.md)(?:#[^\s）)；;]*)?/gi, '已引用的知识来源').replace(/undefined|null/g, '').slice(0, 2600),
     plan: plan.length ? plan : result.plan,
+    evidence: {
+      graph_mode: graph.graph_mode || 'local_hybrid',
+      index_version: graph.index_version || null,
+      citations: citationItems.slice(0, 6),
+      paths: (graph.graph_paths || []).slice(0, 6),
+      personalization: graph.personalization || null,
+      uncertainty: graph.uncertainty || null,
+    },
     confidence: { type: 'data', score: Math.min(90, Math.max(65, result.confidence?.score || 70)), sources: citations.length ? citations : ['GraphRAG 结构化建议'], reasoning: '回答使用用户当前指标上下文，并由显式疾病关系图返回行动、影响因素与可审计证据。' },
   };
 }
@@ -671,6 +701,16 @@ async function mockTrendReply(user, allowForecast = true) {
   }
   const list = result.metrics || [];
   if (!list.length) {
+    // 曲线模型可能因点数不足而不返回拟合结果，但不能把“有一条真实记录”说成“没有记录”。
+    const summary = getHealthSummaryTool(user);
+    if (summary.latest?.length) {
+      const latest = summary.latest.slice(0, 4).map(x => `${x.metric} ${x.value}${x.unit ? ` ${x.unit}` : ''}`).join('、');
+      return {
+        content: `目前记录到：${latest}。现有数据点还不足以判断稳定的上升或下降趋势，请按固定时间继续记录至少几天，再进行趋势分析。`,
+        plan: [{ icon: '测', title: '继续固定时间记录', desc: '补充连续测量，避免只依据单次读数判断', color: 'orange' }],
+        confidence: { type: 'data', score: 45, sources: summary.latest.slice(0, 4).map(x => `${x.metric} ${x.value} (${x.recorded_at || '日期未知'})`), reasoning: '已读取真实测量值，但趋势模型因有效点不足未输出拟合结果。' },
+      };
+    }
     return {
       content: '最近 90 天还没有足够的健康记录，先到"健康监测"多录几次，我就能帮你分析趋势了。',
       plan: [{ icon: '测', title: '先去录入数据', desc: '监测页可录入血压/血糖等', color: 'orange' }],
@@ -756,24 +796,28 @@ function detectUnitIssues(content, healthSummary) {
 function applyResponseGuards(result, userMessage, healthSummary, intent) {
   let content = stripUnrequestedForecast(result.content, intent.forecastRequested);
   const unitIssues = detectUnitIssues(content, healthSummary);
+  const unsafeIssues = /(?:每次|每天|早晚各)\s*\d+\s*(?:mg|毫克|片|粒)|自行停药|自行加药|加倍服用|换药/.test(content)
+    ? ['可能包含用药剂量或自行调整用药表述'] : [];
   let confidence = result.confidence;
-  if (unitIssues.length && confidence?.type === 'data') {
+  if ((unitIssues.length || unsafeIssues.length) && confidence?.type === 'data') {
     confidence = {
       ...confidence,
       score: Math.min(Number(confidence.score || 60), 55),
-      reasoning: `${confidence.reasoning || ''} 已发现单位表达需要复核：${unitIssues.join('；')}`.slice(0, 500),
+      reasoning: `${confidence.reasoning || ''} 已发现需要复核的安全问题：${[...unitIssues, ...unsafeIssues].join('；')}`.slice(0, 500),
     };
   }
-  return { ...result, content, confidence, degraded: result.degraded || unitIssues.length > 0, __guardIssues: unitIssues };
+  return { ...result, content, confidence, degraded: result.degraded || unitIssues.length > 0 || unsafeIssues.length > 0, __guardIssues: [...unitIssues, ...unsafeIssues] };
 }
 
 function diseaseFromMessage(message) {
-  return /糖尿病|血糖/.test(message) ? 'diabetes'
+  return /衰弱|跌倒|功能下降|握力/.test(message) ? 'frailty'
+    : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(message) ? 'chronic_kidney_disease'
+    : /糖尿病|血糖/.test(message) ? 'diabetes'
     : /脑卒中|中风/.test(message) ? 'stroke'
       : /心脏|心血管/.test(message) ? 'heart_disease' : 'hypertension';
 }
 
-const DISEASE_CN = { hypertension: '高血压', diabetes: '糖尿病', heart_disease: '心脏病', stroke: '脑卒中' };
+const DISEASE_CN = { hypertension: '高血压', diabetes: '糖尿病', heart_disease: '心脏病', stroke: '脑卒中', chronic_kidney_disease: '慢性肾脏病' };
 
 // 风险输出必须随着数据完整度降低表述强度，避免把筛查概率误解成诊断。
 function composeDiseaseRiskReply(disease, result) {
@@ -899,6 +943,7 @@ export async function chat(history, userMessage, healthSummary, user) {
   const healthSummaryHit = routeIntent(userMessage).healthSummary;
   const actionHit = routeIntent(userMessage).action;
   const forecastRequested = /未来|预测|外推|几天后|多少天后|以后会|将会/.test(userMessage || '');
+  const graphIntentHit = /为什么|怎么办|建议|注意|危险|饮食|复测|关系|相关|影响|并发|共同|整体|身体怎么样/.test(userMessage || '');
   const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, deviceHit, alertsHit, healthSummaryHit, actionHit, forecastRequested };
 
   // 行动请求先生成可确认的结构化计划，不让 LLM 越过用户确认直接执行敏感操作。
@@ -911,12 +956,13 @@ export async function chat(history, userMessage, healthSummary, user) {
     try {
       const messages = history.slice(-10).concat([{ role: 'user', content: userMessage }]);
       let graphContext = '';
-      if (/为什么|怎么办|建议|注意|危险|饮食|复测/.test(userMessage || '')) {
-        const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
-        const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {});
+      if (graphIntentHit) {
+        const disease = /衰弱|跌倒|功能下降|握力/.test(userMessage) ? 'frailty' : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(userMessage) ? 'chronic_kidney_disease' : /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
+        const audience = user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+        const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience, topK: 6, maxHops: 2, includeTrace: true });
         if (kg?.results?.length || kg?.recommendations?.length) {
           graphEvidence = kg;
-          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 3) || [], recommendations: kg.recommendations || [], disclaimer: kg.disclaimer })}`;
+          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 4) || [], recommendations: kg.recommendations || [], personalization: kg.personalization || {}, safety_flags: kg.safety_flags || [], disclaimer: kg.disclaimer })}`;
         }
       }
       const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, intent);
@@ -946,6 +992,17 @@ export async function chat(history, userMessage, healthSummary, user) {
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
         return graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
       }
+    }
+  }
+  // 无 DeepSeek 配置或接口暂时不可用时，GraphRAG 仍然可以返回本地可审计依据，避免退化成无证据模板。
+  if (graphIntentHit && !riskHit && !trendHit && !behaviorHit && !deviceHit && !alertsHit && !healthSummaryHit && !actionHit) {
+    try {
+      const disease = /衰弱|跌倒|功能下降|握力/.test(userMessage) ? 'frailty' : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(userMessage) ? 'chronic_kidney_disease' : /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
+      const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience: user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly', topK: 6, maxHops: 2 });
+      const base = mockAgent(userMessage, healthSummary);
+      return { source: 'tool_fallback', ...applyGraphGrounding(base, kg) };
+    } catch (err) {
+      console.error('[agent] local GraphRAG fallback failed:', err.message);
     }
   }
   // Mock 模式：风险/趋势意图 → 真实工具调用（真实数据）

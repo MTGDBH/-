@@ -61,6 +61,12 @@ addColumnIfMissing('users', 'chronic_heart', 'INTEGER');
 addColumnIfMissing('users', 'chronic_stroke', 'INTEGER');
 addColumnIfMissing('users', 'dyslipidemia', 'INTEGER');
 addColumnIfMissing('users', 'lung_disease', 'INTEGER');
+addColumnIfMissing('users', 'frailty_score', 'REAL');
+addColumnIfMissing('users', 'fall_risk', 'INTEGER');
+addColumnIfMissing('users', 'cognitive_status', "TEXT DEFAULT 'unknown'");
+addColumnIfMissing('users', 'chronic_kidney', 'INTEGER');
+addColumnIfMissing('users', 'family_history', 'TEXT');
+addColumnIfMissing('users', 'sleep_quality', 'INTEGER');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS sessions (
@@ -161,6 +167,20 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_action_requests_user_status ON action_requests(user_id, status);
 
+  CREATE TABLE IF NOT EXISTS followups (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    action_request_id INTEGER REFERENCES action_requests(id) ON DELETE SET NULL,
+    metric_type TEXT,
+    due_at TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'scheduled',
+    result_metric_id INTEGER REFERENCES metrics(id) ON DELETE SET NULL,
+    result_note TEXT,
+    completed_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_followups_user_status ON followups(user_id, status, due_at);
+
   CREATE TABLE IF NOT EXISTS agent_actions (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -219,6 +239,17 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_knowledge_cat ON knowledge_articles(category);
 
+  CREATE TABLE IF NOT EXISTS knowledge_source_reviews (
+    id INTEGER PRIMARY KEY,
+    source_id TEXT NOT NULL,
+    reviewer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'pending',
+    notes TEXT,
+    reviewed_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    UNIQUE(source_id, reviewer_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_knowledge_review_source ON knowledge_source_reviews(source_id, status);
+
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -242,15 +273,18 @@ db.exec(`
 // 兼容已有库：给 chat_messages 补置信度和证据列，确保刷新/新对话仍能显示可追溯依据
 addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'evidence', 'TEXT');
+addColumnIfMissing('chat_messages', 'graph_evidence', 'TEXT');
 
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');
+addColumnIfMissing('metrics', 'measurement_condition', 'TEXT');
+addColumnIfMissing('metrics', 'data_quality', 'TEXT');
 // 设备同步状态扩展
 addColumnIfMissing('devices', 'battery_level', 'INTEGER');
 addColumnIfMissing('devices', 'sync_error', 'TEXT');
 
 // ============= 核心指标定义（单一数据源）=============
-// 15 种核心指标 + ecg（历史展示保留，ml_enabled=0 不进 ML）
+// 18 种核心指标 + ecg（历史展示保留，ml_enabled=0 不进 ML）
 // source 语义：manual=用户手动录入 | device=真实设备采集 | synthetic=项目演示数据
 const CORE_METRIC_DEFS = [
   // [type, name, unit, value_type, min, max, normal_min, normal_max, freq, ml, desc, color, icon, sort]
@@ -270,6 +304,9 @@ const CORE_METRIC_DEFS = [
   ['cholesterol','胆固醇',       'mmol/L', 'number',       1,  20, 3.1, 5.7, '1次/月',   1, '总胆固醇', '#A04632', '胆', 14],
   ['hba1c',     '糖化血红蛋白',  '%',      'number',       3,  20,  4, 6.5,  '1次/季度', 1, '糖化血红蛋白（近 3 个月血糖均值指标）', '#A04632', '化', 15],
   ['ecg',       '心电',          '',       'categorical', null, null, null, null, '按需', 0, '定性结果：100=窦性，50=异常。仅展示，暂不进 ML', '#E0784E', '电', 16],
+  ['egfr',       'eGFR',          'mL/min/1.73m²', 'number', 0, 200, 60, 200, '按医嘱', 0, '估算肾小球滤过率，需结合持续时间和尿白蛋白解释', '#3E8E8E', '肾', 17],
+  ['creatinine', '肌酐',          'μmol/L', 'number', 10, 2000, 45, 110, '按医嘱', 0, '肾功能化验指标，需结合年龄、性别和医生评估', '#3E8E8E', '肌', 18],
+  ['urine_albumin', '尿白蛋白',   'mg/g', 'number', 0, 10000, 0, 30, '按医嘱', 0, '尿白蛋白/肌酐比等肾脏风险监测指标', '#3E8E8E', '蛋', 19],
 ];
 
 const upsertDef = db.prepare(`

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-20T14:20:45.997592+00:00",
-  "cases": 3,
-  "variants": 7,
+  "generated_at": "2026-08-20T15:07:54.115356+00:00",
+  "cases": 4,
+  "variants": 9,
   "passed": true,
   "failures": [],
   "rows": [
@@ -95,6 +95,32 @@
       "evidence": "aha_lifes_essential_8_2022.md#八项指标",
       "graph_mode": "local_hybrid",
       "has_trace": true
+    },
+    {
+      "group": "ckd_same_question",
+      "variant": "reduced_egfr",
+      "question": "肾功能怎么复测",
+      "result_count": 4,
+      "recommendation_count": 1,
+      "priority": "high",
+      "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+      "reason": "eGFR 记录为 54，需要结合复测和医生评估",
+      "evidence": "kdigo_ckd_2024.md#评估与复测",
+      "graph_mode": "local_hybrid",
+      "has_trace": true
+    },
+    {
+      "group": "ckd_same_question",
+      "variant": "missing_renal_metrics",
+      "question": "肾功能怎么复测",
+      "result_count": 4,
+      "recommendation_count": 2,
+      "priority": "normal",
+      "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+      "reason": "当前缺少可判断肾功能的核心指标",
+      "evidence": "kdigo_ckd_2024.md#筛查人群",
+      "graph_mode": "local_hybrid",
+      "has_trace": true
     }
   ],
   "context_ablation": [
@@ -118,6 +144,13 @@
       "variants_with_context": 2,
       "changed_from_baseline": 2,
       "change_rate": 1.0
+    },
+    {
+      "group": "ckd_same_question",
+      "baseline_action_without_context": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+      "variants_with_context": 2,
+      "changed_from_baseline": 1,
+      "change_rate": 0.5
     }
   ],
   "limitations": [

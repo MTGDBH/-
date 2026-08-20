@@ -143,17 +143,23 @@ router.post('/devices/:id/sync', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const device = db.prepare('SELECT * FROM devices WHERE id = ? AND user_id = ?').get(id, req.user.id);
   if (!device) return res.status(404).json({ error: 'device not found' });
-  const { type, value, value2, unit, recorded_at, battery_level } = req.body || {};
-  const def = type ? db.prepare('SELECT type, unit, min_value, max_value FROM metric_defs WHERE type = ?').get(type) : null;
+  const { type, value, value2, unit, recorded_at, battery_level, measurement_condition } = req.body || {};
+  const markError = (message) => { db.prepare('UPDATE devices SET status = ?, sync_error = ? WHERE id = ? AND user_id = ?').run('error', String(message).slice(0, 240), id, req.user.id); };
+  const def = type ? db.prepare('SELECT type, unit, value_type, min_value, max_value FROM metric_defs WHERE type = ?').get(type) : null;
   const numeric = Number(value);
-  if (!def || !Number.isFinite(numeric)) return res.status(400).json({ error: 'unsupported metric or invalid value' });
-  if (def.min_value != null && numeric < def.min_value || def.max_value != null && numeric > def.max_value) return res.status(400).json({ error: 'value outside physical range' });
+  if (!def || !Number.isFinite(numeric)) { markError('unsupported metric or invalid value'); return res.status(400).json({ error: 'unsupported metric or invalid value' }); }
+  if (def.min_value != null && numeric < def.min_value || def.max_value != null && numeric > def.max_value) { markError('value outside physical range'); return res.status(400).json({ error: 'value outside physical range' }); }
   const at = recorded_at && !Number.isNaN(Date.parse(recorded_at)) ? new Date(recorded_at).toISOString() : new Date().toISOString();
-  const inserted = db.prepare('INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, device_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(req.user.id, type, numeric, value2 == null ? null : Number(value2), unit || def.unit, at, 'device', id);
+  if (def.value_type === 'dual' && (!Number.isFinite(Number(value2)) || Number(value2) < 30 || Number(value2) > 180)) { markError('invalid secondary metric value'); return res.status(400).json({ error: 'invalid secondary metric value' }); }
+  const duplicate = db.prepare(`SELECT id FROM metrics WHERE user_id = ? AND type = ? AND value = ? AND COALESCE(value2, -999999) = COALESCE(?, -999999) AND abs(julianday(recorded_at) - julianday(?)) < (60.0 / 86400.0) LIMIT 1`).get(req.user.id, type, numeric, value2 == null ? null : Number(value2), at);
+  if (duplicate) return res.status(200).json({ device, metric: db.prepare('SELECT * FROM metrics WHERE id = ?').get(duplicate.id), duplicate: true });
+  const quality = { valid: true, duplicate: false, flags: [], source: 'device', device_id: id, condition_present: Boolean(measurement_condition) };
+  const inserted = db.prepare('INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, device_id, measurement_condition, data_quality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(req.user.id, type, numeric, value2 == null ? null : Number(value2), unit || def.unit, at, 'device', id, measurement_condition || null, JSON.stringify(quality));
+  const battery = battery_level == null ? device.battery_level : Number(battery_level);
   db.prepare('UPDATE devices SET status = ?, last_sync = ?, battery_level = ?, sync_error = NULL WHERE id = ? AND user_id = ?')
-    .run('connected', new Date().toISOString(), battery_level == null ? device.battery_level : Math.max(0, Math.min(100, Number(battery_level))), id, req.user.id);
-  res.status(201).json({ device: db.prepare('SELECT * FROM devices WHERE id = ?').get(id), metric: db.prepare('SELECT * FROM metrics WHERE id = ?').get(inserted.lastInsertRowid) });
+    .run('connected', new Date().toISOString(), Number.isFinite(battery) ? Math.max(0, Math.min(100, battery)) : device.battery_level, id, req.user.id);
+  res.status(201).json({ device: db.prepare('SELECT * FROM devices WHERE id = ?').get(id), metric: db.prepare('SELECT * FROM metrics WHERE id = ?').get(inserted.lastInsertRowid), quality });
 });
 
 // ============= 对话 =============
@@ -189,10 +195,12 @@ router.post('/chat', async (req, res) => {
   const planJson = result.plan ? JSON.stringify(result.plan) : null;
   const confidenceJson = result.confidence ? JSON.stringify(result.confidence) : null;
   const evidence = buildEvidenceCard(healthSummary.context, message, result.confidence);
-  const evidenceJson = evidence ? JSON.stringify(evidence) : null;
+  const mergedEvidence = (evidence || result.evidence) ? { ...(evidence || {}), graph: result.evidence || null } : null;
+  const evidenceJson = mergedEvidence ? JSON.stringify(mergedEvidence) : null;
+  const graphEvidenceJson = result.evidence ? JSON.stringify(result.evidence) : null;
   const ins = db.prepare(`
-    INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence) VALUES (?, 'assistant', ?, ?, ?, ?)
-  `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson);
+    INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence, graph_evidence) VALUES (?, 'assistant', ?, ?, ?, ?, ?)
+  `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson, graphEvidenceJson);
 
   res.json({
     id: ins.lastInsertRowid,
@@ -200,15 +208,15 @@ router.post('/chat', async (req, res) => {
     content: result.content,
     plan: result.plan || [],
     confidence: result.confidence || { type: 'common_sense' },
-    evidence,
+    evidence: mergedEvidence,
     source: result.source,
   });
 });
 
 router.get('/chat/history', (req, res) => {
   const rows = db.prepare(`
-    SELECT id, role, content, plan, confidence, evidence, created_at FROM (
-      SELECT id, role, content, plan, confidence, evidence, created_at FROM chat_messages
+    SELECT id, role, content, plan, confidence, evidence, graph_evidence, created_at FROM (
+      SELECT id, role, content, plan, confidence, evidence, graph_evidence, created_at FROM chat_messages
       WHERE user_id = ? ORDER BY id DESC LIMIT 50
     ) ORDER BY id ASC
   `).all(req.user.id);
@@ -217,6 +225,7 @@ router.get('/chat/history', (req, res) => {
     plan: r.plan ? JSON.parse(r.plan) : null,
     confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
     evidence: r.evidence ? JSON.parse(r.evidence) : null,
+    graph_evidence: r.graph_evidence ? JSON.parse(r.graph_evidence) : null,
   })));
 });
 

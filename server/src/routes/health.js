@@ -98,18 +98,36 @@ router.get('/metrics/:type/history', (req, res) => {
 // 录入 / 更新指标
 // source: manual（用户录入，默认）| device（真实设备）| synthetic（演示/测试）
 router.post('/metrics', (req, res) => {
-  const { type, value, value2, unit, recorded_at, source, note, device_id } = req.body;
+  const { type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition } = req.body;
   if (!type || value == null) {
     return res.status(400).json({ error: 'missing type or value' });
   }
   // 兼容旧数据/调用方：source 白名单外的值归一为 manual
   const src = ['manual', 'device', 'synthetic'].includes(source) ? source : 'manual';
+  const def = db.prepare('SELECT type, unit, value_type, min_value, max_value FROM metric_defs WHERE type = ?').get(type);
+  const numeric = Number(value);
+  if (!def || !Number.isFinite(numeric)) return res.status(400).json({ error: 'unsupported metric or invalid value' });
+  const flags = [];
+  if (def.min_value != null && numeric < def.min_value || def.max_value != null && numeric > def.max_value) flags.push('outside_physical_range');
+  if (def.value_type === 'dual') {
+    const second = Number(value2);
+    if (!Number.isFinite(second)) flags.push('missing_secondary_value');
+    if (Number.isFinite(second) && (second < 30 || second > 180)) flags.push('secondary_outside_physical_range');
+  }
+  const parsedAt = recorded_at && !Number.isNaN(Date.parse(recorded_at)) ? new Date(recorded_at) : new Date();
+  if (parsedAt.getTime() > Date.now() + 5 * 60 * 1000) flags.push('future_timestamp');
+  if (flags.length) return res.status(400).json({ error: 'invalid measurement', flags });
+  const duplicate = db.prepare(`SELECT id FROM metrics WHERE user_id = ? AND type = ? AND value = ? AND COALESCE(value2, -999999) = COALESCE(?, -999999) AND abs(julianday(recorded_at) - julianday(?)) < (60.0 / 86400.0) LIMIT 1`).get(req.user.id, type, numeric, value2 == null ? null : Number(value2), parsedAt.toISOString());
+  if (duplicate) {
+    const existing = db.prepare('SELECT * FROM metrics WHERE id = ?').get(duplicate.id);
+    return res.status(200).json({ ...existing, duplicate: true, quality: { valid: true, duplicate: true, flags: ['duplicate_measurement'] } });
+  }
+  const quality = { valid: true, duplicate: false, flags: [], source: src, timestamp_quality: recorded_at ? 'provided' : 'server_time', condition_present: Boolean(measurement_condition || note) };
   const r = db.prepare(`
-    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, data_quality)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(req.user.id, type, value, value2 ?? null, unit ?? null,
-         recorded_at || new Date().toISOString(),
-         src, note ?? null, device_id ?? null);
+         parsedAt.toISOString(), src, note ?? null, device_id ?? null, measurement_condition ?? null, JSON.stringify(quality));
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
   // 趋势提醒异步执行，不阻塞指标保存；普通变化不会产生提醒。
   if (src !== 'synthetic') {
@@ -117,7 +135,7 @@ router.post('/metrics', (req, res) => {
       console.error('[trend-alert] analysis failed:', err.message)
     );
   }
-  res.json(row);
+  res.json({ ...row, quality });
 });
 
 export default router;

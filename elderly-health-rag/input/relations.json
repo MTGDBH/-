@@ -47,5 +47,32 @@
   ,{"source":"risk_factor:diabetes","target":"disease:heart_disease","type":"predictive_factor_in_older_adults","evidence":"older_cvd_risk_review_2020.md#主要发现","strength":"moderate"}
   ,{"source":"intervention:low_to_moderate_activity","target":"disease:hypertension","type":"supportive_evidence","evidence":"older_physical_activity_review_2022.md#主要发现","strength":"moderate"}
   ,{"source":"intervention:low_to_moderate_activity","target":"disease:diabetes","type":"supportive_evidence","evidence":"older_physical_activity_review_2022.md#主要发现","strength":"moderate"}
-  ,{"source":"intervention:low_to_moderate_activity","target":"metric:hba1c","type":"may_improve","evidence":"older_physical_activity_review_2022.md#主要发现","strength":"moderate"}
+  ,{"source":"intervention:low_to_moderate_activity","target":"metric:hba1c","type":"may_improve","evidence":"older_physical_activity_review_2022.md#主要发现","strength":"moderate"},
+  {"source":"disease:chronic_kidney_disease","target":"metric:egfr","type":"measured_by","evidence":"kdigo_ckd_2024.md#评估与复测","strength":"high","population":"older_adults","condition":"repeated_measurements"},
+  {"source":"disease:chronic_kidney_disease","target":"metric:creatinine","type":"measured_by","evidence":"kdigo_ckd_2024.md#评估与复测","strength":"high","population":"older_adults"},
+  {"source":"disease:chronic_kidney_disease","target":"metric:urine_albumin","type":"measured_by","evidence":"kdigo_ckd_2024.md#评估与复测","strength":"high","population":"older_adults"},
+  {"source":"disease:chronic_kidney_disease","target":"disease:hypertension","type":"coexists_with","evidence":"kdigo_ckd_2024.md#血压与共病","strength":"high"},
+  {"source":"disease:chronic_kidney_disease","target":"disease:diabetes","type":"coexists_with","evidence":"kdigo_ckd_2024.md#血压与共病","strength":"high"},
+  {"source":"disease:chronic_kidney_disease","target":"risk_factor:dehydration","type":"contextual_factor","evidence":"kdigo_ckd_2024.md#老年人安全边界","strength":"moderate"},
+  {"source":"disease:chronic_kidney_disease","target":"risk_factor:polypharmacy","type":"requires_clinician_review","evidence":"kdigo_ckd_2024.md#老年人安全边界","strength":"high"},
+  {"source":"metric:bp","target":"disease:chronic_kidney_disease","type":"monitoring_signal","evidence":"kdigo_ckd_2024.md#血压与共病","strength":"high"},
+  {"source":"metric:glucose","target":"disease:chronic_kidney_disease","type":"monitoring_signal","evidence":"kdigo_ckd_2024.md#血压与共病","strength":"high"},
+  {"source":"disease:chronic_kidney_disease","target":"care_action:kidney_function_recheck","type":"requires_remeasurement","evidence":"kdigo_ckd_2024.md#评估与复测","strength":"high"},
+  {"source":"disease:chronic_kidney_disease","target":"care_action:clinician_review","type":"requires_clinician_review","evidence":"kdigo_ckd_2024.md#老年人安全边界","strength":"high"},
+  {"source":"metric:steps","target":"behavior:sedentary_pattern","type":"trend_signal_for","evidence":"who_physical_activity_2020.md#活动与久坐","strength":"moderate","causal_status":"association"},
+  {"source":"behavior:sedentary_pattern","target":"intervention:low_to_moderate_activity","type":"modifiable_by","evidence":"who_physical_activity_2020.md#个体化执行","strength":"moderate"},
+  {"source":"intervention:low_to_moderate_activity","target":"population:older_adults","type":"recommended_for","evidence":"who_physical_activity_2020.md#个体化执行","strength":"moderate","condition":"activity_tolerance_allows"},
+  {"source":"population:frail_older_adults","target":"intervention:low_to_moderate_activity","type":"requires_clinician_review","evidence":"who_physical_activity_2020.md#安全提醒","strength":"high"},
+  {"source":"population:frail_older_adults","target":"care_action:fall_risk_review","type":"requires_medical_review","evidence":"older_adult_safety.md#功能和虚弱","strength":"high"},
+  {"source":"population:cognitive_impairment","target":"care_action:caregiver_involvement","type":"recommended_for","evidence":"older_adult_safety.md#建议呈现","strength":"moderate"},
+  {"source":"disease:diabetes","target":"risk_factor:hypoglycemia","type":"urgent_signal","evidence":"older_adult_safety.md#低血糖与用药","strength":"high"},
+  {"source":"risk_factor:hypoglycemia","target":"care_action:clinician_review","type":"requires_medical_review","evidence":"older_adult_safety.md#低血糖与用药","strength":"high"},
+  {"source":"risk_factor:polypharmacy","target":"care_action:do_not_self_adjust_medication","type":"do_not_self_adjust_medication","evidence":"older_adult_safety.md#低血糖与用药","strength":"high"}
+  ,{"source":"disease:frailty","target":"metric:grip","type":"measured_by","evidence":"elderly_frailty.md#可观察指标","strength":"moderate"}
+  ,{"source":"disease:frailty","target":"metric:weight","type":"monitoring_signal","evidence":"elderly_frailty.md#可观察指标","strength":"moderate"}
+  ,{"source":"disease:frailty","target":"behavior:activity_pattern","type":"monitoring_signal","evidence":"elderly_frailty.md#可观察指标","strength":"moderate"}
+  ,{"source":"disease:frailty","target":"risk_factor:fall_risk","type":"has_risk_factor","evidence":"elderly_frailty.md#安全行动","strength":"high"}
+  ,{"source":"disease:frailty","target":"care_action:fall_risk_review","type":"requires_medical_review","evidence":"elderly_frailty.md#安全行动","strength":"high"}
+  ,{"source":"disease:frailty","target":"disease:chronic_kidney_disease","type":"coexists_with","evidence":"elderly_frailty.md#评估维度","strength":"moderate"}
+  ,{"source":"intervention:low_to_moderate_activity","target":"disease:frailty","type":"supportive_evidence","evidence":"elderly_frailty.md#安全行动","strength":"moderate"}
 ]

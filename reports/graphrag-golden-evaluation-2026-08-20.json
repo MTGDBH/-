@@ -1,0 +1,187 @@
+{
+  "passed": true,
+  "cases": 20,
+  "failures": [],
+  "rows": [
+    {
+      "id": "htn_01",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "htn_02",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "htn_03",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "htn_04",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "dm_01",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "dm_02",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "dm_03",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "cvd_01",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "cvd_02",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "stroke_01",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "stroke_02",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "ckd_01",
+      "disease": "chronic_kidney_disease",
+      "results": 4,
+      "citations": 4,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "ckd_02",
+      "disease": "chronic_kidney_disease",
+      "results": 4,
+      "citations": 4,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "ckd_03",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "frailty_01",
+      "disease": "frailty",
+      "results": 3,
+      "citations": 3,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "frailty_02",
+      "disease": "frailty",
+      "results": 3,
+      "citations": 3,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "behavior_01",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "behavior_02",
+      "disease": "frailty",
+      "results": 3,
+      "citations": 3,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "care_01",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    },
+    {
+      "id": "safety_01",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-20.v2"
+    }
+  ]
+}

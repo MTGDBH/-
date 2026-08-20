@@ -12,6 +12,8 @@
       "diabetes:2",
       "dpp_2002:0",
       "dpp_2002:1",
+      "kdigo_ckd_2024:2",
+      "older_adult_safety:1",
       "older_physical_activity_review_2022:0",
       "who_diabetes_2024:0",
       "who_diabetes_2024:1",
@@ -32,10 +34,14 @@
       "diabetes:0",
       "diabetes:1",
       "diabetes:2",
+      "kdigo_ckd_2024:2",
+      "older_adult_safety:0",
+      "older_adult_safety:1",
       "who_cvd_2025:1",
       "who_diabetes_2024:0",
       "who_diabetes_2024:1",
-      "who_diabetes_2024:2"
+      "who_diabetes_2024:2",
+      "who_physical_activity_2020:0"
     ]
   },
   {
@@ -51,10 +57,115 @@
       "diabetes:0",
       "diabetes:1",
       "diabetes:2",
+      "kdigo_ckd_2024:2",
+      "older_adult_safety:0",
+      "older_adult_safety:1",
       "who_cvd_2025:1",
       "who_diabetes_2024:0",
       "who_diabetes_2024:1",
-      "who_diabetes_2024:2"
+      "who_diabetes_2024:2",
+      "who_physical_activity_2020:0"
+    ]
+  },
+  {
+    "id": "risk_factor:跌倒",
+    "type": "risk_factor",
+    "name": "跌倒",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "aha_lifes_essential_8_2022:2",
+      "elderly_frailty:0",
+      "elderly_frailty:2",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0",
+      "older_physical_activity_review_2022:1",
+      "who_hypertension_2025:2",
+      "who_physical_activity_2020:0"
+    ]
+  },
+  {
+    "id": "risk_factor:虚弱",
+    "type": "risk_factor",
+    "name": "虚弱",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:2",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0",
+      "older_physical_activity_review_2022:1",
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "older_adult_context:老年",
+    "type": "older_adult_context",
+    "name": "老年",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:2",
+      "elderly_frailty:0",
+      "kdigo_ckd_2024:0",
+      "older_adult_safety:0",
+      "older_cvd_risk_review_2020:1",
+      "older_physical_activity_review_2022:0",
+      "who_physical_activity_2020:0"
+    ]
+  },
+  {
+    "id": "older_adult_context:虚弱",
+    "type": "older_adult_context",
+    "name": "虚弱",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:1",
+      "aha_lifes_essential_8_2022:2",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0",
+      "older_physical_activity_review_2022:1",
+      "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "older_adult_context:跌倒",
+    "type": "older_adult_context",
+    "name": "跌倒",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "aha_lifes_essential_8_2022:2",
+      "elderly_frailty:0",
+      "elderly_frailty:2",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0",
+      "older_physical_activity_review_2022:1",
+      "who_hypertension_2025:2",
+      "who_physical_activity_2020:0"
+    ]
+  },
+  {
+    "id": "older_adult_context:认知",
+    "type": "older_adult_context",
+    "name": "认知",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "elderly_frailty:0",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0"
+    ]
+  },
+  {
+    "id": "older_adult_context:低血糖",
+    "type": "older_adult_context",
+    "name": "低血糖",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2025:2",
+      "diabetes:1",
+      "diabetes:2",
+      "older_adult_safety:1"
     ]
   },
   {
@@ -68,6 +179,9 @@
       "cardiovascular:0",
       "dpp_2002:0",
       "dpp_2002:1",
+      "elderly_frailty:0",
+      "elderly_frailty:1",
+      "elderly_frailty:2",
       "hypertension:1",
       "who_diabetes_2024:2",
       "who_hypertension_2025:2"
@@ -87,14 +201,21 @@
       "diabetes:1",
       "dpp_2002:0",
       "dpp_2002:1",
+      "elderly_frailty:0",
+      "elderly_frailty:1",
+      "elderly_frailty:2",
       "hypertension:1",
+      "older_adult_safety:0",
       "older_physical_activity_review_2022:0",
       "older_physical_activity_review_2022:1",
       "who_cvd_2025:0",
       "who_diabetes_2024:0",
       "who_diabetes_2024:2",
       "who_hypertension_2025:1",
-      "who_hypertension_2025:2"
+      "who_hypertension_2025:2",
+      "who_physical_activity_2020:0",
+      "who_physical_activity_2020:1",
+      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -108,6 +229,9 @@
       "cardiovascular:0",
       "dpp_2002:0",
       "dpp_2002:1",
+      "elderly_frailty:0",
+      "elderly_frailty:1",
+      "elderly_frailty:2",
       "hypertension:1",
       "who_diabetes_2024:2",
       "who_hypertension_2025:2"
@@ -127,14 +251,21 @@
       "diabetes:1",
       "dpp_2002:0",
       "dpp_2002:1",
+      "elderly_frailty:0",
+      "elderly_frailty:1",
+      "elderly_frailty:2",
       "hypertension:1",
+      "older_adult_safety:0",
       "older_physical_activity_review_2022:0",
       "older_physical_activity_review_2022:1",
       "who_cvd_2025:0",
       "who_diabetes_2024:0",
       "who_diabetes_2024:2",
       "who_hypertension_2025:1",
-      "who_hypertension_2025:2"
+      "who_hypertension_2025:2",
+      "who_physical_activity_2020:0",
+      "who_physical_activity_2020:1",
+      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -146,6 +277,10 @@
       "cardiovascular:1",
       "diabetes:0",
       "hypertension:0",
+      "kdigo_ckd_2024:1",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:0",
+      "older_adult_safety:1",
       "older_physical_activity_review_2022:1",
       "who_diabetes_2024:2",
       "who_hypertension_2025:0"
@@ -159,9 +294,12 @@
       "ada_older_adults_2025:2",
       "diabetes:0",
       "hypertension:0",
+      "kdigo_ckd_2024:3",
       "older_physical_activity_review_2022:1",
       "who_diabetes_2024:2",
-      "who_hypertension_2025:0"
+      "who_hypertension_2025:0",
+      "who_physical_activity_2020:1",
+      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -171,6 +309,8 @@
     "chunk_ids": [
       "ada_older_adults_2025:2",
       "cardiovascular:1",
+      "elderly_frailty:1",
+      "kdigo_ckd_2024:3",
       "who_cvd_2025:2"
     ]
   },
@@ -186,6 +326,7 @@
       "cardiovascular:1",
       "cardiovascular:2",
       "older_cvd_risk_review_2020:0",
+      "older_cvd_risk_review_2020:1",
       "who_cvd_2025:0",
       "who_cvd_2025:1",
       "who_cvd_2025:2"
@@ -203,6 +344,9 @@
       "hypertension:0",
       "hypertension:1",
       "hypertension:2",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:2",
+      "older_adult_safety:0",
       "sprint_2015:1",
       "who_cvd_2025:0",
       "who_cvd_2025:1",
@@ -235,6 +379,7 @@
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "diabetes:1",
+      "elderly_frailty:1",
       "hypertension:1",
       "older_physical_activity_review_2022:1"
     ]
@@ -251,6 +396,9 @@
       "hypertension:0",
       "hypertension:1",
       "hypertension:2",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:2",
+      "older_adult_safety:0",
       "sprint_2015:1",
       "who_cvd_2025:0",
       "who_cvd_2025:1",
@@ -283,6 +431,7 @@
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "diabetes:1",
+      "elderly_frailty:1",
       "hypertension:1",
       "older_physical_activity_review_2022:1"
     ]
@@ -297,6 +446,15 @@
       "cardiovascular:2",
       "predimed_2018:0",
       "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "older_adult_context:功能状态",
+    "type": "older_adult_context",
+    "name": "功能状态",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:0",
+      "older_adult_safety:0"
     ]
   },
   {
@@ -328,7 +486,8 @@
     "chunk_ids": [
       "cardiovascular:2",
       "hypertension:2",
-      "who_hypertension_2025:3"
+      "who_hypertension_2025:3",
+      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -338,8 +497,10 @@
     "chunk_ids": [
       "cardiovascular:2",
       "hypertension:2",
+      "kdigo_ckd_2024:3",
       "who_cvd_2025:2",
-      "who_hypertension_2025:3"
+      "who_hypertension_2025:3",
+      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -355,7 +516,8 @@
     "type": "intervention",
     "name": "联系家属",
     "chunk_ids": [
-      "diabetes:2"
+      "diabetes:2",
+      "elderly_frailty:2"
     ]
   },
   {
@@ -367,6 +529,28 @@
     ]
   },
   {
+    "id": "disease:frailty",
+    "type": "disease",
+    "name": "frailty",
+    "chunk_ids": [
+      "elderly_frailty:0",
+      "elderly_frailty:1",
+      "elderly_frailty:2"
+    ]
+  },
+  {
+    "id": "danger_sign:意识改变",
+    "type": "danger_sign",
+    "name": "意识改变",
+    "chunk_ids": [
+      "elderly_frailty:2",
+      "hypertension:2",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:1",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
     "id": "disease:hypertension",
     "type": "disease",
     "name": "hypertension",
@@ -374,6 +558,7 @@
       "hypertension:0",
       "hypertension:1",
       "hypertension:2",
+      "kdigo_ckd_2024:2",
       "older_physical_activity_review_2022:0",
       "sprint_2015:1",
       "who_hypertension_2025:0",
@@ -392,20 +577,59 @@
     ]
   },
   {
-    "id": "danger_sign:意识改变",
-    "type": "danger_sign",
-    "name": "意识改变",
-    "chunk_ids": [
-      "hypertension:2",
-      "who_hypertension_2025:3"
-    ]
-  },
-  {
     "id": "danger_sign:单侧无力",
     "type": "danger_sign",
     "name": "单侧无力",
     "chunk_ids": [
-      "hypertension:2"
+      "hypertension:2",
+      "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "disease:chronic_kidney_disease",
+    "type": "disease",
+    "name": "chronic_kidney_disease",
+    "chunk_ids": [
+      "elderly_frailty:0",
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:1",
+      "kdigo_ckd_2024:2",
+      "kdigo_ckd_2024:3",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "risk_factor:肾功能",
+    "type": "risk_factor",
+    "name": "肾功能",
+    "chunk_ids": [
+      "kdigo_ckd_2024:0",
+      "kdigo_ckd_2024:2"
+    ]
+  },
+  {
+    "id": "measurement:eGFR",
+    "type": "measurement",
+    "name": "eGFR",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "measurement:尿白蛋白",
+    "type": "measurement",
+    "name": "尿白蛋白",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "disease:older_adult_safety",
+    "type": "disease",
+    "name": "older_adult_safety",
+    "chunk_ids": [
+      "older_adult_safety:0",
+      "older_adult_safety:1"
     ]
   },
   {
@@ -422,6 +646,16 @@
     "type": "disease",
     "name": "predimed_2018",
     "chunk_ids": []
+  },
+  {
+    "id": "disease:who_physical_activity_2020",
+    "type": "disease",
+    "name": "who_physical_activity_2020",
+    "chunk_ids": [
+      "who_physical_activity_2020:0",
+      "who_physical_activity_2020:1",
+      "who_physical_activity_2020:2"
+    ]
   },
   {
     "id": "risk_factor:high_salt_diet",
@@ -484,6 +718,7 @@
     "name": "bp",
     "label": "指标",
     "chunk_ids": [
+      "kdigo_ckd_2024:2",
       "who_hypertension_2025:0"
     ]
   },
@@ -496,15 +731,6 @@
       "aha_lifes_essential_8_2022:0",
       "older_cvd_risk_review_2020:0",
       "predimed_2018:0",
-      "who_hypertension_2025:3"
-    ]
-  },
-  {
-    "id": "disease:chronic_kidney_disease",
-    "type": "disease",
-    "name": "chronic_kidney_disease",
-    "label": "疾病",
-    "chunk_ids": [
       "who_hypertension_2025:3"
     ]
   },
@@ -549,7 +775,9 @@
     "type": "metric",
     "name": "glucose",
     "label": "指标",
-    "chunk_ids": []
+    "chunk_ids": [
+      "kdigo_ckd_2024:2"
+    ]
   },
   {
     "id": "metric:hba1c",
@@ -697,7 +925,195 @@
     "name": "low_to_moderate_activity",
     "label": "干预",
     "chunk_ids": [
-      "older_physical_activity_review_2022:0"
+      "elderly_frailty:2",
+      "older_physical_activity_review_2022:0",
+      "who_physical_activity_2020:1",
+      "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "metric:egfr",
+    "type": "metric",
+    "name": "egfr",
+    "label": "指标",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "metric:creatinine",
+    "type": "metric",
+    "name": "creatinine",
+    "label": "指标",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "metric:urine_albumin",
+    "type": "metric",
+    "name": "urine_albumin",
+    "label": "指标",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "risk_factor:dehydration",
+    "type": "risk_factor",
+    "name": "dehydration",
+    "label": "风险因素",
+    "chunk_ids": [
+      "kdigo_ckd_2024:3"
+    ]
+  },
+  {
+    "id": "risk_factor:polypharmacy",
+    "type": "risk_factor",
+    "name": "polypharmacy",
+    "label": "风险因素",
+    "chunk_ids": [
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:1"
+    ]
+  },
+  {
+    "id": "care_action:kidney_function_recheck",
+    "type": "care_action",
+    "name": "kidney_function_recheck",
+    "label": "照护行动",
+    "chunk_ids": [
+      "kdigo_ckd_2024:1"
+    ]
+  },
+  {
+    "id": "care_action:clinician_review",
+    "type": "care_action",
+    "name": "clinician_review",
+    "label": "照护行动",
+    "chunk_ids": [
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:1"
+    ]
+  },
+  {
+    "id": "metric:steps",
+    "type": "metric",
+    "name": "steps",
+    "label": "指标",
+    "chunk_ids": [
+      "who_physical_activity_2020:0"
+    ]
+  },
+  {
+    "id": "behavior:sedentary_pattern",
+    "type": "behavior",
+    "name": "sedentary_pattern",
+    "label": "行为",
+    "chunk_ids": [
+      "who_physical_activity_2020:0",
+      "who_physical_activity_2020:1"
+    ]
+  },
+  {
+    "id": "population:older_adults",
+    "type": "population",
+    "name": "older_adults",
+    "label": "人群",
+    "chunk_ids": [
+      "who_physical_activity_2020:1"
+    ]
+  },
+  {
+    "id": "population:frail_older_adults",
+    "type": "population",
+    "name": "frail_older_adults",
+    "label": "人群",
+    "chunk_ids": [
+      "older_adult_safety:0",
+      "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "care_action:fall_risk_review",
+    "type": "care_action",
+    "name": "fall_risk_review",
+    "label": "照护行动",
+    "chunk_ids": [
+      "elderly_frailty:2",
+      "older_adult_safety:0"
+    ]
+  },
+  {
+    "id": "population:cognitive_impairment",
+    "type": "population",
+    "name": "cognitive_impairment",
+    "label": "人群",
+    "chunk_ids": [
+      "older_adult_safety:2"
+    ]
+  },
+  {
+    "id": "care_action:caregiver_involvement",
+    "type": "care_action",
+    "name": "caregiver_involvement",
+    "label": "照护行动",
+    "chunk_ids": [
+      "older_adult_safety:2"
+    ]
+  },
+  {
+    "id": "risk_factor:hypoglycemia",
+    "type": "risk_factor",
+    "name": "hypoglycemia",
+    "label": "风险因素",
+    "chunk_ids": [
+      "older_adult_safety:1"
+    ]
+  },
+  {
+    "id": "care_action:do_not_self_adjust_medication",
+    "type": "care_action",
+    "name": "do_not_self_adjust_medication",
+    "label": "照护行动",
+    "chunk_ids": [
+      "older_adult_safety:1"
+    ]
+  },
+  {
+    "id": "metric:grip",
+    "type": "metric",
+    "name": "grip",
+    "label": "指标",
+    "chunk_ids": [
+      "elderly_frailty:1"
+    ]
+  },
+  {
+    "id": "metric:weight",
+    "type": "metric",
+    "name": "weight",
+    "label": "指标",
+    "chunk_ids": [
+      "elderly_frailty:1"
+    ]
+  },
+  {
+    "id": "behavior:activity_pattern",
+    "type": "behavior",
+    "name": "activity_pattern",
+    "label": "行为",
+    "chunk_ids": [
+      "elderly_frailty:1"
+    ]
+  },
+  {
+    "id": "risk_factor:fall_risk",
+    "type": "risk_factor",
+    "name": "fall_risk",
+    "label": "风险因素",
+    "chunk_ids": [
+      "elderly_frailty:2"
     ]
   }
 ]

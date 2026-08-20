@@ -15,6 +15,55 @@
   },
   {
     "source": "disease:diabetes",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
     "target": "measurement:体重",
     "type": "mentions",
     "chunk_id": "ada_older_adults_2025:1",
@@ -36,7 +85,21 @@
   },
   {
     "source": "disease:diabetes",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:1",
+    "evidence": "ada_older_adults_2025.md#生活方式与安全"
+  },
+  {
+    "source": "disease:diabetes",
     "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:1",
+    "evidence": "ada_older_adults_2025.md#生活方式与安全"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:虚弱",
     "type": "mentions",
     "chunk_id": "ada_older_adults_2025:1",
     "evidence": "ada_older_adults_2025.md#生活方式与安全"
@@ -77,6 +140,20 @@
     "evidence": "ada_older_adults_2025.md#用药边界"
   },
   {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:2",
+    "evidence": "ada_older_adults_2025.md#用药边界"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:2",
+    "evidence": "ada_older_adults_2025.md#用药边界"
+  },
+  {
     "source": "disease:cardiovascular",
     "target": "measurement:血压",
     "type": "mentions",
@@ -253,7 +330,35 @@
   },
   {
     "source": "disease:cardiovascular",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "aha_lifes_essential_8_2022:2",
+    "evidence": "aha_lifes_essential_8_2022.md#边界"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "aha_lifes_essential_8_2022:2",
+    "evidence": "aha_lifes_essential_8_2022.md#边界"
+  },
+  {
+    "source": "disease:cardiovascular",
     "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "aha_lifes_essential_8_2022:2",
+    "evidence": "aha_lifes_essential_8_2022.md#边界"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "aha_lifes_essential_8_2022:2",
+    "evidence": "aha_lifes_essential_8_2022.md#边界"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "older_adult_context:跌倒",
     "type": "mentions",
     "chunk_id": "aha_lifes_essential_8_2022:2",
     "evidence": "aha_lifes_essential_8_2022.md#边界"
@@ -282,6 +387,13 @@
   {
     "source": "disease:stroke",
     "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "aha_stroke_prevention_2024:0",
+    "evidence": "aha_stroke_prevention_2024.md#血压与身体活动"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:功能状态",
     "type": "mentions",
     "chunk_id": "aha_stroke_prevention_2024:0",
     "evidence": "aha_stroke_prevention_2024.md#血压与身体活动"
@@ -477,6 +589,13 @@
   },
   {
     "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:1",
+    "evidence": "diabetes.md#生活方式"
+  },
+  {
+    "source": "disease:diabetes",
     "target": "measurement:血糖",
     "type": "mentions",
     "chunk_id": "diabetes:2",
@@ -505,6 +624,13 @@
   },
   {
     "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "diabetes:2",
+    "evidence": "diabetes.md#危险信号"
+  },
+  {
+    "source": "disease:diabetes",
     "target": "measurement:体重",
     "type": "mentions",
     "chunk_id": "dpp_2002:0",
@@ -558,6 +684,167 @@
     "type": "mentions",
     "chunk_id": "dpp_2002:1",
     "evidence": "dpp_2002.md#系统使用边界"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:0",
+    "evidence": "elderly_frailty.md#评估维度"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:就医",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:1",
+    "evidence": "elderly_frailty.md#可观察指标"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:体重",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:联系家属",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "danger_sign:意识改变",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "elderly_frailty:2",
+    "evidence": "elderly_frailty.md#安全行动"
   },
   {
     "source": "disease:hypertension",
@@ -707,6 +994,314 @@
     "evidence": "hypertension.md#危险信号"
   },
   {
+    "source": "disease:chronic_kidney_disease",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:肾功能",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:0",
+    "evidence": "kdigo_ckd_2024.md#筛查人群"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "measurement:eGFR",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence": "kdigo_ckd_2024.md#评估与复测"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "measurement:尿白蛋白",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence": "kdigo_ckd_2024.md#评估与复测"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence": "kdigo_ckd_2024.md#评估与复测"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence": "kdigo_ckd_2024.md#血压与共病"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence": "kdigo_ckd_2024.md#血压与共病"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence": "kdigo_ckd_2024.md#血压与共病"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence": "kdigo_ckd_2024.md#血压与共病"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:肾功能",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence": "kdigo_ckd_2024.md#血压与共病"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "intervention:就医",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "danger_sign:呼吸困难",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "danger_sign:意识改变",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:功能状态",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:0",
+    "evidence": "older_adult_safety.md#功能和虚弱"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:1",
+    "evidence": "older_adult_safety.md#低血糖与用药"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:1",
+    "evidence": "older_adult_safety.md#低血糖与用药"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:1",
+    "evidence": "older_adult_safety.md#低血糖与用药"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "danger_sign:意识改变",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:1",
+    "evidence": "older_adult_safety.md#低血糖与用药"
+  },
+  {
+    "source": "disease:older_adult_safety",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "older_adult_safety:1",
+    "evidence": "older_adult_safety.md#低血糖与用药"
+  },
+  {
     "source": "disease:cardiovascular",
     "target": "measurement:血脂",
     "type": "mentions",
@@ -726,6 +1321,13 @@
     "type": "mentions",
     "chunk_id": "older_cvd_risk_review_2020:0",
     "evidence": "older_cvd_risk_review_2020.md#主要发现"
+  },
+  {
+    "source": "disease:cardiovascular",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "older_cvd_risk_review_2020:1",
+    "evidence": "older_cvd_risk_review_2020.md#对本系统的约束"
   },
   {
     "source": "disease:older_physical_activity_review_2022",
@@ -757,6 +1359,13 @@
   },
   {
     "source": "disease:older_physical_activity_review_2022",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "older_physical_activity_review_2022:0",
+    "evidence": "older_physical_activity_review_2022.md#主要发现"
+  },
+  {
+    "source": "disease:older_physical_activity_review_2022",
     "target": "measurement:活动",
     "type": "mentions",
     "chunk_id": "older_physical_activity_review_2022:1",
@@ -765,6 +1374,20 @@
   {
     "source": "disease:older_physical_activity_review_2022",
     "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "older_physical_activity_review_2022:1",
+    "evidence": "older_physical_activity_review_2022.md#系统使用边界"
+  },
+  {
+    "source": "disease:older_physical_activity_review_2022",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "older_physical_activity_review_2022:1",
+    "evidence": "older_physical_activity_review_2022.md#系统使用边界"
+  },
+  {
+    "source": "disease:older_physical_activity_review_2022",
+    "target": "risk_factor:虚弱",
     "type": "mentions",
     "chunk_id": "older_physical_activity_review_2022:1",
     "evidence": "older_physical_activity_review_2022.md#系统使用边界"
@@ -793,6 +1416,20 @@
   {
     "source": "disease:older_physical_activity_review_2022",
     "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "older_physical_activity_review_2022:1",
+    "evidence": "older_physical_activity_review_2022.md#系统使用边界"
+  },
+  {
+    "source": "disease:older_physical_activity_review_2022",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "older_physical_activity_review_2022:1",
+    "evidence": "older_physical_activity_review_2022.md#系统使用边界"
+  },
+  {
+    "source": "disease:older_physical_activity_review_2022",
+    "target": "older_adult_context:跌倒",
     "type": "mentions",
     "chunk_id": "older_physical_activity_review_2022:1",
     "evidence": "older_physical_activity_review_2022.md#系统使用边界"
@@ -1135,6 +1772,20 @@
   },
   {
     "source": "disease:hypertension",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence": "who_hypertension_2025.md#生活方式干预"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence": "who_hypertension_2025.md#生活方式干预"
+  },
+  {
+    "source": "disease:hypertension",
     "target": "intervention:减少盐",
     "type": "mentions",
     "chunk_id": "who_hypertension_2025:2",
@@ -1143,6 +1794,20 @@
   {
     "source": "disease:hypertension",
     "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence": "who_hypertension_2025.md#生活方式干预"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence": "who_hypertension_2025.md#生活方式干预"
+  },
+  {
+    "source": "disease:hypertension",
+    "target": "older_adult_context:跌倒",
     "type": "mentions",
     "chunk_id": "who_hypertension_2025:2",
     "evidence": "who_hypertension_2025.md#生活方式干预"
@@ -1183,12 +1848,128 @@
     "evidence": "who_hypertension_2025.md#并发症"
   },
   {
+    "source": "disease:who_physical_activity_2020",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence": "who_physical_activity_2020.md#活动与久坐"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:1",
+    "evidence": "who_physical_activity_2020.md#个体化执行"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:1",
+    "evidence": "who_physical_activity_2020.md#个体化执行"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:1",
+    "evidence": "who_physical_activity_2020.md#个体化执行"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "danger_sign:胸痛",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "danger_sign:呼吸困难",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
+    "source": "disease:who_physical_activity_2020",
+    "target": "danger_sign:单侧无力",
+    "type": "mentions",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence": "who_physical_activity_2020.md#安全提醒"
+  },
+  {
     "source": "disease:hypertension",
     "target": "risk_factor:high_salt_diet",
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1196,7 +1977,11 @@
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1204,7 +1989,11 @@
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1212,7 +2001,11 @@
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1220,7 +2013,11 @@
     "type": "has_risk_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1228,7 +2025,11 @@
     "type": "has_nonmodifiable_factor",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1236,7 +2037,11 @@
     "type": "measured_by",
     "evidence": "who_hypertension_2025.md#识别与复测",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:0"
+    "chunk_id": "who_hypertension_2025:0",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1244,7 +2049,11 @@
     "type": "coexists_with",
     "evidence": "who_hypertension_2025.md#危险因素",
     "strength": "moderate",
-    "chunk_id": "who_hypertension_2025:1"
+    "chunk_id": "who_hypertension_2025:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1252,7 +2061,11 @@
     "type": "increases_risk_of",
     "evidence": "who_hypertension_2025.md#并发症",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:3"
+    "chunk_id": "who_hypertension_2025:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1260,7 +2073,11 @@
     "type": "increases_risk_of",
     "evidence": "who_hypertension_2025.md#并发症",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:3"
+    "chunk_id": "who_hypertension_2025:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1268,7 +2085,11 @@
     "type": "increases_risk_of",
     "evidence": "who_hypertension_2025.md#并发症",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:3"
+    "chunk_id": "who_hypertension_2025:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1276,7 +2097,11 @@
     "type": "managed_by",
     "evidence": "who_hypertension_2025.md#识别与复测",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:0"
+    "chunk_id": "who_hypertension_2025:0",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1284,7 +2109,11 @@
     "type": "managed_by",
     "evidence": "who_hypertension_2025.md#生活方式干预",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:2"
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:hypertension",
@@ -1292,7 +2121,11 @@
     "type": "managed_by",
     "evidence": "who_hypertension_2025.md#生活方式干预",
     "strength": "high",
-    "chunk_id": "who_hypertension_2025:2"
+    "chunk_id": "who_hypertension_2025:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1300,7 +2133,11 @@
     "type": "has_risk_factor",
     "evidence": "who_diabetes_2024.md#2型糖尿病",
     "strength": "high",
-    "chunk_id": "who_diabetes_2024:0"
+    "chunk_id": "who_diabetes_2024:0",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1308,7 +2145,11 @@
     "type": "has_risk_factor",
     "evidence": "who_diabetes_2024.md#预防",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1316,7 +2157,11 @@
     "type": "has_risk_factor",
     "evidence": "who_diabetes_2024.md#2型糖尿病",
     "strength": "moderate",
-    "chunk_id": "who_diabetes_2024:0"
+    "chunk_id": "who_diabetes_2024:0",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1324,7 +2169,11 @@
     "type": "measured_by",
     "evidence": "who_diabetes_2024.md#诊断与治疗",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1332,7 +2181,11 @@
     "type": "measured_by",
     "evidence": "ada_older_adults_2025.md#综合评估",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1340,7 +2193,11 @@
     "type": "increases_risk_of",
     "evidence": "who_diabetes_2024.md#长期影响",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1348,7 +2205,11 @@
     "type": "increases_risk_of",
     "evidence": "who_diabetes_2024.md#长期影响",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1356,7 +2217,11 @@
     "type": "increases_risk_of",
     "evidence": "who_diabetes_2024.md#长期影响",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1364,7 +2229,11 @@
     "type": "managed_by",
     "evidence": "ada_older_adults_2025.md#生活方式",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1372,7 +2241,11 @@
     "type": "managed_by",
     "evidence": "ada_older_adults_2025.md#生活方式",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:diabetes",
@@ -1380,7 +2253,11 @@
     "type": "managed_by",
     "evidence": "ada_older_adults_2025.md#老年人综合评估",
     "strength": "high",
-    "chunk_id": "ada_older_adults_2025:0"
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:heart_disease",
@@ -1388,7 +2265,11 @@
     "type": "has_risk_factor",
     "evidence": "who_cvd_2025.md#风险因素",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:heart_disease",
@@ -1396,7 +2277,11 @@
     "type": "has_risk_factor",
     "evidence": "who_cvd_2025.md#风险因素",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:heart_disease",
@@ -1404,7 +2289,11 @@
     "type": "has_risk_factor",
     "evidence": "who_cvd_2025.md#风险因素",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:heart_disease",
@@ -1412,7 +2301,11 @@
     "type": "has_risk_factor",
     "evidence": "who_cvd_2025.md#风险因素",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:heart_disease",
@@ -1420,7 +2313,11 @@
     "type": "measured_by",
     "evidence": "aha_lifes_essential_8_2022.md#八项指标",
     "strength": "moderate",
-    "chunk_id": "aha_lifes_essential_8_2022:0"
+    "chunk_id": "aha_lifes_essential_8_2022:0",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:stroke",
@@ -1428,7 +2325,11 @@
     "type": "major_preventable_driver",
     "evidence": "aha_stroke_prevention_2024.md#血压管理",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:stroke",
@@ -1436,7 +2337,11 @@
     "type": "has_risk_factor",
     "evidence": "aha_stroke_prevention_2024.md#身体活动",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:stroke",
@@ -1444,7 +2349,11 @@
     "type": "has_risk_factor",
     "evidence": "aha_stroke_prevention_2024.md#饮食模式",
     "strength": "high",
-    "chunk_id": "aha_stroke_prevention_2024:1"
+    "chunk_id": "aha_stroke_prevention_2024:1",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:stroke",
@@ -1452,7 +2361,11 @@
     "type": "contextual_factor",
     "evidence": "aha_stroke_prevention_2024.md#社会决定因素",
     "strength": "moderate",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "disease:stroke",
@@ -1460,7 +2373,11 @@
     "type": "urgent_signal",
     "evidence": "cardiovascular.md#危险信号",
     "strength": "high",
-    "chunk_id": "cardiovascular:2"
+    "chunk_id": "cardiovascular:2",
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:healthy_diet",
@@ -1468,7 +2385,11 @@
     "type": "reduces_risk_or_supports_control",
     "evidence": "aha_lifes_essential_8_2022.md#饮食",
     "strength": "moderate",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:regular_activity",
@@ -1476,7 +2397,11 @@
     "type": "reduces_risk_or_supports_control",
     "evidence": "aha_lifes_essential_8_2022.md#身体活动",
     "strength": "moderate",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:mediterranean_diet",
@@ -1484,7 +2409,11 @@
     "type": "prevention_evidence",
     "evidence": "aha_stroke_prevention_2024.md#饮食模式",
     "strength": "moderate",
-    "chunk_id": "aha_stroke_prevention_2024:1"
+    "chunk_id": "aha_stroke_prevention_2024:1",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:lifestyle_program",
@@ -1492,7 +2421,11 @@
     "type": "prevention_evidence",
     "evidence": "dpp_2002.md#试验结论",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "metric:sleep",
@@ -1500,7 +2433,11 @@
     "type": "cardiovascular_context_factor",
     "evidence": "aha_lifes_essential_8_2022.md#八项指标",
     "strength": "moderate",
-    "chunk_id": "aha_lifes_essential_8_2022:0"
+    "chunk_id": "aha_lifes_essential_8_2022:0",
+    "evidence_level": "professional_statement",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "metric:bp",
@@ -1508,7 +2445,11 @@
     "type": "monitoring_signal",
     "evidence": "aha_stroke_prevention_2024.md#血压管理",
     "strength": "high",
-    "chunk_id": null
+    "chunk_id": null,
+    "evidence_level": "public_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:mediterranean_diet",
@@ -1516,7 +2457,11 @@
     "type": "prevention_evidence",
     "evidence": "predimed_2018.md#试验要点",
     "strength": "moderate",
-    "chunk_id": "predimed_2018:0"
+    "chunk_id": "predimed_2018:0",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:mediterranean_diet",
@@ -1524,7 +2469,11 @@
     "type": "prevention_evidence",
     "evidence": "predimed_2018.md#试验要点",
     "strength": "moderate",
-    "chunk_id": "predimed_2018:0"
+    "chunk_id": "predimed_2018:0",
+    "evidence_level": "randomized_trial",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "risk_factor:systolic_bp",
@@ -1532,7 +2481,11 @@
     "type": "predictive_factor_in_older_adults",
     "evidence": "older_cvd_risk_review_2020.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_cvd_risk_review_2020:0"
+    "chunk_id": "older_cvd_risk_review_2020:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "association",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "risk_factor:smoking",
@@ -1540,7 +2493,11 @@
     "type": "predictive_factor_in_older_adults",
     "evidence": "older_cvd_risk_review_2020.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_cvd_risk_review_2020:0"
+    "chunk_id": "older_cvd_risk_review_2020:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "association",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "risk_factor:diabetes",
@@ -1548,7 +2505,11 @@
     "type": "predictive_factor_in_older_adults",
     "evidence": "older_cvd_risk_review_2020.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_cvd_risk_review_2020:0"
+    "chunk_id": "older_cvd_risk_review_2020:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "association",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:low_to_moderate_activity",
@@ -1556,7 +2517,11 @@
     "type": "supportive_evidence",
     "evidence": "older_physical_activity_review_2022.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_physical_activity_review_2022:0"
+    "chunk_id": "older_physical_activity_review_2022:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:low_to_moderate_activity",
@@ -1564,7 +2529,11 @@
     "type": "supportive_evidence",
     "evidence": "older_physical_activity_review_2022.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_physical_activity_review_2022:0"
+    "chunk_id": "older_physical_activity_review_2022:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   },
   {
     "source": "intervention:low_to_moderate_activity",
@@ -1572,6 +2541,336 @@
     "type": "may_improve",
     "evidence": "older_physical_activity_review_2022.md#主要发现",
     "strength": "moderate",
-    "chunk_id": "older_physical_activity_review_2022:0"
+    "chunk_id": "older_physical_activity_review_2022:0",
+    "evidence_level": "systematic_review",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "metric:egfr",
+    "type": "measured_by",
+    "evidence": "kdigo_ckd_2024.md#评估与复测",
+    "strength": "high",
+    "population": "older_adults",
+    "condition": "repeated_measurements",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "metric:creatinine",
+    "type": "measured_by",
+    "evidence": "kdigo_ckd_2024.md#评估与复测",
+    "strength": "high",
+    "population": "older_adults",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "metric:urine_albumin",
+    "type": "measured_by",
+    "evidence": "kdigo_ckd_2024.md#评估与复测",
+    "strength": "high",
+    "population": "older_adults",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "disease:hypertension",
+    "type": "coexists_with",
+    "evidence": "kdigo_ckd_2024.md#血压与共病",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "disease:diabetes",
+    "type": "coexists_with",
+    "evidence": "kdigo_ckd_2024.md#血压与共病",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:dehydration",
+    "type": "contextual_factor",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界",
+    "strength": "moderate",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:polypharmacy",
+    "type": "requires_clinician_review",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "metric:bp",
+    "target": "disease:chronic_kidney_disease",
+    "type": "monitoring_signal",
+    "evidence": "kdigo_ckd_2024.md#血压与共病",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "metric:glucose",
+    "target": "disease:chronic_kidney_disease",
+    "type": "monitoring_signal",
+    "evidence": "kdigo_ckd_2024.md#血压与共病",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "care_action:kidney_function_recheck",
+    "type": "requires_remeasurement",
+    "evidence": "kdigo_ckd_2024.md#评估与复测",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "care_action:clinician_review",
+    "type": "requires_clinician_review",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界",
+    "strength": "high",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "metric:steps",
+    "target": "behavior:sedentary_pattern",
+    "type": "trend_signal_for",
+    "evidence": "who_physical_activity_2020.md#活动与久坐",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "who_physical_activity_2020:0",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "behavior:sedentary_pattern",
+    "target": "intervention:low_to_moderate_activity",
+    "type": "modifiable_by",
+    "evidence": "who_physical_activity_2020.md#个体化执行",
+    "strength": "moderate",
+    "chunk_id": "who_physical_activity_2020:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "intervention:low_to_moderate_activity",
+    "target": "population:older_adults",
+    "type": "recommended_for",
+    "evidence": "who_physical_activity_2020.md#个体化执行",
+    "strength": "moderate",
+    "condition": "activity_tolerance_allows",
+    "chunk_id": "who_physical_activity_2020:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:frail_older_adults",
+    "target": "intervention:low_to_moderate_activity",
+    "type": "requires_clinician_review",
+    "evidence": "who_physical_activity_2020.md#安全提醒",
+    "strength": "high",
+    "chunk_id": "who_physical_activity_2020:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:frail_older_adults",
+    "target": "care_action:fall_risk_review",
+    "type": "requires_medical_review",
+    "evidence": "older_adult_safety.md#功能和虚弱",
+    "strength": "high",
+    "chunk_id": "older_adult_safety:0",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:cognitive_impairment",
+    "target": "care_action:caregiver_involvement",
+    "type": "recommended_for",
+    "evidence": "older_adult_safety.md#建议呈现",
+    "strength": "moderate",
+    "chunk_id": "older_adult_safety:2",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:hypoglycemia",
+    "type": "urgent_signal",
+    "evidence": "older_adult_safety.md#低血糖与用药",
+    "strength": "high",
+    "chunk_id": "older_adult_safety:1",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:hypoglycemia",
+    "target": "care_action:clinician_review",
+    "type": "requires_medical_review",
+    "evidence": "older_adult_safety.md#低血糖与用药",
+    "strength": "high",
+    "chunk_id": "older_adult_safety:1",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:polypharmacy",
+    "target": "care_action:do_not_self_adjust_medication",
+    "type": "do_not_self_adjust_medication",
+    "evidence": "older_adult_safety.md#低血糖与用药",
+    "strength": "high",
+    "chunk_id": "older_adult_safety:1",
+    "evidence_level": "professional_guideline",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "metric:grip",
+    "type": "measured_by",
+    "evidence": "elderly_frailty.md#可观察指标",
+    "strength": "moderate",
+    "chunk_id": "elderly_frailty:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "metric:weight",
+    "type": "monitoring_signal",
+    "evidence": "elderly_frailty.md#可观察指标",
+    "strength": "moderate",
+    "chunk_id": "elderly_frailty:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "behavior:activity_pattern",
+    "type": "monitoring_signal",
+    "evidence": "elderly_frailty.md#可观察指标",
+    "strength": "moderate",
+    "chunk_id": "elderly_frailty:1",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:fall_risk",
+    "type": "has_risk_factor",
+    "evidence": "elderly_frailty.md#安全行动",
+    "strength": "high",
+    "chunk_id": "elderly_frailty:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "care_action:fall_risk_review",
+    "type": "requires_medical_review",
+    "evidence": "elderly_frailty.md#安全行动",
+    "strength": "high",
+    "chunk_id": "elderly_frailty:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "disease:chronic_kidney_disease",
+    "type": "coexists_with",
+    "evidence": "elderly_frailty.md#评估维度",
+    "strength": "moderate",
+    "chunk_id": "elderly_frailty:0",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "intervention:low_to_moderate_activity",
+    "target": "disease:frailty",
+    "type": "supportive_evidence",
+    "evidence": "elderly_frailty.md#安全行动",
+    "strength": "moderate",
+    "chunk_id": "elderly_frailty:2",
+    "evidence_level": "authoritative_guidance",
+    "causal_status": "guidance",
+    "population": "older_adults",
+    "last_verified": "2026-08-20"
   }
 ]

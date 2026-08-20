@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-08-20T15:07:35.503Z",
+  "cases": 3,
+  "rows": [
+    {
+      "scenario": "high_bp",
+      "template": "保持健康生活方式，定期记录指标。",
+      "graph_action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+      "graph_priority": "high",
+      "graph_citations": 6,
+      "graph_paths": 12,
+      "agent_source": "tool",
+      "agent_content": "目前记录到：血压 155/96 mmHg。现有数据点还不足以判断稳定的上升或下降趋势，请按固定时间继续记录至少几天，再进行趋势分析。",
+      "agent_has_evidence": true
+    },
+    {
+      "scenario": "normal_bp",
+      "template": "保持健康生活方式，定期记录指标。",
+      "graph_action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+      "graph_priority": "normal",
+      "graph_citations": 6,
+      "graph_paths": 12,
+      "agent_source": "tool",
+      "agent_content": "目前记录到：血压 124/78 mmHg。现有数据点还不足以判断稳定的上升或下降趋势，请按固定时间继续记录至少几天，再进行趋势分析。",
+      "agent_has_evidence": true
+    },
+    {
+      "scenario": "low_egfr",
+      "template": "保持健康生活方式，定期记录指标。",
+      "graph_action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+      "graph_priority": "high",
+      "graph_citations": 6,
+      "graph_paths": 12,
+      "agent_source": "tool_fallback",
+      "agent_content": "我看到你最近血压有点偏高，别紧张，咱们一步步来。\n\n结合当前数据，优先做这几件事：\n1. 按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。\n2. 继续固定时间监测血压；肾脏疾病与血压需要一起管理。\n\n疾病关系与影响因素：\n- 血压 → 慢性肾脏病：存在关联（KDIGO《慢性肾脏病评估与管理》2024 · 血压与共病）\n- 血糖 → 慢性肾脏病：存在关联（KDIGO《慢性肾脏病评估与管理》2024 · 血压与共病）\n- 高血压 → 血压：存在关联（WHO《高血压事实表》2025 · 识别与复测）\n\n为什么这样建议：已结合近期血压记录；还缺少血糖、烟草暴露、活动量、体重资料，因此降低判断强度。\n\n依据：\n- KDIGO《慢性肾脏病评估与管理》2024 · 评估与复测\n- KDIGO《慢性肾脏病评估与管理》2024 · 血压与共病\n- KDIGO《慢性肾脏病评估与管理》2024 · 筛查人群\n- WHO《高血压事实表》2025 · 并发症\n\n提示：这些建议用于健康教育和复测安排，不代表诊断；涉及用药、治疗目标或急症，请联系医生。",
+      "agent_has_evidence": true
+    }
+  ],
+  "graph_context_change_rate": 1,
+  "conclusion": "GraphRAG输出必须结合用户上下文、引用和关系路径；模板只能作为基线。"
+}

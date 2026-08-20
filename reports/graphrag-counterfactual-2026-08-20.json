@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "cases": 4,
+  "changed_count": 4,
+  "change_rate": 1.0,
+  "failures": [],
+  "rows": [
+    {
+      "case": "bp_only",
+      "factor": "bp",
+      "baseline_priority": "normal",
+      "changed_priority": "high",
+      "baseline_action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+      "changed_action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+      "changed": true
+    },
+    {
+      "case": "egfr_only",
+      "factor": "egfr",
+      "baseline_priority": "normal",
+      "changed_priority": "high",
+      "baseline_action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+      "changed_action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+      "changed": true
+    },
+    {
+      "case": "fall_risk_only",
+      "factor": "fall_risk",
+      "baseline_priority": "normal",
+      "changed_priority": "high",
+      "baseline_action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+      "changed_action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+      "changed": true
+    },
+    {
+      "case": "sleep_only",
+      "factor": "sleep",
+      "baseline_priority": "normal",
+      "changed_priority": "normal",
+      "baseline_action": "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+      "changed_action": "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+      "changed": true
+    }
+  ]
+}

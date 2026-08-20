@@ -1,6 +1,8 @@
 # GraphRAG 生产化交付边界
 
-当前代码已经具备可验收的知识闭环：版本化来源 → 分块 → 实体关系 → 疾病社区 → 检索 → 结构化行动 → DeepSeek 解释 → 引用和免责声明。`evaluate_graph.py` 验证了同一疾病在不同用户指标上下文下会产生不同的行动优先级。
+当前代码已经具备可验收的知识闭环：版本化来源 → 分块 → 实体关系 → 疾病社区 → 证据分层检索 → 个性化行动 → DeepSeek 解释 → 引用、关系路径和免责声明。当前索引为 `2026-08-20.v2`，包含 18 个来源、6 个疾病社区、97 个实体和 356 条关系；`validate_graph.py` 还会检查观察性证据的因果标记、来源字段和矛盾关系。`evaluate_graph.py`、`evaluate_personalization.py`、`evaluate_golden.py` 和 `evaluate_counterfactual.py` 用于校验检索、个性化和反事实差异。
+
+Node 侧保持 `queryKnowledgeGraph(question, disease, context, options)` 接口，当前返回 `results`、`graph_paths`、`personalization`、`safety_flags`、`citations`、`uncertainty` 和 `index_version`。老人端读取结论和行动，医生端可读取完整检索追踪，不让原始文件名或内部节点 ID直接暴露给老人。
 
 真正公网工业部署还必须把本地 JSON 索引替换为：
 
@@ -10,5 +12,7 @@
 4. 医学审核工作流、来源版本、失效日期和回滚；
 5. 离线检索评估（Recall@k、MRR、证据覆盖率）、建议安全评估和人工审核；
 6. 生产监控、审计日志、密钥托管、限流和故障降级。
+
+当前已增加本地审计字段：聊天记录保存 GraphRAG 证据快照、索引版本、引用和个性化因素；来源可由医生在 `/api/knowledge/graph/reviews` 审核；本地模式故障时仍可返回有证据的结构化降级结果。迁移 Neo4j 或向量库时不得改变 Node 工具接口，必须保留 `graph_mode`、检索能力和索引版本字段。
 
 在这些基础设施尚未部署前，系统明确标记为课堂演示/局域网试用，不把轻量索引冒充临床生产 GraphRAG。

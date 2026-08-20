@@ -1,6 +1,6 @@
 # 心脏病与脑卒中风险管理（演示知识条目）
 
-source: WHO cardiovascular diseases fact sheet；evidence_level: public_guidance
+source: WHO cardiovascular diseases fact sheet；evidence_level: public_guidance；source_url: https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29；publisher: WHO；publication_year: 2025；document_type: legacy_guidance_note；review_status: 演示条目，需专业人员复核
 
 ## 风险因素
 

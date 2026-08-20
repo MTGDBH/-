@@ -1,6 +1,6 @@
 # 高血压健康管理（演示知识条目）
 
-source: WHO hypertension fact sheet；evidence_level: public_guidance
+source: WHO hypertension fact sheet；evidence_level: public_guidance；source_url: https://www.who.int/news-room/fact-sheets/detail/hypertension；publisher: WHO；publication_year: 2025；document_type: legacy_guidance_note；review_status: 演示条目，需专业人员复核
 
 ## 识别与复测
 

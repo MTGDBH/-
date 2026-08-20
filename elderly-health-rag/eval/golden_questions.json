@@ -1,0 +1,22 @@
+[
+  {"id":"htn_01","question":"血压连续偏高怎么办","disease":"hypertension","must_have":"识别与复测"},
+  {"id":"htn_02","question":"高盐饮食会影响血压吗","disease":"hypertension","must_have":"危险因素"},
+  {"id":"htn_03","question":"血压和脑卒中有什么关系","disease":"hypertension","must_have":"并发症"},
+  {"id":"htn_04","question":"胸痛并且血压很高怎么办","disease":"hypertension","must_have":"并发症","urgent":true},
+  {"id":"dm_01","question":"血糖偏高怎么复测","disease":"diabetes","must_have":"监测与并发症"},
+  {"id":"dm_02","question":"糖尿病和心脏病有什么关系","disease":"diabetes","must_have":"监测与并发症"},
+  {"id":"dm_03","question":"老年糖尿病需要注意什么","disease":"diabetes","must_have":"老年人综合评估"},
+  {"id":"cvd_01","question":"心血管风险要看哪些指标","disease":"heart_disease","must_have":"风险因素"},
+  {"id":"cvd_02","question":"胸痛和呼吸困难需要注意什么","disease":"heart_disease","must_have":"危险信号","urgent":true},
+  {"id":"stroke_01","question":"突然单侧无力怎么办","disease":"stroke","must_have":"危险信号","urgent":true},
+  {"id":"stroke_02","question":"怎样预防脑卒中","disease":"stroke","must_have":"血压与身体活动"},
+  {"id":"ckd_01","question":"肾功能应该看哪些指标","disease":"chronic_kidney_disease","must_have":"评估与复测"},
+  {"id":"ckd_02","question":"eGFR偏低怎么办","disease":"chronic_kidney_disease","must_have":"评估与复测"},
+  {"id":"ckd_03","question":"肾功能和血压有什么关系","disease":"chronic_kidney_disease","must_have":"血压与共病"},
+  {"id":"frailty_01","question":"老人衰弱需要记录什么","disease":"frailty","must_have":"评估维度"},
+  {"id":"frailty_02","question":"反复跌倒怎么办","disease":"frailty","must_have":"安全行动","urgent":false},
+  {"id":"behavior_01","question":"最近睡眠怎么样","disease":"hypertension","must_have":"生活方式"},
+  {"id":"behavior_02","question":"步数少是不是疾病预测","disease":"frailty","must_have":"可观察指标"},
+  {"id":"care_01","question":"什么时候需要复测血压","disease":"hypertension","must_have":"识别与复测"},
+  {"id":"safety_01","question":"可以自己增加降压药吗","disease":"hypertension","must_have":"生活方式干预"}
+]

@@ -19,6 +19,13 @@
 | `predimed_2018.md` | [PREDIMED trial](https://pubmed.ncbi.nlm.nih.gov/29897866/) | 随机试验 | 地中海饮食与心血管预防 |
 | `older_cvd_risk_review_2020.md` | [老年心血管风险系统综述](https://pubmed.ncbi.nlm.nih.gov/31958478/) | 系统综述 | 60岁以上人群风险因素和模型中等表现限制 |
 | `older_physical_activity_review_2022.md` | [老年慢病身体活动系统综述](https://pubmed.ncbi.nlm.nih.gov/34664329/) | 系统综述/Meta分析 | 低至中等强度活动与血压、HbA1c和血脂 |
+| `kdigo_ckd_2024.md` | [KDIGO CKD Evaluation and Management](https://kdigo.org/guidelines/ckd-evaluation-and-management/) | 临床指南摘要 | eGFR、肌酐、尿白蛋白、血压和糖尿病共病 |
+| `who_physical_activity_2020.md` | [WHO Guidelines on Physical Activity](https://www.who.int/publications/i/item/9789240015128) | 全球指南摘要 | 活动、久坐、老年人功能状态和安全边界 |
+| `older_adult_safety.md` | [ADA Older Adults Standards](https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025) | 临床标准摘要 | 虚弱、跌倒、认知、低血糖、多重用药和回答边界 |
+| `elderly_frailty.md` | [WHO/ADA older-adult safety summaries](https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025) | 老年安全摘要 | 虚弱、跌倒风险、认知和分层行动 |
+| `hypertension.md` | 项目早期高血压知识摘要 | 内部演示摘要 | 血压阈值、复测和安全边界（待医学审核） |
+| `diabetes.md` | 项目早期糖尿病知识摘要 | 内部演示摘要 | 血糖监测和生活方式（待医学审核） |
+| `cardiovascular.md` | 项目早期心血管知识摘要 | 内部演示摘要 | 共同危险因素（待医学审核） |
 
 ## 关系模型
 
@@ -30,6 +37,11 @@
 - `managed_by` / `prevention_evidence` / `supportive_evidence`：干预方向与证据；
 - `urgent_signal`：危险信号与急救行动；
 - `predictive_factor_in_older_adults`：老年风险模型中的预测因素，明确标记为“预测证据”，不等同因果。
+- `complicates` / `shares_risk_factor_with`：共病和共同风险网络；
+- `threshold_contextualized_by` / `trend_signal_for`：阈值和趋势必须结合测量条件解释；
+- `requires_remeasurement` / `requires_medical_review` / `do_not_self_adjust_medication`：安全与行动边界。
+- `major_preventable_driver` / `complicates` / `shares_risk_factor_with`：共同风险网络和共病管理复杂性。
+- `associated_with` / `predictive_factor_in_older_adults`：仅表示统计关联或预测因素，默认禁止改写为因果。
 
 每条关系都保留 `evidence`、`strength` 和对应文本片段，查询结果同时返回 `graph_context`、`retrieval_trace` 和来源元数据。
 
@@ -43,3 +55,4 @@ GraphRAG 负责“根据证据解释和排序建议”，不负责诊断、处�
 2. 新增关系到 `input/relations.json`，关系必须指向已有或明确新建的实体，并填写证据片段。
 3. 运行 `python graphrag_index.py build` 重建索引。
 4. 运行 `test_graphrag.py`、`evaluate_graph.py` 和个性化评估，确认检索、证据和行动差异没有回归。
+5. 运行 `validate_graph.py`，确保关系类型、来源元数据和实体引用通过 schema 校验。

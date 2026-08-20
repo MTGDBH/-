@@ -2,7 +2,7 @@ import db from '../db.js';
 
 function latestRows(userId, days = 90) {
   const since = new Date(Date.now() - days * 86400000).toISOString();
-  return db.prepare('SELECT type, value, value2, unit, recorded_at, source FROM metrics WHERE user_id = ? AND recorded_at >= ? ORDER BY recorded_at ASC').all(userId, since);
+  return db.prepare('SELECT id, type, value, value2, unit, recorded_at, source, note, measurement_condition, data_quality FROM metrics WHERE user_id = ? AND recorded_at >= ? ORDER BY recorded_at ASC, id ASC').all(userId, since).map(row => ({ ...row, quality: row.data_quality ? (() => { try { return JSON.parse(row.data_quality); } catch { return { valid: true, flags: ['quality_unparsed'] }; } })() : { valid: true, flags: [] } }));
 }
 
 export function buildHealthContext(user, days = 90) {
@@ -10,6 +10,12 @@ export function buildHealthContext(user, days = 90) {
   const byType = {};
   for (const row of rows) (byType[row.type] ||= []).push(row);
   const latest = Object.fromEntries(Object.entries(byType).map(([type, values]) => [type, values[values.length - 1]]));
+  const quality_by_type = Object.fromEntries(Object.entries(byType).map(([type, values]) => [type, {
+    data_points: values.length,
+    invalid_flags: values.flatMap(v => v.quality?.flags || []),
+    missing_condition_count: values.filter(v => !v.measurement_condition && !v.note).length,
+    duplicate_count: values.filter(v => (v.quality?.flags || []).includes('duplicate_measurement')).length,
+  }]));
   const trend_by_type = Object.fromEntries(Object.entries(byType).map(([type, values]) => {
     const first = Number(values[0]?.value);
     const last = Number(values[values.length - 1]?.value);
@@ -39,6 +45,7 @@ export function buildHealthContext(user, days = 90) {
     window_days: days,
     data_points: rows.length,
     data_points_by_type: Object.fromEntries(Object.entries(byType).map(([type, values]) => [type, values.length])),
+    quality_by_type,
     latest,
     trend_by_type,
     behavior,
@@ -58,8 +65,27 @@ export function buildHealthContext(user, days = 90) {
       chronic_stroke: user.chronic_stroke ?? null,
       dyslipidemia: user.dyslipidemia ?? null,
       lung_disease: user.lung_disease ?? null,
+      frailty_score: user.frailty_score ?? null,
+      fall_risk: user.fall_risk ?? null,
+      cognitive_status: user.cognitive_status ?? null,
+      chronic_kidney: user.chronic_kidney ?? null,
+      family_history: user.family_history ?? null,
+      sleep_quality: user.sleep_quality ?? null,
+    },
+    data_completeness: {
+      recorded_metrics: Object.keys(latest).length,
+      common_metrics: 4,
+      ratio: Math.min(1, +(Object.keys(latest).filter(t => ['bp', 'glucose', 'hr', 'sleep'].includes(t)).length / 4).toFixed(3)),
+      missing: ['bp', 'glucose', 'hr', 'sleep'].filter(t => !latest[t]),
+      profile_missing: ['age', 'gender', 'smoking_status', 'exercise_level'].filter(k => profileValueMissing(user, k)),
+      quality_flags: Object.values(quality_by_type).flatMap(x => x.invalid_flags || []),
+      measurement_condition_missing: Object.values(quality_by_type).reduce((sum, x) => sum + (x.missing_condition_count || 0), 0),
     },
   };
+}
+
+function profileValueMissing(user, key) {
+  return user?.[key] == null || user?.[key] === '';
 }
 
 const EVIDENCE_LABELS = {
@@ -67,6 +93,7 @@ const EVIDENCE_LABELS = {
   sleep: ['睡眠', '小时'], steps: ['步数', '步'], weight: ['体重', 'kg'],
   bmi: ['BMI', ''], hba1c: ['糖化血红蛋白', '%'], cholesterol: ['胆固醇', 'mmol/L'],
   uricacid: ['尿酸', 'μmol/L'],
+  egfr: ['eGFR', 'mL/min/1.73m²'], creatinine: ['肌酐', 'μmol/L'], urine_albumin: ['尿白蛋白', 'mg/g'],
 };
 
 /** 由后端实际上下文生成证据卡片，避免模型自行编造日期、数值和来源。 */
@@ -82,10 +109,13 @@ export function buildEvidenceCard(context, message = '', confidence = {}) {
       unit: row?.unit || defaultUnit,
       measured_at: row?.recorded_at || null,
       source: row?.source || '未标注',
+      measurement_condition: row?.measurement_condition || row?.note || null,
+      quality_flags: row?.quality?.flags || [],
       data_points: ctx.data_points_by_type?.[type] || 1,
       period_days: ctx.window_days || 90,
       trend: trend?.direction || 'unknown',
       trend_delta: trend?.delta ?? null,
+      quality: ctx.quality_by_type?.[type] || { invalid_flags: [], missing_condition_count: 0 },
     };
   }).filter(x => x.latest_value != null).slice(0, 8);
   // 总体健康问题也属于数据型问题，不能因为没有点名某个指标而丢失证据卡片。
@@ -97,6 +127,7 @@ export function buildEvidenceCard(context, message = '', confidence = {}) {
     data_points: ctx.data_points || items.reduce((sum, x) => sum + x.data_points, 0),
     items,
     missing_metrics: ctx.missing_common_metrics || [],
+    data_quality: ctx.data_completeness || null,
     confidence: confidence?.type === 'data' ? { type: 'data', score: confidence.score ?? null } : { type: 'context', score: null },
   };
 }

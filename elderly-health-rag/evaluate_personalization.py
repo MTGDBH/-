@@ -47,6 +47,15 @@ CASES = [
             ('adequate_sleep', {'behavior': {'sleep': {'rolling_7d_average': 7.2}}}),
         ],
     },
+    {
+        'group': 'ckd_same_question',
+        'question': '肾功能怎么复测',
+        'disease': 'chronic_kidney_disease',
+        'variants': [
+            ('reduced_egfr', {'latest': {'egfr': {'value': 54}}}),
+            ('missing_renal_metrics', {'latest': {'bp': {'value': 128, 'value2': 80}}}),
+        ],
+    },
 ]
 
 
