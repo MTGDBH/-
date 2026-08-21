@@ -1,0 +1,182 @@
+\documentclass[UTF8,a4paper,zihao=-4]{ctexart}
+\usepackage[a4paper,margin=2.25cm,headheight=14pt]{geometry}
+\usepackage{booktabs,longtable,array,tabularx,enumitem,xcolor,hyperref,fancyhdr,lastpage}
+\usepackage{graphicx}
+\definecolor{orange}{HTML}{D77A3E}
+\definecolor{ink}{HTML}{44362D}
+\definecolor{muted}{HTML}{806F61}
+\definecolor{pale}{HTML}{FBF8F3}
+\definecolor{blue}{HTML}{4C83C3}
+\hypersetup{colorlinks=true,linkcolor=orange,urlcolor=blue}
+\setlist{itemsep=2pt,topsep=4pt}
+\sloppy
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}\fancyhf{}\lhead{老年人健康管理智能体}\rhead{项目总结书}\cfoot{\thepage/\pageref{LastPage}}
+\begin{document}
+\begin{titlepage}
+\pagecolor{pale}
+\centering
+\vspace*{2cm}
+{\color{orange}\zihao{2}\bfseries 大学生创新创业训练计划项目总结书\par}
+\vspace{1.5cm}
+{\color{ink}\zihao{1}\bfseries 面向老年人的证据驱动健康管理智能体\par}
+\vspace{0.4cm}
+{\color{ink}\zihao{2}基于个人趋势、疾病风险与 GraphRAG 的闭环服务系统\par}
+\vspace{2cm}
+\begin{tabular}{rl}
+项目类型：&健康管理与人工智能交叉应用\\
+阶段：&国奖冲刺版工程与研究材料\\
+日期：&2026 年 8 月 21 日\\
+代码地址：&\texttt{D:/BIGCHUANG/-}\\
+\end{tabular}
+\vfill
+{\color{muted}说明：本文报告工程回归、合成评测和研究设计；真实临床审核、真实受试者评价和带日期外部验证在文中明确标注，不以模拟数据替代。\par}
+\end{titlepage}
+\pagecolor{white}
+\tableofcontents
+\newpage
+
+\section{摘要}
+本项目面向老年人日常健康管理中的三个断点：单次指标容易被误读、疾病知识与个人数据缺少连接、建议不能落到复测和待办。系统将原始测量、个人趋势、疾病风险、权威证据和行动闭环组织为一个可追溯的智能体流程。\textbf{Curve V2} 对血压、按条件分组的血糖、体重和静息心率进行稳健趋势建模，并在数据不足或不稳定时拒绝预测；步数和睡眠仅输出行为模式，不外推精确未来值。\textbf{风险模型}以 Logistic 为可解释基线、XGBoost 为非线性候选，报告 AUC、Brier、校准、Bootstrap 和决策曲线。\textbf{GraphRAG} 将权威指南、系统综述和关键研究登记为有版本的实体关系和证据路径，经过安全门槛后由 DeepSeek 组织为老人听得懂的建议。
+
+当前本地可复现实验包括：Curve V2 28/28 通过；GraphRAG 黄金问题 61/61 通过；20 组个性化配对均发生建议指纹变化；Node 工具链 22/22、趋势链 26/26，最终验收 PASS。当前仍需外部完成持证医生逐条签字、真实老人/医生盲评以及带日期纵向队列的外部验证。\
+\textbf{关键词：}老年健康管理；时间趋势；风险筛查；GraphRAG；证据治理；可解释智能体
+
+\section{项目背景与目标}
+老年人常同时面对高血压、糖尿病、心血管疾病、脑卒中和慢性肾脏病等共病风险。实际管理并不只是判断某次测量是否越过阈值，还要回答：是否偏离自己的基线、是否需要重复测量、哪些生活因素值得优先改变、什么时候必须联系医生。系统目标因此被定义为：
+\begin{quote}
+理解问题 $\rightarrow$ 读取真实数据 $\rightarrow$ 调用分析工具 $\rightarrow$ 检索证据关系 $\rightarrow$ 安全过滤 $\rightarrow$ 组织语言 $\rightarrow$ 创建行动 $\rightarrow$ 复测反馈。
+\end{quote}
+
+\section{系统总体架构}
+系统分为数据层、模型层、证据层、安全层和交互层。数据层接收手工和设备测量，并保存时间、来源、测量条件和质量标记；模型层包含 Curve V2 和疾病风险筛查；证据层包含本地混合 GraphRAG；安全层先于大模型，负责急症、未审核关系、数据不足和用药边界；交互层提供老人、家属和医生的分级视图。
+
+\begin{center}
+\fbox{\parbox{0.9\linewidth}{\centering
+老人/设备记录 $\rightarrow$ 数据质量 $\rightarrow$ Curve V2 与风险模型\\[2pt]
+权威指南/综述/RCT $\rightarrow$ 来源登记 $\rightarrow$ GraphRAG 关系路径\\[2pt]
+模型与证据 $\rightarrow$ 安全门槛 $\rightarrow$ DeepSeek 解释 $\rightarrow$ 证据卡片、待办和复测
+}}
+\end{center}
+
+\section{Curve V2：个人健康趋势}
+\subsection{数据语义}
+血压收缩压和舒张压分别建模；血糖固定为 fasting、postprandial\_2h、random、unknown 四类条件；心率只在 resting 条件下进入趋势；体重优先使用晨起数据。一天多次测量保留原始记录 ID，缺测不插值。
+
+\subsection{三层曲线}
+观测层显示每个真实点；趋势层使用基于真实时间距离的稳健局部平滑、个人 14 天中位数基线和四分位范围；预测层由最近值、滚动中位数、稳健局部线性、Huber 阻尼和鲁棒局部水平候选组成，并通过滚动 1/3/7 天回测选择最终模型。预测区间采用滚动残差校准，满足 $lower\le predicted\le upper$，并随预测距离扩大。
+
+\subsection{拒绝预测}
+少于 7 个有效日只显示观测；7--20 个有效日只显示趋势；至少 21 个有效日且跨度 28 天才开放未来 7 天；42/56 天开放 14 天；84/90 天只给 30 天周级区间。高波动、回测误差过大、近期缺测或区间过宽时，返回具体拒绝原因，而不是生成虚假曲线。
+
+\begin{table}[ht]
+\centering\caption{Curve V2 本地回归验收}
+\begin{tabular}{p{0.55\linewidth}p{0.25\linewidth}}
+\toprule 项目 & 结果\\\midrule
+血压双序列、真实时间戳、异常点定位 & 通过\\
+血糖条件互斥、缺测和无序时间 & 通过\\
+稳定/上升/下降/异常/高波动序列 & 通过\\
+预测门槛与行为指标拒绝外推 & 通过\\
+Python 回归 & 28/28\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+本轮新增时间验证框架并完成 90 天合成干跑：4 个测试对象、29 个可预测窗口、1 个拒绝窗口，Curve V2 MAE 为 4.33，last-value 基线 MAE 为 6.52，80\% 区间覆盖率为 79.8\%。该结果只证明验证代码可运行，不代表真实老人外部验证。
+
+\section{疾病风险筛查}
+\subsection{建模策略}
+以 CHARLS Wave1 基线预测 Wave2 新发结局，Logistic 回归作为可解释基线，XGBoost 作为非线性候选。训练集内部交叉验证选择模型，测试集只做一次最终评估，并保存数据清单、派生表 SHA256、模型版本和运行 ID。
+
+\begin{table}[ht]
+\centering\caption{现有多病种风险审计摘要}
+\begin{tabular}{lrrrr}
+\toprule 疾病 & 样本量 & 阳性率 & 总体 AUC & Brier\\\midrule
+高血压 & 11010 & 4.60\% & 0.6643 & 0.04319\\
+糖尿病 & 13858 & 1.61\% & 0.6932 & 0.01513\\
+心血管疾病 & 13069 & 2.33\% & 0.6271 & 0.02275\\
+脑卒中 & 14534 & 0.65\% & 0.6365 & 0.00652\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+本轮扩展审计进一步输出 Bootstrap 95\% 区间、校准分箱、校准斜率/截距、决策曲线和 65--74 岁、75 岁以上、性别、缺失核心血压分层。表中数字来自固定随机留出复现，不是训练集内直接预测；旧的同队列分组审计结果不作为主要宣传数字。原始 CHARLS 具有 Wave1--5 调查轮次，但没有个体日级测量日期，因此本项目补充了 Wave4--5 时间留出审计，并报告参与者独立敏感性分析，不把 ID 顺序冒充时间切分。
+
+Wave4--5 时间留出测试 AUC（高血压/糖尿病/心血管/脑卒中）为 0.5887/0.5566/0.6205/0.6546；排除测试参与者后的敏感性分析为 0.5402/0.5394/0.5703/0.6377，训练/测试参与者重叠为 0。两者都不是独立地区外部验证，概率不用于诊断。
+
+\section{GraphRAG 证据治理}
+GraphRAG v6 采用关键词召回、疾病/指标节点召回、关系扩展、证据等级加权、适用人群过滤和冲突惩罚。当前索引包含 78 个来源、111 个分块、159 个实体、419 条关系和 6 个疾病社区。来源按权威指南、系统综述/荟萃分析、关键随机研究、观察性研究分层；每条关系保存来源、版本、适用人群、条件、因果状态和医学审核状态。4 个 legacy 待复核来源在老人端默认显式标记，不伪装成已批准医学知识；严格审计模式可排除，医生/审计视图保留完整图谱。
+
+老人端默认只使用经过安全门槛的教育性关系；未完成临床确认的高风险关系不能生成确定性医疗结论，急症关系只保留安全提示。83 条高风险关系均有 AI 证据预审意见，其中 66 条仅限演示/健康教育，17 条需要临床确认；这不是医生签字。
+
+\begin{table}[ht]
+\centering\caption{三路检索对照（61 条黄金问题）}
+\scriptsize
+\begin{tabularx}{\linewidth}{l*{6}{>{\centering\arraybackslash}X}}
+\toprule 方法 & 证据召回 & 引用有效率 & 权威来源率 & 急症召回 & 路径解释率 & 个性化变化率\\\midrule
+关键词 & 83.6\% & 100\% & 65.1\% & 100\% & 0\% & 0\%\\
+普通 RAG & 82.0\% & 100\% & 84.4\% & 100\% & 0\% & 0\%\\
+GraphRAG & 100\% & 100\% & 83.9\% & 100\% & 100\% & 100\%\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+该结果支持的结论是：GraphRAG 显著增加了关系路径、用户上下文条件化和可审计个性化；普通 RAG 的权威来源率略高，说明证据排序仍应继续优化，不能把图谱优势夸大为临床疗效。
+
+\section{智能体与行动闭环}
+意图路由先区分健康摘要、趋势、风险、异常、行为、设备、复测和沟通；后端读取用户真实数据，调用对应工具和 GraphRAG，执行安全过滤，再将证据交给 DeepSeek 组织为短句。每条数据型建议保存指标、日期、趋势、可信度、证据 ID、允许/禁止表达和行动类型。创建待办、安排复测、联系家属或医生等敏感行动需要用户确认，并保留执行状态。
+
+\section{可复现性与验收}
+\begin{longtable}{p{0.43\linewidth}p{0.42\linewidth}}
+\toprule 证据 & 结果\\\midrule
+Curve V2 & 28/28；行为指标不做精确未来外推\\
+GraphRAG 黄金集 & 61/61；索引版本 2026-08-21.v6\\
+个性化配对 & 20/20 组建议指纹变化\\
+医疗门槛 & 老人端阻断 16 条未确认边；医生视图阻断 0 条；待复核来源显式标记\\
+Node 工具/趋势 & 22/22、26/26\\
+最终验收 & login、DeepSeek trend、risk、GraphRAG、behavior、history 全部 PASS\\
+\bottomrule
+\end{longtable}
+
+每次实验使用统一运行 ID，并记录数据版本、代码 Git revision、模型版本、参数、输出路径和 SHA256。演示数据、研究数据和测试夹具分开登记，演示账号不会回写风险训练集。
+
+\section{局限与外部工作包}
+\begin{enumerate}
+\item 真实医生逐条签字尚未完成；AI 预审核不能替代临床人员。
+\item 真实老人/医生人因研究尚未完成；当前 20 组是合成配对实验。
+\item 当前风险派生表没有个体日期；尚未完成时间外部验证和独立地区验证。
+\item Curve V2 的 60--90 天真实纵向外部集需要按老人隔离测试，不能用演示账号代替。
+\item 所有模型用于健康管理和复测提示，不宣称诊断或临床疗效。
+\end{enumerate}
+
+\section{提交前 14 天执行表}
+\scriptsize
+\begin{tabular}{p{1.6cm}p{2.3cm}p{9.2cm}}
+\toprule 时间 & 工作包 & 验收物\\\midrule
+D1--3 & 医学审核 & 四类核心疾病高风险关系签字与冲突处理记录\\
+D4--6 & 实验集冻结 & 60 条问题、普通 RAG/GraphRAG 对照结果\\
+D7--9 & 人因与个性化 & 配对场景盲评、理解度和行动完成率\\
+D10--12 & 曲线外部验证 & 真实日期、按老人隔离、覆盖率和拒绝率\\
+D13--14 & 申报材料 & PPT、总结书、数据卡、模型卡、演示脚本\\
+\bottomrule
+\end{tabular}
+
+\section{参考材料}
+\begin{enumerate}
+\item WHO. Hypertension. \url{https://www.who.int/news-room/fact-sheets/detail/hypertension}
+\item WHO. Diabetes. \url{https://www.who.int/news-room/fact-sheets/detail/diabetes}
+\item WHO. Cardiovascular diseases. \url{https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29}
+\item AHA/ASA. 2024 Guideline for the Primary Prevention of Stroke. \url{https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know}
+\item ADA. Older Adults: Standards of Care in Diabetes 2025. \url{https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025}
+\item KDIGO. 2024 CKD Evaluation and Management Guideline. 项目证据登记：\texttt{elderly-health-rag/input/evidence\_registry.json}
+\end{enumerate}
+
+\section*{附录：材料地址}
+\begin{itemize}
+\item 项目代码：\url{D:/BIGCHUANG/-}
+\item 题目文件：\url{deliverables/national_award/project_title.md}
+\item 本 LaTeX 源码：\url{deliverables/national_award/latex/project_summary.tex}
+\item 汇报 PPT：\url{deliverables/national_award/elderly_health_national_award.pptx}
+\item 任务矩阵：\url{reports/national_award_task_matrix-20260821.md}
+\end{itemize}
+\end{document}

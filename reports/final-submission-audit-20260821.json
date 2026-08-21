@@ -1,0 +1,54 @@
+{
+  "schema_version": "final-submission-audit.v1",
+  "run_id": "final-submission-audit-20260821",
+  "generated_at": "2026-08-21",
+  "status": "ready_with_external_gates",
+  "local_checks": {
+    "readiness_36_of_36": true,
+    "artifact_manifest_complete": true,
+    "artifact_hashes_match": true,
+    "graphrag_source_gate": true,
+    "medical_gate": true,
+    "bundle_integrity": true,
+    "deliverables_present": true
+  },
+  "artifact_count": 75,
+  "hash_missing": [],
+  "hash_mismatches": [],
+  "bundle_entries": 76,
+  "deliverables": {
+    "deliverables/national_award/project_title.md": true,
+    "deliverables/national_award/elderly_health_national_award.pptx": true,
+    "deliverables/national_award/latex/project_summary.tex": true,
+    "deliverables/national_award/latex/project_summary.pdf": true,
+    "deliverables/national_award/national_award_submission_bundle.zip": true
+  },
+  "external_gates": {
+    "clinician_review": {
+      "status": "pending",
+      "expected_relations": 83,
+      "signed_rows": 0,
+      "required_action": "由持证医生完成83条关系审核与签字"
+    },
+    "human_evaluation": {
+      "status": "synthetic_fixture_only",
+      "older_adult_participants": 15,
+      "clinician_participants": 3,
+      "required_action": "招募真实15–30名老人和3–5名医生并完成伦理/知情同意流程"
+    },
+    "curve_external_validation": {
+      "status": "synthetic_dry_run_only",
+      "data_class": "test_synthetic_dry_run",
+      "required_action": "采集至少60–90天真实纵向数据，并按老人隔离完成外部验证"
+    },
+    "risk_external_validation": {
+      "status": "temporal_cohort_sensitivity_only",
+      "required_action": "补充独立地区/日期外部队列并重新校准概率"
+    }
+  },
+  "non_claims": [
+    "合成老人/医生数据仅用于验证采集与分析流水线，不代表真实人因结果",
+    "CHARLS 波次时间切分不是独立地区临床外部验证",
+    "AI 预审不等于医生签字审核"
+  ]
+}

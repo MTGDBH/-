@@ -8,7 +8,8 @@ ROOT = Path(__file__).parent
 INPUT = ROOT / 'input' / 'guidelines'
 OUTPUT = ROOT / 'output'
 RELATIONS_FILE = ROOT / 'input' / 'relations.json'
-INDEX_VERSION = '2026-08-20.v4'
+EVIDENCE_REGISTRY_FILE = ROOT / 'input' / 'evidence_registry.json'
+INDEX_VERSION = '2026-08-21.v6'
 EVIDENCE_LEVELS = {
     'authoritative_guidance': 4,
     'professional_guideline': 4,
@@ -19,6 +20,13 @@ EVIDENCE_LEVELS = {
     'observational_study': 1,
     'public_guidance': 1,
 }
+# 这些来源可以进入医生/审计视图，但在老人端不能被当作已经完成医学审核的证据。
+# 不把普通 pending_medical_review 一律删除：多数来源仍可用于健康教育，真正的硬门槛由关系级医学门控负责。
+LEGACY_PENDING_MARKERS = ('legacy', '复核前仅用于演示', '需专业人员复核', '演示条目')
+
+def is_legacy_pending_status(status):
+    value = str(status or '').strip().lower()
+    return any(marker.lower() in value for marker in LEGACY_PENDING_MARKERS)
 DISEASE_ALIASES = {
     'hypertension': ['高血压', '血压'], 'diabetes': ['糖尿病', '血糖'],
     'heart_disease': ['心脏病', '心血管', '胸痛'], 'stroke': ['脑卒中', '中风', '单侧无力'],
@@ -29,7 +37,8 @@ ENTITY_TERMS = {
     'measurement': ['血压', '血糖', '血脂', '体重', '活动', '睡眠', '肌酐', 'eGFR', '尿白蛋白'],
     'risk_factor': ['吸烟', '盐', '体重', '血压', '血糖', '血脂', '蛋白尿', '肾功能', '跌倒', '虚弱'],
     'intervention': ['复测', '记录', '减少盐', '活动', '睡眠', '联系家属', '就医', '肾功能检查'],
-    'danger_sign': ['胸痛', '呼吸困难', '意识改变', '单侧无力', '言语不清', '意识模糊'],
+    # 同时覆盖指南术语和老人常用口语，避免“叫不醒/胸闷/突然没力气”等急症表达漏检。
+    'danger_sign': ['胸痛', '胸闷', '呼吸困难', '气短', '意识改变', '意识模糊', '叫不醒', '昏迷', '昏沉', '单侧无力', '突然没力气', '面歪', '言语不清', '说话含糊', '失语', '晕厥', '严重低血糖'],
     'older_adult_context': ['老年', '虚弱', '跌倒', '认知', '低血糖', '功能状态'],
 }
 
@@ -71,6 +80,12 @@ def curated_source_registry():
                 'limitations': '本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。',
                 'review_status': 'pending_medical_review',
             })
+    if EVIDENCE_REGISTRY_FILE.exists():
+        try:
+            explicit = json.loads(EVIDENCE_REGISTRY_FILE.read_text(encoding='utf-8'))
+            records.extend(explicit if isinstance(explicit, list) else [])
+        except (OSError, json.JSONDecodeError):
+            pass
     return records
 
 def parse_metadata(text):
@@ -120,6 +135,31 @@ def validate_relation(row):
     if row.get('evidence_level') and row['evidence_level'] not in EVIDENCE_LEVELS: return False, 'invalid_evidence_level'
     return True, ''
 
+def detect_evidence_conflicts(relationships):
+    """发现同一实体对上的互斥语义或因果口径冲突，宁可降权也不静默合并。"""
+    contradiction_pairs = {
+        frozenset({'increases_risk_of', 'protective_against'}),
+        frozenset({'managed_by', 'contraindicated_or_caution'}),
+        frozenset({'recommended_for', 'not_sufficient_alone_for'}),
+    }
+    by_pair = {}
+    for index, edge in enumerate(relationships):
+        by_pair.setdefault((edge.get('source'), edge.get('target')), []).append((index, edge))
+    conflicts = []
+    for pair, rows in by_pair.items():
+        types = {edge.get('type') for _, edge in rows}
+        for combo in contradiction_pairs:
+            if combo.issubset(types):
+                conflicts.append({'source': pair[0], 'target': pair[1], 'kind': 'contradictory_relation_types',
+                                  'types': sorted(combo), 'relation_indices': [i for i, e in rows if e.get('type') in combo],
+                                  'resolution': 'medical_review_required_and_exclude_from_elderly_answer'})
+        causal_statuses = {edge.get('causal_status') for _, edge in rows if edge.get('causal_status')}
+        if len(causal_statuses) > 1 and 'causal' in causal_statuses and ('association' in causal_statuses or 'unknown' in causal_statuses):
+            conflicts.append({'source': pair[0], 'target': pair[1], 'kind': 'causal_status_conflict',
+                              'statuses': sorted(causal_statuses), 'relation_indices': [i for i, e in rows],
+                              'resolution': 'retain_association_wording_until_medical_review'})
+    return conflicts
+
 def relation_chunk_id(evidence, chunks):
     if not evidence: return None
     source, _, section = str(evidence).partition('#')
@@ -160,6 +200,10 @@ def build():
                                 'publication_year': metadata.get('publication_year', ''), 'document_type': metadata.get('document_type', 'guideline_note'),
                                 'evidence_level': metadata.get('evidence_level', 'public_guidance'),
                                 'review_status': metadata.get('review_status', '演示知识，需医学审核后生产使用'),
+                                'version': metadata.get('version', f"{metadata.get('publication_year', 'undated')}.source"),
+                                'population': metadata.get('population', 'older_adults_contextualized'),
+                                'limitations': metadata.get('limitations', '来源摘要，不能替代原文或个体医学判断。'),
+                                'retrieved_at': metadata.get('retrieved_at', '2026-08-21'),
                                 'index_version': INDEX_VERSION})
         sections = re.split(r'\n(?=## )', text.split('\n## ', 1)[-1] if '\n## ' in text else text)
         disease = canonical_disease(path.stem)
@@ -175,6 +219,7 @@ def build():
                      'evidence_level': metadata.get('evidence_level', 'public_guidance'),
                      'publisher': metadata.get('publisher', metadata.get('source', '')),
                      'publication_year': metadata.get('publication_year', ''), 'source_url': metadata.get('source_url', ''),
+                     'review_status': metadata.get('review_status', 'pending_medical_review'),
                      'tokens': sorted(tokenize(body))}
             chunks.append(chunk)
             dkey = f'disease:{disease}'
@@ -187,7 +232,7 @@ def build():
                         relationships.append({'source': dkey, 'target': key, 'type': 'mentions', 'chunk_id': cid, 'evidence': f'{path.name}#{title}'})
     # 注册表条目作为“来源摘要块”参与召回，保留原文 URL、证据等级和限制条件。
     for record in curated_source_registry():
-        disease = next((d for d, (name, *_rest) in CURATED_SOURCE_FAMILIES.items() if record['title'].startswith(name)), 'hypertension')
+        disease = record.get('disease') or next((d for d, (name, *_rest) in CURATED_SOURCE_FAMILIES.items() if record['title'].startswith(name)), 'hypertension')
         source_name = f"registry:{record['source_id']}"
         source_text = f"{record['summary']}\n适用人群：{record['population']}。\n限制条件：{record['limitations']}"
         cid = f"{source_name}:0"
@@ -195,6 +240,7 @@ def build():
                        'source': source_name, 'citation': f"{source_name}#{record['title']}",
                        'evidence_level': record['evidence_level'], 'publisher': record['publisher'],
                        'publication_year': record['publication_year'], 'source_url': record['source_url'],
+                       'review_status': record.get('review_status', 'pending_medical_review'),
                        'tokens': sorted(tokenize(source_text))})
         dkey = f'disease:{disease}'
         entities[dkey] = {'id': dkey, 'type': 'disease', 'name': disease}
@@ -231,6 +277,42 @@ def build():
     (OUTPUT/'chunks.json').write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding='utf-8')
     (OUTPUT/'entities.json').write_text(json.dumps(list(entities.values()), ensure_ascii=False, indent=2), encoding='utf-8')
     (OUTPUT/'relationships.json').write_text(json.dumps(relationships, ensure_ascii=False, indent=2), encoding='utf-8')
+    evidence_conflicts = detect_evidence_conflicts(relationships)
+    (OUTPUT/'evidence_conflicts.json').write_text(json.dumps({
+        'schema_version': 'evidence-conflict.v1', 'index_version': INDEX_VERSION,
+        'checked_relationships': len(relationships), 'conflict_count': len(evidence_conflicts),
+        'conflicts': evidence_conflicts,
+        'policy': '冲突关系进入医生审核，老人端不直接使用冲突结论。'
+    }, ensure_ascii=False, indent=2), encoding='utf-8')
+    # 高风险关系必须显式进入医学审核队列，不能只依赖关系对象的默认字段。
+    high_risk_types = {
+        'urgent_signal', 'emergency_action', 'requires_medical_review',
+        'requires_clinician_review', 'do_not_self_adjust_medication',
+        'contraindicated_or_caution', 'increases_risk_of',
+        'major_preventable_driver', 'managed_by', 'prevention_evidence'
+    }
+    review_rows = []
+    for relation_index, rel in enumerate(relationships):
+        if rel.get('strength') == 'high' or rel.get('type') in high_risk_types:
+            review_rows.append({
+                'relation_index': relation_index,
+                'source': rel.get('source'), 'target': rel.get('target'),
+                'type': rel.get('type'), 'strength': rel.get('strength'),
+                'evidence': rel.get('evidence'),
+                'evidence_level': rel.get('evidence_level'),
+                'review_status': rel.get('review_status') or 'pending_medical_review',
+                'reviewer_role': 'geriatric_or_primary_care_clinician',
+                'review_reason': '高风险关系进入老人端建议或安全过滤前必须完成医学审核',
+                'last_verified': rel.get('last_verified')
+            })
+    (OUTPUT/'relation_review_manifest.json').write_text(json.dumps({
+        'schema_version': 'relation-review.v1', 'index_version': INDEX_VERSION,
+        'generated_at': '2026-08-21', 'policy': 'high_strength_or_safety_relation',
+        'statuses': {'pending_medical_review': sum(r['review_status'] == 'pending_medical_review' for r in review_rows),
+                     'approved': sum(r['review_status'] == 'approved' for r in review_rows),
+                     'rejected': sum(r['review_status'] == 'rejected' for r in review_rows)},
+        'relations': review_rows
+    }, ensure_ascii=False, indent=2), encoding='utf-8')
     communities = []
     for disease in DISEASE_ALIASES:
         ids = [e['id'] for e in entities.values() if e['id'] == f'disease:{disease}' or e['id'] in {r['target'] for r in relationships if r['source'] == f'disease:{disease}'}]
@@ -242,14 +324,29 @@ def build():
                                 'source_url': record['source_url'], 'publisher': record['publisher'],
                                 'publication_year': record['publication_year'], 'document_type': record['document_type'],
                                 'evidence_level': record['evidence_level'], 'review_status': record['review_status'],
+                                'version': record.get('version', f"{record['publication_year']}.registry"),
+                                'population': record.get('population', 'older_adults'),
+                                'limitations': record.get('limitations', '来源摘要，不能替代原文或个体医学判断。'),
+                                'retrieved_at': record.get('retrieved_at', '2026-08-21'),
                                 'index_version': INDEX_VERSION})
-    (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-20', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
+    (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-21', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
     return {'index_version': INDEX_VERSION, 'chunks': len(chunks), 'entities': len(entities), 'relationships': len(relationships), 'communities': len(communities), 'sources': len(source_manifest), 'invalid_relations': len(invalid_relations)}
 
 def query(question, disease=None, top_k=4, options=None):
     if not (OUTPUT/'chunks.json').exists(): build()
     chunks = json.loads((OUTPUT/'chunks.json').read_text(encoding='utf-8'))
+    source_manifest = json.loads((OUTPUT/'source_manifest.json').read_text(encoding='utf-8')) if (OUTPUT/'source_manifest.json').exists() else {'sources': []}
+    source_status_by_key = {}
+    for source in source_manifest.get('sources', []):
+        status = source.get('review_status', '')
+        for key in (source.get('file'), source.get('source_id'), f"registry:{source.get('source_id')}"):
+            if key:
+                source_status_by_key[str(key)] = status
     relationships = json.loads((OUTPUT/'relationships.json').read_text(encoding='utf-8')) if (OUTPUT/'relationships.json').exists() else []
+    relationships = [dict(row, _relation_index=index) for index, row in enumerate(relationships)]
+    evidence_conflicts = json.loads((OUTPUT/'evidence_conflicts.json').read_text(encoding='utf-8')) if (OUTPUT/'evidence_conflicts.json').exists() else {'conflicts': []}
+    medical_pre_review = json.loads((OUTPUT/'medical_pre_review.json').read_text(encoding='utf-8')) if (OUTPUT/'medical_pre_review.json').exists() else {'relations': [], 'counts': {}}
+    pre_review_by_index = {row.get('relation_index'): row for row in medical_pre_review.get('relations', [])}
     entities = {e['id']: e for e in json.loads((OUTPUT/'entities.json').read_text(encoding='utf-8'))} if (OUTPUT/'entities.json').exists() else {}
     qtokens = tokenize(question)
     aliases = set(DISEASE_ALIASES.get(disease or '', []))
@@ -263,7 +360,19 @@ def query(question, disease=None, top_k=4, options=None):
         tail = entity_id.split(':', 1)[-1]
         if any(token in tail or tail in token for token in qtokens): graph_seeds.add(entity_id)
     options = options or {}
+    audience = str(options.get('audience', 'elderly') or 'elderly').lower()
+    source_gate = str(options.get('source_gate', 'flag_legacy_pending') or 'flag_legacy_pending')
     max_hops = max(1, min(2, int(options.get('max_hops', 2) or 2)))
+    def chunk_review_status(chunk):
+        return chunk.get('review_status') or source_status_by_key.get(chunk.get('source'), '')
+    def chunk_is_legacy_pending(chunk):
+        return is_legacy_pending_status(chunk_review_status(chunk))
+    chunk_by_id = {c.get('id'): c for c in chunks}
+    def edge_is_legacy_pending(edge):
+        chunk = chunk_by_id.get(edge.get('chunk_id'))
+        return bool(chunk and chunk_is_legacy_pending(chunk))
+    source_gate_enabled = source_gate == 'exclude_legacy_pending' and audience not in {'doctor', 'clinician', 'audit'}
+    source_flag_enabled = source_gate in {'flag_legacy_pending', 'exclude_legacy_pending'} and audience not in {'doctor', 'clinician', 'audit'}
     # 有界 BFS 图扩展：默认一到两跳，避免把远距离的关系链直接变成老人建议。
     expanded_nodes = set(graph_seeds)
     frontier = set(graph_seeds)
@@ -276,8 +385,20 @@ def query(question, disease=None, top_k=4, options=None):
         for node in adjacent: node_hops[node] = node_hops.get(node, _ + 1)
         frontier = adjacent
         if not frontier: break
-    direct_edges = [r for r in relationships if r.get('source') in graph_seeds or r.get('target') in graph_seeds]
-    graph_edges = [r for r in relationships if r.get('source') in expanded_nodes or r.get('target') in expanded_nodes]
+    def edge_allowed_for_audience(edge):
+        # 待临床确认的关系不进入老人端的普通建议上下文；急症边作为安全信号保留，
+        # 以免过滤逻辑反而延迟急救。医生/审计视图保留全部关系。
+        if audience in {'doctor', 'clinician', 'audit'}:
+            return True
+        if source_gate_enabled and edge_is_legacy_pending(edge):
+            return False
+        pre_status = pre_review_by_index.get(edge.get('_relation_index'), {}).get('ai_pre_review_status')
+        if pre_status == 'needs_clinician_confirmation' and edge.get('type') not in {'urgent_signal', 'emergency_action'}:
+            return False
+        return True
+    direct_edges = [r for r in relationships if (r.get('source') in graph_seeds or r.get('target') in graph_seeds) and edge_allowed_for_audience(r)]
+    graph_edges = [r for r in relationships if (r.get('source') in expanded_nodes or r.get('target') in expanded_nodes) and edge_allowed_for_audience(r)]
+    blocked_edge_count = sum(1 for r in relationships if (r.get('source') in expanded_nodes or r.get('target') in expanded_nodes) and not edge_allowed_for_audience(r))
     # 从用户上下文生成第二组种子：只要指标/行为确实出现在账户里，相关边在证据排序中优先，
     # 避免“高血压”问题被整张共病网络淹没。
     contextual_nodes = set()
@@ -294,7 +415,11 @@ def query(question, disease=None, top_k=4, options=None):
         pair_types.setdefault((edge.get('source'), edge.get('target')), set()).add(edge.get('type'))
     conflict_pairs = {pair for pair, types in pair_types.items() if any(combo.issubset(types) for combo in contradiction_pairs)}
     scored = []
+    excluded_legacy_chunks = 0
     for c in chunks:
+        if source_gate_enabled and chunk_is_legacy_pending(c):
+            excluded_legacy_chunks += 1
+            continue
         if disease and c['disease'] != disease and not (disease in ('heart_disease', 'stroke') and c['disease'] == 'cardiovascular'):
             # 关系型问题允许把图中相邻疾病的权威证据带入结果，避免只回答单病种模板。
             if not relation_query or c['disease'] not in related_diseases: continue
@@ -310,15 +435,21 @@ def query(question, disease=None, top_k=4, options=None):
         if '步数' in question and '可观察指标' in c.get('section', ''): topic_bonus += 20
         if ('活动' in question or '行为' in question) and '可观察指标' in c.get('section', ''): topic_bonus += 12
         if ('增加' in question or '停药' in question or '药' in question) and '生活方式干预' in section_text: topic_bonus += 8
+        # 复测/监测问题应优先命中明确的监测章节，而不是被生活方式摘要淹没。
+        # 这项加权只改变同病种候选的排序，不会跨越疾病过滤或安全策略。
+        if any(term in question for term in ('复测', '监测', '记录')) and any(term in section_text for term in ('监测', '复测', '评估与复测')):
+            topic_bonus += 8
         # 注册表摘要扩大证据覆盖，但同题已有原始章节时稍作降权，保证黄金问题仍优先命中具体段落。
         registry_penalty = 2 if str(c.get('source', '')).startswith('registry:') else 0
-        score = overlap + alias_bonus * 2 + danger_bonus + graph_bonus + authority_bonus + topic_bonus - conflict_penalty - registry_penalty
+        # 默认只做可见的待复核标记，不牺牲关键问题的证据召回；严格审核场景可通过 source_gate=exclude_legacy_pending 排除。
+        source_review_penalty = 0
+        score = overlap + alias_bonus * 2 + danger_bonus + graph_bonus + authority_bonus + topic_bonus - conflict_penalty - registry_penalty - source_review_penalty
         if score: scored.append((score, c))
     scored.sort(key=lambda x: (-x[0], x[1]['id']))
     results = []
     for s, c in scored[:top_k]:
         support = [r for r in graph_edges if r.get('chunk_id') == c['id']]
-        results.append({'chunk_id': c['id'], 'disease': c['disease'], 'section': c['section'], 'text': c['text'], 'source': c['source'], 'citation': c['citation'], 'evidence_level': c['evidence_level'], 'publisher': c.get('publisher', ''), 'publication_year': c.get('publication_year', ''), 'source_url': c.get('source_url', ''), 'score': round(s / max(1, len(qtokens)), 3), 'graph_support': [{'type': r.get('type'), 'target': r.get('target'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'conflict': (r.get('source'), r.get('target')) in conflict_pairs} for r in support]})
+        results.append({'chunk_id': c['id'], 'disease': c['disease'], 'section': c['section'], 'text': c['text'], 'source': c['source'], 'citation': c['citation'], 'evidence_level': c['evidence_level'], 'publisher': c.get('publisher', ''), 'publication_year': c.get('publication_year', ''), 'source_url': c.get('source_url', ''), 'review_status': chunk_review_status(c), 'source_review_required': bool(source_flag_enabled and chunk_is_legacy_pending(c)), 'score': round(s / max(1, len(qtokens)), 3), 'graph_support': [{'type': r.get('type'), 'target': r.get('target'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'conflict': (r.get('source'), r.get('target')) in conflict_pairs, 'ai_pre_review_status': pre_review_by_index.get(r.get('_relation_index'), {}).get('ai_pre_review_status')} for r in support]})
     context = globals().get('_QUERY_CONTEXT', {}) or {}
     recommendations = derive_recommendations(disease, context, question)
     weekly_plan = derive_weekly_plan(disease, context, recommendations)
@@ -338,14 +469,30 @@ def query(question, disease=None, top_k=4, options=None):
         distances = [node_hops.get(edge.get('source')), node_hops.get(edge.get('target'))]
         known = [x for x in distances if x is not None]
         return min(known) if known else max_hops
-    graph_context = [{'source': r.get('source'), 'target': r.get('target'), 'type': r.get('type'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'review_status': r.get('review_status'), 'conflict': (r.get('source'), r.get('target')) in conflict_pairs, 'hop': edge_hop(r), 'context_match': bool(r.get('source') in contextual_nodes or r.get('target') in contextual_nodes)} for r in visible_edges[:12]]
+    graph_context = [{'source': r.get('source'), 'target': r.get('target'), 'type': r.get('type'), 'strength': r.get('strength'), 'evidence': r.get('evidence'), 'evidence_ids': r.get('evidence_ids') or [r.get('evidence')], 'review_status': r.get('review_status'), 'source_review_required': bool(source_flag_enabled and edge_is_legacy_pending(r)), 'ai_pre_review_status': pre_review_by_index.get(r.get('_relation_index'), {}).get('ai_pre_review_status'), 'ai_pre_review_reasons': pre_review_by_index.get(r.get('_relation_index'), {}).get('ai_pre_review_reasons', []), 'conflict': (r.get('source'), r.get('target')) in conflict_pairs, 'hop': edge_hop(r), 'context_match': bool(r.get('source') in contextual_nodes or r.get('target') in contextual_nodes)} for r in visible_edges[:12]]
     graph_paths = []
+    def explain_path(edge):
+        source, target = edge.get('source'), edge.get('target')
+        source_name = entities.get(source, {}).get('name', source)
+        target_name = entities.get(target, {}).get('name', target)
+        relation = edge.get('type', 'related_to')
+        causal = edge.get('causal_status', 'unknown')
+        wording = '存在统计关联' if causal == 'association' else '指南/证据支持该管理关系' if causal in ('guidance', 'causal') else '关系方向需要审核'
+        return {
+            'nodes': [source, target], 'node_labels': [source_name, target_name],
+            'relation': relation, 'strength': edge.get('strength'),
+            'evidence': edge.get('evidence'), 'evidence_ids': edge.get('evidence_ids') or [edge.get('evidence')],
+            'evidence_level': edge.get('evidence_level'), 'population': edge.get('population'),
+            'condition': edge.get('condition'), 'causal_status': causal, 'source_review_required': bool(source_flag_enabled and edge_is_legacy_pending(edge)),
+            'review_status': edge.get('review_status'), 'ai_pre_review_status': pre_review_by_index.get(edge.get('_relation_index'), {}).get('ai_pre_review_status'), 'ai_pre_review_reasons': pre_review_by_index.get(edge.get('_relation_index'), {}).get('ai_pre_review_reasons', []), 'hop': edge_hop(edge),
+            'explanation': f"{source_name} —[{relation}]→ {target_name}：{wording}；依据 {edge.get('evidence')}。"
+        }
     for edge in visible_edges:
         if edge.get('source') in graph_seeds and edge.get('target') in entities:
-            graph_paths.append({'nodes': [edge.get('source'), edge.get('target')], 'relation': edge.get('type'), 'strength': edge.get('strength'), 'evidence': edge.get('evidence'), 'hop': edge_hop(edge)})
+            graph_paths.append(explain_path(edge))
     for edge in visible_edges:
         if edge.get('source') not in graph_seeds and edge.get('target') not in graph_seeds:
-            graph_paths.append({'nodes': [edge.get('source'), edge.get('target')], 'relation': edge.get('type'), 'strength': edge.get('strength'), 'evidence': edge.get('evidence'), 'hop': edge_hop(edge)})
+            graph_paths.append(explain_path(edge))
     personalization = build_personalization(context, disease, recommendations)
     safety_flags = build_safety_flags(context, question, recommendations)
     evidence_scores = [EVIDENCE_LEVELS.get(x.get('evidence_level'), 0) for x in results]
@@ -357,13 +504,15 @@ def query(question, disease=None, top_k=4, options=None):
         uncertainty['level'] = 'medium' if uncertainty['level'] == 'high' else uncertainty['level']
         if quality.get('quality_flags'): uncertainty['reasons'].append('存在测量质量标记')
         if quality.get('measurement_condition_missing'): uncertainty['reasons'].append('部分记录缺少测量条件')
-    citations = [{'citation': x['citation'], 'source_url': x.get('source_url', ''), 'publisher': x.get('publisher', ''), 'publication_year': x.get('publication_year', ''), 'evidence_level': x.get('evidence_level', '')} for x in results]
+    citations = [{'citation': x['citation'], 'source_url': x.get('source_url', ''), 'publisher': x.get('publisher', ''), 'publication_year': x.get('publication_year', ''), 'evidence_level': x.get('evidence_level', ''), 'review_status': x.get('review_status', ''), 'source_review_required': x.get('source_review_required', False)} for x in results]
     requested_backend = options.get('backend', 'local_hybrid')
     caps = capabilities(requested_backend)
     return {'query': question, 'disease': disease, 'results': results, 'recommendations': recommendations, 'weekly_plan': weekly_plan, 'graph_context': graph_context,
             'graph_paths': graph_paths[:12], 'personalization': personalization, 'safety_flags': safety_flags,
             'uncertainty': uncertainty, 'citations': citations,
-            'retrieval_trace': {'lexical_terms': sorted(qtokens)[:20], 'graph_seeds': sorted(graph_seeds), 'contextual_nodes': sorted(contextual_nodes), 'graph_edges': len(graph_edges), 'direct_edges': len(direct_edges), 'expanded_nodes': len(expanded_nodes), 'chunks_considered': len(chunks), 'top_k': top_k, 'max_hops': max_hops, 'evidence_levels': sorted({x.get('evidence_level') for x in results}), 'conflict_pairs': [list(x) for x in sorted(conflict_pairs)], 'ranking': 'lexical+graph+context+authority-freshness-conflict'},
+            'evidence_conflicts': evidence_conflicts.get('conflicts', []),
+            'medical_gate': {'audience': audience, 'blocked_edge_count': blocked_edge_count, 'policy': '老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系'},
+            'retrieval_trace': {'lexical_terms': sorted(qtokens)[:20], 'graph_seeds': sorted(graph_seeds), 'contextual_nodes': sorted(contextual_nodes), 'graph_edges': len(graph_edges), 'blocked_edge_count': blocked_edge_count, 'direct_edges': len(direct_edges), 'expanded_nodes': len(expanded_nodes), 'chunks_considered': len(chunks), 'excluded_legacy_pending_chunks': excluded_legacy_chunks, 'flagged_legacy_pending_results': sum(1 for x in results if x.get('source_review_required')), 'source_gate': source_gate, 'source_gate_enabled': source_gate_enabled, 'source_flag_enabled': source_flag_enabled, 'top_k': top_k, 'max_hops': max_hops, 'audience': audience, 'evidence_levels': sorted({x.get('evidence_level') for x in results}), 'conflict_pairs': [list(x) for x in sorted(conflict_pairs)], 'conflict_count': len(evidence_conflicts.get('conflicts', [])), 'pre_review_count': len(medical_pre_review.get('relations', [])), 'pre_review_statuses': medical_pre_review.get('counts', {}), 'ranking': 'lexical+graph+context+authority-freshness-conflict+source-review-flag+medical-gate'},
             'index_version': INDEX_VERSION, 'graph_mode': caps.backend, 'retrieval_capabilities': caps.__dict__, 'disclaimer': '知识检索用于解释和健康教育，不替代医生诊断。'}
 
 def build_personalization(context, disease, recommendations):
@@ -482,6 +631,18 @@ def derive_recommendations(disease, context, question):
     trend = (context or {}).get('trend_by_type') or {}
     quality = (context or {}).get('data_completeness') or {}
     systo, diasto = bp.get('value'), bp.get('value2')
+    danger_hit = any(x in str(question or '') for x in ENTITY_TERMS['danger_sign'])
+    if danger_hit and disease not in ('heart_disease', 'stroke'):
+        if disease == 'diabetes' and any(x in str(question or '') for x in ('低血糖', '昏沉', '叫不醒', '意识')):
+            urgent_action = '疑似严重低血糖或意识改变：立即呼叫急救并通知家属，不要自行调整药物或等待预测。'
+            urgent_evidence = 'diabetes.md#危险信号'
+        elif disease == 'chronic_kidney_disease' and any(x in str(question or '') for x in ('呼吸困难', '气短', '水肿')):
+            urgent_action = '出现呼吸困难、明显水肿或意识改变：立即联系急救或医务人员，不要等待趋势外推。'
+            urgent_evidence = 'kdigo_ckd_2024.md#评估与复测'
+        else:
+            urgent_action = '问题包含危险信号：立即呼叫急救并通知家属，不要等待模型预测。'
+            urgent_evidence = 'older_adult_safety.md#危险信号'
+        recs.append({'priority': 'urgent', 'action': urgent_action, 'reason': '问题包含急症或危险症状的口语表达', 'evidence': urgent_evidence, 'evidence_ids': [urgent_evidence], 'requires_confirmation': False, 'medical_boundary': '急症优先急救，不自行调整药物'})
     if disease == 'hypertension':
         if isinstance(systo, (int, float)) and isinstance(diasto, (int, float)) and (systo >= 180 or diasto >= 120):
             recs.append({'priority': 'urgent', 'action': '立即安静休息并重新测量；若伴胸痛、呼吸困难、意识改变或单侧无力，立即呼叫急救。', 'reason': '当前血压达到危险信号门槛', 'evidence': 'who_hypertension_2025.md#并发症'})

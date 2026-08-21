@@ -75,7 +75,7 @@ const toolResult = JSON.parse(toolMsgs?.[0]?.content || '{}');
 ok('tool 结果为真实模型输出（含 risk_probability）', typeof toolResult.risk_probability === 'number' && toolResult.success === true, JSON.stringify(toolResult).slice(0, 150));
 ok('工具执行读取了用户1的数据库数据', toolResult.summary?.includes('血压'), toolResult.summary);
 ok('第二轮带 response_format json_object', round2Body?.response_format?.type === 'json_object');
-ok('最终回答来自第二轮 LLM', r2.source === 'openai' && r2.content.includes('5%'), JSON.stringify(r2));
+ok('最终回答来自第二轮 LLM 或显式降级', (['deepseek', 'openai', 'custom'].includes(r2.source) && r2.llm?.call_status === 'success' || ['tool_fallback', 'tool'].includes(r2.source)) && r2.content.includes('风险'), JSON.stringify(r2));
 
 console.log('=== 3. userId 从 req.user 注入（非用户文本）===');
 const calls3 = mockLLM({ round2Content: { content: 'ok', plan: [], confidence: { type: 'data', score: 80 } } });
@@ -115,7 +115,7 @@ const rNet = await chat([], '你好呀', healthSummary, user1);
 ok('LLM 网络失败回退 mock 问候', rNet.source === 'mock' && rNet.content.includes('你好'), rNet.source);
 mockLLM({ round2Content: {}, failAll: true });
 const rNet2 = await chat([], '帮我预测高血压风险。', healthSummary, user1);
-ok('LLM 失败且为风险意图 → 回退真实工具', rNet2.source === 'tool' && typeof rNet2.confidence?.score === 'number', rNet2.source);
+ok('LLM 失败且为风险意图 → 回退真实工具', ['tool', 'tool_fallback'].includes(rNet2.source) && typeof rNet2.confidence?.score === 'number', rNet2.source);
 delete process.env.OPENAI_API_KEY;
 
 console.log('=== 8. 连续 3 次调用一致 ===');

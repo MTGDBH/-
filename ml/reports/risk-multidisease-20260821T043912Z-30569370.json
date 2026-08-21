@@ -1,0 +1,35 @@
+{
+  "schema_version": "experiment-run.v1",
+  "run_id": "risk-multidisease-20260821T043912Z-30569370",
+  "task": "多疾病 Wave1→Wave2 风险筛查",
+  "status": "completed",
+  "started_at": "2026-08-21T04:39:28+00:00",
+  "completed_at": "2026-08-21T04:39:28+00:00",
+  "code": {
+    "git_revision": "6f915635bd1e2ee28985412c8829a2c9bed8f360",
+    "working_tree": true
+  },
+  "data": {
+    "manifest_id": "charls_w1w2_incidence.v2"
+  },
+  "model": {
+    "version": "multidisease-baseline.v2"
+  },
+  "parameters": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "cv": "StratifiedKFold(5)",
+    "selection": "CV PR-AUC then ROC-AUC"
+  },
+  "outputs": [
+    "D:\\BIGCHUANG\\-\\ml\\disease_risk\\models\\hypertension_model_metadata.json",
+    "D:\\BIGCHUANG\\-\\ml\\disease_risk\\models\\diabetes_model_metadata.json",
+    "D:\\BIGCHUANG\\-\\ml\\disease_risk\\models\\heart_disease_model_metadata.json",
+    "D:\\BIGCHUANG\\-\\ml\\disease_risk\\models\\stroke_model_metadata.json"
+  ],
+  "environment": {
+    "python": "3.13.14",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "node": "not_recorded"
+  }
+}

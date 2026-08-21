@@ -1,4 +1,7 @@
 {
+  "dataset_version": "charls_w1w2_incidence.v2/multidisease_baseline",
+  "artifact_sha256": "fcbbd920fab6073382223fca4af313711b3f03ad1c0ec3f5a97701815984cfaf",
+  "pipeline": "multidisease_baseline",
   "disease": "hypertension",
   "target_column": "hibpe",
   "source": "D:\\大创数据2\\CHARLS.csv",

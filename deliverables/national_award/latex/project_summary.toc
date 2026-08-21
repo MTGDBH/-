@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}摘要}{2}{section.1}%
+\contentsline {section}{\numberline {2}项目背景与目标}{2}{section.2}%
+\contentsline {section}{\numberline {3}系统总体架构}{2}{section.3}%
+\contentsline {section}{\numberline {4}Curve V2：个人健康趋势}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}数据语义}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}三层曲线}{3}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}拒绝预测}{3}{subsection.4.3}%
+\contentsline {section}{\numberline {5}疾病风险筛查}{3}{section.5}%
+\contentsline {subsection}{\numberline {5.1}建模策略}{3}{subsection.5.1}%
+\contentsline {section}{\numberline {6}GraphRAG 证据治理}{4}{section.6}%
+\contentsline {section}{\numberline {7}智能体与行动闭环}{5}{section.7}%
+\contentsline {section}{\numberline {8}可复现性与验收}{5}{section.8}%
+\contentsline {section}{\numberline {9}局限与外部工作包}{5}{section.9}%
+\contentsline {section}{\numberline {10}提交前 14 天执行表}{6}{section.10}%
+\contentsline {section}{\numberline {11}参考材料}{6}{section.11}%

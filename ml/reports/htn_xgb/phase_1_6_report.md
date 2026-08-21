@@ -1,5 +1,7 @@
 # Phase 1.6 报告：XGBoost 基线优化与概率校准
 
+> 数据血缘：`charls_w1w2_incidence.v2/app_core12`；本次运行 ID 见 `ml/reports/risk-htn-core12-20260821T043849Z-dca6731b.json`。本报告使用专用 APP 核心 12 特征派生集（n=10,619，阳性=494），不能与多病种基线的高血压派生集（n=11,010，阳性=506）混写。
+
 ## 1. 特征消融（test 仅最终评估）
           feature_set  n_features  cv_auc  cv_auc_std  cv_prauc  cv_prauc_std  test_auc  test_prauc
               A_all32          32  0.6675      0.0188    0.1018        0.0210    0.7052      0.1853

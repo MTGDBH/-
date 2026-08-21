@@ -1,0 +1,25 @@
+{
+  "schema_version": "curve-external-dataset.v1",
+  "required_columns": ["participant_id", "timestamp", "metric", "value"],
+  "optional_columns": ["unit", "condition", "source", "measurement_id", "quality_status", "notes"],
+  "metrics": {
+    "systo": {"label": "收缩压", "unit": "mmHg", "condition": ["morning_rest", "evening_rest", "other"]},
+    "diasto": {"label": "舒张压", "unit": "mmHg", "condition": ["morning_rest", "evening_rest", "other"]},
+    "glucose": {"label": "血糖", "unit": "mmol/L", "condition": ["fasting", "postprandial_2h", "random"]},
+    "weight": {"label": "体重", "unit": "kg", "condition": ["morning_fasting", "other"]},
+    "pulse": {"label": "静息心率", "unit": "bpm", "condition": ["resting"]}
+  },
+  "quality_gates": {
+    "minimum_participants": 5,
+    "minimum_span_days": 60,
+    "target_span_days": 90,
+    "minimum_valid_days_for_7d_forecast": 21,
+    "minimum_source_values": ["real_device", "manual", "clinic"]
+  },
+  "rules": [
+    "同一 participant_id 的记录必须按时间隔离，不能把同一老人的未来记录用于历史窗口。",
+    "血糖必须填写 fasting、postprandial_2h 或 random，unknown 不得进入预测序列。",
+    "静息心率必须填写 resting；步数和睡眠不进入精确未来数值外推。",
+    "source=synthetic 只能用于测试，不得标记为外部验证。"
+  ]
+}

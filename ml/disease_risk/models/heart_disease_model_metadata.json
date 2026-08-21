@@ -1,4 +1,5 @@
 {
+  "pipeline": "multidisease_baseline",
   "disease": "heart_disease",
   "task": "Wave1→Wave2 incidence",
   "model": "logistic",
@@ -62,5 +63,8 @@
     "positive_test": 61
   },
   "random_state": 42,
+  "experiment_run_id": "risk-multidisease-20260821T043912Z-30569370",
+  "data_manifest_id": "charls_w1w2_incidence.v2",
+  "dataset_artifact": "D:/BIGCHUANG/-/ml/disease_risk/datasets/heart_disease_incidence_w1w2.csv",
   "disclaimer": "队列风险筛查模型，不是诊断；需要外部验证后才能用于临床。"
 }

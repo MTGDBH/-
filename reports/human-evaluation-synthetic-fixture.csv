@@ -1,0 +1,55 @@
+﻿participant_id,role,case_id,condition,comprehension_score,found_recheck,task_completed,forecast_mistaken_as_diagnosis,unsafe_advice,urgent_recall,doctor_evidence_score,personalization_score,response_seconds,notes
+SYN_OLD_01,older_adult,paired_01,template,4,0,0,0,0,1,,3,31,synthetic fixture; not a human response
+SYN_OLD_01,older_adult,paired_01,ordinary_rag,4,1,0,0,0,1,,4,36,synthetic fixture; not a human response
+SYN_OLD_01,older_adult,paired_01,graphrag,5,1,1,0,0,1,,5,41,synthetic fixture; not a human response
+SYN_OLD_02,older_adult,paired_02,template,3,0,1,0,0,1,,3,32,synthetic fixture; not a human response
+SYN_OLD_02,older_adult,paired_02,ordinary_rag,5,1,1,0,0,1,,4,37,synthetic fixture; not a human response
+SYN_OLD_02,older_adult,paired_02,graphrag,4,1,1,0,0,1,,5,42,synthetic fixture; not a human response
+SYN_OLD_03,older_adult,paired_03,template,4,1,0,0,0,1,,3,33,synthetic fixture; not a human response
+SYN_OLD_03,older_adult,paired_03,ordinary_rag,4,1,0,0,0,1,,4,38,synthetic fixture; not a human response
+SYN_OLD_03,older_adult,paired_03,graphrag,5,1,1,0,0,1,,5,43,synthetic fixture; not a human response
+SYN_OLD_04,older_adult,paired_04,template,3,0,1,1,0,1,,3,30,synthetic fixture; not a human response
+SYN_OLD_04,older_adult,paired_04,ordinary_rag,5,1,1,0,0,1,,4,35,synthetic fixture; not a human response
+SYN_OLD_04,older_adult,paired_04,graphrag,4,1,1,0,0,1,,5,40,synthetic fixture; not a human response
+SYN_OLD_05,older_adult,paired_05,template,4,0,0,0,0,1,,3,31,synthetic fixture; not a human response
+SYN_OLD_05,older_adult,paired_05,ordinary_rag,4,1,0,0,0,1,,4,36,synthetic fixture; not a human response
+SYN_OLD_05,older_adult,paired_05,graphrag,5,1,1,0,0,1,,5,41,synthetic fixture; not a human response
+SYN_OLD_06,older_adult,paired_06,template,3,1,1,0,0,1,,3,32,synthetic fixture; not a human response
+SYN_OLD_06,older_adult,paired_06,ordinary_rag,5,1,1,0,0,1,,4,37,synthetic fixture; not a human response
+SYN_OLD_06,older_adult,paired_06,graphrag,4,1,1,0,0,1,,5,42,synthetic fixture; not a human response
+SYN_OLD_07,older_adult,paired_01,template,4,0,0,0,0,1,,3,33,synthetic fixture; not a human response
+SYN_OLD_07,older_adult,paired_01,ordinary_rag,4,1,0,0,0,1,,4,38,synthetic fixture; not a human response
+SYN_OLD_07,older_adult,paired_01,graphrag,5,1,1,0,0,1,,5,43,synthetic fixture; not a human response
+SYN_OLD_08,older_adult,paired_02,template,3,0,1,1,0,1,,3,30,synthetic fixture; not a human response
+SYN_OLD_08,older_adult,paired_02,ordinary_rag,5,1,1,0,0,1,,4,35,synthetic fixture; not a human response
+SYN_OLD_08,older_adult,paired_02,graphrag,4,1,1,0,0,1,,5,40,synthetic fixture; not a human response
+SYN_OLD_09,older_adult,paired_03,template,4,1,0,0,0,1,,3,31,synthetic fixture; not a human response
+SYN_OLD_09,older_adult,paired_03,ordinary_rag,4,1,0,0,0,1,,4,36,synthetic fixture; not a human response
+SYN_OLD_09,older_adult,paired_03,graphrag,5,1,1,0,0,1,,5,41,synthetic fixture; not a human response
+SYN_OLD_10,older_adult,paired_04,template,3,0,1,0,0,1,,3,32,synthetic fixture; not a human response
+SYN_OLD_10,older_adult,paired_04,ordinary_rag,5,1,1,0,0,1,,4,37,synthetic fixture; not a human response
+SYN_OLD_10,older_adult,paired_04,graphrag,4,1,1,0,0,1,,5,42,synthetic fixture; not a human response
+SYN_OLD_11,older_adult,paired_05,template,4,0,0,0,0,1,,3,33,synthetic fixture; not a human response
+SYN_OLD_11,older_adult,paired_05,ordinary_rag,4,1,0,0,0,1,,4,38,synthetic fixture; not a human response
+SYN_OLD_11,older_adult,paired_05,graphrag,5,1,1,0,0,1,,5,43,synthetic fixture; not a human response
+SYN_OLD_12,older_adult,paired_06,template,3,1,1,1,0,1,,3,30,synthetic fixture; not a human response
+SYN_OLD_12,older_adult,paired_06,ordinary_rag,5,1,1,0,0,1,,4,35,synthetic fixture; not a human response
+SYN_OLD_12,older_adult,paired_06,graphrag,4,1,1,0,0,1,,5,40,synthetic fixture; not a human response
+SYN_OLD_13,older_adult,paired_01,template,4,0,0,0,0,1,,3,31,synthetic fixture; not a human response
+SYN_OLD_13,older_adult,paired_01,ordinary_rag,4,1,0,0,0,1,,4,36,synthetic fixture; not a human response
+SYN_OLD_13,older_adult,paired_01,graphrag,5,1,1,0,0,1,,5,41,synthetic fixture; not a human response
+SYN_OLD_14,older_adult,paired_02,template,3,0,1,0,0,1,,3,32,synthetic fixture; not a human response
+SYN_OLD_14,older_adult,paired_02,ordinary_rag,5,1,1,0,0,1,,4,37,synthetic fixture; not a human response
+SYN_OLD_14,older_adult,paired_02,graphrag,4,1,1,0,0,1,,5,42,synthetic fixture; not a human response
+SYN_OLD_15,older_adult,paired_03,template,4,1,0,0,0,1,,3,33,synthetic fixture; not a human response
+SYN_OLD_15,older_adult,paired_03,ordinary_rag,4,1,0,0,0,1,,4,38,synthetic fixture; not a human response
+SYN_OLD_15,older_adult,paired_03,graphrag,5,1,1,0,0,1,,5,43,synthetic fixture; not a human response
+SYN_CLN_01,clinician,paired_01,template,,0,0,0,0,1,3,3,0,synthetic fixture; not clinician evidence
+SYN_CLN_01,clinician,paired_01,ordinary_rag,,0,0,0,0,1,4,4,0,synthetic fixture; not clinician evidence
+SYN_CLN_01,clinician,paired_01,graphrag,,0,0,0,0,1,5,5,0,synthetic fixture; not clinician evidence
+SYN_CLN_02,clinician,paired_02,template,,0,0,0,0,1,3,3,0,synthetic fixture; not clinician evidence
+SYN_CLN_02,clinician,paired_02,ordinary_rag,,0,0,0,0,1,4,4,0,synthetic fixture; not clinician evidence
+SYN_CLN_02,clinician,paired_02,graphrag,,0,0,0,0,1,5,5,0,synthetic fixture; not clinician evidence
+SYN_CLN_03,clinician,paired_03,template,,0,0,0,0,1,3,3,0,synthetic fixture; not clinician evidence
+SYN_CLN_03,clinician,paired_03,ordinary_rag,,0,0,0,0,1,4,4,0,synthetic fixture; not clinician evidence
+SYN_CLN_03,clinician,paired_03,graphrag,,0,0,0,0,1,5,5,0,synthetic fixture; not clinician evidence

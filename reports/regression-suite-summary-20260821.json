@@ -1,0 +1,23 @@
+{
+  "schema_version": "regression-suite-summary.v1",
+  "run_id": "regression-suite-20260821",
+  "python_tests": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "curve_health": "28/28",
+    "curve_temporal": {"attempts": 30, "forecasted": 29, "refused": 1},
+    "graphrag": {"sources": 78, "chunks": 111, "entities": 159, "relationships": 419, "invalid_relations": 0},
+    "medical_gate": {"elderly_blocked": 16, "doctor_blocked": 0},
+    "risk_manifest": "charls_w1w2_incidence.v2"
+  },
+  "node_final_acceptance": {
+    "status": "PASS",
+    "areas": ["login", "DeepSeek trend", "disease risk", "GraphRAG", "behavior", "history"]
+  },
+  "limitations": [
+    "synthetic Curve dry-run is not external validation",
+    "CHARLS wave split is not an independent clinical cohort",
+    "AI/automated medical gate is not clinician sign-off"
+  ]
+}

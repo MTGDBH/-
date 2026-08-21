@@ -1,0 +1,357 @@
+{
+  "schema_version": "graphrag-internal-holdout.v1",
+  "run_id": "graphrag-internal-paraphrase-holdout-20260821",
+  "data_class": "test_internal_paraphrase",
+  "index_version": "2026-08-21.v6",
+  "summary": {
+    "n_cases": 24,
+    "must_have_recall": 1.0,
+    "citation_case_rate": 1.0,
+    "path_case_rate": 1.0,
+    "urgent_recall": 1.0
+  },
+  "rows": [
+    {
+      "id": "h01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "h02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "h03",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "h04",
+      "must_have_hit": true,
+      "urgent_expected": true,
+      "urgent_hit": true,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "d01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "d02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "d03",
+      "must_have_hit": true,
+      "urgent_expected": true,
+      "urgent_hit": true,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "c01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 13,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "c02",
+      "must_have_hit": true,
+      "urgent_expected": true,
+      "urgent_hit": true,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "c03",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "s01",
+      "must_have_hit": true,
+      "urgent_expected": true,
+      "urgent_hit": true,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 14,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "s02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 14,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "s03",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 14,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "k01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "k02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "k03",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "k04",
+      "must_have_hit": true,
+      "urgent_expected": true,
+      "urgent_hit": true,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "f01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "f02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "f03",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "b01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "b02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "a01",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 16,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "a02",
+      "must_have_hit": true,
+      "urgent_expected": false,
+      "urgent_hit": null,
+      "citations": 6,
+      "paths": 12,
+      "medical_gate": {
+        "audience": "elderly",
+        "blocked_edge_count": 15,
+        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+      },
+      "index_version": "2026-08-21.v6"
+    }
+  ],
+  "limitations": [
+    "问题来自内部人工改写，不是独立外部临床问题集",
+    "标题同义映射由人工预先登记，不代表语义模型已解决所有口语表达",
+    "不代表临床有效性或真实用户满意度",
+    "高风险关系仍需医生审核"
+  ]
+}

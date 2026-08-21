@@ -1,0 +1,2975 @@
+{
+  "schema_version": "medical-pre-review.v1",
+  "index_version": "2026-08-21.v6",
+  "generated_at": "2026-08-21",
+  "reviewer": "AI evidence-governance pre-review (not a licensed clinician)",
+  "scope": "high-strength or safety relations",
+  "counts": {
+    "eligible_for_demo_education": 66,
+    "needs_clinician_confirmation": 17
+  },
+  "relations_reviewed": 83,
+  "clinical_signoff_required": true,
+  "policy": "Never convert pending_medical_review to approved automatically.",
+  "relations": [
+    {
+      "relation_index": 280,
+      "source": "disease:hypertension",
+      "target": "evidence_source:hypertension_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:hypertension_curated_01#高血压老年人证据摘要：定义与老年特点",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 281,
+      "source": "disease:hypertension",
+      "target": "evidence_source:hypertension_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:hypertension_curated_02#高血压老年人证据摘要：家庭测量与复测",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 285,
+      "source": "disease:hypertension",
+      "target": "evidence_source:hypertension_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:hypertension_curated_06#高血压老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 286,
+      "source": "disease:hypertension",
+      "target": "evidence_source:hypertension_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:hypertension_curated_07#高血压老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 287,
+      "source": "disease:diabetes",
+      "target": "evidence_source:diabetes_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:diabetes_curated_01#2型糖尿病老年人证据摘要：定义与老年特点",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 288,
+      "source": "disease:diabetes",
+      "target": "evidence_source:diabetes_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:diabetes_curated_02#2型糖尿病老年人证据摘要：空腹与餐后血糖",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 292,
+      "source": "disease:diabetes",
+      "target": "evidence_source:diabetes_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:diabetes_curated_06#2型糖尿病老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 293,
+      "source": "disease:diabetes",
+      "target": "evidence_source:diabetes_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:diabetes_curated_07#2型糖尿病老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 294,
+      "source": "disease:cardiovascular",
+      "target": "evidence_source:cardiovascular_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:cardiovascular_curated_01#心血管疾病老年人证据摘要：共同危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 295,
+      "source": "disease:cardiovascular",
+      "target": "evidence_source:cardiovascular_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:cardiovascular_curated_02#心血管疾病老年人证据摘要：血脂与血压",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 299,
+      "source": "disease:cardiovascular",
+      "target": "evidence_source:cardiovascular_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:cardiovascular_curated_06#心血管疾病老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 300,
+      "source": "disease:cardiovascular",
+      "target": "evidence_source:cardiovascular_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:cardiovascular_curated_07#心血管疾病老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 301,
+      "source": "disease:stroke",
+      "target": "evidence_source:stroke_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:stroke_curated_01#脑卒中老年人证据摘要：一级预防",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 302,
+      "source": "disease:stroke",
+      "target": "evidence_source:stroke_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:stroke_curated_02#脑卒中老年人证据摘要：血压与卒中",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 306,
+      "source": "disease:stroke",
+      "target": "evidence_source:stroke_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:stroke_curated_06#脑卒中老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 307,
+      "source": "disease:stroke",
+      "target": "evidence_source:stroke_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:stroke_curated_07#脑卒中老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 308,
+      "source": "disease:chronic_kidney_disease",
+      "target": "evidence_source:chronic_kidney_disease_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:chronic_kidney_disease_curated_01#慢性肾脏病老年人证据摘要：定义与持续时间",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 309,
+      "source": "disease:chronic_kidney_disease",
+      "target": "evidence_source:chronic_kidney_disease_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:chronic_kidney_disease_curated_02#慢性肾脏病老年人证据摘要：eGFR与肌酐",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 313,
+      "source": "disease:chronic_kidney_disease",
+      "target": "evidence_source:chronic_kidney_disease_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:chronic_kidney_disease_curated_06#慢性肾脏病老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 314,
+      "source": "disease:chronic_kidney_disease",
+      "target": "evidence_source:chronic_kidney_disease_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:chronic_kidney_disease_curated_07#慢性肾脏病老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 315,
+      "source": "disease:frailty",
+      "target": "evidence_source:frailty_curated_01",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:frailty_curated_01#老年衰弱与跌倒风险老年人证据摘要：衰弱识别",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 316,
+      "source": "disease:frailty",
+      "target": "evidence_source:frailty_curated_02",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:frailty_curated_02#老年衰弱与跌倒风险老年人证据摘要：握力与功能",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 320,
+      "source": "disease:frailty",
+      "target": "evidence_source:frailty_curated_06",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:frailty_curated_06#老年衰弱与跌倒风险老年人证据摘要：系统综述与预测因素",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 321,
+      "source": "disease:frailty",
+      "target": "evidence_source:frailty_curated_07",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:frailty_curated_07#老年衰弱与跌倒风险老年人证据摘要：关键随机试验",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 322,
+      "source": "disease:hypertension",
+      "target": "evidence_source:who_hypertension_2025_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:who_hypertension_2025_guidance#高血压：WHO事实表与管理原则",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 325,
+      "source": "disease:diabetes",
+      "target": "evidence_source:ada_older_adults_2025_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:ada_older_adults_2025_guidance#ADA老年糖尿病标准：功能、低血糖与个体化管理",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 328,
+      "source": "disease:heart_disease",
+      "target": "evidence_source:who_cvd_2025_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:who_cvd_2025_guidance#WHO心血管疾病事实表与共同危险因素框架",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 331,
+      "source": "disease:stroke",
+      "target": "evidence_source:aha_asa_stroke_2024_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:aha_asa_stroke_2024_guidance#AHA/ASA卒中一级预防指南要点",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 334,
+      "source": "disease:chronic_kidney_disease",
+      "target": "evidence_source:kdigo_ckd_2024_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:kdigo_ckd_2024_guidance#KDIGO慢性肾脏病评估与管理指南",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 337,
+      "source": "disease:frailty",
+      "target": "evidence_source:who_ageing_2024_frailty_guidance",
+      "type": "supportive_evidence",
+      "strength": "high",
+      "evidence": "registry:who_ageing_2024_frailty_guidance#WHO老龄化与健康：功能和衰弱安全框架",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 340,
+      "source": "disease:hypertension",
+      "target": "risk_factor:high_salt_diet",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 341,
+      "source": "disease:hypertension",
+      "target": "risk_factor:physical_inactivity",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 342,
+      "source": "disease:hypertension",
+      "target": "risk_factor:obesity",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 343,
+      "source": "disease:hypertension",
+      "target": "risk_factor:tobacco",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 344,
+      "source": "disease:hypertension",
+      "target": "risk_factor:alcohol",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 345,
+      "source": "disease:hypertension",
+      "target": "risk_factor:age_over_65",
+      "type": "has_nonmodifiable_factor",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#危险因素",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 346,
+      "source": "disease:hypertension",
+      "target": "metric:bp",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#识别与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 348,
+      "source": "disease:hypertension",
+      "target": "disease:heart_disease",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#并发症",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 349,
+      "source": "disease:hypertension",
+      "target": "disease:stroke",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#并发症",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 350,
+      "source": "disease:hypertension",
+      "target": "disease:chronic_kidney_disease",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#并发症",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 351,
+      "source": "disease:hypertension",
+      "target": "intervention:home_bp_remeasurement",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#识别与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 352,
+      "source": "disease:hypertension",
+      "target": "intervention:salt_reduction",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#生活方式干预",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 353,
+      "source": "disease:hypertension",
+      "target": "intervention:regular_activity",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "who_hypertension_2025.md#生活方式干预",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 354,
+      "source": "disease:diabetes",
+      "target": "risk_factor:obesity",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#2型糖尿病",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 355,
+      "source": "disease:diabetes",
+      "target": "risk_factor:physical_inactivity",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#预防",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 357,
+      "source": "disease:diabetes",
+      "target": "metric:glucose",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#诊断与治疗",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 358,
+      "source": "disease:diabetes",
+      "target": "metric:hba1c",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "ada_older_adults_2025.md#综合评估",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 359,
+      "source": "disease:diabetes",
+      "target": "disease:heart_disease",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#长期影响",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 360,
+      "source": "disease:diabetes",
+      "target": "disease:stroke",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#长期影响",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 361,
+      "source": "disease:diabetes",
+      "target": "disease:chronic_kidney_disease",
+      "type": "increases_risk_of",
+      "strength": "high",
+      "evidence": "who_diabetes_2024.md#长期影响",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 362,
+      "source": "disease:diabetes",
+      "target": "intervention:healthy_diet",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "ada_older_adults_2025.md#生活方式",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 363,
+      "source": "disease:diabetes",
+      "target": "intervention:regular_activity",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "ada_older_adults_2025.md#生活方式",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 364,
+      "source": "disease:diabetes",
+      "target": "intervention:annual_complication_screening",
+      "type": "managed_by",
+      "strength": "high",
+      "evidence": "ada_older_adults_2025.md#老年人综合评估",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 365,
+      "source": "disease:heart_disease",
+      "target": "risk_factor:high_bp",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_cvd_2025.md#风险因素",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 366,
+      "source": "disease:heart_disease",
+      "target": "risk_factor:high_glucose",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_cvd_2025.md#风险因素",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 367,
+      "source": "disease:heart_disease",
+      "target": "risk_factor:high_lipids",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_cvd_2025.md#风险因素",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 368,
+      "source": "disease:heart_disease",
+      "target": "risk_factor:tobacco",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "who_cvd_2025.md#风险因素",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 370,
+      "source": "disease:stroke",
+      "target": "disease:hypertension",
+      "type": "major_preventable_driver",
+      "strength": "high",
+      "evidence": "aha_stroke_prevention_2024.md#血压管理",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "涉及疾病风险/并发症方向，不能仅凭自动规则批准",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可说“该因素与另一疾病风险增加有关/是可预防的重要驱动因素之一”，并说明这是群体证据。",
+        "forbidden_expression": "不得说“这个老人一定会患病”或把风险关联改写成个人因果诊断。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 371,
+      "source": "disease:stroke",
+      "target": "risk_factor:sedentary_behavior",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "aha_stroke_prevention_2024.md#身体活动",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 372,
+      "source": "disease:stroke",
+      "target": "risk_factor:unhealthy_diet",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "aha_stroke_prevention_2024.md#饮食模式",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 374,
+      "source": "disease:stroke",
+      "target": "symptom:face_arm_speech_emergency",
+      "type": "urgent_signal",
+      "strength": "high",
+      "evidence": "cardiovascular.md#危险信号",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "出现明确危险信号时，立即停止等待模型并联系急救/医务人员。",
+        "forbidden_expression": "不得建议继续观察、等待预测结果或自行处理替代急救。",
+        "required_guardrails": [
+          "优先急症提示",
+          "不输出药物剂量",
+          "保留联系家属/急救行动确认"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 377,
+      "source": "intervention:mediterranean_diet",
+      "target": "disease:stroke",
+      "type": "prevention_evidence",
+      "strength": "moderate",
+      "evidence": "aha_stroke_prevention_2024.md#饮食模式",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 378,
+      "source": "intervention:lifestyle_program",
+      "target": "disease:diabetes",
+      "type": "prevention_evidence",
+      "strength": "high",
+      "evidence": "dpp_2002.md#试验结论",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 380,
+      "source": "metric:bp",
+      "target": "disease:stroke",
+      "type": "monitoring_signal",
+      "strength": "high",
+      "evidence": "aha_stroke_prevention_2024.md#血压管理",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 381,
+      "source": "intervention:mediterranean_diet",
+      "target": "disease:heart_disease",
+      "type": "prevention_evidence",
+      "strength": "moderate",
+      "evidence": "predimed_2018.md#试验要点",
+      "evidence_level": "randomized_trial",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 382,
+      "source": "intervention:mediterranean_diet",
+      "target": "disease:stroke",
+      "type": "prevention_evidence",
+      "strength": "moderate",
+      "evidence": "predimed_2018.md#试验要点",
+      "evidence_level": "randomized_trial",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 389,
+      "source": "disease:chronic_kidney_disease",
+      "target": "metric:egfr",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#评估与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 390,
+      "source": "disease:chronic_kidney_disease",
+      "target": "metric:creatinine",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#评估与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 391,
+      "source": "disease:chronic_kidney_disease",
+      "target": "metric:urine_albumin",
+      "type": "measured_by",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#评估与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 392,
+      "source": "disease:chronic_kidney_disease",
+      "target": "disease:hypertension",
+      "type": "coexists_with",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#血压与共病",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 393,
+      "source": "disease:chronic_kidney_disease",
+      "target": "disease:diabetes",
+      "type": "coexists_with",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#血压与共病",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 395,
+      "source": "disease:chronic_kidney_disease",
+      "target": "risk_factor:polypharmacy",
+      "type": "requires_clinician_review",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#老年人安全边界",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 396,
+      "source": "metric:bp",
+      "target": "disease:chronic_kidney_disease",
+      "type": "monitoring_signal",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#血压与共病",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 397,
+      "source": "metric:glucose",
+      "target": "disease:chronic_kidney_disease",
+      "type": "monitoring_signal",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#血压与共病",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可作为观察和复测指标，但单个读数不等于诊断。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 398,
+      "source": "disease:chronic_kidney_disease",
+      "target": "care_action:kidney_function_recheck",
+      "type": "requires_remeasurement",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#评估与复测",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "建议在相同或可比条件下按医生安排复测，并比较日期、趋势和测量条件。",
+        "forbidden_expression": "不得把一次异常直接写成慢性病诊断或个人治疗目标。",
+        "required_guardrails": [
+          "记录复测时间",
+          "缺少条件时降低可信度"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 399,
+      "source": "disease:chronic_kidney_disease",
+      "target": "care_action:clinician_review",
+      "type": "requires_clinician_review",
+      "strength": "high",
+      "evidence": "kdigo_ckd_2024.md#老年人安全边界",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 403,
+      "source": "population:frail_older_adults",
+      "target": "intervention:low_to_moderate_activity",
+      "type": "requires_clinician_review",
+      "strength": "high",
+      "evidence": "who_physical_activity_2020.md#安全提醒",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 404,
+      "source": "population:frail_older_adults",
+      "target": "care_action:fall_risk_review",
+      "type": "requires_medical_review",
+      "strength": "high",
+      "evidence": "older_adult_safety.md#功能和虚弱",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 406,
+      "source": "disease:diabetes",
+      "target": "risk_factor:hypoglycemia",
+      "type": "urgent_signal",
+      "strength": "high",
+      "evidence": "older_adult_safety.md#低血糖与用药",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "出现明确危险信号时，立即停止等待模型并联系急救/医务人员。",
+        "forbidden_expression": "不得建议继续观察、等待预测结果或自行处理替代急救。",
+        "required_guardrails": [
+          "优先急症提示",
+          "不输出药物剂量",
+          "保留联系家属/急救行动确认"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 407,
+      "source": "risk_factor:hypoglycemia",
+      "target": "care_action:clinician_review",
+      "type": "requires_medical_review",
+      "strength": "high",
+      "evidence": "older_adult_safety.md#低血糖与用药",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 408,
+      "source": "risk_factor:polypharmacy",
+      "target": "care_action:do_not_self_adjust_medication",
+      "type": "do_not_self_adjust_medication",
+      "strength": "high",
+      "evidence": "older_adult_safety.md#低血糖与用药",
+      "evidence_level": "professional_guideline",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "明确提醒不要自行加减药，出现不适时联系医生或药师。",
+        "forbidden_expression": "不得给出剂量、换药、停药或服药时间调整方案。",
+        "required_guardrails": [
+          "用药相关行动必须二次确认",
+          "保存审计记录"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 412,
+      "source": "disease:frailty",
+      "target": "risk_factor:fall_risk",
+      "type": "has_risk_factor",
+      "strength": "high",
+      "evidence": "elderly_frailty.md#安全行动",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "可解释为风险背景或共病关系，必须结合该用户实际数据和时间线。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 413,
+      "source": "disease:frailty",
+      "target": "care_action:fall_risk_review",
+      "type": "requires_medical_review",
+      "strength": "high",
+      "evidence": "elderly_frailty.md#安全行动",
+      "evidence_level": "authoritative_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    }
+  ]
+}

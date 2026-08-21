@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+from experiment_metadata import build_manifest, new_run_id, write_manifest
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (average_precision_score, brier_score_loss, confusion_matrix,
@@ -113,6 +114,7 @@ def median_indicator(Xtr, Xapp, cols):
 
 def main():
     t0 = time.time()
+    run_id = new_run_id('risk-htn-core12')
     print('=' * 60)
     print('Phase 1.6: XGBoost 基线优化与概率校准')
     print('=' * 60)
@@ -326,7 +328,9 @@ def main():
     imp['gain_normalized'] = (imp['gain'] / imp['gain'].max() * 100).round(2)
     imp.to_csv(MODEL_DIR / 'feature_importance.csv', index=False, encoding='utf-8-sig')
 
-    meta = {'task': 'Wave1→Wave2 两年高血压新发预测', 'dataset_version': 'htn_incidence_w1w2 v1',
+    meta = {'task': 'Wave1→Wave2 两年高血压新发预测', 'dataset_version': 'charls_w1w2_incidence.v2/app_core12',
+            'data_manifest_id': 'charls_w1w2_incidence.v2', 'pipeline': 'app_core12', 'experiment_run_id': run_id,
+            'dataset_artifact': MAIN_CSV.as_posix(),
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'xgb_version': xgb.__version__, 'random_state': RANDOM_STATE,
             'feature_set': cand_set, 'feature_names': cand_feats,
@@ -414,6 +418,14 @@ def main():
 """
     with open(REPORT_DIR / 'phase_1_6_report.md', 'w', encoding='utf-8') as f:
         f.write(report)
+    write_manifest(build_manifest(
+        run_id=run_id, task='高血压新发风险筛查（APP核心12特征）',
+        data_version='charls_w1w2_incidence.v2/app_core12', model_version='xgb-3.4.1-phase1.6',
+        parameters={'feature_set': cand_set, 'random_state': RANDOM_STATE, 'test_size': TEST_SIZE,
+                    'n_folds': N_FOLDS, 'recommended_threshold': round(rec_thr, 4), 'calibration': 'platt'},
+        outputs=[str(MODEL_DIR / 'candidate_metadata.json'), str(REPORT_DIR / 'phase_1_6_report.md'), str(REPORT_DIR / 'sensitivity_metrics.json')],
+        project_root=PROJECT_ROOT
+    ), PROJECT_ROOT / 'ml' / 'reports' / f'{run_id}.json')
     print(f'\n报告: {REPORT_DIR / "phase_1_6_report.md"} | 总耗时 {time.time() - t0:.1f}s')
 
 

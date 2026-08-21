@@ -1,0 +1,13 @@
+{
+  "schema_version": "risk-figure-manifest.v1",
+  "input": "D:\\BIGCHUANG\\-\\ml\\reports\\national-award-risk-evaluation-20260821.json",
+  "figures": [
+    "calibration-curves.svg",
+    "decision-curves.svg"
+  ],
+  "limitations": [
+    "图形来自严格随机留出审计，不是时间外部验证",
+    "阈值不是临床处方阈值",
+    "概率用于筛查和复测分层，不是诊断"
+  ]
+}

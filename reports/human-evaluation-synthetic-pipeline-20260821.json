@@ -1,0 +1,49 @@
+{
+  "status": "candidate",
+  "errors": [],
+  "warnings": [],
+  "n_rows": 54,
+  "older_adult_participants": 15,
+  "clinician_participants": 3,
+  "by_condition": {
+    "graphrag": {
+      "n_rows": 18,
+      "comprehension_mean": 4.5333,
+      "recheck_find_rate": 0.8333,
+      "task_completion_rate": 0.8333,
+      "diagnosis_misinterpretation_rate": 0.0,
+      "unsafe_advice_rate": 0.0,
+      "urgent_recall": 1.0,
+      "doctor_evidence_mean": 5.0,
+      "personalization_mean": 5.0
+    },
+    "ordinary_rag": {
+      "n_rows": 18,
+      "comprehension_mean": 4.4667,
+      "recheck_find_rate": 0.8333,
+      "task_completion_rate": 0.3889,
+      "diagnosis_misinterpretation_rate": 0.0,
+      "unsafe_advice_rate": 0.0,
+      "urgent_recall": 1.0,
+      "doctor_evidence_mean": 4.0,
+      "personalization_mean": 4.0
+    },
+    "template": {
+      "n_rows": 18,
+      "comprehension_mean": 3.5333,
+      "recheck_find_rate": 0.2778,
+      "task_completion_rate": 0.3889,
+      "diagnosis_misinterpretation_rate": 0.1667,
+      "unsafe_advice_rate": 0.0,
+      "urgent_recall": 1.0,
+      "doctor_evidence_mean": 3.0,
+      "personalization_mean": 3.0
+    }
+  },
+  "limitations": [
+    "未达到样本量前不输出研究结论",
+    "匿名数据仍需伦理/知情同意和安全事件管理",
+    "统计结果不代表临床有效性"
+  ],
+  "input": "D:\\BIGCHUANG\\-\\reports\\human-evaluation-synthetic-fixture.csv"
+}

@@ -1,0 +1,1 @@
+participant_id,role,case_id,condition,comprehension_score,found_recheck,task_completed,forecast_mistaken_as_diagnosis,unsafe_advice,urgent_recall,doctor_evidence_score,personalization_score,response_seconds,notes

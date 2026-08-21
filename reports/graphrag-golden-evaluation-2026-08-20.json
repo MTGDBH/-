@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "cases": 20,
+  "cases": 61,
   "failures": [],
   "rows": [
     {
@@ -10,7 +10,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "htn_02",
@@ -19,7 +19,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "htn_03",
@@ -28,7 +28,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "htn_04",
@@ -37,7 +37,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "dm_01",
@@ -46,7 +46,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "dm_02",
@@ -55,7 +55,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "dm_03",
@@ -64,7 +64,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "cvd_01",
@@ -73,7 +73,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "cvd_02",
@@ -82,7 +82,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "stroke_01",
@@ -91,7 +91,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "stroke_02",
@@ -100,7 +100,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "ckd_01",
@@ -109,7 +109,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "ckd_02",
@@ -118,7 +118,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "ckd_03",
@@ -127,7 +127,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "frailty_01",
@@ -136,7 +136,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "frailty_02",
@@ -145,7 +145,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "behavior_01",
@@ -154,7 +154,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "behavior_02",
@@ -163,7 +163,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "care_01",
@@ -172,7 +172,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
     },
     {
       "id": "safety_01",
@@ -181,7 +181,376 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-20.v4"
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_05",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_06",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_07",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_08",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_09",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "htn_10",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_04",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_05",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_06",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_07",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_08",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "dm_09",
+      "disease": "diabetes",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_03",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_04",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_05",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_06",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_07",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "cvd_08",
+      "disease": "heart_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_03",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_04",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_05",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_06",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_07",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "stroke_08",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_04",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_05",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_06",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_07",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_08",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "ckd_09",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_03",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_04",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_05",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_06",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_07",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "frailty_08",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "behavior_03",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "behavior_04",
+      "disease": "frailty",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "care_02",
+      "disease": "hypertension",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "care_03",
+      "disease": "chronic_kidney_disease",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": false,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
+    },
+    {
+      "id": "safety_02",
+      "disease": "stroke",
+      "results": 6,
+      "citations": 6,
+      "urgent_detected": true,
+      "graph_mode": "local_hybrid",
+      "index_version": "2026-08-21.v6"
     }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "schema_version": "clinician-review-report.v1",
+  "run_id": "clinician-review-report-20260821",
+  "index_version": "2026-08-21.v6",
+  "status": "pending",
+  "review_complete": false,
+  "high_risk_relations": 83,
+  "ai_pre_review": {
+    "eligible_for_demo_education": 66,
+    "needs_clinician_confirmation": 17,
+    "reject_until_fixed": 0
+  },
+  "signed_rows": 0,
+  "unsigned_rows": 83,
+  "elderly_blocked_edges": 16,
+  "doctor_blocked_edges": 0,
+  "policy": "AI预审和安全门控不等于医生批准；未完成签字不得写入approved GraphRAG。"
+}

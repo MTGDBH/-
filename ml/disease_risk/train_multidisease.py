@@ -2,11 +2,14 @@
 """训练多疾病风险基线：Logistic与XGBoost比较，保存校准模型和模型卡。"""
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import joblib
 import numpy as np
 import pandas as pd
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from experiment_metadata import build_manifest, new_run_id, write_manifest
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
@@ -24,7 +27,7 @@ def safe_metric(fn, y, p):
         return None
 
 
-def train_one(csv_path, out_dir):
+def train_one(csv_path, out_dir, run_id, data_manifest_id='charls_w1w2_incidence.v2'):
     disease = csv_path.stem.replace('_incidence_w1w2', '')
     df = pd.read_csv(csv_path)
     features = [c for c in df.columns if c not in ('ID', 'y')]
@@ -87,6 +90,9 @@ def train_one(csv_path, out_dir):
         'features': features, 'n_total': int(len(df)), 'n_positive': int(y.sum()),
         'positive_rate': float(y.mean()), 'candidate_scores': scores,
         'test_metrics_calibrated': metrics, 'random_state': 42,
+        'experiment_run_id': run_id, 'data_manifest_id': data_manifest_id,
+        'pipeline': 'multidisease_baseline',
+        'dataset_artifact': csv_path.as_posix(),
         'disclaimer': '队列风险筛查模型，不是诊断；需要外部验证后才能用于临床。',
     }
     (out_dir / f'{disease}_model_metadata.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
@@ -98,9 +104,17 @@ def main():
     ap.add_argument('--datasets', default=str(Path(__file__).parent / 'datasets'))
     ap.add_argument('--out', default=str(Path(__file__).parent / 'models'))
     args = ap.parse_args()
+    run_id = new_run_id('risk-multidisease')
     reports = []
     for csv_path in sorted(Path(args.datasets).glob('*_incidence_w1w2.csv')):
-        reports.append(train_one(csv_path, Path(args.out)))
+        reports.append(train_one(csv_path, Path(args.out), run_id))
+    write_manifest(build_manifest(
+        run_id=run_id, task='多疾病 Wave1→Wave2 风险筛查',
+        data_version='charls_w1w2_incidence.v2', model_version='multidisease-baseline.v2',
+        parameters={'test_size': 0.2, 'random_state': 42, 'cv': 'StratifiedKFold(5)', 'selection': 'CV PR-AUC then ROC-AUC'},
+        outputs=[str(Path(args.out) / f'{d}_model_metadata.json') for d in ('hypertension','diabetes','heart_disease','stroke')],
+        project_root=Path(__file__).resolve().parent.parent
+    ), Path(args.out).parent.parent / 'reports' / f'{run_id}.json')
     print(json.dumps(reports, ensure_ascii=False, indent=2))
 
 

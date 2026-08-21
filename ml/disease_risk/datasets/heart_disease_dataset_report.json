@@ -1,4 +1,7 @@
 {
+  "dataset_version": "charls_w1w2_incidence.v2/multidisease_baseline",
+  "artifact_sha256": "97152898eb496eaea4ccdbef85fce0505baecdfacdbc0b92c4aeac164745179a",
+  "pipeline": "multidisease_baseline",
   "disease": "heart_disease",
   "target_column": "hearte",
   "source": "D:\\大创数据2\\CHARLS.csv",

@@ -1,0 +1,36 @@
+{
+  "schema_version": "experiment-run.v1",
+  "run_id": "risk-htn-core12-20260821T043849Z-dca6731b",
+  "task": "高血压新发风险筛查（APP核心12特征）",
+  "status": "completed",
+  "started_at": "2026-08-21T04:39:04+00:00",
+  "completed_at": "2026-08-21T04:39:04+00:00",
+  "code": {
+    "git_revision": "6f915635bd1e2ee28985412c8829a2c9bed8f360",
+    "working_tree": true
+  },
+  "data": {
+    "manifest_id": "charls_w1w2_incidence.v2/app_core12"
+  },
+  "model": {
+    "version": "xgb-3.4.1-phase1.6"
+  },
+  "parameters": {
+    "feature_set": "C_app_core12",
+    "random_state": 42,
+    "test_size": 0.2,
+    "n_folds": 5,
+    "recommended_threshold": 0.0391,
+    "calibration": "platt"
+  },
+  "outputs": [
+    "D:\\BIGCHUANG\\-\\ml\\models\\htn_xgb\\candidate_metadata.json",
+    "D:\\BIGCHUANG\\-\\ml\\reports\\htn_xgb\\phase_1_6_report.md",
+    "D:\\BIGCHUANG\\-\\ml\\reports\\htn_xgb\\sensitivity_metrics.json"
+  ],
+  "environment": {
+    "python": "3.13.14",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "node": "not_recorded"
+  }
+}

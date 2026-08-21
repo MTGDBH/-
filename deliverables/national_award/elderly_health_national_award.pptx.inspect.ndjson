@@ -1,0 +1,265 @@
+{"kind":"deck","id":"pr/7sa39u","name":"Deck"}
+{"kind":"layout","layoutId":"ae278452-b82c-4452-b8c1-98e818ad7565","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"d9edffb1-6a9b-4e37-8abf-0246e30f081e","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/0mn3cq","slide":1,"title":"大创项目阶段性汇报","textShapes":9}
+{"kind":"shape","id":"sh/udwve1sj","slide":1,"bbox":[0,0,1280,720]}
+{"kind":"shape","id":"sh/h07upgra","slide":1,"bbox":[76,98,10,420]}
+{"kind":"textbox","id":"sh/gfydgbap","slide":1,"text":"大创项目阶段性汇报","textPreview":"大创项目阶段性汇报","textChars":9,"textLines":1,"bbox":[112,104,520,28]}
+{"kind":"textbox","id":"sh/32pcrq9g","slide":1,"text":"让健康数据\n变成老人听得懂的行动","textPreview":"让健康数据 | 变成老人听得懂的行动","textChars":16,"textLines":2,"bbox":[112,166,680,150]}
+{"kind":"textbox","id":"sh/21gvilsv","slide":1,"text":"老年人健康管理智能体：Curve V2 × 疾病风险筛查 × GraphRAG","textPreview":"老年人健康管理智能体：Curve V2 × 疾病风险筛查 × GraphRAG","textChars":39,"textLines":1,"bbox":[116,350,710,64]}
+{"kind":"shape","id":"sh/p47utgr6","slide":1,"bbox":[858,116,290,390]}
+{"kind":"textbox","id":"sh/43ydkval","slide":1,"text":"真实数据","textPreview":"真实数据","textChars":4,"textLines":1,"bbox":[902,170,190,30]}
+{"kind":"textbox","id":"sh/j65cfmtw","slide":1,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[974,225,60,50]}
+{"kind":"textbox","id":"sh/i5cb6hsb","slide":1,"text":"证据图谱","textPreview":"证据图谱","textChars":4,"textLines":1,"bbox":[902,290,190,30]}
+{"kind":"textbox","id":"sh/ovytcvql","slide":1,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[974,345,60,50]}
+{"kind":"textbox","id":"sh/pw7a50r6","slide":1,"text":"可执行建议","textPreview":"可执行建议","textChars":5,"textLines":1,"bbox":[902,410,190,30]}
+{"kind":"textbox","id":"sh/2tgbal8f","slide":1,"text":"2026.08  ·  国奖冲刺版","textPreview":"2026.08  ·  国奖冲刺版","textChars":17,"textLines":1,"bbox":[116,604,400,24]}
+{"kind":"notes","id":"nt/0mn3cq","slide":1,"text":"开场：系统的核心不是给出一条看起来漂亮的曲线，而是把真实记录、证据关系和下一步行动连接起来。\n\n[Sources]\n- 项目代码与验收材料：D:/BIGCHUANG/-/FINAL_DELIVERY.md"}
+{"kind":"slide","id":"sl/oytb87","slide":2,"title":"01  为什么要做","textShapes":10}
+{"kind":"textbox","id":"sh/76po3it8","slide":2,"text":"01  为什么要做","textPreview":"01  为什么要做","textChars":9,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/87ypcnut","slide":2,"text":"老人真正需要的不是“一个概率”，而是下一步怎么做","textPreview":"老人真正需要的不是“一个概率”，而是下一步怎么做","textChars":24,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/98765sbe","slide":2,"text":"现有健康应用常见三个断点：数据、证据和行动没有闭环。","textPreview":"现有健康应用常见三个断点：数据、证据和行动没有闭环。","textChars":26,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/u9g7edsj","slide":2,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/va9o7it4","slide":2,"bbox":[80,240,320,260]}
+{"kind":"textbox","id":"sh/gbipgnap","slide":2,"text":"数据断点","textPreview":"数据断点","textChars":4,"textLines":1,"bbox":[112,270,250,30]}
+{"kind":"textbox","id":"sh/hcr69sba","slide":2,"text":"单次测量被当成结论\n步数等行为指标被过度预测\n缺测和异常点被隐藏","textPreview":"单次测量被当成结论 | 步数等行为指标被过度预测 | 缺测和异常点被隐藏","textChars":32,"textLines":3,"bbox":[112,330,250,110]}
+{"kind":"shape","id":"sh/adwn2tcf","slide":2,"bbox":[478,240,320,260]}
+{"kind":"textbox","id":"sh/be5ovyt0","slide":2,"text":"证据断点","textPreview":"证据断点","textChars":4,"textLines":1,"bbox":[510,270,250,30]}
+{"kind":"textbox","id":"sh/z25gv2x4","slide":2,"text":"建议缺少适用人群\n关系没有版本和审核状态\n大模型可能把相关说成因果","textPreview":"建议缺少适用人群 | 关系没有版本和审核状态 | 大模型可能把相关说成因果","textChars":33,"textLines":3,"bbox":[510,330,250,110]}
+{"kind":"shape","id":"sh/e1wf2hwj","slide":2,"bbox":[876,240,320,260]}
+{"kind":"textbox","id":"sh/14nyxcfa","slide":2,"text":"行动断点","textPreview":"行动断点","textChars":4,"textLines":1,"bbox":[908,270,250,30]}
+{"kind":"textbox","id":"sh/03ex47ep","slide":2,"text":"知道异常，却不知道何时复测\n提醒不能转成待办\n家属和医生无法按授权协同","textPreview":"知道异常，却不知道何时复测 | 提醒不能转成待办 | 家属和医生无法按授权协同","textChars":35,"textLines":3,"bbox":[908,330,250,110]}
+{"kind":"textbox","id":"sh/ry5w72xs","slide":2,"text":"老年人健康管理智能体  ·  02","textPreview":"老年人健康管理智能体  ·  02","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/oytb87","slide":2,"text":"把问题从“能不能回答”改成“能不能安全地支持一次行动”。\n\n[Sources]\n- reports/national-award-task-matrix-20260821.md"}
+{"kind":"slide","id":"sl/yeeqk0","slide":3,"title":"02  总体方案","textShapes":10}
+{"kind":"textbox","id":"sh/nmd0vuhg","slide":3,"text":"02  总体方案","textPreview":"02  总体方案","textChars":8,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/8n61ozy1","slide":3,"text":"先把证据和安全门槛固定，再让大模型组织语言","textPreview":"先把证据和安全门槛固定，再让大模型组织语言","textChars":21,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/9ofix4zm","slide":3,"text":"模型负责估计，GraphRAG 负责证据与关系，DeepSeek 不能创造数据。","textPreview":"模型负责估计，GraphRAG 负责证据与关系，DeepSeek 不能创造数据。","textChars":40,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/apojq9g7","slide":3,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/vqxkzehs","slide":3,"bbox":[210,250,860,66]}
+{"kind":"textbox","id":"sh/wr61sjyx","slide":3,"text":"老人 / 设备 / 手工记录","textPreview":"老人 / 设备 / 手工记录","textChars":14,"textLines":1,"bbox":[240,268,800,30]}
+{"kind":"textbox","id":"sh/xsf214zi","slide":3,"text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[625,317,30,28]}
+{"kind":"shape","id":"sh/qtkje5gn","slide":3,"bbox":[210,342,860,66]}
+{"kind":"textbox","id":"sh/but0nah8","slide":3,"text":"Curve V2 + 风险模型 + GraphRAG","textPreview":"Curve V2 + 风险模型 + GraphRAG","textChars":26,"textLines":1,"bbox":[240,360,800,30]}
+{"kind":"textbox","id":"sh/j2hc72lg","slide":3,"text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[625,409,30,28]}
+{"kind":"shape","id":"sh/i18vehkv","slide":3,"bbox":[210,434,860,66]}
+{"kind":"textbox","id":"sh/54ju9c3m","slide":3,"text":"安全门槛 → DeepSeek → 证据卡片与行动闭环","textPreview":"安全门槛 → DeepSeek → 证据卡片与行动闭环","textChars":27,"textLines":1,"bbox":[240,452,800,30]}
+{"kind":"shape","id":"sh/43qdg721","slide":3,"bbox":[505,190,180,32]}
+{"kind":"textbox","id":"sh/vyhc32l4","slide":3,"text":"证据先于生成","textPreview":"证据先于生成","textChars":6,"textLines":1,"bbox":[505,195,180,20]}
+{"kind":"textbox","id":"sh/ux8baxkj","slide":3,"text":"老年人健康管理智能体  ·  03","textPreview":"老年人健康管理智能体  ·  03","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/yeeqk0","slide":3,"text":"强调安全顺序：数据质量和证据治理先于大模型调用。\n\n[Sources]\n- D:/BIGCHUANG/-/elderly-health-rag/output/source_manifest.json\n- D:/BIGCHUANG/-/server/src/ai/agent.js"}
+{"kind":"slide","id":"sl/czjxtm","slide":4,"title":"03  CURVE V2","textShapes":18}
+{"kind":"textbox","id":"sh/y9o3ylcj","slide":4,"text":"03  CURVE V2","textPreview":"03  CURVE V2","textChars":12,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/lwfm9gbu","slide":4,"text":"曲线不再追求“画得像”，而是解释个人基线与不确定性","textPreview":"曲线不再追求“画得像”，而是解释个人基线与不确定性","textChars":25,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/0v6l0vu9","slide":4,"text":"观测、趋势、预测三层分离；不足时拒绝预测。","textPreview":"观测、趋势、预测三层分离；不足时拒绝预测。","textChars":21,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/nyh4bqt0","slide":4,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/mxo32lcf","slide":4,"bbox":[78,236,690,350]}
+{"kind":"shape","id":"sh/90zmd0b6","slide":4,"bbox":[120,300,590,1]}
+{"kind":"shape","id":"sh/8zql4vul","slide":4,"bbox":[120,342,590,1]}
+{"kind":"shape","id":"sh/v2h4fatw","slide":4,"bbox":[120,384,590,1]}
+{"kind":"shape","id":"sh/a18365cr","slide":4,"bbox":[120,426,590,1]}
+{"kind":"shape","id":"sh/s7mtk3yd","slide":4,"bbox":[120,468,590,1]}
+{"kind":"textbox","id":"sh/t8vud8fy","slide":4,"text":"mmHg","textPreview":"mmHg","textChars":4,"textLines":1,"bbox":[92,272,70,20]}
+{"kind":"shape","id":"sh/6lkbitg7","slide":4,"bbox":[120,417,70,3]}
+{"kind":"shape","id":"sh/r6tcbyxs","slide":4,"bbox":[190,438.7,70,3]}
+{"kind":"shape","id":"sh/gbmdonyp","slide":4,"bbox":[260,423.2,70,3]}
+{"kind":"shape","id":"sh/1cvuh8fa","slide":4,"bbox":[330,454.2,70,3]}
+{"kind":"shape","id":"sh/e94bmdgj","slide":4,"bbox":[400,429.4,70,3]}
+{"kind":"shape","id":"sh/fadcfix4","slide":4,"bbox":[470,420.1,70,3]}
+{"kind":"shape","id":"sh/of6dsnel","slide":4,"bbox":[540,441.8,70,3]}
+{"kind":"shape","id":"sh/pgfulsf6","slide":4,"bbox":[610,432.5,70,3]}
+{"kind":"shape","id":"sh/xwbu5s7a","slide":4,"bbox":[115,412,10,10]}
+{"kind":"shape","id":"sh/wv2tcn6p","slide":4,"bbox":[185,433.7,10,10]}
+{"kind":"shape","id":"sh/butc3ip4","slide":4,"bbox":[255,418.2,10,10]}
+{"kind":"shape","id":"sh/atkbadoj","slide":4,"bbox":[325,449.2,10,10]}
+{"kind":"shape","id":"sh/l0bu9s7m","slide":4,"bbox":[395,424.4,10,10]}
+{"kind":"shape","id":"sh/kz2tgn61","slide":4,"bbox":[465,415.1,10,10]}
+{"kind":"shape","id":"sh/jytc72pg","slide":4,"bbox":[535,436.8,10,10]}
+{"kind":"shape","id":"sh/yxkbexov","slide":4,"bbox":[605,427.5,10,10]}
+{"kind":"shape","id":"sh/14rux872","slide":4,"bbox":[675,439.9,10,10]}
+{"kind":"shape","id":"sh/03it43qh","slide":4,"bbox":[610,320,100,120]}
+{"kind":"textbox","id":"sh/q9wry9of","slide":4,"text":"未来 7 天\n80% 区间","textPreview":"未来 7 天 | 80% 区间","textChars":13,"textLines":2,"bbox":[620,345,80,50]}
+{"kind":"textbox","id":"sh/rap87e50","slide":4,"text":"原始点","textPreview":"原始点","textChars":3,"textLines":1,"bbox":[140,540,90,22]}
+{"kind":"textbox","id":"sh/sby90jml","slide":4,"text":"稳健趋势","textPreview":"稳健趋势","textChars":4,"textLines":1,"bbox":[258,540,120,22]}
+{"kind":"textbox","id":"sh/dw7q94n6","slide":4,"text":"预测带","textPreview":"预测带","textChars":3,"textLines":1,"bbox":[410,540,100,22]}
+{"kind":"shape","id":"sh/exgr294b","slide":4,"bbox":[820,236,370,350]}
+{"kind":"textbox","id":"sh/fypsbe5w","slide":4,"text":"按指标分层","textPreview":"按指标分层","textChars":5,"textLines":1,"bbox":[850,268,280,30]}
+{"kind":"textbox","id":"sh/0zy94jmh","slide":4,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[850,324,22,42]}
+{"kind":"textbox","id":"sh/107adon2","slide":4,"text":"血压：收缩压 / 舒张压双序列","textPreview":"血压：收缩压 / 舒张压双序列","textChars":15,"textLines":1,"bbox":[880,324,280,42]}
+{"kind":"textbox","id":"sh/u1crqpo7","slide":4,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[850,366,22,42]}
+{"kind":"textbox","id":"sh/v2l8zu5s","slide":4,"text":"血糖：空腹、餐后、随机分组","textPreview":"血糖：空腹、餐后、随机分组","textChars":13,"textLines":1,"bbox":[880,366,280,42]}
+{"kind":"textbox","id":"sh/bmdg7mtk","slide":4,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[850,408,22,42]}
+{"kind":"textbox","id":"sh/alkfehcz","slide":4,"text":"体重：日/周中位数","textPreview":"体重：日/周中位数","textChars":9,"textLines":1,"bbox":[880,408,280,42]}
+{"kind":"textbox","id":"sh/xovy9wba","slide":4,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[850,450,22,42]}
+{"kind":"textbox","id":"sh/wnmxgrup","slide":4,"text":"步数、睡眠：行为模式，不外推精确日值","textPreview":"步数、睡眠：行为模式，不外推精确日值","textChars":18,"textLines":1,"bbox":[880,450,280,42]}
+{"kind":"textbox","id":"sh/jqdgbmtg","slide":4,"text":"老年人健康管理智能体  ·  04","textPreview":"老年人健康管理智能体  ·  04","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/czjxtm","slide":4,"text":"曲线展示重点：真实时间戳、个人基线、预测带和拒绝原因。\n\n[Sources]\n- D:/BIGCHUANG/-/reports/curve-model-evaluation-2026-08-20.md\n- D:/BIGCHUANG/-/reports/curve-external-validation-protocol-20260821.md"}
+{"kind":"slide","id":"sl/ys0v9i","slide":5,"title":"04  疾病风险","textShapes":15}
+{"kind":"textbox","id":"sh/ipgr6ho7","slide":5,"text":"04  疾病风险","textPreview":"04  疾病风险","textChars":8,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/5s7q1wni","slide":5,"text":"XGBoost 不是“万能预测器”，而是和可解释基线并列比较","textPreview":"XGBoost 不是“万能预测器”，而是和可解释基线并列比较","textChars":30,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/4ry98r6x","slide":5,"text":"风险接口用于队列筛查与复测分层，不输出诊断。","textPreview":"风险接口用于队列筛查与复测分层，不输出诊断。","textChars":22,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/ru98365o","slide":5,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/6t0ra1o3","slide":5,"bbox":[96,240,220,110]}
+{"kind":"textbox","id":"sh/twrq5gnu","slide":5,"text":"0.6643","textPreview":"0.6643","textChars":6,"textLines":1,"bbox":[114,255,184,56]}
+{"kind":"textbox","id":"sh/svi9cb69","slide":5,"text":"高血压严格留出 AUC","textPreview":"高血压严格留出 AUC","textChars":11,"textLines":1,"bbox":[114,316,184,20]}
+{"kind":"shape","id":"sh/fy98765k","slide":5,"bbox":[344,240,220,110]}
+{"kind":"textbox","id":"sh/ex0rel4f","slide":5,"text":"0.04319","textPreview":"0.04319","textChars":7,"textLines":1,"bbox":[362,255,184,56]}
+{"kind":"textbox","id":"sh/gfi90jm1","slide":5,"text":"高血压 Brier","textPreview":"高血压 Brier","textChars":9,"textLines":1,"bbox":[362,316,184,20]}
+{"kind":"shape","id":"sh/1gra9o36","slide":5,"bbox":[592,240,220,110]}
+{"kind":"textbox","id":"sh/ed0ry94v","slide":5,"text":"4 类","textPreview":"4 类","textChars":3,"textLines":1,"bbox":[610,255,184,56]}
+{"kind":"textbox","id":"sh/fe987elg","slide":5,"text":"疾病筛查模型","textPreview":"疾病筛查模型","textChars":6,"textLines":1,"bbox":[610,316,184,20]}
+{"kind":"shape","id":"sh/o3294j2x","slide":5,"bbox":[840,240,300,110]}
+{"kind":"textbox","id":"sh/p4bado3i","slide":5,"text":"Bootstrap + 校准 + 决策曲线","textPreview":"Bootstrap + 校准 + 决策曲线","textChars":21,"textLines":1,"bbox":[858,255,264,56]}
+{"kind":"textbox","id":"sh/21kr2tkr","slide":5,"text":"扩展审计","textPreview":"扩展审计","textChars":4,"textLines":1,"bbox":[858,316,264,20]}
+{"kind":"shape","id":"sh/32tsbylc","slide":5,"bbox":[96,400,1044,150]}
+{"kind":"textbox","id":"sh/c729832t","slide":5,"text":"当前证据","textPreview":"当前证据","textChars":4,"textLines":1,"bbox":[126,426,180,26]}
+{"kind":"textbox","id":"sh/d8bah83e","slide":5,"text":"Logistic 与 XGBoost 在训练集内部交叉验证选择，测试集只做一次严格留出评估；同时报告 Brier、校准分箱、Bootstrap 95% 区间和决策曲线。","textPreview":"Logistic 与 XGBoost 在训练集内部交叉验证选择，测试集只做一次严格留出评估；同时报告 Brier、校准分箱、Bootstrap 95% 区间和决策曲线。","textChars":84,"textLines":1,"bbox":[126,466,950,48]}
+{"kind":"textbox","id":"sh/lc7i54rm","slide":5,"text":"Wave4→5 AUC：0.5887 / 0.5566 / 0.6205 / 0.6546；\n参与者独立敏感性分析（重叠=0）：0.5402 / 0.5394 / 0.5703 / 0.6377。","textPreview":"Wave4→5 AUC：0.5887 / 0.5566 / 0.6205 / 0.6546； | 参与者独立敏感性分析（重叠=0）：0.5402 / 0.5394 / 0.5703 / 0.6377。","textChars":98,"textLines":2,"bbox":[126,514,950,40]}
+{"kind":"textbox","id":"sh/0byhwzq1","slide":5,"text":"老年人健康管理智能体  ·  05","textPreview":"老年人健康管理智能体  ·  05","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/ys0v9i","slide":5,"text":"风险模型的价值不是追求单一 AUC，而是告诉用户概率能否支持复测分层，并明确不适用人群。PPT 同时展示严格随机留出、CHARLS 波次时间审计和参与者独立敏感性分析；这些仍不是独立地区外部验证。\n\n[Sources]\n- D:/BIGCHUANG/-/ml/reports/national-award-risk-evaluation-20260821.json\n- D:/BIGCHUANG/-/reports/national-award-risk-temporal-evaluation-20260821.md\n- D:/BIGCHUANG/-/reports/national-award-risk-temporal-disjoint-evaluation-20260821.md\n- D:/BIGCHUANG/-/reports/risk-fairness-evaluation-2026-08-20.md"}
+{"kind":"slide","id":"sl/uwwucd","slide":6,"title":"05  GRAPHRAG","textShapes":17}
+{"kind":"textbox","id":"sh/j6tc7a9o","slide":6,"text":"05  GRAPHRAG","textPreview":"05  GRAPHRAG","textChars":12,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/k72dgfq9","slide":6,"text":"从“相似文本”升级为“证据关系 + 用户上下文”","textPreview":"从“相似文本”升级为“证据关系 + 用户上下文”","textChars":24,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/l8vu9kru","slide":6,"text":"每条建议都能回答：为什么是这个老人？证据来自哪里？","textPreview":"每条建议都能回答：为什么是这个老人？证据来自哪里？","textChars":25,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/694vip8f","slide":6,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/7adcbu90","slide":6,"bbox":[90,236,190,110]}
+{"kind":"textbox","id":"sh/svmdkzq5","slide":6,"text":"78","textPreview":"78","textChars":2,"textLines":1,"bbox":[108,251,154,56]}
+{"kind":"textbox","id":"sh/twvudkrq","slide":6,"text":"可追溯来源","textPreview":"可追溯来源","textChars":5,"textLines":1,"bbox":[108,312,154,20]}
+{"kind":"shape","id":"sh/md0b6lsv","slide":6,"bbox":[300,236,190,110]}
+{"kind":"textbox","id":"sh/ne9czq9g","slide":6,"text":"159","textPreview":"159","textChars":3,"textLines":1,"bbox":[318,251,154,56]}
+{"kind":"textbox","id":"sh/f2ls7i90","slide":6,"text":"实体","textPreview":"实体","textChars":2,"textLines":1,"bbox":[318,312,154,20]}
+{"kind":"shape","id":"sh/e1cbydsf","slide":6,"bbox":[510,236,190,110]}
+{"kind":"textbox","id":"sh/143a98r6","slide":6,"text":"419","textPreview":"419","textChars":3,"textLines":1,"bbox":[528,251,154,56]}
+{"kind":"textbox","id":"sh/g3ut0nal","slide":6,"text":"关系","textPreview":"关系","textChars":2,"textLines":1,"bbox":[528,312,154,20]}
+{"kind":"shape","id":"sh/ry1s3y94","slide":6,"bbox":[720,236,190,110]}
+{"kind":"textbox","id":"sh/6xsrutsj","slide":6,"text":"61","textPreview":"61","textChars":2,"textLines":1,"bbox":[738,251,154,56]}
+{"kind":"textbox","id":"sh/t0ja58ru","slide":6,"text":"黄金问题","textPreview":"黄金问题","textChars":4,"textLines":1,"bbox":[738,312,154,20]}
+{"kind":"shape","id":"sh/sza9w3a9","slide":6,"bbox":[930,236,250,110]}
+{"kind":"textbox","id":"sh/ja1szy9s","slide":6,"text":"20/20","textPreview":"20/20","textChars":5,"textLines":1,"bbox":[948,251,214,56]}
+{"kind":"textbox","id":"sh/i98rqts7","slide":6,"text":"配对建议发生变化","textPreview":"配对建议发生变化","textChars":8,"textLines":1,"bbox":[948,312,214,20]}
+{"kind":"shape","id":"sh/m58b2tcz","slide":6,"bbox":[90,390,1090,150]}
+{"kind":"textbox","id":"sh/76hsbytk","slide":6,"text":"GraphRAG 的可量化改进","textPreview":"GraphRAG 的可量化改进","textChars":15,"textLines":1,"bbox":[120,420,300,26]}
+{"kind":"textbox","id":"sh/87qt4ju5","slide":6,"text":"必需证据召回 83.6% → 100%\n路径解释率 0% → 100%\n个性化行动变化率 0% → 100%\n急症召回维持 100%","textPreview":"必需证据召回 83.6% → 100% | 路径解释率 0% → 100% | 个性化行动变化率 0% → 100% | 急症召回维持 100%","textChars":66,"textLines":4,"bbox":[120,462,460,82]}
+{"kind":"textbox","id":"sh/98zudobq","slide":6,"text":"普通 RAG 仍有价值：权威来源率 84.4% 高于当前 GraphRAG 83.9%，因此下一步是提升证据排序，而不是夸大图谱优势。","textPreview":"普通 RAG 仍有价值：权威来源率 84.4% 高于当前 GraphRAG 83.9%，因此下一步是提升证据排序，而不是夸大图谱优势。","textChars":67,"textLines":1,"bbox":[650,428,470,72]}
+{"kind":"textbox","id":"sh/u98b6tcb","slide":6,"text":"老年人健康管理智能体  ·  06","textPreview":"老年人健康管理智能体  ·  06","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/uwwucd","slide":6,"text":"诚实呈现对照：GraphRAG 的核心提升是路径、上下文和可审计个性化，不把检索改进写成临床疗效。\n\n[Sources]\n- D:/BIGCHUANG/-/reports/graphrag-method-comparison-20260821.md\n- D:/BIGCHUANG/-/reports/graphrag-personalization-pairs-20260821.md\n- D:/BIGCHUANG/-/reports/graphrag-source-gate-regression-20260821.json\n- D:/BIGCHUANG/-/elderly-health-rag/output/source_manifest.json"}
+{"kind":"slide","id":"sl/usn9so","slide":7,"title":"06  安全边界","textShapes":13}
+{"kind":"textbox","id":"sh/7i58nu9g","slide":7,"text":"06  安全边界","textPreview":"06  安全边界","textChars":8,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/8je9wzq1","slide":7,"text":"不是所有关系都能直接变成老人建议","textPreview":"不是所有关系都能直接变成老人建议","textChars":16,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/tk7qp4rm","slide":7,"text":"未审核高风险关系被挡在老人端；急症关系只保留为安全提示。","textPreview":"未审核高风险关系被挡在老人端；急症关系只保留为安全提示。","textChars":28,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/ulgry987","slide":7,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/vmp8re9c","slide":7,"bbox":[110,235,1050,92]}
+{"kind":"shape","id":"sh/gny90jqx","slide":7,"bbox":[132,259,44,44]}
+{"kind":"textbox","id":"sh/ho7qt4ri","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[132,269,44,22]}
+{"kind":"textbox","id":"sh/ipgr2983","slide":7,"text":"审核状态","textPreview":"审核状态","textChars":4,"textLines":1,"bbox":[202,253,220,26]}
+{"kind":"textbox","id":"sh/3qpsve9o","slide":7,"text":"83 条高风险关系全部有 AI 预审意见；66 条仅限健康教育，17 条必须临床确认","textPreview":"83 条高风险关系全部有 AI 预审意见；66 条仅限健康教育，17 条必须临床确认","textChars":42,"textLines":1,"bbox":[202,285,900,26]}
+{"kind":"shape","id":"sh/ze9k3a18","slide":7,"bbox":[110,355,1050,92]}
+{"kind":"shape","id":"sh/ed0ja50n","slide":7,"bbox":[132,379,44,44]}
+{"kind":"textbox","id":"sh/10r25kjy","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[132,389,44,22]}
+{"kind":"textbox","id":"sh/0fi1cfid","slide":7,"text":"门槛回归","textPreview":"门槛回归","textChars":4,"textLines":1,"bbox":[202,373,220,26]}
+{"kind":"textbox","id":"sh/ra90za1w","slide":7,"text":"老人端阻断 16 条未确认边，医生/审计视图保留完整路径；4 个 legacy 来源默认显式标记待复核","textPreview":"老人端阻断 16 条未确认边，医生/审计视图保留完整路径；4 个 legacy 来源默认显式标记待复核","textChars":51,"textLines":1,"bbox":[202,405,900,26]}
+{"kind":"shape","id":"sh/q90j65kb","slide":7,"bbox":[110,475,1050,92]}
+{"kind":"shape","id":"sh/dcr21kj2","slide":7,"bbox":[132,499,44,44]}
+{"kind":"textbox","id":"sh/cbi18f2h","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[132,509,44,22]}
+{"kind":"textbox","id":"sh/b6tkbu10","slide":7,"text":"大模型约束","textPreview":"大模型约束","textChars":5,"textLines":1,"bbox":[202,493,220,26]}
+{"kind":"textbox","id":"sh/a5kjip0v","slide":7,"text":"DeepSeek 只能组织工具与 GraphRAG 证据，不能创造指标、日期、概率或剂量","textPreview":"DeepSeek 只能组织工具与 GraphRAG 证据，不能创造指标、日期、概率或剂量","textChars":44,"textLines":1,"bbox":[202,525,900,26]}
+{"kind":"textbox","id":"sh/61onatk3","slide":7,"text":"老年人健康管理智能体  ·  07","textPreview":"老年人健康管理智能体  ·  07","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/usn9so","slide":7,"text":"这里要主动说明：AI 预审不是医生签字，真实医疗部署仍需持证人员确认。\n\n[Sources]\n- D:/BIGCHUANG/-/reports/medical-pre-review-20260821.md\n- D:/BIGCHUANG/-/reports/medical-gate-regression-20260821.json\n- D:/BIGCHUANG/-/reports/graphrag-source-gate-regression-20260821.json"}
+{"kind":"slide","id":"sl/8ptahj","slide":8,"title":"07  智能体闭环","textShapes":16}
+{"kind":"textbox","id":"sh/5svex0nu","slide":8,"text":"07  智能体闭环","textPreview":"07  智能体闭环","textChars":9,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/i54vml43","slide":8,"text":"回答只是起点，复测结果才是下一轮输入","textPreview":"回答只是起点，复测结果才是下一轮输入","textChars":18,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/j6dwvq5o","slide":8,"text":"从问题理解到行动完成，系统保留证据和状态。","textPreview":"从问题理解到行动完成，系统保留证据和状态。","textChars":21,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/sv6dsfm5","slide":8,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/twfe10nq","slide":8,"bbox":[210,335,60,3]}
+{"kind":"shape","id":"sh/6tovq54f","slide":8,"bbox":[82,285,128,100]}
+{"kind":"textbox","id":"sh/7uxwza50","slide":8,"text":"理解意图","textPreview":"理解意图","textChars":4,"textLines":1,"bbox":[92,316,108,48]}
+{"kind":"textbox","id":"sh/gz6xwfmh","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[225,317,30,22]}
+{"kind":"shape","id":"sh/h0ze5kn2","slide":8,"bbox":[398,335,60,3]}
+{"kind":"shape","id":"sh/pk36dgj6","slide":8,"bbox":[270,285,128,100]}
+{"kind":"textbox","id":"sh/4jupkb2l","slide":8,"text":"读取数据","textPreview":"读取数据","textChars":4,"textLines":1,"bbox":[280,316,108,48]}
+{"kind":"textbox","id":"sh/3ilob610","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[413,317,30,22]}
+{"kind":"shape","id":"sh/2hc7i1kv","slide":8,"bbox":[586,335,60,3]}
+{"kind":"shape","id":"sh/do36hgji","slide":8,"bbox":[458,285,128,100]}
+{"kind":"textbox","id":"sh/cnupob2x","slide":8,"text":"调用工具\n与图谱","textPreview":"调用工具 | 与图谱","textChars":8,"textLines":2,"bbox":[468,316,108,48]}
+{"kind":"textbox","id":"sh/rmlofq1c","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[601,317,30,22]}
+{"kind":"shape","id":"sh/qlc7mlkr","slide":8,"bbox":[774,335,60,3]}
+{"kind":"shape","id":"sh/tsj65wjy","slide":8,"bbox":[646,285,128,100]}
+{"kind":"textbox","id":"sh/sra5cr2d","slide":8,"text":"安全过滤","textPreview":"安全过滤","textChars":4,"textLines":1,"bbox":[656,316,108,48]}
+{"kind":"textbox","id":"sh/kbepsra9","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[789,317,30,22]}
+{"kind":"shape","id":"sh/lcn6lwru","slide":8,"bbox":[962,335,60,3]}
+{"kind":"shape","id":"sh/y9c7qhsj","slide":8,"bbox":[834,285,128,100]}
+{"kind":"textbox","id":"sh/jalojm9o","slide":8,"text":"DeepSeek\n组织语言","textPreview":"DeepSeek | 组织语言","textChars":13,"textLines":2,"bbox":[844,316,108,48]}
+{"kind":"textbox","id":"sh/8zepwbal","slide":8,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[977,317,30,22]}
+{"kind":"shape","id":"sh/t0n6pgr6","slide":8,"bbox":[1022,285,128,100]}
+{"kind":"textbox","id":"sh/6xw7u1sf","slide":8,"text":"创建待办\n复测反馈","textPreview":"创建待办 | 复测反馈","textChars":9,"textLines":2,"bbox":[1032,316,108,48]}
+{"kind":"textbox","id":"sh/7y5on690","slide":8,"text":"状态可追溯：建议内容 · 用户确认 · 执行时间 · 复测结果 · 是否解除提醒","textPreview":"状态可追溯：建议内容 · 用户确认 · 执行时间 · 复测结果 · 是否解除提醒","textChars":40,"textLines":1,"bbox":[245,485,800,30]}
+{"kind":"textbox","id":"sh/g3yp0bah","slide":8,"text":"老年人健康管理智能体  ·  08","textPreview":"老年人健康管理智能体  ·  08","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/8ptahj","slide":8,"text":"演示时用张奶奶账号走一遍：问最近血压 → 查看证据 → 创建复测 → 完成后回填。\n\n[Sources]\n- D:/BIGCHUANG/-/FINAL_DELIVERY.md\n- D:/BIGCHUANG/-/server/src/ai/agent.js"}
+{"kind":"slide","id":"sl/978t3o","slide":9,"title":"08  可复现证据","textShapes":28}
+{"kind":"textbox","id":"sh/8zil4bul","slide":9,"text":"08  可复现证据","textPreview":"08  可复现证据","textChars":9,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/7y9kb6dg","slide":9,"text":"把“看起来能用”变成可审计的运行记录","textPreview":"把“看起来能用”变成可审计的运行记录","textChars":18,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/6x0321cv","slide":9,"text":"每次实验都绑定数据版本、代码版本、模型版本和参数。","textPreview":"每次实验都绑定数据版本、代码版本、模型版本和参数。","textChars":25,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/lwr29wva","slide":9,"bbox":[76,188,1128,2]}
+{"kind":"shape","id":"sh/kvyl0rup","slide":9,"bbox":[92,236,500,320]}
+{"kind":"textbox","id":"sh/jupk7md4","slide":9,"text":"已通过的本地验收","textPreview":"已通过的本地验收","textChars":8,"textLines":1,"bbox":[126,270,380,28]}
+{"kind":"textbox","id":"sh/ytg3y1cj","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,326,22,35]}
+{"kind":"textbox","id":"sh/5sbml0ve","slide":9,"text":"Curve V2：28/28","textPreview":"Curve V2：28/28","textChars":14,"textLines":1,"bbox":[156,326,350,35]}
+{"kind":"textbox","id":"sh/4r2lcvut","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,361,22,35]}
+{"kind":"textbox","id":"sh/ep4nidgn","slide":9,"text":"GraphRAG：61题黄金 + 24题改写留出","textPreview":"GraphRAG：61题黄金 + 24题改写留出","textChars":24,"textLines":1,"bbox":[156,361,350,35]}
+{"kind":"textbox","id":"sh/fadobix8","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,396,22,35]}
+{"kind":"textbox","id":"sh/0bm5knyd","slide":9,"text":"个性化配对：20/20","textPreview":"个性化配对：20/20","textChars":11,"textLines":1,"bbox":[156,396,350,35]}
+{"kind":"textbox","id":"sh/1cv6dsfy","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,431,22,35]}
+{"kind":"textbox","id":"sh/qlknedgb","slide":9,"text":"Node 工具：22/22","textPreview":"Node 工具：22/22","textChars":13,"textLines":1,"bbox":[156,431,350,35]}
+{"kind":"textbox","id":"sh/rmt47yxw","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,466,22,35]}
+{"kind":"textbox","id":"sh/sn25g3yh","slide":9,"text":"Node 趋势：26/26","textPreview":"Node 趋势：26/26","textChars":13,"textLines":1,"bbox":[156,466,350,35]}
+{"kind":"textbox","id":"sh/dobm98f2","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[126,501,22,35]}
+{"kind":"textbox","id":"sh/ahonqxgv","slide":9,"text":"最终验收：PASS","textPreview":"最终验收：PASS","textChars":9,"textLines":1,"bbox":[156,501,350,35]}
+{"kind":"shape","id":"sh/bixoj2x0","slide":9,"bbox":[650,236,500,320]}
+{"kind":"textbox","id":"sh/na5svq9g","slide":9,"text":"仍需外部完成","textPreview":"仍需外部完成","textChars":6,"textLines":1,"bbox":[684,270,380,28]}
+{"kind":"textbox","id":"sh/m9wbm5sv","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[684,326,22,42]}
+{"kind":"textbox","id":"sh/9c7ux0rm","slide":9,"text":"持证医生逐条签字","textPreview":"持证医生逐条签字","textChars":8,"textLines":1,"bbox":[714,326,350,42]}
+{"kind":"textbox","id":"sh/8betova1","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[684,368,22,42]}
+{"kind":"textbox","id":"sh/vepcza9c","slide":9,"text":"15–30 名老人 + 3–5 名医生盲评","textPreview":"15–30 名老人 + 3–5 名医生盲评","textChars":21,"textLines":1,"bbox":[714,368,350,42]}
+{"kind":"textbox","id":"sh/adgbq5sr","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[684,410,22,42]}
+{"kind":"textbox","id":"sh/hg7u1kri","slide":9,"text":"60–90 天真实纵向曲线","textPreview":"60–90 天真实纵向曲线","textChars":13,"textLines":1,"bbox":[714,410,350,42]}
+{"kind":"textbox","id":"sh/wfytsfax","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[684,452,22,42]}
+{"kind":"textbox","id":"sh/jipc3u9o","slide":9,"text":"带日期独立队列外部验证","textPreview":"带日期独立队列外部验证","textChars":11,"textLines":1,"bbox":[714,452,350,42]}
+{"kind":"textbox","id":"sh/ihgbups3","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[684,494,22,42]}
+{"kind":"textbox","id":"sh/g7itkz61","slide":9,"text":"学校模板与作者信息确认","textPreview":"学校模板与作者信息确认","textChars":11,"textLines":1,"bbox":[714,494,350,42]}
+{"kind":"textbox","id":"sh/18radk7m","slide":9,"text":"老年人健康管理智能体  ·  09","textPreview":"老年人健康管理智能体  ·  09","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/978t3o","slide":9,"text":"这一页把已完成与未完成分开，答辩时不把工程回归冒充临床证据。\n\n[Sources]\n- D:/BIGCHUANG/-/reports/national-award-task-matrix-20260821.md\n- D:/BIGCHUANG/-/reports/graphrag-internal-holdout-20260821.md\n- D:/BIGCHUANG/-/reports/deepseek-runtime-audit-20260821.md"}
+{"kind":"slide","id":"sl/m4xjov","slide":10,"title":"09  冲奖路线","textShapes":19}
+{"kind":"textbox","id":"sh/wf6pwnqp","slide":10,"text":"09  冲奖路线","textPreview":"09  冲奖路线","textChars":8,"textLines":1,"bbox":[76,38,500,24]}
+{"kind":"textbox","id":"sh/bexo3ip4","slide":10,"text":"下一步不是继续堆功能，而是补齐外部证据","textPreview":"下一步不是继续堆功能，而是补齐外部证据","textChars":19,"textLines":1,"bbox":[76,72,1080,58]}
+{"kind":"textbox","id":"sh/adonud8z","slide":10,"text":"14 天提交冲刺按“审核—验证—人因—材料”推进。","textPreview":"14 天提交冲刺按“审核—验证—人因—材料”推进。","textChars":25,"textLines":1,"bbox":[76,140,1060,34]}
+{"kind":"shape","id":"sh/l4z69s7m","slide":10,"bbox":[76,188,1128,2]}
+{"kind":"textbox","id":"sh/k3qp0n61","slide":10,"text":"D1–3","textPreview":"D1–3","textChars":4,"textLines":1,"bbox":[100,228,110,28]}
+{"kind":"textbox","id":"sh/j2ho7ipg","slide":10,"text":"医学审核","textPreview":"医学审核","textChars":4,"textLines":1,"bbox":[240,228,200,28]}
+{"kind":"textbox","id":"sh/yh87ydov","slide":10,"text":"4 类核心疾病逐条确认高风险关系","textPreview":"4 类核心疾病逐条确认高风险关系","textChars":16,"textLines":1,"bbox":[470,228,650,28]}
+{"kind":"shape","id":"sh/t8j6dc7i","slide":10,"bbox":[90,271,1040,1]}
+{"kind":"textbox","id":"sh/87ap476x","slide":10,"text":"D4–6","textPreview":"D4–6","textChars":4,"textLines":1,"bbox":[100,298,110,28]}
+{"kind":"textbox","id":"sh/ep4nydsn","slide":10,"text":"实验扩展","textPreview":"实验扩展","textChars":4,"textLines":1,"bbox":[240,298,200,28]}
+{"kind":"textbox","id":"sh/fqdori98","slide":10,"text":"60 条问题、三路检索和安全集冻结","textPreview":"60 条问题、三路检索和安全集冻结","textChars":17,"textLines":1,"bbox":[470,298,650,28]}
+{"kind":"shape","id":"sh/0rm503at","slide":10,"bbox":[90,341,1040,1]}
+{"kind":"textbox","id":"sh/1sv6t8re","slide":10,"text":"D7–9","textPreview":"D7–9","textChars":4,"textLines":1,"bbox":[100,368,110,28]}
+{"kind":"textbox","id":"sh/2t4n2dsz","slide":10,"text":"个性化盲评","textPreview":"个性化盲评","textChars":5,"textLines":1,"bbox":[240,368,200,28]}
+{"kind":"textbox","id":"sh/nudovi9k","slide":10,"text":"不同老人数据→不同证据路径与行动","textPreview":"不同老人数据→不同证据路径与行动","textChars":16,"textLines":1,"bbox":[470,368,650,28]}
+{"kind":"shape","id":"sh/ov6p4na5","slide":10,"bbox":[90,411,1040,1]}
+{"kind":"textbox","id":"sh/pwf6xsra","slide":10,"text":"D10–12","textPreview":"D10–12","textChars":6,"textLines":1,"bbox":[100,438,110,28]}
+{"kind":"textbox","id":"sh/ixknqtsv","slide":10,"text":"曲线外部验证","textPreview":"曲线外部验证","textChars":6,"textLines":1,"bbox":[240,438,200,28]}
+{"kind":"textbox","id":"sh/jytojy90","slide":10,"text":"按老人隔离、真实日期、拒绝预测","textPreview":"按老人隔离、真实日期、拒绝预测","textChars":15,"textLines":1,"bbox":[470,438,650,28]}
+{"kind":"shape","id":"sh/72pkrups","slide":10,"bbox":[90,481,1040,1]}
+{"kind":"textbox","id":"sh/m1g3ip8n","slide":10,"text":"D13–14","textPreview":"D13–14","textChars":6,"textLines":1,"bbox":[100,508,110,28]}
+{"kind":"textbox","id":"sh/94r2tk7y","slide":10,"text":"材料提交","textPreview":"材料提交","textChars":4,"textLines":1,"bbox":[240,508,200,28]}
+{"kind":"textbox","id":"sh/83ylkzqd","slide":10,"text":"PPT、总结书、数据卡、模型卡、演示脚本","textPreview":"PPT、总结书、数据卡、模型卡、演示脚本","textChars":20,"textLines":1,"bbox":[470,508,650,28]}
+{"kind":"shape","id":"sh/zypknapw","slide":10,"bbox":[90,551,1040,1]}
+{"kind":"textbox","id":"sh/yxg3e58b","slide":10,"text":"老年人健康管理智能体  ·  10","textPreview":"老年人健康管理智能体  ·  10","textChars":17,"textLines":1,"bbox":[76,686,500,18]}
+{"kind":"notes","id":"nt/m4xjov","slide":10,"text":"把技术路线落到可验收的外部证据，才能从功能展示升级为研究成果。\n\n[Sources]\n- D:/BIGCHUANG/-/reports/national-award-task-matrix-20260821.md\n- D:/BIGCHUANG/-/reports/human-evaluation-protocol-20260821.md\n- D:/BIGCHUANG/-/reports/curve-external-validation-protocol-20260821.md"}
+{"kind":"slide","id":"sl/ftvv79","slide":11,"title":"一句话总结","textShapes":5}
+{"kind":"textbox","id":"sh/o7ytsnu9","slide":11,"text":"一句话总结","textPreview":"一句话总结","textChars":5,"textLines":1,"bbox":[88,110,300,30]}
+{"kind":"textbox","id":"sh/36pczito","slide":11,"text":"让每一次健康记录，\n都能回到一个安全、可解释、可执行的行动。","textPreview":"让每一次健康记录， | 都能回到一个安全、可解释、可执行的行动。","textChars":30,"textLines":2,"bbox":[88,170,830,150]}
+{"kind":"textbox","id":"sh/25gbqdcj","slide":11,"text":"Curve V2 解释变化 · 风险模型分层筛查 · GraphRAG 连接证据 · 智能体闭环行动","textPreview":"Curve V2 解释变化 · 风险模型分层筛查 · GraphRAG 连接证据 · 智能体闭环行动","textChars":50,"textLines":1,"bbox":[92,390,850,56]}
+{"kind":"shape","id":"sh/dcru5cb6","slide":11,"bbox":[92,540,220,32]}
+{"kind":"textbox","id":"sh/cbitw7ul","slide":11,"text":"现场演示：张奶奶账号","textPreview":"现场演示：张奶奶账号","textChars":10,"textLines":1,"bbox":[92,545,220,20]}
+{"kind":"textbox","id":"sh/ba9c32t0","slide":11,"text":"谢谢","textPreview":"谢谢","textChars":2,"textLines":1,"bbox":[1040,596,120,40]}
+{"kind":"notes","id":"nt/ftvv79","slide":11,"text":"收束：邀请评委关注同一问题在不同老人数据下的证据路径和行动差异。\n\n[Sources]\n- D:/BIGCHUANG/-/FINAL_DELIVERY.md"}

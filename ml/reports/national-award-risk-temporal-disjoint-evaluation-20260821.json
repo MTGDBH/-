@@ -1,0 +1,563 @@
+{
+  "schema_version": "risk-temporal-evaluation.v1",
+  "run_id": "risk-charls-wave4-wave5-participant-disjoint-20260821",
+  "generated_at": "2026-08-21T07:05:31.234950+00:00",
+  "data_class": "research",
+  "data_version": "charls_raw_waves.v1",
+  "source": "D:\\大创数据2\\CHARLS.csv",
+  "source_sha256": "ace2486b3f60bd36de372e2c907f24945f5e409796d2e1969271eea6e6a0a4ba",
+  "wave_design": {
+    "training": [
+      "Wave1->Wave2",
+      "Wave2->Wave3",
+      "Wave3->Wave4"
+    ],
+    "test": "Wave4->Wave5",
+    "unit": "participant_id",
+    "incident_definition": "baseline disease=0; future disease=1",
+    "participant_disjoint": true
+  },
+  "models": [
+    {
+      "disease": "hypertension",
+      "participant_disjoint": true,
+      "selected_model": "xgboost",
+      "candidate_group_cv": {
+        "logistic": {
+          "group_cv_auc": 0.6913509630866762,
+          "group_cv_pr_auc": 0.4603186135925009
+        },
+        "xgboost": {
+          "group_cv_auc": 0.7153244170077712,
+          "group_cv_pr_auc": 0.5087649509449563
+        }
+      },
+      "train_transitions": {
+        "from_to": [
+          "1->2",
+          "2->3",
+          "3->4"
+        ],
+        "n": 10850,
+        "positive": 2833,
+        "participants": 5538
+      },
+      "test_transition": {
+        "from_to": "4->5",
+        "n": 11007,
+        "positive": 1034,
+        "participants": 11007,
+        "participants_overlap_with_train": 0
+      },
+      "test_metrics": {
+        "roc_auc": 0.5402498738857973,
+        "pr_auc": 0.104385924968669,
+        "brier": 0.11219487339258194,
+        "bootstrap_auc": {
+          "n": 200,
+          "ci95": [
+            0.52068312153392,
+            0.5587152511277703
+          ]
+        },
+        "calibration": {
+          "bins": [
+            {
+              "bin": "0.10-0.20",
+              "n": 751,
+              "predicted": 0.16828107833862305,
+              "observed": 0.05326231691078562
+            },
+            {
+              "bin": "0.20-0.30",
+              "n": 9756,
+              "predicted": 0.26234862208366394,
+              "observed": 0.09604346043460435
+            },
+            {
+              "bin": "0.30-0.50",
+              "n": 500,
+              "predicted": 0.30497443675994873,
+              "observed": 0.114
+            }
+          ],
+          "slope": 0.935648500919342,
+          "intercept": -1.2811648845672607
+        },
+        "decision_curve": [
+          {
+            "threshold": 0.01,
+            "model_net_benefit": 0.0847881008687768,
+            "treat_all_net_benefit": 0.0847881008687768,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.02,
+            "model_net_benefit": 0.07544920393886637,
+            "treat_all_net_benefit": 0.07544920393886637,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.03,
+            "model_net_benefit": 0.06591775243308148,
+            "treat_all_net_benefit": 0.06591775243308148,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.05,
+            "model_net_benefit": 0.04625286301062003,
+            "treat_all_net_benefit": 0.04625286301062003,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.1,
+            "model_net_benefit": -0.006733089044345525,
+            "treat_all_net_benefit": -0.006733089044345525,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.2,
+            "model_net_benefit": -0.1200599618424639,
+            "treat_all_net_benefit": -0.13257472517488872,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.3,
+            "model_net_benefit": -0.012070241015457697,
+            "treat_all_net_benefit": -0.2943711144855871,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.5,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.8121195602798219,
+            "treat_none_net_benefit": 0.0
+          }
+        ]
+      },
+      "features": [
+        "age",
+        "gender",
+        "bmi",
+        "systo",
+        "diasto",
+        "pulse",
+        "bl_glu",
+        "bl_hbalc",
+        "smoken",
+        "drinkev",
+        "exercise",
+        "sleep",
+        "rural",
+        "edu"
+      ]
+    },
+    {
+      "disease": "diabetes",
+      "participant_disjoint": true,
+      "selected_model": "xgboost",
+      "candidate_group_cv": {
+        "logistic": {
+          "group_cv_auc": 0.7350794661424322,
+          "group_cv_pr_auc": 0.3596234690643313
+        },
+        "xgboost": {
+          "group_cv_auc": 0.761474562737592,
+          "group_cv_pr_auc": 0.3955972820190635
+        }
+      },
+      "train_transitions": {
+        "from_to": [
+          "1->2",
+          "2->3",
+          "3->4"
+        ],
+        "n": 9959,
+        "positive": 1267,
+        "participants": 5171
+      },
+      "test_transition": {
+        "from_to": "4->5",
+        "n": 15393,
+        "positive": 695,
+        "participants": 15393,
+        "participants_overlap_with_train": 0
+      },
+      "test_metrics": {
+        "roc_auc": 0.5394346218493976,
+        "pr_auc": 0.0509904318305887,
+        "brier": 0.04758986085653305,
+        "bootstrap_auc": {
+          "n": 200,
+          "ci95": [
+            0.5173671431946842,
+            0.5585725592751501
+          ]
+        },
+        "calibration": {
+          "bins": [
+            {
+              "bin": "0.00-0.05",
+              "n": 426,
+              "predicted": 0.03534478694200516,
+              "observed": 0.04460093896713615
+            },
+            {
+              "bin": "0.05-0.10",
+              "n": 4019,
+              "predicted": 0.08469053357839584,
+              "observed": 0.03483453595421747
+            },
+            {
+              "bin": "0.10-0.20",
+              "n": 10948,
+              "predicted": 0.12167472392320633,
+              "observed": 0.04895871392035075
+            }
+          ],
+          "slope": 0.46994730830192566,
+          "intercept": -2.060525894165039
+        },
+        "decision_curve": [
+          {
+            "threshold": 0.01,
+            "model_net_benefit": 0.035505447510904536,
+            "treat_all_net_benefit": 0.035505447510904536,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.02,
+            "model_net_benefit": 0.025663666363056618,
+            "treat_all_net_benefit": 0.025663666363056618,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.03,
+            "model_net_benefit": 0.015696651510493792,
+            "treat_all_net_benefit": 0.01561896189257267,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.05,
+            "model_net_benefit": -0.004947566734024703,
+            "treat_all_net_benefit": -0.005104849436004755,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.1,
+            "model_net_benefit": -0.040335794769628334,
+            "treat_all_net_benefit": -0.06094400773800503,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.2,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.19356200870525564,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.3,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.36407086709172076,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.5,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.909699213928409,
+            "treat_none_net_benefit": 0.0
+          }
+        ]
+      },
+      "features": [
+        "age",
+        "gender",
+        "bmi",
+        "systo",
+        "diasto",
+        "pulse",
+        "bl_glu",
+        "bl_hbalc",
+        "smoken",
+        "drinkev",
+        "exercise",
+        "sleep",
+        "rural",
+        "edu"
+      ]
+    },
+    {
+      "disease": "heart_disease",
+      "participant_disjoint": true,
+      "selected_model": "xgboost",
+      "candidate_group_cv": {
+        "logistic": {
+          "group_cv_auc": 0.6741013490206769,
+          "group_cv_pr_auc": 0.34978354435394465
+        },
+        "xgboost": {
+          "group_cv_auc": 0.7002450508006595,
+          "group_cv_pr_auc": 0.39891865202867993
+        }
+      },
+      "train_transitions": {
+        "from_to": [
+          "1->2",
+          "2->3",
+          "3->4"
+        ],
+        "n": 10075,
+        "positive": 1855,
+        "participants": 5237
+      },
+      "test_transition": {
+        "from_to": "4->5",
+        "n": 14307,
+        "positive": 793,
+        "participants": 14307,
+        "participants_overlap_with_train": 0
+      },
+      "test_metrics": {
+        "roc_auc": 0.5702821659328208,
+        "pr_auc": 0.06908586832343004,
+        "brier": 0.06864611059427261,
+        "bootstrap_auc": {
+          "n": 200,
+          "ci95": [
+            0.5500115126525507,
+            0.5846212736550246
+          ]
+        },
+        "calibration": {
+          "bins": [
+            {
+              "bin": "0.05-0.10",
+              "n": 111,
+              "predicted": 0.0909632071852684,
+              "observed": 0.05405405405405406
+            },
+            {
+              "bin": "0.10-0.20",
+              "n": 9575,
+              "predicted": 0.1626633107662201,
+              "observed": 0.04804177545691906
+            },
+            {
+              "bin": "0.20-0.30",
+              "n": 4621,
+              "predicted": 0.22272324562072754,
+              "observed": 0.0707639039169011
+            }
+          ],
+          "slope": 0.966641366481781,
+          "intercept": -1.3869160413742065
+        },
+        "decision_curve": [
+          {
+            "threshold": 0.01,
+            "model_net_benefit": 0.0458862759135353,
+            "treat_all_net_benefit": 0.0458862759135353,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.02,
+            "model_net_benefit": 0.03615042158612239,
+            "treat_all_net_benefit": 0.03615042158612239,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.03,
+            "model_net_benefit": 0.026213827994226748,
+            "treat_all_net_benefit": 0.026213827994226748,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.05,
+            "model_net_benefit": 0.00571306647831573,
+            "treat_all_net_benefit": 0.00571306647831573,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.1,
+            "model_net_benefit": -0.049129019982448376,
+            "treat_all_net_benefit": -0.04952509649511118,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.2,
+            "model_net_benefit": -0.0521772558887258,
+            "treat_all_net_benefit": -0.18071573355700007,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.3,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.3493894097794287,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.5,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.8891451736912002,
+            "treat_none_net_benefit": 0.0
+          }
+        ]
+      },
+      "features": [
+        "age",
+        "gender",
+        "bmi",
+        "systo",
+        "diasto",
+        "pulse",
+        "bl_glu",
+        "bl_hbalc",
+        "smoken",
+        "drinkev",
+        "exercise",
+        "sleep",
+        "rural",
+        "edu"
+      ]
+    },
+    {
+      "disease": "stroke",
+      "participant_disjoint": true,
+      "selected_model": "xgboost",
+      "candidate_group_cv": {
+        "logistic": {
+          "group_cv_auc": 0.7268004533174744,
+          "group_cv_pr_auc": 0.2629076205836613
+        },
+        "xgboost": {
+          "group_cv_auc": 0.7618261538504801,
+          "group_cv_pr_auc": 0.3165855368838061
+        }
+      },
+      "train_transitions": {
+        "from_to": [
+          "1->2",
+          "2->3",
+          "3->4"
+        ],
+        "n": 9902,
+        "positive": 1005,
+        "participants": 5044
+      },
+      "test_transition": {
+        "from_to": "4->5",
+        "n": 16425,
+        "positive": 366,
+        "participants": 16425,
+        "participants_overlap_with_train": 0
+      },
+      "test_metrics": {
+        "roc_auc": 0.6376704481459591,
+        "pr_auc": 0.03403916367578985,
+        "brier": 0.026924822479486465,
+        "bootstrap_auc": {
+          "n": 200,
+          "ci95": [
+            0.6156402029082003,
+            0.6610312158452889
+          ]
+        },
+        "calibration": {
+          "bins": [
+            {
+              "bin": "0.00-0.05",
+              "n": 1631,
+              "predicted": 0.027779120951890945,
+              "observed": 0.008583690987124463
+            },
+            {
+              "bin": "0.05-0.10",
+              "n": 8486,
+              "predicted": 0.08049836754798889,
+              "observed": 0.016262078717888286
+            },
+            {
+              "bin": "0.10-0.20",
+              "n": 6308,
+              "predicted": 0.12199777364730835,
+              "observed": 0.03392517438173748
+            }
+          ],
+          "slope": 1.179160714149475,
+          "intercept": -1.0995584726333618
+        },
+        "decision_curve": [
+          {
+            "threshold": 0.01,
+            "model_net_benefit": 0.012407176790738434,
+            "treat_all_net_benefit": 0.012407176790738434,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.02,
+            "model_net_benefit": 0.0026751157083838087,
+            "treat_all_net_benefit": 0.0023296990028888256,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.03,
+            "model_net_benefit": -0.006528268135385776,
+            "treat_all_net_benefit": -0.007955561832132939,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.05,
+            "model_net_benefit": -0.024846591364255387,
+            "treat_all_net_benefit": -0.02917567892333574,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.1,
+            "model_net_benefit": -0.028195501437510574,
+            "treat_all_net_benefit": -0.08635210553018773,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.2,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.2221461187214612,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.3,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.39673842139595566,
+            "treat_none_net_benefit": 0.0
+          },
+          {
+            "threshold": 0.5,
+            "model_net_benefit": 0.0,
+            "treat_all_net_benefit": -0.9554337899543379,
+            "treat_none_net_benefit": 0.0
+          }
+        ]
+      },
+      "features": [
+        "age",
+        "gender",
+        "bmi",
+        "systo",
+        "diasto",
+        "pulse",
+        "bl_glu",
+        "bl_hbalc",
+        "smoken",
+        "drinkev",
+        "exercise",
+        "sleep",
+        "rural",
+        "edu"
+      ]
+    }
+  ],
+  "limitations": [
+    "Wave 是调查轮次，不是日级测量日期；该审计是队列波次时间留出，不等同临床外部验证",
+    "参与者独立模式排除了测试 Wave4->5 参与者在训练过渡中的记录，但仍不是独立地区外部队列",
+    "概率仍需独立地区队列和医学审核后才能用于实际复测分层"
+  ]
+}

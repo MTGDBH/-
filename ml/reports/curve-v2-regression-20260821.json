@@ -1,0 +1,17 @@
+{
+  "schema_version": "experiment-run.v1",
+  "run_id": "curve-v2-regression-20260821",
+  "task": "Curve V2 指标时间趋势与保守预测回归",
+  "status": "completed",
+  "code": {"git_revision": "6f915635bd1e2ee28985412c8829a2c9bed8f360", "working_tree": true},
+  "data": {"manifest_id": "curve_synthetic_regression.v1", "class": "test"},
+  "model": {"version": "curve.v2", "implementation": "ml/curve/health_curve.py"},
+  "parameters": {
+    "backtest_horizons_days": [1, 3, 7],
+    "default_interval_coverage": 0.8,
+    "minimum_valid_days": 7,
+    "forecast_gates": {"7d": "21 valid days / 28 span", "14d": "42 valid days / 56 span", "30d_weekly": "84 valid days / 90 span"}
+  },
+  "outputs": ["reports/curve-model-evaluation-2026-08-20.md"],
+  "verification": {"python_tests": "28/28", "behavior_forecast_refusal": true, "condition_grouping": true}
+}

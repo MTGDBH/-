@@ -15,7 +15,10 @@ const login = await request('/api/auth/login', { method: 'POST', body: JSON.stri
 const cookie = (login.headers.get('set-cookie') || '').split(';')[0];
 const auth = { Cookie: cookie };
 const trend = (await request('/api/chat', { method: 'POST', headers: auth, body: JSON.stringify({ message: '\u6700\u8fd1\u8840\u538b\u600e\u4e48\u6837\uff1f' }) })).body;
-if (!['openai', 'tool_fallback'].includes(trend.source) || trend.confidence?.type !== 'data') throw new Error('trend agent acceptance failed');
+const acceptedProviders = new Set(['deepseek', 'openai', 'custom', 'tool', 'tool_fallback', 'fallback']);
+if (!acceptedProviders.has(trend.source) || trend.confidence?.type !== 'data') throw new Error(`trend agent acceptance failed: source=${trend.source}`);
+if (trend.source === 'deepseek' && trend.llm?.call_status !== 'success') throw new Error('DeepSeek source missing successful call_status');
+if (trend.source !== 'deepseek' && !['fallback', 'tool', 'tool_fallback', 'not_configured'].includes(trend.llm?.call_status || '')) throw new Error('fallback response missing explicit call_status');
 if (!trend.evidence?.items?.length || !trend.evidence.items[0].measured_at || trend.evidence.items[0].data_points < 1) throw new Error('backend evidence card acceptance failed');
 const risk = (await request('/api/prediction/disease/diabetes', { headers: auth })).body;
 if (!risk.success || risk.risk_probability < 0 || risk.risk_probability > 1) throw new Error('disease risk acceptance failed');

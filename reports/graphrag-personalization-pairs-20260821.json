@@ -1,0 +1,902 @@
+{
+  "schema_version": "personalization-pairs.v1",
+  "cases": 20,
+  "changed_count": 20,
+  "change_rate": 1.0,
+  "failures": [],
+  "passed": true,
+  "note": "工程个性化差异评测，不等同临床疗效或诊断准确率。",
+  "rows": [
+    {
+      "case": "bp_01",
+      "factor": "bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp_high",
+          "repeated_measurements"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp_high",
+              "repeated_measurements"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "bp_02",
+      "factor": "bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "urgent",
+        "action": "立即安静休息并重新测量；若伴胸痛、呼吸困难、意识改变或单侧无力，立即呼叫急救。",
+        "evidence": "who_hypertension_2025.md#并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "urgent",
+            "立即安静休息并重新测量；若伴胸痛、呼吸困难、意识改变或单侧无力，立即呼叫急救。",
+            "who_hypertension_2025.md#并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "bp_03",
+      "factor": "bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp_high",
+          "repeated_measurements"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp_high",
+              "repeated_measurements"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "bp_04",
+      "factor": "bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp_high",
+          "repeated_measurements"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp_high",
+              "repeated_measurements"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "bp_05",
+      "factor": "bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp_high",
+          "repeated_measurements"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp_high",
+              "repeated_measurements"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "glucose_01",
+      "factor": "glucose",
+      "changed_fields": [
+        "priority",
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "glucose_02",
+      "factor": "glucose",
+      "changed_fields": [
+        "priority",
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "glucose_03",
+      "factor": "glucose",
+      "changed_fields": [
+        "priority",
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "glucose_04",
+      "factor": "glucose",
+      "changed_fields": [
+        "priority",
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续按相同测量条件记录血糖，补充餐前/餐后信息，便于医生判断。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+        "evidence": "who_diabetes_2024.md#监测与并发症",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "确认这次是否为空腹测量，按同一条件复测并联系医生评估。",
+            "who_diabetes_2024.md#监测与并发症",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "egfr_01",
+      "factor": "egfr",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+        "evidence": "kdigo_ckd_2024.md#筛查人群",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+            "kdigo_ckd_2024.md#筛查人群",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "evidence": "kdigo_ckd_2024.md#评估与复测",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "kdigo_ckd_2024.md#评估与复测",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "egfr_02",
+      "factor": "egfr",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+        "evidence": "kdigo_ckd_2024.md#筛查人群",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+            "kdigo_ckd_2024.md#筛查人群",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "evidence": "kdigo_ckd_2024.md#评估与复测",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "kdigo_ckd_2024.md#评估与复测",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "egfr_03",
+      "factor": "egfr_and_bp",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+        "evidence": "kdigo_ckd_2024.md#筛查人群",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
+            "kdigo_ckd_2024.md#筛查人群",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "evidence": "kdigo_ckd_2024.md#评估与复测",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "kdigo_ckd_2024.md#评估与复测",
+            []
+          ],
+          [
+            "high",
+            "继续固定时间监测血压；肾脏疾病与血压需要一起管理。",
+            "kdigo_ckd_2024.md#血压与共病",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "fall_01",
+      "factor": "fall_risk",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+        "evidence": "elderly_frailty.md#评估维度",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+            "elderly_frailty.md#评估维度",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "evidence": "elderly_frailty.md#安全行动",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "elderly_frailty.md#安全行动",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "fall_02",
+      "factor": "fall_risk",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+        "evidence": "elderly_frailty.md#评估维度",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+            "elderly_frailty.md#评估维度",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "evidence": "elderly_frailty.md#安全行动",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "elderly_frailty.md#安全行动",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "fall_03",
+      "factor": "fall_risk",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+        "evidence": "elderly_frailty.md#评估维度",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+            "elderly_frailty.md#评估维度",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "evidence": "elderly_frailty.md#安全行动",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "elderly_frailty.md#安全行动",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "sleep_01",
+      "factor": "sleep",
+      "changed_fields": [
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "normal",
+        "action": "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "sleep_02",
+      "factor": "sleep",
+      "changed_fields": [
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "normal",
+        "action": "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "sleep_03",
+      "factor": "sleep",
+      "changed_fields": [
+        "action",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续保持相对固定的作息，记录睡眠质量；如白天仍明显困倦，再和医生讨论原因。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "normal",
+        "action": "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+        "evidence": "aha_lifes_essential_8_2022.md#八项指标",
+        "personalized_for": [],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "先固定上床和起床时间，连续记录一周睡眠；不要把睡眠波动当作疾病预测。",
+            "aha_lifes_essential_8_2022.md#八项指标",
+            []
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "smoking_01",
+      "factor": "smoking_status",
+      "changed_fields": [
+        "priority",
+        "action",
+        "evidence",
+        "personalized_for",
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "high",
+        "action": "把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。",
+        "evidence": "who_hypertension_2025.md#危险因素",
+        "personalized_for": [
+          "tobacco_exposure"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "high",
+            "把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。",
+            "who_hypertension_2025.md#危险因素",
+            [
+              "tobacco_exposure"
+            ]
+          ],
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    },
+    {
+      "case": "activity_01",
+      "factor": "exercise_level",
+      "changed_fields": [
+        "recommendation_fingerprint"
+      ],
+      "baseline": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed_signature": {
+        "priority": "normal",
+        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "evidence": "who_hypertension_2025.md#识别与复测",
+        "personalized_for": [
+          "recent_bp"
+        ],
+        "recommendation_fingerprint": [
+          [
+            "normal",
+            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "who_hypertension_2025.md#识别与复测",
+            [
+              "recent_bp"
+            ]
+          ],
+          [
+            "normal",
+            "在活动耐受允许时，从短时散步或舒缓活动开始，逐步减少久坐；出现不适先停止并咨询医生。",
+            "older_physical_activity_review_2022.md#系统使用边界",
+            [
+              "low_activity"
+            ]
+          ]
+        ],
+        "pre_review_count": 83
+      },
+      "changed": true
+    }
+  ]
+}

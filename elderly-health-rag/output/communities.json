@@ -19,6 +19,9 @@
       "evidence_source:hypertension_curated_05",
       "evidence_source:hypertension_curated_06",
       "evidence_source:hypertension_curated_07",
+      "evidence_source:older_bp_control_2021_systematic_review",
+      "evidence_source:sprint_2015_key_trial",
+      "evidence_source:who_hypertension_2025_guidance",
       "intervention:home_bp_remeasurement",
       "intervention:regular_activity",
       "intervention:salt_reduction",
@@ -47,8 +50,8 @@
       "risk_factor:血压",
       "risk_factor:跌倒"
     ],
-    "entity_count": 43,
-    "chunk_count": 16
+    "entity_count": 46,
+    "chunk_count": 19
   },
   {
     "id": "community:diabetes",
@@ -59,6 +62,7 @@
       "disease:diabetes",
       "disease:heart_disease",
       "disease:stroke",
+      "evidence_source:ada_older_adults_2025_guidance",
       "evidence_source:diabetes_curated_01",
       "evidence_source:diabetes_curated_02",
       "evidence_source:diabetes_curated_03",
@@ -66,6 +70,8 @@
       "evidence_source:diabetes_curated_05",
       "evidence_source:diabetes_curated_06",
       "evidence_source:diabetes_curated_07",
+      "evidence_source:diabetes_lifestyle_2019_systematic_review",
+      "evidence_source:dpp_2002_key_trial",
       "intervention:annual_complication_screening",
       "intervention:healthy_diet",
       "intervention:regular_activity",
@@ -99,29 +105,35 @@
       "risk_factor:血脂",
       "risk_factor:跌倒"
     ],
-    "entity_count": 44,
-    "chunk_count": 18
+    "entity_count": 47,
+    "chunk_count": 21
   },
   {
     "id": "community:heart_disease",
     "disease": "heart_disease",
     "entity_ids": [
       "disease:heart_disease",
+      "evidence_source:elderly_cvd_statins_2015_systematic_review",
+      "evidence_source:predimed_2018_key_trial",
+      "evidence_source:who_cvd_2025_guidance",
       "metric:cholesterol",
       "risk_factor:high_bp",
       "risk_factor:high_glucose",
       "risk_factor:high_lipids",
       "risk_factor:tobacco"
     ],
-    "entity_count": 6,
-    "chunk_count": 0
+    "entity_count": 9,
+    "chunk_count": 3
   },
   {
     "id": "community:stroke",
     "disease": "stroke",
     "entity_ids": [
+      "danger_sign:面歪",
       "disease:hypertension",
       "disease:stroke",
+      "evidence_source:aha_asa_stroke_2024_guidance",
+      "evidence_source:stroke_bp_2021_systematic_review",
       "evidence_source:stroke_curated_01",
       "evidence_source:stroke_curated_02",
       "evidence_source:stroke_curated_03",
@@ -129,6 +141,7 @@
       "evidence_source:stroke_curated_05",
       "evidence_source:stroke_curated_06",
       "evidence_source:stroke_curated_07",
+      "evidence_source:stroke_lifestyle_2013_key_trial",
       "intervention:活动",
       "measurement:活动",
       "measurement:血压",
@@ -140,8 +153,8 @@
       "risk_factor:血压",
       "symptom:face_arm_speech_emergency"
     ],
-    "entity_count": 19,
-    "chunk_count": 10
+    "entity_count": 23,
+    "chunk_count": 13
   },
   {
     "id": "community:chronic_kidney_disease",
@@ -161,6 +174,9 @@
       "evidence_source:chronic_kidney_disease_curated_05",
       "evidence_source:chronic_kidney_disease_curated_06",
       "evidence_source:chronic_kidney_disease_curated_07",
+      "evidence_source:ckd_bp_2017_systematic_review",
+      "evidence_source:kdigo_ckd_2024_guidance",
+      "evidence_source:proercan_2024_key_trial",
       "intervention:复测",
       "intervention:就医",
       "intervention:记录",
@@ -183,8 +199,8 @@
       "risk_factor:血糖",
       "risk_factor:跌倒"
     ],
-    "entity_count": 35,
-    "chunk_count": 11
+    "entity_count": 38,
+    "chunk_count": 14
   },
   {
     "id": "community:frailty",
@@ -202,6 +218,9 @@
       "evidence_source:frailty_curated_05",
       "evidence_source:frailty_curated_06",
       "evidence_source:frailty_curated_07",
+      "evidence_source:frailty_management_2019_systematic_review",
+      "evidence_source:grandmove_2025_key_trial",
+      "evidence_source:who_ageing_2024_frailty_guidance",
       "intervention:就医",
       "intervention:活动",
       "intervention:睡眠",
@@ -218,7 +237,7 @@
       "risk_factor:体重",
       "risk_factor:跌倒"
     ],
-    "entity_count": 27,
-    "chunk_count": 10
+    "entity_count": 30,
+    "chunk_count": 13
   }
 ]

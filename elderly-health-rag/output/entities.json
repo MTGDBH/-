@@ -15,6 +15,7 @@
       "kdigo_ckd_2024:2",
       "older_adult_safety:1",
       "older_physical_activity_review_2022:0",
+      "registry:ada_older_adults_2025_guidance:0",
       "registry:diabetes_curated_01:0",
       "registry:diabetes_curated_02:0",
       "registry:diabetes_curated_03:0",
@@ -22,6 +23,8 @@
       "registry:diabetes_curated_05:0",
       "registry:diabetes_curated_06:0",
       "registry:diabetes_curated_07:0",
+      "registry:diabetes_lifestyle_2019_systematic_review:0",
+      "registry:dpp_2002_key_trial:0",
       "who_diabetes_2024:0",
       "who_diabetes_2024:1",
       "who_diabetes_2024:2",
@@ -457,8 +460,11 @@
     "chunk_ids": [
       "aha_stroke_prevention_2024:0",
       "aha_stroke_prevention_2024:1",
+      "aha_stroke_prevention_2024:2",
       "cardiovascular:2",
       "predimed_2018:0",
+      "registry:aha_asa_stroke_2024_guidance:0",
+      "registry:stroke_bp_2021_systematic_review:0",
       "registry:stroke_curated_01:0",
       "registry:stroke_curated_02:0",
       "registry:stroke_curated_03:0",
@@ -466,6 +472,7 @@
       "registry:stroke_curated_05:0",
       "registry:stroke_curated_06:0",
       "registry:stroke_curated_07:0",
+      "registry:stroke_lifestyle_2013_key_trial:0",
       "who_hypertension_2025:3"
     ]
   },
@@ -488,6 +495,14 @@
       "who_cvd_2025:0",
       "who_hypertension_2025:1",
       "who_hypertension_2025:2"
+    ]
+  },
+  {
+    "id": "danger_sign:面歪",
+    "type": "danger_sign",
+    "name": "面歪",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:2"
     ]
   },
   {
@@ -563,7 +578,10 @@
       "registry:frailty_curated_04:0",
       "registry:frailty_curated_05:0",
       "registry:frailty_curated_06:0",
-      "registry:frailty_curated_07:0"
+      "registry:frailty_curated_07:0",
+      "registry:frailty_management_2019_systematic_review:0",
+      "registry:grandmove_2025_key_trial:0",
+      "registry:who_ageing_2024_frailty_guidance:0"
     ]
   },
   {
@@ -595,6 +613,9 @@
       "registry:hypertension_curated_05:0",
       "registry:hypertension_curated_06:0",
       "registry:hypertension_curated_07:0",
+      "registry:older_bp_control_2021_systematic_review:0",
+      "registry:sprint_2015_key_trial:0",
+      "registry:who_hypertension_2025_guidance:0",
       "sprint_2015:1",
       "who_hypertension_2025:0",
       "who_hypertension_2025:1",
@@ -637,6 +658,9 @@
       "registry:chronic_kidney_disease_curated_05:0",
       "registry:chronic_kidney_disease_curated_06:0",
       "registry:chronic_kidney_disease_curated_07:0",
+      "registry:ckd_bp_2017_systematic_review:0",
+      "registry:kdigo_ckd_2024_guidance:0",
+      "registry:proercan_2024_key_trial:0",
       "who_hypertension_2025:3"
     ]
   },
@@ -688,6 +712,15 @@
     "type": "disease",
     "name": "predimed_2018",
     "chunk_ids": []
+  },
+  {
+    "id": "danger_sign:晕厥",
+    "type": "danger_sign",
+    "name": "晕厥",
+    "chunk_ids": [
+      "who_cvd_2025:2",
+      "who_physical_activity_2020:2"
+    ]
   },
   {
     "id": "disease:who_physical_activity_2020",
@@ -1120,6 +1153,200 @@
     ]
   },
   {
+    "id": "evidence_source:who_hypertension_2025_guidance",
+    "type": "evidence_source",
+    "name": "高血压：WHO事实表与管理原则",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "publisher": "World Health Organization",
+    "chunk_ids": [
+      "registry:who_hypertension_2025_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:older_bp_control_2021_systematic_review",
+    "type": "evidence_source",
+    "name": "老年高血压血压控制系统综述与Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33447766/",
+    "publisher": "PubMed indexed systematic review",
+    "chunk_ids": [
+      "registry:older_bp_control_2021_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:sprint_2015_key_trial",
+    "type": "evidence_source",
+    "name": "SPRINT：强化收缩压控制随机试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/26551272/",
+    "publisher": "SPRINT Research Group / NEJM",
+    "chunk_ids": [
+      "registry:sprint_2015_key_trial:0"
+    ]
+  },
+  {
+    "id": "evidence_source:ada_older_adults_2025_guidance",
+    "type": "evidence_source",
+    "name": "ADA老年糖尿病标准：功能、低血糖与个体化管理",
+    "source_url": "https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025",
+    "publisher": "American Diabetes Association",
+    "chunk_ids": [
+      "registry:ada_older_adults_2025_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:diabetes_lifestyle_2019_systematic_review",
+    "type": "evidence_source",
+    "name": "生活方式改变预防2型糖尿病的系统综述与Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31683759/",
+    "publisher": "EASD evidence synthesis / PubMed",
+    "chunk_ids": [
+      "registry:diabetes_lifestyle_2019_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:dpp_2002_key_trial",
+    "type": "evidence_source",
+    "name": "Diabetes Prevention Program：生活方式与糖尿病预防随机试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/12453955/",
+    "publisher": "DPP Research Group / NEJM",
+    "chunk_ids": [
+      "registry:dpp_2002_key_trial:0"
+    ]
+  },
+  {
+    "id": "disease:heart_disease",
+    "type": "disease",
+    "name": "heart_disease",
+    "chunk_ids": [
+      "aha_lifes_essential_8_2022:0",
+      "older_cvd_risk_review_2020:0",
+      "predimed_2018:0",
+      "registry:elderly_cvd_statins_2015_systematic_review:0",
+      "registry:predimed_2018_key_trial:0",
+      "registry:who_cvd_2025_guidance:0",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "evidence_source:who_cvd_2025_guidance",
+    "type": "evidence_source",
+    "name": "WHO心血管疾病事实表与共同危险因素框架",
+    "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29",
+    "publisher": "World Health Organization",
+    "chunk_ids": [
+      "registry:who_cvd_2025_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:elderly_cvd_statins_2015_systematic_review",
+    "type": "evidence_source",
+    "name": "老年人心血管一级预防他汀系统综述与Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/26245770/",
+    "publisher": "Drugs & Aging / PubMed",
+    "chunk_ids": [
+      "registry:elderly_cvd_statins_2015_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:predimed_2018_key_trial",
+    "type": "evidence_source",
+    "name": "PREDIMED：地中海饮食与心血管预防随机试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/29897866/",
+    "publisher": "PREDIMED Study Investigators / NEJM",
+    "chunk_ids": [
+      "registry:predimed_2018_key_trial:0"
+    ]
+  },
+  {
+    "id": "evidence_source:aha_asa_stroke_2024_guidance",
+    "type": "evidence_source",
+    "name": "AHA/ASA卒中一级预防指南要点",
+    "source_url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke/top-things-to-know",
+    "publisher": "American Heart Association / American Stroke Association",
+    "chunk_ids": [
+      "registry:aha_asa_stroke_2024_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_bp_2021_systematic_review",
+    "type": "evidence_source",
+    "name": "血压管理与卒中预防：93项随机试验系统综述与网状Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33600699/",
+    "publisher": "Journal of Stroke / PubMed",
+    "chunk_ids": [
+      "registry:stroke_bp_2021_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:stroke_lifestyle_2013_key_trial",
+    "type": "evidence_source",
+    "name": "老年人身体活动与健康饮食降低卒中风险因素随机试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/23859934/",
+    "publisher": "Preventive Medicine / PubMed",
+    "chunk_ids": [
+      "registry:stroke_lifestyle_2013_key_trial:0"
+    ]
+  },
+  {
+    "id": "evidence_source:kdigo_ckd_2024_guidance",
+    "type": "evidence_source",
+    "name": "KDIGO慢性肾脏病评估与管理指南",
+    "source_url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+    "publisher": "KDIGO",
+    "chunk_ids": [
+      "registry:kdigo_ckd_2024_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:ckd_bp_2017_systematic_review",
+    "type": "evidence_source",
+    "name": "非糖尿病CKD强化血压控制系统综述与Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/28288249/",
+    "publisher": "JAMA Internal Medicine / PubMed",
+    "chunk_ids": [
+      "registry:ckd_bp_2017_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:proercan_2024_key_trial",
+    "type": "evidence_source",
+    "name": "PROERCAN：老年高血压非蛋白尿CKD的随机试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/38508877/",
+    "publisher": "SEH-LELHA / PubMed",
+    "chunk_ids": [
+      "registry:proercan_2024_key_trial:0"
+    ]
+  },
+  {
+    "id": "evidence_source:who_ageing_2024_frailty_guidance",
+    "type": "evidence_source",
+    "name": "WHO老龄化与健康：功能和衰弱安全框架",
+    "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health",
+    "publisher": "World Health Organization",
+    "chunk_ids": [
+      "registry:who_ageing_2024_frailty_guidance:0"
+    ]
+  },
+  {
+    "id": "evidence_source:frailty_management_2019_systematic_review",
+    "type": "evidence_source",
+    "name": "衰弱管理系统综述与网络Meta分析",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31564464/",
+    "publisher": "Journal of the American Medical Directors Association / PubMed",
+    "chunk_ids": [
+      "registry:frailty_management_2019_systematic_review:0"
+    ]
+  },
+  {
+    "id": "evidence_source:grandmove_2025_key_trial",
+    "type": "evidence_source",
+    "name": "GrandMove：衰弱/前衰弱老年人的集群随机运动试验",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/40367490/",
+    "publisher": "JAMA Network Open / PubMed",
+    "chunk_ids": [
+      "registry:grandmove_2025_key_trial:0"
+    ]
+  },
+  {
     "id": "risk_factor:high_salt_diet",
     "type": "risk_factor",
     "name": "high_salt_diet",
@@ -1182,18 +1409,6 @@
     "chunk_ids": [
       "kdigo_ckd_2024:2",
       "who_hypertension_2025:0"
-    ]
-  },
-  {
-    "id": "disease:heart_disease",
-    "type": "disease",
-    "name": "heart_disease",
-    "label": "疾病",
-    "chunk_ids": [
-      "aha_lifes_essential_8_2022:0",
-      "older_cvd_risk_review_2020:0",
-      "predimed_2018:0",
-      "who_hypertension_2025:3"
     ]
   },
   {

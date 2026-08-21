@@ -1,4 +1,7 @@
 {
+  "dataset_version": "charls_w1w2_incidence.v2/multidisease_baseline",
+  "artifact_sha256": "58d62ca8ca7f611db2c60d3396bc2cdea1388ee6af1d42ae3cc9f8f050e805ab",
+  "pipeline": "multidisease_baseline",
   "disease": "diabetes",
   "target_column": "diabe",
   "source": "D:\\大创数据2\\CHARLS.csv",

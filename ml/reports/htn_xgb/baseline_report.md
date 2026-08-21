@@ -1,5 +1,7 @@
 # Phase 1.5 XGBoost 基线建模报告
 
+> 数据血缘：`charls_w1w2_incidence.v2/app_core12`；专用高血压数据集 n=10,619，阳性=494（4.65%）。多病种基线使用同一 CHARLS 原始版本但不同清洗边界，n=11,010，不能视为同一派生集。完整哈希和管线记录见 [risk_data_manifest.json](../../risk_data_manifest.json)。
+
 ## 数据集
 - 主数据集: hypertension_incidence_w1w2.csv | n=10619, Y=1=494 (4.65%)
 - test 划分: 20%, stratify, random_state=42（仅用于最终评估）

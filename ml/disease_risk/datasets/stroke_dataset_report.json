@@ -1,4 +1,7 @@
 {
+  "dataset_version": "charls_w1w2_incidence.v2/multidisease_baseline",
+  "artifact_sha256": "7394fe95191722c575364a51bbcf4b2dd853ce71c0f055e6ebe39c9681f1c858",
+  "pipeline": "multidisease_baseline",
   "disease": "stroke",
   "target_column": "stroke",
   "source": "D:\\大创数据2\\CHARLS.csv",

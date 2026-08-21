@@ -1,0 +1,393 @@
+{
+  "schema_version": "submission-artifact-manifest.v1",
+  "run_id": "submission-bundle-freeze-20260821",
+  "generated_at": "2026-08-21T07:41:07.585743+00:00",
+  "git_revision": "6f915635bd1e2ee28985412c8829a2c9bed8f360",
+  "artifacts": [
+    {
+      "path": "FINAL_DELIVERY.md",
+      "bytes": 10637,
+      "sha256": "cfc6481762b9aa405ff38d69c29b035723567dee54fa3dbfd626d22a83e02ce8"
+    },
+    {
+      "path": "deliverables/national_award/project_title.md",
+      "bytes": 557,
+      "sha256": "c1cdde1651ea747a55a17e84074b9ac980a5b0b350a7078cf9a8a8b7b6cfd816"
+    },
+    {
+      "path": "deliverables/national_award/SUBMISSION_INDEX.md",
+      "bytes": 1832,
+      "sha256": "5b3c73ac7a7aea4c9c2f7cfbbb07b08a2941986d8c093e86593f5abcc360bce9"
+    },
+    {
+      "path": "deliverables/national_award/elderly_health_national_award.pptx",
+      "bytes": 55046,
+      "sha256": "e7bfcf1e660b185b8c9eefc1b4e30a788e65ef4188cc6d8a551f80e4a12f49b0"
+    },
+    {
+      "path": "deliverables/national_award/ppt_build/build_deck.mjs",
+      "bytes": 16804,
+      "sha256": "3ee142168016366780bb287a3f173f474513a70c0154f8b4e6787865a657722b"
+    },
+    {
+      "path": "reports/create_submission_bundle.py",
+      "bytes": 1927,
+      "sha256": "fdb5a88f82c86c2b961543717887e0695a08a7d0c37d5219723bd41babdd3e59"
+    },
+    {
+      "path": "deliverables/national_award/latex/project_summary.tex",
+      "bytes": 13107,
+      "sha256": "1dd2613abad504abf4eedc834478e462e9d766c4639781dc57f70131f13da05f"
+    },
+    {
+      "path": "deliverables/national_award/latex/project_summary.pdf",
+      "bytes": 169042,
+      "sha256": "80618b917000bdcae3ff145b7ccc66c852705d50d59f1803d1c1b5785e093ea8"
+    },
+    {
+      "path": "deliverables/national_award/demo_script.md",
+      "bytes": 2914,
+      "sha256": "faa1f306e95a67048846e3b23a0394dce3fc34d8e7c98562b697844d683719e7"
+    },
+    {
+      "path": "deliverables/national_award/data_card.md",
+      "bytes": 1320,
+      "sha256": "47d45df72b0e6a878eb45d2737aa6b4c5003be8a5cee2f0958d89aa2ad0f1d27"
+    },
+    {
+      "path": "deliverables/national_award/model_card.md",
+      "bytes": 2787,
+      "sha256": "fa84ae56e4a21b2105461aff801f872f7c497f647b2ff838155ae1d95e6f5185"
+    },
+    {
+      "path": "reports/national-award-task-matrix-20260821.md",
+      "bytes": 5577,
+      "sha256": "94d852fe720cb22ddac4200b5cb47f9f703d57a04a1cc90075af02785c1741b9"
+    },
+    {
+      "path": "reports/submission-readiness-check-20260821.md",
+      "bytes": 4062,
+      "sha256": "c0e0b8ce5fad92ee2a75c242392b1ec32f8e91621cac8d9a48bb606f8a7cbd77"
+    },
+    {
+      "path": "reports/clinician-review-packet-20260821.md",
+      "bytes": 103688,
+      "sha256": "79e382090e8a3d46dd2b7d05464ebd57642c4f31494dc8f12681092fe3c07011"
+    },
+    {
+      "path": "reports/graphrag-method-comparison-20260821.md",
+      "bytes": 1492,
+      "sha256": "41bbc34bf953ce376ead2526e1a51f73388d8fe5b44f2d13703336c35a024369"
+    },
+    {
+      "path": "reports/graphrag-personalization-pairs-20260821.md",
+      "bytes": 269,
+      "sha256": "d27f3c2293247553c2fe7c9f78ebc69e1e855a942fb4e28e8ae6dfb6d5af4dec"
+    },
+    {
+      "path": "reports/graphrag-internal-holdout-20260821.md",
+      "bytes": 547,
+      "sha256": "aa732b1c34f60b13677485ef5b72a92961676149e550da28e1f6d32efc8aac0b"
+    },
+    {
+      "path": "reports/curve-model-evaluation-2026-08-20.md",
+      "bytes": 2116,
+      "sha256": "84b357662ffb868533c90c31365e9ccef0d10056950fdb6c47e788dc41ad8599"
+    },
+    {
+      "path": "reports/curve-temporal-validation-20260821.md",
+      "bytes": 589,
+      "sha256": "c726d100b53f4c5e657daa94acbbad9060ab603e701d1129c07a2dcc92ef2a3c"
+    },
+    {
+      "path": "reports/national-award-risk-evaluation-20260821.md",
+      "bytes": 1455,
+      "sha256": "fabd4d2753c582ea5a222564cbde26b54df633ac2366a1969c71b2235f40d3d8"
+    },
+    {
+      "path": "reports/human-evaluation-protocol-20260821.md",
+      "bytes": 2878,
+      "sha256": "595596b2ee2f309f07f7c047b7cdfa7b0ba1ce6c6f1af1b9b116525ae130d44d"
+    },
+    {
+      "path": "reports/human-evaluation-dry-run-20260821.md",
+      "bytes": 1032,
+      "sha256": "24f1b3f0329c3410241a1717f31dcb42d63124a3561ace484a2a1b539343e921"
+    },
+    {
+      "path": "reports/deepseek-runtime-audit-20260821.md",
+      "bytes": 1047,
+      "sha256": "f1a8d67a2cacaaf9fc38c34fd4e13846180c74ce576737c759a5667ffa2bdff1"
+    },
+    {
+      "path": "reports/final_submission_audit.py",
+      "bytes": 8042,
+      "sha256": "f76760adc4f17d5121a0d59eaf3146cf8dceee1fb1455d359c6ab12ef8054de1"
+    },
+    {
+      "path": "reports/final-submission-audit-20260821.json",
+      "bytes": 2069,
+      "sha256": "692f60b8f2875e466aa87545855ddeac317f4e563e68897e872b16c3c1312e2d"
+    },
+    {
+      "path": "reports/final-submission-audit-20260821.md",
+      "bytes": 1127,
+      "sha256": "6bcad8ee8960d71eda1e10b9bb5c83bc53595c67c2632a5fc2198c4a729de10b"
+    },
+    {
+      "path": "reports/external-gate-execution-checklist-20260821.md",
+      "bytes": 3449,
+      "sha256": "9fad4a0b97771b7abbbeec619446399aba74ac1f81acf195dc26ad9eea0f641a"
+    },
+    {
+      "path": "reports/regression-suite-summary-20260821.md",
+      "bytes": 1431,
+      "sha256": "540c6a47a5720247018a7b03db607054e3c0492500767460702ef4a4e9be481e"
+    },
+    {
+      "path": "reports/regression-suite-summary-20260821.json",
+      "bytes": 847,
+      "sha256": "093415d4f2150e4a29a8c8a778a4a0068b8d0f087f785d70fc48cd35d0be23a3"
+    },
+    {
+      "path": "elderly-health-rag/eval/heldout_paraphrase_questions.json",
+      "bytes": 3295,
+      "sha256": "b754591f0d0542bc936b1f121b3660c0733c9c6297b2af9341037a6bb76dec92"
+    },
+    {
+      "path": "elderly-health-rag/evaluate_holdout_questions.py",
+      "bytes": 4871,
+      "sha256": "6f2cbd4cdd26424feb149ff13c692c10616d740d818f2904348ac834493ed909"
+    },
+    {
+      "path": "elderly-health-rag/audit_source_integrity.py",
+      "bytes": 4981,
+      "sha256": "baa40c8f920c230c72ecf6752dce4e1b9b8c90ee259d73a5ae4b005b50d61865"
+    },
+    {
+      "path": "elderly-health-rag/test_source_gate.py",
+      "bytes": 2057,
+      "sha256": "ddd5d387340f73ddcb17a5ebe9640acab7039ef097bf3576cf0a358c4d67b7f4"
+    },
+    {
+      "path": "elderly-health-rag/generate_clinician_review_template.py",
+      "bytes": 1752,
+      "sha256": "d1e364b83f0c586a7ce96fb977dbf31a40f76da0400bcf331cf01be12cf749fc"
+    },
+    {
+      "path": "elderly-health-rag/validate_clinician_reviews.py",
+      "bytes": 3878,
+      "sha256": "849edab16f1e05a11a60ff8ab7dc7a0a290f46fa797ffc97cc7987515f0013cd"
+    },
+    {
+      "path": "elderly-health-rag/apply_clinician_reviews.py",
+      "bytes": 3454,
+      "sha256": "91fb11f4ca67e1ed33304ca0a19496ea1951cef3f7b10dd262711914ae65429b"
+    },
+    {
+      "path": "elderly-health-rag/README.md",
+      "bytes": 2992,
+      "sha256": "f154edd82612b5f202d33fe77a974144fd8bf6c04dc0bcc38bd07d6a8a8f7473"
+    },
+    {
+      "path": "elderly-health-rag/output/source_manifest.json",
+      "bytes": 62088,
+      "sha256": "ace4060eb0b592cf11a7ad70b434ab6b224402181439e28f1f2adb0ab653b1d7"
+    },
+    {
+      "path": "elderly-health-rag/output/relationships.json",
+      "bytes": 153769,
+      "sha256": "151c19f26a169c6396257f961b95a3cf992f7dd116e8c7ca5de1c6657edb15ec"
+    },
+    {
+      "path": "elderly-health-rag/output/entities.json",
+      "bytes": 52108,
+      "sha256": "13c2f3094590df7dc40a42397afcf66a6137f4369b4441de69619f0ec5746c7a"
+    },
+    {
+      "path": "elderly-health-rag/output/relation_review_manifest.json",
+      "bytes": 48721,
+      "sha256": "7ab0950edc07a7d5fde3e91b279c9fbb9157afe265fea7795208cdad19161a77"
+    },
+    {
+      "path": "elderly-health-rag/output/medical_pre_review.json",
+      "bytes": 148584,
+      "sha256": "e683bd08179c4c060c3f24b122866bbead28d46028b44ce102e82d75e624c592"
+    },
+    {
+      "path": "elderly-health-rag/output/evidence_conflicts.json",
+      "bytes": 251,
+      "sha256": "16d37c77afb16752c45b1f6c34e29edaa195eb587042618b8261ef75d5ded66b"
+    },
+    {
+      "path": "reports/source-integrity-audit-20260821.md",
+      "bytes": 1603,
+      "sha256": "c987c9cf07d0ed170ef8f0a62bfd26194a4dc114e28e48b25fb581816a1dfb0b"
+    },
+    {
+      "path": "reports/clinician-review-template.csv",
+      "bytes": 14029,
+      "sha256": "c265579b165db791c926fb855d23d856f640dbd7f37768092961bbcd435ea5d0"
+    },
+    {
+      "path": "reports/clinician-review-validation.json",
+      "bytes": 436,
+      "sha256": "7930320d2dc4a1251c716c774b4895c5f6827a75d1facb272fbe05a6ed55c667"
+    },
+    {
+      "path": "reports/clinician-review-submission-guide-20260821.md",
+      "bytes": 1779,
+      "sha256": "ea81e6abbe92dd8f615d2326ca617372a240de699042754df3e2dcc31df2982d"
+    },
+    {
+      "path": "reports/clinician-review-report-20260821.md",
+      "bytes": 2087,
+      "sha256": "cf3ef5acdb02a86d3d1cbf1dc07c14993717c3c8abd1d662418fe6bcba980188"
+    },
+    {
+      "path": "reports/clinician-review-report-20260821.json",
+      "bytes": 563,
+      "sha256": "05153df2eb1e091d7e4865b5d7f659687882b7b12daf3d62818d41c0e83442f0"
+    },
+    {
+      "path": "reports/graphrag-source-gate-regression-20260821.json",
+      "bytes": 166,
+      "sha256": "b89e648587b97ac0f3dc3f196213e184f1fc801091f169da8a6f09f2ef7fc920"
+    },
+    {
+      "path": "ml/curve/temporal_validation.py",
+      "bytes": 8098,
+      "sha256": "18e625ed2abbed1a0e03c1770009d251644a51d131cbd3aa0eb10754a183038d"
+    },
+    {
+      "path": "ml/curve/external_dataset_schema.json",
+      "bytes": 1379,
+      "sha256": "29bf0e23d9a87d659ae79603c241a387994d2b79ad7ffca97b6cd40a7c800aa8"
+    },
+    {
+      "path": "ml/curve/external_dataset_template.csv",
+      "bytes": 96,
+      "sha256": "59ef99ac974c346f6d296a94ba68e39fca6b0fe67dd908e8c3f9ecbe188028cd"
+    },
+    {
+      "path": "ml/curve/validate_external_dataset.py",
+      "bytes": 5016,
+      "sha256": "cc06f75cbe9737b7b2f555fcd37600e89f0cbcfcc26cb8e44b00bdd177114782"
+    },
+    {
+      "path": "ml/curve/test_validate_external_dataset.py",
+      "bytes": 377,
+      "sha256": "d0c5ca9e795b568f8bdb3ad9b6dc2532ad395794cf958bf26a9afe7d406515d1"
+    },
+    {
+      "path": "ml/disease_risk/plot_national_award_evaluation.py",
+      "bytes": 5150,
+      "sha256": "ddeb530c46286b1ea0ef6ba1ce10e1d2e6c931160ae4f2e181a80060d45b44e3"
+    },
+    {
+      "path": "ml/disease_risk/evaluate_temporal_charls.py",
+      "bytes": 11003,
+      "sha256": "00672413a05d1e731bac53c04afd8277b9353d5a2153a1217525fd41a7643668"
+    },
+    {
+      "path": "ml/reports/national-award-risk-temporal-evaluation-20260821.json",
+      "bytes": 15730,
+      "sha256": "101290cf5c2c2de3e691d8c69824606b1af408791f2ce065f271aebe35bd0c99"
+    },
+    {
+      "path": "reports/national-award-risk-temporal-evaluation-20260821.md",
+      "bytes": 1155,
+      "sha256": "85f596aba10fb30ae8edaec8d1a6e6d6bc7c610d340779f12bd4765b56cc1ae8"
+    },
+    {
+      "path": "ml/reports/national-award-risk-temporal-disjoint-evaluation-20260821.json",
+      "bytes": 16541,
+      "sha256": "a5d9c4ab9beb1bb0c8bb0b6f2d7df96ec0551b1980385d14c072324ffddacd5f"
+    },
+    {
+      "path": "reports/national-award-risk-temporal-disjoint-evaluation-20260821.md",
+      "bytes": 1008,
+      "sha256": "808a65089704bc9f87ea5eecf2ff43e6ef9dbd0d3f344a3c23fac288e76e8bc0"
+    },
+    {
+      "path": "reports/curve-external-data-collection-kit-20260821.md",
+      "bytes": 2417,
+      "sha256": "6d848fb330d2a7cb99fd0fe9db221a23aed0ee84ca1d449f8da222da7f772d08"
+    },
+    {
+      "path": "reports/human-evaluation-data-template.csv",
+      "bytes": 213,
+      "sha256": "e859bf3663efb958929f92afdebe33b92c39b7110a4ee483682519e15eb1421b"
+    },
+    {
+      "path": "reports/analyze_human_evaluation.py",
+      "bytes": 4301,
+      "sha256": "3f66f2fbc2ed9ca51c00290ec234fdd89bf8746c84a0eda2fe39650c43b4dfc4"
+    },
+    {
+      "path": "reports/test_human_evaluation_analyzer.py",
+      "bytes": 325,
+      "sha256": "61a36e15fad89c9b42368f8c6edf202e39cf0f403401120f272a51395f2e44af"
+    },
+    {
+      "path": "reports/human-evaluation-data-collection-kit-20260821.md",
+      "bytes": 1226,
+      "sha256": "294826373410f34b8667cf499067c01d64bb58f23f05204c085d72a1b1dbfa7e"
+    },
+    {
+      "path": "reports/human-evaluation-consent-template.md",
+      "bytes": 1388,
+      "sha256": "0fbfbc38ad984796bd9a584bf1d4466213058d45bf23b26b55fda67dbe91b486"
+    },
+    {
+      "path": "reports/create_human_evaluation_synthetic_fixture.py",
+      "bytes": 2642,
+      "sha256": "b6b33a4be15544f15fa5de45f1142ded991f01aa3c610e977b6f2b229ce14994"
+    },
+    {
+      "path": "reports/human-evaluation-synthetic-fixture.csv",
+      "bytes": 5734,
+      "sha256": "b946489ebe7a5c27d54027603fad1ef3588b9be35ba37741785e46a818dab532"
+    },
+    {
+      "path": "reports/human-evaluation-synthetic-pipeline-20260821.json",
+      "bytes": 1477,
+      "sha256": "1b71f057b9f98827cc93e585d5588c45f0ffe8e228607365bf7d0a564aa889f3"
+    },
+    {
+      "path": "reports/human-evaluation-synthetic-pipeline-20260821.md",
+      "bytes": 1374,
+      "sha256": "fffb84358ea9403a2b1cd08cdfbae41223bdbd6ab7913e9670394bd1ef023264"
+    },
+    {
+      "path": "ml/risk_data_manifest.json",
+      "bytes": 2955,
+      "sha256": "a9f0ea3a79850614e4be9c255ae3ad360ec6f652b128cd6e698d805f3a24bc7f"
+    },
+    {
+      "path": "ml/reports/curve-v2-regression-20260821.json",
+      "bytes": 861,
+      "sha256": "c0e5eff21f1ad9961f26657545813b3367cc3698f927e609cac765f12dd30d82"
+    },
+    {
+      "path": "ml/reports/curve-temporal-validation-20260821.json",
+      "bytes": 21454,
+      "sha256": "f7fef893a8f4ac995359198e9c94f4d530f4688a4a1eedc57e6119f59c008f7e"
+    },
+    {
+      "path": "ml/reports/national-award-risk-evaluation-20260821.json",
+      "bytes": 21579,
+      "sha256": "37c8253bd55ac17a8ac01cfd35a61c5846d0d1b8c23e0a6440aa595e93794f9e"
+    }
+  ],
+  "missing": [],
+  "data_versions": {
+    "risk": "charls_w1w2_incidence.v2",
+    "graphrag": "2026-08-21.v6",
+    "curve": "curve-v2-regression-20260821"
+  },
+  "limitations": [
+    "清单冻结的是工程提交物，不是临床有效性证明",
+    "医生签署、真实受试者和带日期外部纵向验证仍是线下依赖"
+  ]
+}

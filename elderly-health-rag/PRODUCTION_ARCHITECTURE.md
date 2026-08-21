@@ -1,6 +1,6 @@
 # GraphRAG 生产化交付边界
 
-当前代码已经具备可验收的知识闭环：版本化来源 → 分块 → 实体关系 → 疾病社区 → 证据分层检索 → 个性化行动 → 7天行动计划 → DeepSeek 解释 → 引用、关系路径和免责声明。当前索引为 `2026-08-20.v4`，包含 60 个可审计来源、6 个疾病社区、139 个实体和 398 条关系；`validate_graph.py` 还会检查观察性证据的因果标记、来源字段和矛盾关系。`evaluate_graph.py`、`evaluate_personalization.py`、`evaluate_golden.py` 和 `evaluate_counterfactual.py` 用于校验检索、个性化、计划和反事实差异。
+当前代码已经具备可验收的知识闭环：版本化来源 → 分块 → 实体关系 → 疾病社区 → 证据分层检索 → 个性化行动 → 7天行动计划 → DeepSeek 解释 → 引用、关系路径和免责声明。当前索引为 `2026-08-21.v6`，包含 78 个可审计来源、6 个疾病社区、157 个实体和 416 条关系；`validate_graph.py` 还会检查观察性证据的因果标记、来源字段、审核队列和矛盾关系。`evaluate_graph.py`、`evaluate_personalization.py`、`evaluate_golden.py`、`evaluate_counterfactual.py` 和 `evaluate_retrieval_methods.py` 用于校验检索、个性化、计划、反事实差异和三路方法对照。
 
 Node 侧保持 `queryKnowledgeGraph(question, disease, context, options)` 接口，当前返回 `results`、`graph_paths`、`personalization`、`safety_flags`、`citations`、`uncertainty` 和 `index_version`。老人端读取结论和行动，医生端可读取完整检索追踪，不让原始文件名或内部节点 ID直接暴露给老人。
 

@@ -1,0 +1,16 @@
+{
+  "status": "pending",
+  "review_complete": false,
+  "errors": [],
+  "expected_relations": 83,
+  "rows": 83,
+  "signed_rows": 0,
+  "unsigned_rows": 83,
+  "decisions": {
+    "approve_education": 0,
+    "approve_with_guardrails": 0,
+    "needs_revision": 0,
+    "reject": 0
+  },
+  "policy": "验证脚本不写入 live GraphRAG；只有项目组完成医生签字和复核后，才允许人工导入 approved 状态。"
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": "source-integrity-audit.v1",
+  "run_id": "source-integrity-audit-20260821",
+  "generated_at": "2026-08-21",
+  "index_version": "2026-08-21.v6",
+  "source_count": 78,
+  "core_disease_coverage": {
+    "hypertension": {
+      "sources": 12,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "public_guidance",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    },
+    "diabetes": {
+      "sources": 12,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "public_guidance",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    },
+    "heart_disease": {
+      "sources": 12,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "public_guidance",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    },
+    "stroke": {
+      "sources": 11,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    },
+    "chronic_kidney_disease": {
+      "sources": 10,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    },
+    "frailty": {
+      "sources": 10,
+      "authoritative_guidance": true,
+      "systematic_review": true,
+      "randomized_trial": true,
+      "levels": [
+        "authoritative_guidance",
+        "observational_study",
+        "professional_guideline",
+        "professional_statement",
+        "randomized_trial",
+        "systematic_review"
+      ]
+    }
+  },
+  "incomplete_metadata": [],
+  "legacy_pending_sources": [
+    {
+      "source_id": "cardiovascular",
+      "file": "cardiovascular.md",
+      "review_status": "演示条目，需专业人员复核",
+      "source_url": "https://www.who.int/en/news-room/fact-sheets/detail/cardiovascular-diseases-%28cvds%29"
+    },
+    {
+      "source_id": "diabetes",
+      "file": "diabetes.md",
+      "review_status": "演示条目，需专业人员复核",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes"
+    },
+    {
+      "source_id": "elderly_frailty",
+      "file": "elderly_frailty.md",
+      "review_status": "老年医学人员复核前仅用于演示和健康教育",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/ageing-and-health"
+    },
+    {
+      "source_id": "hypertension",
+      "file": "hypertension.md",
+      "review_status": "演示条目，需专业人员复核",
+      "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension"
+    }
+  ],
+  "pass": true,
+  "limitations": [
+    "来源元数据完整不等于医学审核完成",
+    "URL 可访问性需在有网络环境下另行检查",
+    "legacy pending 来源不得作为已审核医学知识宣传"
+  ]
+}

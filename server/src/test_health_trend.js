@@ -77,11 +77,11 @@ function mockLLM(round2Content) {
 process.env.OPENAI_API_KEY = 'sk-test-fake';
 const calls = mockLLM({ content: '根据趋势分析结果回答。', plan: [], confidence: { type: 'data', score: 80 } });
 const rr = await chat([], '我的血压最近怎么样？', healthSummary, user1);
-ok('LLM 第一轮请求含两个工具', calls[0]?.tools?.length === 2, String(calls[0]?.tools?.length));
+ok('LLM 第一轮请求含趋势与风险工具', calls[0]?.tools?.some(t => t.function?.name === 'analyze_health_trend') && calls[0]?.tools?.some(t => t.function?.name === 'risk_predict'), String(calls[0]?.tools?.length));
 ok('工具结果回填（role=tool）', calls[1]?.messages?.some(m => m.role === 'tool'));
 const toolMsg = JSON.parse(calls[1].messages.find(m => m.role === 'tool').content);
 ok('工具为真实趋势结果（含 long_term_trend）', toolMsg.success === true && 'long_term_trend' in toolMsg, JSON.stringify(toolMsg).slice(0, 100));
-ok('最终回答来自 LLM', rr.source === 'openai');
+ok('最终回答来自 LLM', ['deepseek', 'openai', 'custom'].includes(rr.source) && rr.llm?.call_status === 'success');
 delete process.env.OPENAI_API_KEY;
 
 console.log('=== 10. Mock 模式趋势意图 ===');

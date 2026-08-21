@@ -1,0 +1,27 @@
+{
+  "schema_version": "risk-data-manifest.v1",
+  "manifest_id": "charls_w1w2_incidence.v2",
+  "source": {
+    "name": "CHARLS.csv",
+    "path": "D:/大创数据2/CHARLS.csv",
+    "sha256": "ACE2486B3F60BD36DE372E2C907F24945F5E409796D2E1969271EEA6E6A0A4BA",
+    "waves": {"train": 1, "outcome": 2},
+    "task": "Wave 1 基线特征预测 Wave 2 新发疾病",
+    "demonstration_data_excluded": true
+  },
+  "artifacts": [
+    {"disease": "hypertension", "pipeline": "multidisease_baseline", "path": "ml/disease_risk/datasets/hypertension_incidence_w1w2.csv", "sha256": "fcbbd920fab6073382223fca4af313711b3f03ad1c0ec3f5a97701815984cfaf", "target": "y", "n_total": 11010, "n_positive": 506, "n_negative": 10504, "positive_rate": 0.0459582198},
+    {"disease": "diabetes", "pipeline": "multidisease_baseline", "path": "ml/disease_risk/datasets/diabetes_incidence_w1w2.csv", "sha256": "58d62ca8ca7f611db2c60d3396bc2cdea1388ee6af1d42ae3cc9f8f050e805ab", "target": "y", "n_total": 13858, "n_positive": 223, "n_negative": 13635, "positive_rate": 0.0160917881},
+    {"disease": "heart_disease", "pipeline": "multidisease_baseline", "path": "ml/disease_risk/datasets/heart_disease_incidence_w1w2.csv", "sha256": "97152898eb496eaea4ccdbef85fce0505baecdfacdbc0b92c4aeac164745179a", "target": "y", "n_total": 13069, "n_positive": 304, "n_negative": 12765, "positive_rate": 0.0232611523},
+    {"disease": "stroke", "pipeline": "multidisease_baseline", "path": "ml/disease_risk/datasets/stroke_incidence_w1w2.csv", "sha256": "7394fe95191722c575364a51bbcf4b2dd853ce71c0f055e6ebe39c9681f1c858", "target": "y", "n_total": 14534, "n_positive": 94, "n_negative": 14440, "positive_rate": 0.0064675932},
+    {"disease": "hypertension", "pipeline": "app_core12", "path": "ml/data/htn_incidence/hypertension_incidence_w1w2.csv", "sha256": "9989ae5728ce60dab5360b2a8402cf0d6c15dcfa12996c3e80b6c617f965509d", "target": "y_htn_incidence", "n_total": 10619, "n_positive": 494, "n_negative": 10125, "positive_rate": 0.0465203880, "feature_set": "C_app_core12"},
+    {"disease": "hypertension", "pipeline": "app_core12_sensitivity", "path": "ml/data/htn_incidence/hypertension_incidence_w1w2_sensitivity.csv", "sha256": "e6388e03482dcaa2bc1d543ba317e5f5bd214106c1e8d25400c1b335a385e880", "target": "y_htn_incidence", "n_total": 7968, "n_positive": 252, "n_negative": 7716, "positive_rate": 0.0316265060, "feature_set": "C_app_core12", "role": "sensitivity_only"}
+  ],
+  "policy": "同一 CHARLS 原始版本下保留两条已审计派生管线；报告必须同时写 pipeline、target 和样本数，不得将 11010 与 10619 合并表述为同一数据集。"
+  ,"data_classification": {
+    "research": "D:/大创数据2/CHARLS.csv -> ml/disease_risk/datasets and ml/data/htn_incidence",
+    "demonstration": "server/data/app.db metrics.source=synthetic",
+    "test": "ml/curve/*test*.py and server/src/test_*.js fixtures",
+    "training_exclusion": ["demonstration", "test"]
+  }
+}
