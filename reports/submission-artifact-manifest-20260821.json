@@ -1,13 +1,13 @@
 {
   "schema_version": "submission-artifact-manifest.v1",
   "run_id": "submission-bundle-freeze-20260821",
-  "generated_at": "2026-08-21T07:41:07.585743+00:00",
-  "git_revision": "6f915635bd1e2ee28985412c8829a2c9bed8f360",
+  "generated_at": "2026-08-21T08:37:28.290451+00:00",
+  "git_revision": "4593c3c063f3d5bd1ab589192ab73852988993e3",
   "artifacts": [
     {
       "path": "FINAL_DELIVERY.md",
-      "bytes": 10637,
-      "sha256": "cfc6481762b9aa405ff38d69c29b035723567dee54fa3dbfd626d22a83e02ce8"
+      "bytes": 10769,
+      "sha256": "a58181d274a7a455cb09835384f7fa50428e59702f4399305dfa1702026786d5"
     },
     {
       "path": "deliverables/national_award/project_title.md",
@@ -16,8 +16,8 @@
     },
     {
       "path": "deliverables/national_award/SUBMISSION_INDEX.md",
-      "bytes": 1832,
-      "sha256": "5b3c73ac7a7aea4c9c2f7cfbbb07b08a2941986d8c093e86593f5abcc360bce9"
+      "bytes": 1928,
+      "sha256": "0133dc32b2641d97dd9574f15b7aec07adc6bc69a4abfd1485caad89dc038c19"
     },
     {
       "path": "deliverables/national_award/elderly_health_national_award.pptx",
@@ -61,13 +61,13 @@
     },
     {
       "path": "reports/national-award-task-matrix-20260821.md",
-      "bytes": 5577,
-      "sha256": "94d852fe720cb22ddac4200b5cb47f9f703d57a04a1cc90075af02785c1741b9"
+      "bytes": 5682,
+      "sha256": "aa6a19ae39a63e8975637eb8cb0197274cb1a489fc80c2258cd3ac78e9257c09"
     },
     {
       "path": "reports/submission-readiness-check-20260821.md",
       "bytes": 4062,
-      "sha256": "c0e0b8ce5fad92ee2a75c242392b1ec32f8e91621cac8d9a48bb606f8a7cbd77"
+      "sha256": "b876fad866693d1e2c0245b1a0df68ea8f10f3d5271936580ee4c95ea1fdef64"
     },
     {
       "path": "reports/clinician-review-packet-20260821.md",
@@ -127,12 +127,12 @@
     {
       "path": "reports/final-submission-audit-20260821.json",
       "bytes": 2069,
-      "sha256": "692f60b8f2875e466aa87545855ddeac317f4e563e68897e872b16c3c1312e2d"
+      "sha256": "96c5b396e1bbea5fe47e63877db6c584ac959fdaec4d65009bd607b90d5c8d6e"
     },
     {
       "path": "reports/final-submission-audit-20260821.md",
       "bytes": 1127,
-      "sha256": "6bcad8ee8960d71eda1e10b9bb5c83bc53595c67c2632a5fc2198c4a729de10b"
+      "sha256": "c3009df9912a6e853602ca9ccdc677b5d03adac4300550a45d71ecc14ad9dea9"
     },
     {
       "path": "reports/external-gate-execution-checklist-20260821.md",
@@ -248,6 +248,21 @@
       "path": "reports/clinician-review-report-20260821.json",
       "bytes": 563,
       "sha256": "05153df2eb1e091d7e4865b5d7f659687882b7b12daf3d62818d41c0e83442f0"
+    },
+    {
+      "path": "reports/demo-curve-data-generation-20260821.md",
+      "bytes": 1364,
+      "sha256": "d6d763a728a6005c6f872c5075ef84fbf738b25793b7e752602cf9384458a3d2"
+    },
+    {
+      "path": "server/data/generate_demo_curve_data.mjs",
+      "bytes": 3916,
+      "sha256": "63414a48e361195c52b4b76f0348974888258f29075ff2868af1628114d9180a"
+    },
+    {
+      "path": "server/data/append_demo_curve_anchor.mjs",
+      "bytes": 2088,
+      "sha256": "3c2f3f669268b2cb146827a233a636318c6b2270e28a665f7d6b9db2e328c6d5"
     },
     {
       "path": "reports/graphrag-source-gate-regression-20260821.json",

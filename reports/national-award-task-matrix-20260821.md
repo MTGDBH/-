@@ -7,7 +7,7 @@
 | 任务 | 状态 | 当前证据 | 仍需补的外部项 |
 |---|---|---|---|
 | 风险数据版本、样本数统一 | 已完成 | `ml/risk_data_manifest.json`，六个派生工件分别列 n/阳性数/哈希 | 答辩前冻结原始数据授权凭证 |
-| Curve V2 评测 | 已完成（本地） | `reports/curve-model-evaluation-2026-08-20.md`，28/28 | 60–90 天真实纵向外部集 |
+| Curve V2 评测 | 已完成（本地/演示集） | `reports/curve-model-evaluation-2026-08-20.md`，28/28；张奶奶演示序列 90 个有效日期见 `reports/demo-curve-data-generation-20260821.md` | 60–90 天真实纵向外部集 |
 | DeepSeek/验收字段契约 | 已完成 | `server/src/test_tool_calling.js`，22/22；Node 22 最终验收 PASS；`reports/deepseek-runtime-audit-20260821.md` 记录 provider/model/call_status 契约 | 演示现场配置真实 Key 并保留脱敏日志 |
 | 统一实验运行 ID | 已完成 | `ml/experiment_metadata.py`、`ml/reports/*audit*.json` | 提交前锁定 Git tag |
 | 数据/代码/模型/参数留痕 | 已完成 | `experiment-run.v1` manifests、SHA256、参数 | 归档只读副本 |

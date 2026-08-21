@@ -71,6 +71,17 @@ function statsFromValues(values) {
   };
 }
 
+function classifyForecastQuality(result) {
+  if (!result?.forecast?.available) return { level: 'off', label: '暂不外推', mase: null };
+  const selected = result?.backtest?.selected || result?.forecast?.model || result?.model;
+  const score = result?.model_score || result?.backtest?.scores?.[selected] || null;
+  const mase = Number(score?.mase);
+  if (!Number.isFinite(mase)) return { level: 'reference', label: '参考估计', mase: null };
+  if (mase < 0.8) return { level: 'good', label: '趋势预测', mase };
+  if (mase < 1) return { level: 'reference', label: '参考估计', mase };
+  return { level: 'baseline', label: '仅基线参考', mase, reason: '滚动回测未优于简单基线' };
+}
+
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
   if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
@@ -93,6 +104,7 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
   const fittedTimes = result?.curve?.timestamps || [];
   const fitted = fittedTimes?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: fittedValues[i] })) || [];
   const fc = result?.forecast?.curve;
+  const forecastQuality = classifyForecastQuality(result);
   const predicted = result?.forecast?.available && fc?.timestamps?.length
     ? fc.timestamps.map((t, i) => ({ day: i + 1, value: fc.predicted[i], lower: fc.lower[i], upper: fc.upper[i], recorded_at: isoFromSeconds(t), predicted: true }))
     : [];
@@ -112,6 +124,7 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
       dataPoints: result.data_points, rawPoints: result.raw_points,
       removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
       forecastDays: result.forecast?.days || 0, forecastModel: result.forecast?.model || null,
+      forecastGranularity: result.forecast?.granularity || 'daily',
       horizonDays: result.forecast?.horizon_days || 0,
       forecastCoverageTarget: result.forecast?.coverage_target || 0.9,
       calibrationStatus: result.forecast?.calibration_status || 'not_available',
@@ -121,6 +134,7 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
       dateStart: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[0]).slice(0, 10) : null,
       dateEnd: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[result.curve.timestamps.length - 1]).slice(0, 10) : null,
       forecastReason: result.forecast?.reason || null,
+      forecastQuality,
       eligibility: result.eligibility || null,
       medicalBounds: result.medical_bounds || null,
       warning: result.warning,
@@ -149,6 +163,8 @@ function toCurveSeries(id, label, unit, condition, curve, color) {
       points: curve?.predicted || [],
       reason: curve?.analysis?.forecastReason || null,
       model: curve?.analysis?.forecastModel || curve?.analysis?.model || null,
+      quality: curve?.analysis?.forecastQuality || null,
+      granularity: curve?.analysis?.forecastGranularity || 'daily',
     },
     analysis: curve?.analysis || null,
   };
@@ -240,11 +256,19 @@ router.get('/:type', async (req, res) => {
   } else if (type === 'glucose') {
     const normalizedConditions = sourcePoints.map(p => String(p.measurement_condition || 'unknown').toLowerCase());
     const knownConditions = [...new Set(normalizedConditions)].filter(condition => ['fasting', 'postprandial_2h', 'random'].includes(condition));
-    const groups = [...knownConditions, ...(normalizedConditions.includes('unknown') ? ['unknown'] : [])];
+    // 有规范测量条件时，未标记的历史点不能混入条件曲线；保留计数供前端提示，
+    // 避免把空腹、餐后和未知条件画成一条看似连续但没有医学含义的线。
+    const excludedUnknownPoints = knownConditions.length
+      ? normalizedConditions.filter(condition => condition === 'unknown').length
+      : 0;
+    const groups = knownConditions.length
+      ? knownConditions
+      : (normalizedConditions.includes('unknown') ? ['unknown'] : []);
     if (!groups.length) groups.push('unknown');
     const curves = await Promise.all(groups.map(condition => analyzeCurve('glucose', meta.unit, sourcePoints, futureDays, condition)));
     curve = curves.find(c => c.conditionGroup === 'fasting') || curves[0];
     series = curves.map((c, index) => toCurveSeries(`glucose.${groups[index]}`, groups[index] === 'fasting' ? '空腹血糖' : groups[index] === 'postprandial_2h' ? '餐后2小时' : groups[index] === 'random' ? '随机血糖' : '未标记条件', meta.unit, groups[index], c, index ? '#9C7BC9' : '#E0784E'));
+    curve.conditionQuality = { knownGroups: knownConditions, excludedUnknownPoints };
   } else if (type === 'hr') {
     const hasResting = sourcePoints.some(point => String(point.measurement_condition || '').toLowerCase() === 'resting');
     const group = hasResting ? 'resting' : 'unknown';
@@ -290,6 +314,7 @@ router.get('/:type', async (req, res) => {
     series,
     eligibility: curve.analysis?.eligibility || null,
     analysis: curve.analysis || null,
+    conditionQuality: curve.conditionQuality || null,
     status: curve.status,
     days,
     futureDays,
@@ -355,9 +380,9 @@ router.get('/overview/composite', async (req, res) => {
     status: compositeResult?.status || (compositeResult?.success ? 'ok' : 'error'),
     analysis: compositeResult?.success ? {
       model: compositeResult.model, confidence: compositeResult.confidence,
-      warning: compositeResult.warning, forecastAvailable: !!compositeResult.forecast?.available,
-      forecastDays: compositeResult.forecast?.days || 0,
-      forecastReason: compositeResult.forecast?.reason || null,
+      warning: compositeResult.warning, forecastAvailable: false,
+      forecastDays: 0,
+      forecastReason: '综合健康分只展示历史构成，不进行未来数值预测',
     } : null,
     peer: peerLine,
     peerBaseScore,

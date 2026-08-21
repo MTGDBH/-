@@ -52,7 +52,7 @@ router.get('/:type', (req, res) => {
     trend = Math.abs(trendPct) < 3 ? 'stable' : (trendPct > 0 ? 'up' : 'down');
   }
 
-  // AI 解释（用 mock，不调 LLM，避免慢）
+  // 快速规则解释：只给复测和安全边界，不代替智能体或医生判断。
   const comment = buildComment(type, latest, stats, trend);
 
   res.json({
@@ -75,14 +75,14 @@ function buildComment(type, latest, stats, trend) {
   switch (type) {
     case 'bp': {
       const d = latest.value2;
-      if (v >= 140 || d >= 90) return `收缩压 ${v}、舒张压 ${d} mmHg 偏高，建议低盐饮食并联系医生。${trend !== 'stable' ? `近期趋势：${dirMap[trend]}（${stats ? Math.round(stats.avg) : v}→${Math.round(v)}）` : ''}`;
-      if (v < 90 || d < 60) return `血压偏低，记得起身慢一点。`;
-      return `血压 ${v}/${d} mmHg 处于健康范围。保持现在的作息和饮食就好。`;
+      if (v >= 140 || d >= 90) return `本次血压 ${v}/${d} mmHg 偏高。请静坐 5 分钟后按相同条件复测；若连续多次仍高或伴胸痛、呼吸困难、明显头晕，请及时就医。${trend !== 'stable' ? `近期整体呈${dirMap[trend]}趋势。` : ''}`;
+      if (v < 90 || d < 60) return `本次血压 ${v}/${d} mmHg 偏低。请先休息并复测，起身放慢；如伴晕厥、胸痛或明显不适，请及时就医。`;
+      return `本次血压为 ${v}/${d} mmHg。单次读数不能代表长期状态，请继续在固定条件下记录。`;
     }
     case 'glucose':
-      if (v >= 7) return `空腹血糖 ${v} mmol/L 偏高，注意主食减半，餐后散步 20 分钟。`;
-      if (v < 4) return `血糖偏低，可以吃块糖或喝点果汁缓解。`;
-      return `血糖 ${v} mmol/L 在健康范围内，继续保持。`;
+      if (v >= 7) return `本次血糖 ${v} mmol/L 偏高，但还需结合空腹或餐后条件解释。请记录测量条件并按原条件复测，连续异常时联系医生。`;
+      if (v < 4) return `本次血糖 ${v} mmol/L 偏低，请立即复测。若伴出汗、心慌、意识异常或无法正常进食，请立即呼救；已有医生制定的低血糖处置方案时按该方案执行。`;
+      return `本次血糖为 ${v} mmol/L，请结合空腹或餐后测量条件和连续记录判断。`;
     case 'hr':
       if (v >= 100) return `心率 ${v} bpm 偏快，建议静坐 5 分钟后再测一次。`;
       if (v < 50) return `心率 ${v} bpm 偏慢，如感不适请联系医生。`;
@@ -92,14 +92,14 @@ function buildComment(type, latest, stats, trend) {
       if (v >= 9) return `睡眠时长 ${v} 小时，睡眠过久也不一定好，注意规律作息。`;
       return `睡眠 ${v} 小时，达到推荐时长。`;
     case 'spo2':
-      if (v < 92) return `血氧 ${v}% 偏低，建议吸氧并联系医生。`;
-      return `血氧 ${v}% 正常，呼吸功能良好。`;
+      if (v < 92) return `本次血氧 ${v}% 偏低。请检查探头位置、静坐后复测；若仍低或伴呼吸困难、胸痛、意识异常，请立即就医。氧疗仅按医生既定方案使用。`;
+      return `本次血氧为 ${v}%。请结合连续读数和是否有呼吸不适判断。`;
     case 'ecg':
       return v === 100 || v === 1 ? '心电结果：窦性心律。继续保持。' : '心电结果存在异常标记，请联系医生复诊。';
     case 'weight':
       return `最近体重 ${v} kg。`;
     case 'steps':
-      if (v < 3000) return `今日步数 ${v}，建议午后出门活动 30 分钟。`;
+      if (v < 3000) return `今日步数 ${v}，活动量偏少。可根据体力和跌倒风险分段活动，不必追求单日精确步数。`;
       return `今日步数 ${v}，活动量充足。`;
     default:
       return `${v}`;

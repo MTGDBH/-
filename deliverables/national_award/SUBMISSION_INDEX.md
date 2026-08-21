@@ -27,6 +27,7 @@
 - 外部证据闸门清单：`D:\BIGCHUANG\-\reports\external-gate-execution-checklist-20260821.md`
 - 回归测试汇总：`D:\BIGCHUANG\-\reports\regression-suite-summary-20260821.md`
 - 医生审核报告（待签署版）：`D:\BIGCHUANG\-\reports\clinician-review-report-20260821.md`
+- 张奶奶演示数据说明：`D:\BIGCHUANG\-\reports\demo-curve-data-generation-20260821.md`
 
 提交包由 `reports/create_submission_bundle.py` 按哈希清单生成，不包含密钥、原始个人数据、`node_modules`、缓存或临时预览文件。
 

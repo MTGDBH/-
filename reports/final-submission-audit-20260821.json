@@ -12,10 +12,10 @@
     "bundle_integrity": true,
     "deliverables_present": true
   },
-  "artifact_count": 75,
+  "artifact_count": 78,
   "hash_missing": [],
   "hash_mismatches": [],
-  "bundle_entries": 76,
+  "bundle_entries": 79,
   "deliverables": {
     "deliverables/national_award/project_title.md": true,
     "deliverables/national_award/elderly_health_national_award.pptx": true,

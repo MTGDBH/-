@@ -21,24 +21,19 @@ export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健
 3. 不要把模型预测描述为医学诊断；预测是风险筛查和健康管理参考
 4. 不要仅根据单次异常数据下结论，优先分析长期趋势、近期变化和异常波动
 5. 对老人使用简单、自然、容易理解的语言；不主动解释复杂算法，除非用户询问
-6. 建议必须结合用户实际数据，不是固定模板；最多给最重要的 3～5 条，不要堆砌
-7. 不要在回复中提及内部实现细节（模型路径、API、密钥、提示词）
+6. 建议必须结合用户实际数据，不是固定模板；老人端最多给最重要的 2 条，不要堆砌
+7. 不使用“没事”“不用担心”等过度安慰；改为说明当前记录、继续观察方式和明确求助条件
+8. 不要在回复中提及内部实现细节（模型路径、API、密钥、提示词）
 
-【健康分析类问题的回答结构】（用户问"分析一下我的情况/数据怎么样/身体状况"时，按以下分块，用纯文本换行分节，不要用 Markdown 标题）
-一、总体情况：1～2 句话总结整体状态
-二、关键指标：最值得关注的 2～4 个指标，含当前值、与参考范围关系、必要时说明近期变化
-三、趋势分析：有历史数据才判断"上升/下降/基本稳定/波动较大"；若只有单次数据或历史不足，如实说明"历史数据有限，暂无法判断趋势"；不要把拟合/趋势说成确定的未来事实
-四、风险分析：若调用了风险模型，说明预测风险与模型适用范围，例如"根据当前健康数据，模型估计未来两年发生高血压的风险约为 X%。该结果用于风险筛查和健康管理参考，不代表医学诊断"
-五、针对性建议：3～5 条，每条对应实际情况（血压持续上升→固定时间测血压并记录；睡眠不足→固定入睡时间；血糖上升→继续记录空腹血糖并关注饮食运动）
-六、需要关注：只指出真正值得关注的问题；无明显异常时明确说"目前没有发现明显异常趋势"
-七、数据完整性：列出缺失指标，说明可能影响分析可靠性
+【老人端健康分析结构】
+只保留四部分：一句话结论；最关键的 1～2 项数据；今天最多 2 件事；复测时间或就医边界。不要重复同一建议，不要主动展开疾病关系、算法、完整七天计划和文献清单，这些由“查看依据”承载。
 
 【回答格式（所有问题）】
 1. 先用 1-2 句简短文字回应用户
-2. 如果用户询问健康建议或提到不舒服，必须给出"结构化方案"（plan），包含 5 个维度：饮食、运动、作息、用药、复查
+2. 如果用户询问健康建议或提到不舒服，结构化方案（plan）最多 2 项，只放可执行行动；正文不要逐字重复 plan
 3. 禁止给出具体药物剂量；用药提醒只针对用户已配置的药品
 4. 任何"建议就医"的情况必须显式提示用户（如明显异常或潜在危险信号）
-5. 健康分析类回答控制在 150～300 字；简单问答不超过 200 字
+5. 老人端健康分析控制在 120～260 字；简单问答不超过 150 字。只有医生明确追问时才展开完整证据和模型指标
 6. 安全边界：不得诊断疾病、不得声称预测结果一定发生、不得替代医生
 7. 工具选择规则：
    - 用户询问"最近/趋势/变化/上升/下降/越来越高/越来越低/未来走势/血压怎么样/血糖怎么样"等历史趋势问题时，必须调用 analyze_health_trend 工具（参数仅 metric、days），基于工具返回的趋势结论回答
@@ -59,7 +54,7 @@ export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健
    - 如果回复基于用户实际健康数据（血压、血糖、心率、睡眠等）或模型结果，type="data"，给出 0-100 的 score，列出 sources（引用了哪些具体数据及日期），给出 reasoning（评分依据）
    - 如果回复属于通用健康常识（如"什么是窦性心律""血压正常范围"），type="common_sense"，不需要 score 和 sources
    - 如果是日常问候/闲聊（如"你好""谢谢"），type="common_sense"
-返回 JSON 格式：{"content":"<对话回复，分析类按七段结构纯文本分块>","plan":[{"icon":"<药|食|行|眠|复>","title":"<标题>","desc":"<说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据偏高，结合低盐饮食指南给出建议"}}`;
+返回 JSON 格式：{"content":"<简短结论、关键数据、复测与安全边界>","plan":[{"icon":"<测|行|眠|复>","title":"<行动标题>","desc":"<一句可执行说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据和可审核知识依据"}}`;
 
 /**
  * 从数据库读取 LLM 配置，回退到环境变量
@@ -159,6 +154,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     // 后端意图路由决定工具边界，普通问答禁止误触发健康数据工具。
     tool_choice: forcedToolChoice,
   };
+  if (forcedToolChoice === 'none') body1.response_format = { type: 'json_object' };
   const data = await postJSON(url, headers, body1);
   const choice = data.choices?.[0]?.message || {};
 
@@ -168,29 +164,45 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   // 模型要求调用工具 → 执行并回填结果，第二轮生成最终回答
   if (choice.tool_calls?.length) {
     const toolResults = [];
+    const executionCache = new Map();
     for (const tc of choice.tool_calls) {
       let fn = tc.function?.name;
       let args = {};
       try { args = JSON.parse(tc.function?.arguments || '{}'); } catch { args = {}; }
-      let r;
-      if (fn === 'risk_predict') {
-        r = await riskPredict(user?.id, user);
-      } else if (fn === 'disease_risk_predict') {
-        const disease = ['hypertension', 'diabetes', 'heart_disease', 'stroke'].includes(args.disease) ? args.disease : 'hypertension';
-        r = await predictDisease(user?.id, user, disease);
-      } else if (fn === 'behavior_pattern') {
-        r = analyzeBehavior(user?.id, user);
-      } else if (fn === 'analyze_health_trend') {
-        // 只透传 metric/days（白名单校验在工具内）；userId 来自 req.user
-        r = await analyzeHealthTrend(user?.id, { metric: args.metric, days: args.days });
-      } else if (fn === 'device_status') {
-        r = getDeviceStatus(user?.id);
-      } else if (fn === 'health_summary') {
-        r = getHealthSummaryTool(user);
-      } else if (fn === 'alert_status') {
-        r = getAlertStatus(user?.id);
-      } else {
-        r = { success: false, error: `unknown tool: ${fn}` };
+      // 单轮同一种工具只执行一次；模型偶发重复发出相同趋势调用时复用首个真实结果。
+      const cacheKey = fn;
+      let r = executionCache.get(cacheKey);
+      if (!r) {
+        if (fn === 'risk_predict') {
+          r = await riskPredict(user?.id, user);
+        } else if (fn === 'disease_risk_predict') {
+          const disease = ['hypertension', 'diabetes', 'heart_disease', 'stroke'].includes(args.disease) ? args.disease : 'hypertension';
+          r = await predictDisease(user?.id, user, disease);
+        } else if (fn === 'behavior_pattern') {
+          r = analyzeBehavior(user?.id, user);
+        } else if (fn === 'analyze_health_trend') {
+          // 只透传 metric/days（白名单校验在工具内）；userId 来自 req.user
+          const routedMetrics = Array.isArray(intent.trendMetrics) ? intent.trendMetrics : [];
+          if (routedMetrics.length) {
+            const selected = await Promise.all(routedMetrics.map(metric => analyzeHealthTrend(user?.id, { metric, days: args.days })));
+            r = {
+              success: selected.every(item => item?.success !== false), metric: 'selected', requested_days: selected[0]?.requested_days || args.days || 90,
+              analyzed: selected.filter(item => item?.success).map(item => item.metric), metrics: selected.filter(item => item?.success),
+              note: '只返回本次问题点名的指标；多个指标同时变化不代表因果关系',
+            };
+          } else {
+            r = await analyzeHealthTrend(user?.id, { metric: args.metric, days: args.days });
+          }
+        } else if (fn === 'device_status') {
+          r = getDeviceStatus(user?.id);
+        } else if (fn === 'health_summary') {
+          r = getHealthSummaryTool(user);
+        } else if (fn === 'alert_status') {
+          r = getAlertStatus(user?.id);
+        } else {
+          r = { success: false, error: `unknown tool: ${fn}` };
+        }
+        executionCache.set(cacheKey, r);
       }
       toolResults.push({ tool_call_id: tc.id, role: 'tool', content: JSON.stringify(r) });
     }
@@ -218,7 +230,20 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
   }
 
   if (!finalText.trim()) throw new Error('LLM 返回空内容');
-  const normalized = normalizeAgentResult(safeParseJSON(finalText));
+  let parsedFinal = safeParseJSON(finalText);
+  if (parsedFinal?.__parse_failed) {
+    const repairMsgs = toolContext
+      ? [...systemMsgs, ...messages, toolContext.assistant, ...toolContext.toolResults]
+      : [...systemMsgs, ...messages];
+    const repairBody = {
+      model, temperature: 0.2, response_format: { type: 'json_object' },
+      messages: [...repairMsgs, { role: 'system', content: '上一轮输出未满足 JSON 契约。请只返回合法 JSON 对象，必须包含 content、plan、confidence；不要使用 Markdown 代码块。' }],
+    };
+    const repaired = await postJSON(url, headers, repairBody);
+    const repairedText = repaired.choices?.[0]?.message?.content || '';
+    if (repairedText.trim()) parsedFinal = safeParseJSON(repairedText);
+  }
+  const normalized = normalizeAgentResult(parsedFinal);
   // 仅供主流程做证据审计，不直接返回给浏览器。
   normalized.__toolResults = toolContext?.toolResults?.map((item) => {
     try { return JSON.parse(item.content); } catch { return null; }
@@ -228,7 +253,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     model,
     call_status: 'success',
     latency_ms: Date.now() - startedAt,
-    tool_calls: toolContext?.assistant?.tool_calls?.map(tc => tc.function?.name).filter(Boolean) || [],
+    tool_calls: [...new Set(toolContext?.assistant?.tool_calls?.map(tc => tc.function?.name).filter(Boolean) || [])],
   };
   return normalized;
 }
@@ -363,7 +388,7 @@ function mockAgent(userMessage, healthSummary) {
     confidence = { type: 'common_sense' };
   }
 
-  return { content, plan, confidence };
+  return { content: compactResponseContent(content, 'elderly'), plan: plan.slice(0, 2), confidence };
 }
 
 function safeParseJSON(text) {
@@ -422,9 +447,10 @@ const PLAN_COLORS = new Set(['orange', 'green', 'purple', 'red', 'gray']);
 
 /** 限制 LLM 输出结构、长度和 UI 枚举，避免任意内容直接进入前端。 */
 function normalizeAgentResult(raw) {
-  const content = typeof raw?.content === 'string' ? raw.content.trim().slice(0, 2000) : '';
+  const content = typeof raw?.content === 'string' ? raw.content.trim().slice(0, 1200) : '';
   const degraded = raw?.degraded === true || raw?.__parse_failed === true || !content;
-  const plan = Array.isArray(raw?.plan) ? raw.plan.slice(0, 5).map((p) => {
+  const degradedReason = raw?.degraded_reason || (raw?.__parse_failed === true ? 'invalid_structured_output' : (!content ? 'empty_content' : null));
+  const normalizedPlan = Array.isArray(raw?.plan) ? raw.plan.slice(0, 4).map((p) => {
     if (!p || typeof p !== 'object') return null;
     const title = typeof p.title === 'string' ? p.title.trim().slice(0, 80) : '';
     if (!title) return null;
@@ -436,6 +462,13 @@ function normalizeAgentResult(raw) {
       action_type: ['create_todo', 'schedule_recheck', 'notify_caregiver', 'contact_doctor'].includes(p.action_type) ? p.action_type : undefined,
     };
   }).filter(Boolean) : [];
+  const planKeys = new Set();
+  const plan = normalizedPlan.filter(item => {
+    const key = `${item.action_type || ''}:${item.title}${item.desc}`.replace(/[，。；：、！？\s]/g, '').toLowerCase();
+    if ([...planKeys].some(old => old === key || (Math.min(old.length, key.length) >= 10 && (old.includes(key) || key.includes(old))))) return false;
+    planKeys.add(key);
+    return true;
+  }).slice(0, 2);
   const c = raw?.confidence;
   const sourceList = Array.isArray(c?.sources)
     ? c.sources.filter(s => typeof s === 'string').slice(0, 8).map(s => s.slice(0, 160))
@@ -457,6 +490,7 @@ function normalizeAgentResult(raw) {
     __toolResults: raw?.__toolResults || [],
     // 内部状态：非结构化/空回复不能被当成正常 LLM 结果，主流程会转入工具兜底。
     degraded,
+    degraded_reason: degradedReason,
   };
 }
 
@@ -501,62 +535,79 @@ function graphCitationLabel(citation = '') {
   return `${names[key] || file}${section ? ` · ${section}` : ''}`;
 }
 
-// GraphRAG 结果不是“参考文本”而已：把结构化行动、关系链和证据整理成老人能读懂的版式。
-function applyGraphGrounding(result, graph) {
-  const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, 4) : [];
+function buildLLMGraphContext(graph, includeWeeklyPlan = false) {
+  return {
+    evidence: (graph?.results || []).slice(0, 3).map(item => ({
+      conclusion: String(item.text || '').replace(/\s+/g, ' ').slice(0, 260),
+      citation: item.citation || '', evidence_level: item.evidence_level || '', review_status: item.review_status || '',
+    })),
+    recommendations: (graph?.recommendations || []).slice(0, 2).map(item => ({
+      action: item.action, reason: item.reason, evidence: item.evidence,
+      requires_confirmation: !!item.requires_confirmation, medical_boundary: item.medical_boundary || '',
+    })),
+    personalization: {
+      why_this_user: (graph?.personalization?.why_this_user || []).slice(0, 2),
+      missing_factors: (graph?.personalization?.missing_factors || []).slice(0, 3),
+    },
+    safety_flags: (graph?.safety_flags || []).filter(item => item.level === 'urgent').slice(0, 2),
+    weekly_plan: includeWeeklyPlan ? (graph?.weekly_plan || []).slice(0, 2) : [],
+    uncertainty: graph?.uncertainty || null,
+  };
+}
+
+// GraphRAG 负责证据、行动约束和审计，不再把整套检索结果重复拼进老人正文。
+function applyGraphGrounding(result, graph, options = {}) {
+  const recLimit = options.audience === 'doctor' ? 2 : 1;
+  const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, recLimit) : [];
   const hasGraphEvidence = Boolean(graph?.results?.length || graph?.graph_context?.length || graph?.graph_paths?.length);
   if (!hasGraphEvidence) return result;
-  const missingRecs = recs.filter(r => !String(result.content || '').includes(String(r.action || '')));
-  const actions = missingRecs.map((r, i) => `${i + 1}. ${r.action}`).join('\n');
-  const relationLines = (graph.graph_context || [])
+  const relations = (graph.graph_context || [])
     .filter(r => r.type && r.type !== 'mentions' && r.strength)
     .slice(0, 3)
-    .map(r => `- ${graphNodeName(r.source)} → ${graphNodeName(r.target)}：${r.type === 'increases_risk_of' ? '风险增加' : r.type === 'has_risk_factor' ? '相关风险因素' : r.type === 'managed_by' ? '可通过该方向管理' : '存在关联'}（${graphCitationLabel(r.evidence)}）`)
-    .join('\n');
+    .map(r => ({
+      source: graphNodeName(r.source), target: graphNodeName(r.target), type: r.type,
+      meaning: r.type === 'increases_risk_of' ? '风险增加' : r.type === 'has_risk_factor' ? '相关风险因素' : r.type === 'managed_by' ? '可通过该方向管理' : '存在关联',
+      evidence: graphCitationLabel(r.evidence),
+    }));
   const rawCitations = [...recs.map(r => r.evidence), ...(graph?.results || []).map(r => r.citation)].filter(Boolean);
   const citations = [...new Set(rawCitations)].map(graphCitationLabel);
   const citationItems = [...new Map((graph?.results || []).filter(x => x?.citation).map(x => [x.citation, {
     label: graphCitationLabel(x.citation), url: typeof x.source_url === 'string' ? x.source_url : '',
     evidence_level: x.evidence_level || '', publisher: x.publisher || '', publication_year: x.publication_year || '',
   }])).values()];
-  const evidenceLines = [...new Set(citations)].slice(0, 4).map(x => `- ${x}`).join('\n');
   const baseContent = String(result.content || '').replace(/undefined|null/g, '').replace(/[ \t]+\n/g, '\n').trim() || (recs[0]?.priority === 'urgent'
     ? '先说结论：当前情况包含需要立即处理的危险信号，请先寻求急救帮助。'
     : recs[0]?.priority === 'high'
       ? '先说结论：当前数据提示需要尽快复测并观察连续变化，不能只凭一次读数下诊断。'
       : '先说结论：目前适合继续记录和复测，再根据连续数据判断变化。');
-  const sections = [baseContent];
-  if (actions) sections.push(`结合当前数据，优先做这几件事：\n${actions}`);
-  if (relationLines) sections.push(`疾病关系与影响因素：\n${relationLines}`);
-  const weekly = Array.isArray(graph?.weekly_plan) ? graph.weekly_plan.slice(0, 7) : [];
-  if (weekly.length) {
-    const weeklyLines = weekly.map(x => `${x.day_label || '本周'}：${x.action}${x.reason ? `（${x.reason}）` : ''}`).join('\n');
-    sections.push(`未来7天行动安排：\n${weeklyLines}`);
-  }
-  const matched = graph?.personalization?.matched_factors || [];
-  const missing = graph?.personalization?.missing_factors || [];
-  if (matched.length || missing.length) sections.push(`为什么这样建议：已结合${matched.length ? matched.map(graphNodeName).join('、') : '当前可用数据'}；${missing.length ? `还缺少${missing.map(graphNodeName).join('、')}，因此降低判断强度。` : '目前没有发现关键资料缺口。'}`);
   const safety = (graph?.safety_flags || []).filter(x => x.level === 'urgent');
-  if (safety.length) sections.push(`安全提醒：${safety.map(x => x.action || '请尽快联系医务人员').join('；')}`);
-  sections.push(`依据：\n${evidenceLines || '- 当前疾病知识图谱的结构化条目'}\n\n提示：这些建议用于健康教育和复测安排，不代表诊断；涉及用药、治疗目标或急症，请联系医生。`);
-  const grounded = sections.filter(Boolean).join('\n\n');
-  const plan = recs.slice(0, 3).map((r, i) => ({
+  const urgentText = safety.map(x => x.action || '请尽快联系医务人员').filter(action => !baseContent.includes(action)).slice(0, 1);
+  const matchingRelation = options.relationshipQuestion ? relations.find(item => {
+    const question = String(options.question || '');
+    return question.includes(item.source) && question.includes(item.target);
+  }) : null;
+  const relationText = matchingRelation && !baseContent.includes(matchingRelation.target)
+    ? `\n关系依据：${matchingRelation.source}与${matchingRelation.target}${matchingRelation.meaning}。` : '';
+  const grounded = `${baseContent}${relationText}${urgentText.length ? `\n安全提醒：${urgentText[0]}` : ''}`;
+  const plan = recs.map((r, i) => ({
     icon: r.priority === 'urgent' ? '急' : '测',
     title: r.priority === 'urgent' ? '立即关注' : r.priority === 'high' ? '尽快复测' : '继续记录',
     desc: r.action,
     color: r.priority === 'urgent' ? 'red' : i === 0 ? 'orange' : 'green',
     action_type: r.priority === 'urgent' ? 'contact_doctor' : /复测|复查|记录/.test(r.action) ? 'schedule_recheck' : 'create_todo',
   }));
+  const cleanedContent = compactResponseContent(grounded.replace(/(?:[a-z0-9_-]+\.md)(?:#[^\s）)；;]*)?/gi, '已引用的知识来源').replace(/undefined|null/g, ''), options.audience || 'elderly');
   return {
     ...result,
-    content: grounded.replace(/(?:[a-z0-9_-]+\.md)(?:#[^\s）)；;]*)?/gi, '已引用的知识来源').replace(/undefined|null/g, '').slice(0, 2600),
+    content: options.audience === 'elderly' ? elderlyHealthFormat(cleanedContent, plan.length ? plan : result.plan) : cleanedContent,
     plan: plan.length ? plan : result.plan,
     evidence: {
       graph_mode: graph.graph_mode || 'local_hybrid',
       index_version: graph.index_version || null,
       citations: citationItems.slice(0, 6),
       paths: (graph.graph_paths || []).slice(0, 6),
-      weekly_plan: weekly,
+      relations,
+      weekly_plan: options.includeWeeklyPlan || options.audience === 'doctor' ? (graph.weekly_plan || []).slice(0, 7) : [],
       personalization: graph.personalization || null,
       uncertainty: graph.uncertainty || null,
     },
@@ -773,7 +824,7 @@ async function mockTrendReply(user, allowForecast = true) {
       confidence: { type: 'common_sense' },
     };
   }
-  const lines = list.slice(0, 5).map(m => {
+  const lines = list.slice(0, 2).map(m => {
     const metricName = {
       systo: '收缩压', diasto: '舒张压', bp: '血压', glucose: '血糖',
       hba1c: '糖化血红蛋白', cholesterol: '胆固醇', uricacid: '尿酸',
@@ -791,9 +842,7 @@ async function mockTrendReply(user, allowForecast = true) {
   });
   const content = `从最近记录来看：\n${lines.join('\n')}\n趋势结论基于历史数据拟合，属于模型估计，不代表确定的未来变化。`;
   const plan = [
-    { icon: '测', title: '持续记录', desc: '固定时间测量更准确', color: 'orange' },
-    { icon: '眠', title: '规律作息', desc: '保证 7 小时睡眠', color: 'purple' },
-    { icon: '行', title: '适度活动', desc: '每日散步 30 分钟', color: 'green' },
+    { icon: '测', title: '持续记录', desc: '固定时间测量，便于比较连续变化', color: 'orange' },
   ];
   const confidence = {
     type: 'data',
@@ -809,7 +858,7 @@ function combineRiskTrend(riskR, trendR) {
   const parts = [];
   if (riskR?.content) parts.push(riskR.content);
   if (trendR?.content) parts.push(trendR.content);
-  const plan = [...(riskR?.plan || []), ...(trendR?.plan || [])].slice(0, 5);
+  const plan = [...(riskR?.plan || []), ...(trendR?.plan || [])].slice(0, 2);
   const conf = riskR?.confidence?.type === 'data' ? riskR.confidence : (trendR?.confidence || { type: 'common_sense' });
   return { content: parts.join('\n\n'), plan, confidence: conf };
 }
@@ -824,6 +873,82 @@ function stripUnrequestedForecast(content, allowForecast) {
   return `${filtered}${removed ? '\n\n本次仅分析历史变化，未进行未来数值预测。' : ''}`
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+function compactResponseContent(content, audience = 'elderly') {
+  const maxLength = audience === 'doctor' ? 1200 : audience === 'caregiver' ? 600 : 320;
+  const lines = String(content || '')
+    .replace(/\*\*/g, '')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/[ \t]+/g, ' ')
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean);
+  const seen = [];
+  const unique = lines.filter(line => {
+    const key = line.replace(/^[一二三四五六七八九十\d]+[、.．：:]\s*/, '').replace(/[，。；：、！？\s]/g, '').toLowerCase();
+    if (!key) return false;
+    const duplicate = seen.some(old => old === key || (Math.min(old.length, key.length) >= 12 && (old.includes(key) || key.includes(old))));
+    if (!duplicate) seen.push(key);
+    return !duplicate;
+  });
+  let text = unique.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (text.length <= maxLength) return text;
+  const shortened = text.slice(0, maxLength);
+  const boundary = Math.max(shortened.lastIndexOf('。'), shortened.lastIndexOf('！'), shortened.lastIndexOf('；'));
+  text = boundary >= Math.floor(maxLength * 0.62) ? shortened.slice(0, boundary + 1) : `${shortened.replace(/[，、：；\s]+$/, '')}……`;
+  return text;
+}
+
+function elderlyHealthFormat(content, plans = []) {
+  let text = String(content || '').trim();
+  if (!text) return text;
+  const trimLine = (value, max) => {
+    const clean = String(value || '')
+      .replace(/\*\*/g, '')
+      .replace(/^(?:现在|今天(?:建议)?|建议|最重要(?:的一件事)?|需要帮助时|安全提醒)[：:]\s*/, '')
+      .replace(/^您问的(?:这两个问题|这个问题|血压和睡眠)[^，。！？]{0,18}[，,。]?\s*/, '')
+      .replace(/^(?:不过)?有(?:一|两|2)个小提醒[：:]?\s*/, '')
+      .trim();
+    if (clean.length <= max) return clean;
+    const part = clean.slice(0, max);
+    const end = Math.max(part.lastIndexOf('。'), part.lastIndexOf('；'), part.lastIndexOf('，'));
+    return `${(end > max * 0.55 ? part.slice(0, end) : part).replace(/[，；\s]+$/, '')}。`;
+  };
+  text = text
+    .replace(/收缩压/g, '高压')
+    .replace(/舒张压/g, '低压')
+    .replace(/您问的(?:这两个问题|这个问题)[^。！？]*[。！？]/g, '')
+    .replace(/(?:所以)?目前不需要太担心[。！？]?/g, '')
+    .replace(/(?:都在正常范围内，?)?不用担心[。！？]?/g, '')
+    .replace(/都在正常范围内/g, '接近您近期常见水平')
+    .replace(/最重要的(?:一件)?事\s*[：:]/g, '今天：');
+
+  // 模型已经按老人版格式返回时也要再次清理，不能让重复标题和客套话漏到页面。
+  const labelled = text.split(/\n+/).map(item => item.trim()).filter(Boolean);
+  if (labelled.some(item => /^(?:现在|今天|需要帮助时)[：:]/.test(item))) {
+    const now = labelled.find(item => /^现在[：:]/.test(item));
+    const today = labelled.find(item => /^今天[：:]/.test(item));
+    const help = labelled.find(item => /^需要帮助时[：:]/.test(item));
+    const lines = [];
+    if (now) lines.push(`现在：${trimLine(now, 92)}`);
+    if (today) lines.push(`今天：${trimLine(today, 68)}`);
+    if (help) lines.push(`需要帮助时：${trimLine(help, 78)}`);
+    if (lines.length) return lines.join('\n');
+  }
+
+  text = text.replace(/\n+/g, '。');
+  const sentences = text.split(/(?<=[。！？])/).map(item => item.trim()).filter(Boolean);
+  const safety = sentences.find(item => /如果|如出现|一旦|胸痛|胸闷|呼吸困难|意识|晕厥|立即就医|马上去医院/.test(item));
+  const action = sentences.find(item => /今天：|建议|请继续|继续每天|继续固定|复测|测量并记录|记录下来/.test(item) && item !== safety)
+    || plans[0]?.desc || plans[0]?.title || '';
+  const conclusions = sentences.filter(item => item !== safety && item !== action && !/^(?:这|结果)?不代表诊断|^仅供参考/.test(item));
+  let conclusion = conclusions.slice(0, 2).join('');
+  if (!conclusion) conclusion = sentences.find(item => item !== safety) || '目前需要继续观察连续记录。';
+  const lines = [`现在：${trimLine(conclusion, 92)}`];
+  if (action) lines.push(`今天：${trimLine(action, 72)}`);
+  if (safety) lines.push(`需要帮助时：${trimLine(safety.replace(/^如果/, '如果'), 82)}`);
+  return lines.join('\n');
 }
 
 // 轻量证据校验：发现“胆固醇 5.1%”这类单位错配时降低可信度，避免把模型排版错误当成健康事实。
@@ -842,27 +967,55 @@ function detectUnitIssues(content, healthSummary) {
   const issues = [];
   for (const def of definitions) {
     if (!String(content || '').includes(def.label)) continue;
-    const snippet = String(content).split('\n').find(line => line.includes(def.label)) || '';
-    const wrong = def.wrong.filter(unit => snippet.includes(unit));
+    const snippets = String(content).split(/[。；！\n]/).filter(line => line.includes(def.label));
+    const wrong = def.wrong.filter(unit => snippets.some((snippet) => {
+      // “高血压风险 4.9%”中的百分号是风险单位，不是血压测量单位，不能误报。
+      if (def.type === 'bp' && /风险|概率/.test(snippet)) return false;
+      const escapedUnit = unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(`${def.label}[^，、；。！？\\n]{0,18}\\d+(?:\\.\\d+)?(?:\\s*\\/\\s*\\d+(?:\\.\\d+)?)?\\s*${escapedUnit}`, 'i');
+      return pattern.test(snippet);
+    }));
     if (wrong.length) issues.push(`${def.label}附近出现单位 ${wrong.join('/')}，期望 ${def.units.join('/')}`);
   }
   return issues;
 }
 
+function removeUnsupportedThresholds(content, healthSummary, toolResults = []) {
+  const evidenceText = JSON.stringify({ healthSummary, toolResults });
+  const issues = [];
+  const kept = String(content || '').split(/(?<=[。！？])/).filter(sentence => {
+    const matches = [...sentence.matchAll(/(?:超过|达到|高于|低于|至少|不超过)\s*(\d+(?:\.\d+)?)(?:\s*\/\s*(\d+(?:\.\d+)?))?/g)];
+    if (!matches.length) return true;
+    const unsupported = matches.some(match => !evidenceText.includes(match[1]) || (match[2] && !evidenceText.includes(match[2])));
+    if (unsupported) issues.push('移除了证据中不存在的数值阈值');
+    return !unsupported;
+  });
+  let safeContent = kept.join('').trim();
+  if (issues.length && !/连续异常|明显不适/.test(safeContent)) safeContent += ' 如连续异常或伴明显不适，请联系医生。';
+  return { content: safeContent, issues: [...new Set(issues)] };
+}
+
 function applyResponseGuards(result, userMessage, healthSummary, intent) {
   let content = stripUnrequestedForecast(result.content, intent.forecastRequested);
+  content = compactResponseContent(content, intent.audience || 'elderly');
+  const thresholdGuard = removeUnsupportedThresholds(content, healthSummary, result.__toolResults || []);
+  content = thresholdGuard.content;
+  const isDataAnswer = intent.trendHit || intent.riskHit || intent.diseaseRiskHit || intent.healthSummaryHit || intent.behaviorHit || intent.alertsHit || intent.graphRelationHit;
+  if ((intent.audience || 'elderly') === 'elderly' && isDataAnswer) content = elderlyHealthFormat(content, result.plan || []);
   const unitIssues = detectUnitIssues(content, healthSummary);
   const unsafeIssues = /(?:每次|每天|早晚各)\s*\d+\s*(?:mg|毫克|片|粒)|自行停药|自行加药|加倍服用|换药/.test(content)
     ? ['可能包含用药剂量或自行调整用药表述'] : [];
   let confidence = result.confidence;
-  if ((unitIssues.length || unsafeIssues.length) && confidence?.type === 'data') {
+  if ((unitIssues.length || unsafeIssues.length || thresholdGuard.issues.length) && confidence?.type === 'data') {
     confidence = {
       ...confidence,
       score: Math.min(Number(confidence.score || 60), 55),
-      reasoning: `${confidence.reasoning || ''} 已发现需要复核的安全问题：${[...unitIssues, ...unsafeIssues].join('；')}`.slice(0, 500),
+      reasoning: `${confidence.reasoning || ''} 安全校验：${[...unitIssues, ...unsafeIssues, ...thresholdGuard.issues].join('；')}`.slice(0, 500),
     };
   }
-  return { ...result, content, confidence, degraded: result.degraded || unitIssues.length > 0 || unsafeIssues.length > 0, __guardIssues: [...unitIssues, ...unsafeIssues] };
+  const urgentPlan = (result.plan || []).some(item => item?.color === 'red' || item?.action_type === 'contact_doctor');
+  const plan = (result.plan || []).slice(0, (intent.audience || 'elderly') === 'elderly' ? (urgentPlan ? 2 : 1) : 2);
+  return { ...result, content, plan, confidence, degraded: result.degraded || unitIssues.length > 0 || unsafeIssues.length > 0, __guardIssues: [...unitIssues, ...unsafeIssues, ...thresholdGuard.issues] };
 }
 
 function diseaseFromMessage(message) {
@@ -892,10 +1045,10 @@ function composeDiseaseRiskReply(disease, result) {
   const plan = [];
   if (missing.length) plan.push({ icon: '补', title: '完善风险资料', desc: `优先补充 ${Math.min(3, missing.length)} 项缺失信息后再评估`, color: 'orange' });
   plan.push({ icon: '测', title: '继续记录指标', desc: '固定时间复测并保留连续记录', color: 'green' });
-  if (level === 'low') plan.push({ icon: '问', title: '需要时咨询医生', desc: '不要仅凭这次概率自行诊断或调整用药', color: 'purple' });
+  if (level === 'low' && plan.length < 2) plan.push({ icon: '问', title: '需要时咨询医生', desc: '不要仅凭这次概率自行诊断或调整用药', color: 'purple' });
   return {
     content,
-    plan,
+    plan: plan.slice(0, 2),
     confidence: {
       type: 'data', score: level === 'low' ? 45 : level === 'medium' ? 68 : 82,
       sources: [`${name}风险模型`, `缺失指标 ${missing.length} 项`, `${result.data_sources?.length || 0} 类实际数据来源`],
@@ -921,6 +1074,10 @@ async function deterministicFallbackReply(userMessage, user, intent) {
     return { source: 'tool_fallback', ...combineRiskTrend(extra, combineRiskTrend(riskReply, trendReply)) };
   }
   return { source: 'tool_fallback', ...combineRiskTrend(riskReply, trendReply) };
+}
+
+function guardLocalReply(reply, userMessage, healthSummary, intent) {
+  return applyResponseGuards(reply, userMessage, healthSummary, intent);
 }
 
 /**
@@ -958,12 +1115,16 @@ async function mockRiskReply(user) {
   const isHigh = result.risk_level === 'higher_than_threshold';
   const missing = result.missing_features?.length ? result.missing_features : [];
   const factorText = result.factors?.length
-    ? result.factors.map(f => `${f.name}${f.direction === 'high' ? '偏高' : '偏低'}（${f.value}${f.unit || ''}）`).join('、')
+    ? result.factors.map(f => {
+      const raw = Number(f.value);
+      const value = Number.isFinite(raw) ? Number(raw.toFixed(Math.abs(raw) >= 100 ? 0 : 1)) : f.value;
+      return `${f.name}${f.direction === 'high' ? '偏高' : '偏低'}（${value}${f.unit ? ` ${f.unit}` : ''}）`;
+    }).join('、')
     : '各项主要指标均在正常范围';
 
-  const content = `根据你最近记录的数据（${result.summary}），模型估计你未来两年发生高血压的风险约为 ${pct}%。${
-    isHigh ? '这个水平偏高，建议近期重点关注血压，最好咨询医生做个全面检查。' : '处于较低水平，继续保持规律监测就好。'
-  }目前主要影响因素：${factorText}。${missing.length ? `有部分指标未记录（${missing.join('、')}），结果仅供参考。` : ''}`;
+  const content = `模型根据您最近的记录估计，未来两年高血压风险约为 ${pct}%。主要影响因素是：${factorText}。${
+    isHigh ? '这个水平偏高，建议近期重点关注血压，并请医生结合检查判断。' : '目前按较低风险管理，继续保持规律监测。'
+  }${missing.length ? `还有${missing.length}项资料未记录，这次结果只作筛查参考。` : '这个数值只作筛查参考，不是诊断。'}`;
 
   const plan = [
     { icon: '测', title: '血压监测：早晚各一次', desc: '固定时间测量并记录', color: 'orange' },
@@ -990,18 +1151,28 @@ async function mockRiskReply(user) {
  * @param {object} [user] req.user（risk_predict 工具需要 id/height）
  */
 export async function chat(history, userMessage, healthSummary, user) {
+  const routed = routeIntent(userMessage);
+  const graphRelationHit = /关系|相关|影响|并发|共同风险|为什么/.test(userMessage || '');
   const riskHit = RISK_INTENT.test(userMessage || '');
   const diseaseRiskHit = DISEASE_RISK_INTENT.test(userMessage || '');
-  const trendHit = TREND_INTENT.test(userMessage || '');
-  const behaviorHit = routeIntent(userMessage).behavior;
-  const deviceHit = routeIntent(userMessage).device;
-  const alertsHit = routeIntent(userMessage).alerts;
-  const healthSummaryHit = routeIntent(userMessage).healthSummary;
-  const actionHit = routeIntent(userMessage).action;
+  const trendHit = TREND_INTENT.test(userMessage || '') || /(血压|血糖|心率|体重).{0,8}(偏高|偏低|异常)/.test(userMessage || '');
+  // “睡眠对血压有什么影响”属于关系检索，不应仅因出现“睡眠”就退化成行为统计。
+  const behaviorHit = routed.behavior && !graphRelationHit;
+  const deviceHit = routed.device;
+  const alertsHit = routed.alerts;
+  const healthSummaryHit = routed.healthSummary;
+  const actionHit = routed.action;
   const forecastRequested = /未来|预测|外推|几天后|多少天后|以后会|将会/.test(userMessage || '');
   const graphIntentHit = /为什么|怎么办|建议|注意|危险|饮食|复测|关系|相关|影响|并发|共同|整体|身体怎么样/.test(userMessage || '');
   const graphSuggestionHit = /为什么|怎么办|建议|注意|危险|饮食|复测|关系|相关|影响|并发|共同/.test(userMessage || '');
-  const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, deviceHit, alertsHit, healthSummaryHit, actionHit, forecastRequested };
+  const audience = user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+  const trendMetrics = [];
+  if (/血压|高压|低压|收缩压|舒张压/.test(userMessage || '')) trendMetrics.push('systo', 'diasto');
+  if (/血糖/.test(userMessage || '')) trendMetrics.push('glucose');
+  if (/睡眠|睡得|睡不好/.test(userMessage || '')) trendMetrics.push('sleep');
+  if (/心率|脉搏/.test(userMessage || '')) trendMetrics.push('pulse');
+  if (/体重/.test(userMessage || '')) trendMetrics.push('weight');
+  const intent = { riskHit, diseaseRiskHit, trendHit, behaviorHit, deviceHit, alertsHit, healthSummaryHit, actionHit, forecastRequested, audience, graphRelationHit, trendMetrics: [...new Set(trendMetrics)] };
   const configuredLLM = getLLMConfig();
 
   // 行动请求先生成可确认的结构化计划，不让 LLM 越过用户确认直接执行敏感操作。
@@ -1016,26 +1187,36 @@ export async function chat(history, userMessage, healthSummary, user) {
       let graphContext = '';
       if (graphIntentHit) {
         const disease = /衰弱|跌倒|功能下降|握力/.test(userMessage) ? 'frailty' : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(userMessage) ? 'chronic_kidney_disease' : /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
-        const audience = user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly';
         const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience, topK: 6, maxHops: 2, includeTrace: true });
         if (kg?.results?.length || kg?.recommendations?.length) {
           graphEvidence = kg;
-          graphContext = `知识图谱依据与行动约束：${JSON.stringify({ results: kg.results?.slice(0, 4) || [], recommendations: kg.recommendations || [], weekly_plan: kg.weekly_plan || [], personalization: kg.personalization || {}, safety_flags: kg.safety_flags || [], disclaimer: kg.disclaimer })}`;
+          graphContext = `知识图谱依据与行动约束：${JSON.stringify(buildLLMGraphContext(kg, /7天|一周|本周计划/.test(userMessage || '')))}`;
         }
       }
       const result = await callOpenAI(messages, { ...healthSummary, graphContext }, user, intent);
-      const grounded = applyGraphGrounding(normalizeAgentResult(result), graphEvidence);
+      const groundingOptions = { audience, question: userMessage, relationshipQuestion: graphRelationHit, includeWeeklyPlan: /7天|一周|本周计划/.test(userMessage || '') };
+      const grounded = applyGraphGrounding(normalizeAgentResult(result), graphEvidence, groundingOptions);
       // 非 JSON、空内容等降级结果必须重新走真实工具，不能把失败文案展示给老人。
       if (grounded.degraded) {
+        console.warn('[agent] structured response degraded:', grounded.degraded_reason || 'unknown');
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
-        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
-        return fallbackGrounded;
+        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence, groundingOptions) : fallback;
+        return {
+          ...guardLocalReply(fallbackGrounded, userMessage, healthSummary, intent),
+          source: 'tool_fallback',
+          llm: { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'fallback', fallback_reason: grounded.degraded_reason || 'DeepSeek 结构化输出无效，已使用本地工具结果' },
+        };
       }
       const normalized = applyResponseGuards(grounded, userMessage, healthSummary, intent);
       if (normalized.degraded) {
+        console.warn('[agent] response guard fallback:', (normalized.__guardIssues || []).join('；') || normalized.degraded_reason || 'unknown');
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
-        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
-        return fallbackGrounded;
+        const fallbackGrounded = graphEvidence ? applyGraphGrounding(fallback, graphEvidence, groundingOptions) : fallback;
+        return {
+          ...guardLocalReply(fallbackGrounded, userMessage, healthSummary, intent),
+          source: 'tool_fallback',
+          llm: { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'fallback', fallback_reason: (normalized.__guardIssues || []).join('；') || normalized.degraded_reason || 'DeepSeek 回答未通过安全校验' },
+        };
       }
       // 工具已返回真实数据时，即使模型因截断漏掉 confidence，也不能把数据回答标成闲聊。
       if ((riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit || graphContext) && normalized.confidence.type === 'common_sense') {
@@ -1048,8 +1229,8 @@ export async function chat(history, userMessage, healthSummary, user) {
       // 失败回退：风险/趋势意图仍走真实工具，其余走通用 mock（不破坏现有功能）
       if (riskHit || trendHit || diseaseRiskHit || behaviorHit || deviceHit || alertsHit || healthSummaryHit) {
         const fallback = await deterministicFallbackReply(userMessage, user, intent);
-        const groundedFallback = graphEvidence ? applyGraphGrounding(fallback, graphEvidence) : fallback;
-        return { ...groundedFallback, llm: { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'fallback', fallback_reason: safeFallbackReason(err), latency_ms: null } };
+        const groundedFallback = graphEvidence ? applyGraphGrounding(fallback, graphEvidence, { audience, question: userMessage, relationshipQuestion: graphRelationHit, includeWeeklyPlan: /7天|一周|本周计划/.test(userMessage || '') }) : fallback;
+        return { ...guardLocalReply(groundedFallback, userMessage, healthSummary, intent), llm: { provider: configuredLLM?.provider || 'custom', model: configuredLLM?.model || null, call_status: 'fallback', fallback_reason: safeFallbackReason(err), latency_ms: null } };
       }
     }
   }
@@ -1059,7 +1240,8 @@ export async function chat(history, userMessage, healthSummary, user) {
       const disease = /衰弱|跌倒|功能下降|握力/.test(userMessage) ? 'frailty' : /慢性肾|肾功能|肾脏|eGFR|肌酐/.test(userMessage) ? 'chronic_kidney_disease' : /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
       const kg = await queryKnowledgeGraph(userMessage, disease, healthSummary?.context || {}, { audience: user?.role === 'doctor' ? 'doctor' : user?.role === 'caregiver' ? 'caregiver' : 'elderly', topK: 6, maxHops: 2 });
       const base = trendHit ? await deterministicFallbackReply(userMessage, user, intent) : mockAgent(userMessage, healthSummary);
-      return { source: 'tool_fallback', llm: { provider: configuredLLM?.provider || 'none', model: configuredLLM?.model || null, call_status: configuredLLM ? 'fallback' : 'not_configured', fallback_reason: configuredLLM ? 'GraphRAG 本地降级' : '未配置 DeepSeek' }, ...applyGraphGrounding(base, kg) };
+      const localGraph = applyGraphGrounding(base, kg, { audience, question: userMessage, relationshipQuestion: graphRelationHit, includeWeeklyPlan: /7天|一周|本周计划/.test(userMessage || '') });
+      return { source: 'tool_fallback', llm: { provider: configuredLLM?.provider || 'none', model: configuredLLM?.model || null, call_status: configuredLLM ? 'fallback' : 'not_configured', fallback_reason: configuredLLM ? 'GraphRAG 本地降级' : '未配置 DeepSeek' }, ...guardLocalReply(localGraph, userMessage, healthSummary, intent) };
     } catch (err) {
       console.error('[agent] local GraphRAG fallback failed:', err.message);
     }
@@ -1070,17 +1252,17 @@ export async function chat(history, userMessage, healthSummary, user) {
       riskHit ? mockRiskReply(user) : null,
       trendHit ? mockTrendReply(user, forecastRequested) : null,
     ]);
-    if (healthSummaryHit) return { source: 'tool', ...mockHealthSummaryReply(user) };
-    if (alertsHit) return { source: 'tool', ...mockAlertReply(user) };
-    if (deviceHit) return { source: 'tool', ...mockDeviceReply(user) };
-    if (behaviorHit) return { source: 'tool', ...(await mockBehaviorReply(user)) };
+    if (healthSummaryHit) return { source: 'tool', ...guardLocalReply(mockHealthSummaryReply(user), userMessage, healthSummary, intent) };
+    if (alertsHit) return { source: 'tool', ...guardLocalReply(mockAlertReply(user), userMessage, healthSummary, intent) };
+    if (deviceHit) return { source: 'tool', ...guardLocalReply(mockDeviceReply(user), userMessage, healthSummary, intent) };
+    if (behaviorHit) return { source: 'tool', ...guardLocalReply(await mockBehaviorReply(user), userMessage, healthSummary, intent) };
     if (diseaseRiskHit) {
       const disease = /糖尿病|血糖/.test(userMessage) ? 'diabetes' : /脑卒中|中风/.test(userMessage) ? 'stroke' : /心脏|心血管/.test(userMessage) ? 'heart_disease' : 'hypertension';
       const d = await predictDisease(user?.id, user, disease);
       const extra = composeDiseaseRiskReply(disease, d);
-      return { source: 'tool', ...combineRiskTrend(extra, combineRiskTrend(r1, r2)) };
+      return { source: 'tool', ...guardLocalReply(combineRiskTrend(extra, combineRiskTrend(r1, r2)), userMessage, healthSummary, intent) };
     }
-    return { source: 'tool', ...combineRiskTrend(r1, r2) };
+    return { source: 'tool', ...guardLocalReply(combineRiskTrend(r1, r2), userMessage, healthSummary, intent) };
   }
   return { source: 'mock', ...mockAgent(userMessage, healthSummary) };
 }

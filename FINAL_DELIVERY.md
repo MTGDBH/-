@@ -73,11 +73,12 @@ Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次�
 - 医学审核待签署包：`reports/clinician-review-packet-20260821.md`（83 条高风险关系，未自动批准）
 - 医学审核结构化表：`reports/clinician-review-submission-guide-20260821.md`、`reports/clinician-review-template.csv`、`reports/clinician-review-validation.json`（83 行，0 条签字，状态 pending）；完整签字后由 `apply_clinician_reviews.py` 生成版本化决策文件，默认不覆盖 live GraphRAG。
 - 提交前自检清单：`reports/submission-readiness-check-20260821.md`（材料与边界检查 36/36 通过）
-- 提交物哈希清单：`reports/submission-artifact-manifest-20260821.json`（75 个交付物，缺失 0）
+- 提交物哈希清单：`reports/submission-artifact-manifest-20260821.json`（78 个交付物，缺失 0）
 - 最终提交审计：`reports/final-submission-audit-20260821.md/json`（本地检查与外部证据门槛分离，状态为 `ready_with_external_gates`）
 - 外部证据闸门清单：`reports/external-gate-execution-checklist-20260821.md`（医生审核、真实人因、Curve 外部集和风险外部队列的执行顺序）
 - 回归测试汇总：`reports/regression-suite-summary-20260821.md/json`（8 组 Python 回归和 Node 最终验收）
 - 医生审核报告：`reports/clinician-review-report-20260821.md/json`（待签署版，不冒充医生批准）
+- 张奶奶演示数据说明：`reports/demo-curve-data-generation-20260821.md`（819 条 synthetic 演示记录及验证结果）
 - GraphRAG 来源完整性审计：`reports/source-integrity-audit-20260821.md`（78 个来源，6 个核心疾病均具备指南/综述/关键研究层）
 - GraphRAG 来源门控回归：`reports/graphrag-source-gate-regression-20260821.json`（老人端默认标记待复核来源，严格模式可排除，医生端保留完整图）
 - Curve V2 真实数据采集包：`reports/curve-external-data-collection-kit-20260821.md`

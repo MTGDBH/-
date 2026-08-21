@@ -13,7 +13,7 @@
     <header class="page-head pred-page-head">
       <a href="monitoring.html" class="btn btn-ghost" style="margin-bottom:8px;padding:6px 0">← 返回监测</a>
       <h1>AI 健康预测</h1>
-      <p class="subtitle">基于历史数据预测未来趋势，与同龄人对比 · 日 / 周 / 月</p>
+      <p class="subtitle">看清真实记录、个人基线和短期变化 · 预测不可靠时主动停止</p>
     </header>
 
     <!-- 时间范围切换 -->
@@ -22,31 +22,41 @@
       <button class="chip" data-days="30" data-future="14">阶段（30天 + 最多预测14天）</button>
       <button class="chip active" data-days="90" data-future="30">长期（90天 + 数据足够时预测30天）</button>
     </div>
-    <div class="pred-chart-toolbar" aria-label="曲线显示控制">
-      <div class="pred-chart-toggles" role="group" aria-label="曲线图层">
-        <button class="pred-toggle active" data-layer="raw" type="button">● 原始点</button>
-        <button class="pred-toggle active" data-layer="fitted" type="button">┄ 历史拟合</button>
-        <button class="pred-toggle active" data-layer="peer" type="button">— 同龄人</button>
-        <button class="pred-toggle active" data-layer="forecast" type="button">▱ 预测区间</button>
+    <details class="pred-chart-toolbar pred-display-settings" aria-label="曲线显示控制">
+      <summary>曲线显示设置</summary>
+      <div class="pred-display-settings-body">
+        <div class="pred-chart-toggles" role="group" aria-label="曲线图层">
+          <button class="pred-toggle" data-layer="raw" type="button">● 原始记录</button>
+          <button class="pred-toggle active" data-layer="fitted" type="button">┄ 变化趋势</button>
+          <button class="pred-toggle" data-layer="peer" type="button">— 同龄参考</button>
+          <button class="pred-toggle active" data-layer="forecast" type="button">▱ 未来范围</button>
+        </div>
+        <label class="pred-zoom-control" for="chart-days">
+          <span>显示最近 <strong id="chart-days-label">90</strong> 天</span>
+          <input id="chart-days" type="range" min="7" max="90" step="1" value="90" />
+        </label>
       </div>
-      <label class="pred-zoom-control" for="chart-days">
-        <span>显示最近 <strong id="chart-days-label">90</strong> 天</span>
-        <input id="chart-days" type="range" min="7" max="90" step="1" value="90" />
-      </label>
-    </div>
+    </details>
 
-    <!-- 综合健康拟合图 -->
-    <div class="pred-composite-card">
-      <div class="pred-composite-title">综合健康趋势预测</div>
-      <div class="pred-composite-sub" id="composite-sub">基于各项指标归一化拟合 · 左侧实线为实际数据，右侧虚线为预测</div>
+    <div class="pred-focus-intro">
+      <div class="pred-focus-intro-title">先选一项查看</div>
+      <div class="pred-focus-intro-text">每次只看一个指标，更容易发现变化。</div>
+      <div class="pred-metric-selector" id="metric-selector"></div>
+    </div>
+    <div class="pred-elder-summary" id="metric-summary"></div>
+
+    <!-- 各指标预测图 -->
+    <div id="metric-charts"></div>
+
+    <!-- 综合健康分仅作为可选历史回顾 -->
+    <details class="pred-composite-card pred-composite-details">
+      <summary>查看综合健康历史趋势</summary>
+      <div class="pred-composite-sub" id="composite-sub">用于回顾各项指标的综合变化，不外推未来健康分</div>
       <div class="pred-composite-svg-wrap">
         <svg id="composite-chart" width="100%" height="280" viewBox="0 0 1060 280" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
       <div class="pred-legend" id="composite-legend"></div>
-    </div>
-
-    <!-- 各指标预测图 -->
-    <div id="metric-charts"></div>
+    </details>
 
     <div style="text-align:center;padding:20px 0 40px;color:#9C8B7A;font-size:13px;font-family:var(--font-cn)">
       <p>历史曲线采用稳健平滑，未来虚线为通过时间顺序验证后的保守外推，仅供健康管理参考</p>
@@ -63,7 +73,10 @@
     let days = 90;
     let futureDays = 30;
     let metricList = [];
-    const chartVisibility = { raw: true, fitted: true, peer: true, forecast: true };
+    let metricResults = [];
+    let selectedMetricType = null;
+    // 默认突出个人趋势与短期范围；原始明细和同龄人参考按需打开，避免第一屏图层过载。
+    const chartVisibility = { raw: false, fitted: true, peer: false, forecast: true };
     let zoomTimer = null;
 
     async function main() {
@@ -197,7 +210,7 @@
         const x = xToPx(i);
         const isBoundary = predictedLength > 0 && i === actualLength - 1;
         return `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="${isBoundary ? '#B8D7F5' : '#F3EEE8'}" stroke-width="${isBoundary ? 1.2 : 1}" stroke-dasharray="${isBoundary ? '4,4' : '2,5'}"/>` +
-          `<text x="${x}" y="${bottom + 17}" text-anchor="middle" fill="${isBoundary ? '#2563EB' : '#9C8B7A'}" font-size="11" font-family="sans-serif">${formatAxisDate(timeline[i])}</text>`;
+          `<text x="${x}" y="${bottom + 20}" text-anchor="middle" fill="${isBoundary ? '#2563EB' : '#7E7063'}" font-size="13" font-family="sans-serif">${formatAxisDate(timeline[i])}</text>`;
       }).join('');
     }
 
@@ -209,6 +222,42 @@
       return `<div class="pred-legend-item" style="color:${color}"><div class="pred-legend-band" style="background:${color}"></div>${label}</div>`;
     }
 
+    function selectedModelScore(analysis) {
+      const backtest = analysis?.backtest;
+      const selected = backtest?.selected || analysis?.forecastModel || analysis?.model;
+      return analysis?.modelScore || backtest?.scores?.[selected] || null;
+    }
+
+    function forecastQuality(analysis) {
+      if (!analysis?.forecastAvailable) return { level: 'off', label: '暂不外推', detail: analysis?.forecastReason || '数据不足' };
+      const score = selectedModelScore(analysis);
+      const mase = Number(score?.mase);
+      if (!Number.isFinite(mase)) return { level: 'reference', label: '参考估计', detail: '回测信息不完整' };
+      if (mase < 0.8) return { level: 'good', label: '趋势预测', detail: `MASE ${mase.toFixed(2)}` };
+      if (mase < 1) return { level: 'reference', label: '参考估计', detail: `接近简单基线 · MASE ${mase.toFixed(2)}` };
+      return { level: 'baseline', label: '仅基线参考', detail: `未优于简单基线 · MASE ${mase.toFixed(2)}` };
+    }
+
+    function percentile(values, q) {
+      const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return 0;
+      const pos = (sorted.length - 1) * q;
+      const lo = Math.floor(pos), hi = Math.ceil(pos);
+      return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+    }
+
+    function thinObservedPoints(points, maxPoints = 72) {
+      if (!Array.isArray(points) || points.length <= maxPoints) return points || [];
+      const keep = new Map();
+      const stride = Math.ceil(points.length / maxPoints);
+      points.forEach((point, index) => {
+        if (point.outlier || index === 0 || index === points.length - 1 || index % stride === 0) {
+          keep.set(point.id ?? `${point.recorded_at}-${index}`, point);
+        }
+      });
+      return [...keep.values()];
+    }
+
     function buildLegend(data, actualLabel = '我的数据（实际）', forecastLabel = '预测趋势', actualColor = '#F4A261') {
       const items = [];
       if (Array.isArray(data.series) && data.series.length > 1) {
@@ -216,10 +265,10 @@
           const color = series.color || (index ? '#9C7BC9' : actualColor);
           if (series.observed?.length) items.push(legendItem(`${series.label || series.id}（实际）`, color));
           if (series.trend?.length) items.push(legendItem(`${series.label || series.id}趋势`, color, true));
-          if (series.forecast?.points?.length) items.push(legendItem(`${series.label || series.id}预测`, '#2563EB', true));
+          if (series.forecast?.points?.length) items.push(legendItem(`${series.label || series.id}预测`, color, true));
         });
         if (data.series.some(series => series.forecast?.points?.some(p => Number.isFinite(p.lower) && Number.isFinite(p.upper)))) {
-          items.push(legendBandItem('预测区间', '#2563EB'));
+          items.push(legendBandItem('预测范围', '#7A91C7'));
         }
         return items.join('') || '<span class="pred-metric-tag">暂无可绘制曲线</span>';
       }
@@ -373,6 +422,75 @@
     }
 
     // ===== 各指标预测图 =====
+    function readableValue(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return '—';
+      return Math.abs(n) >= 100 ? String(Math.round(n)) : String(Number(n.toFixed(1)));
+    }
+
+    function metricAction(type) {
+      const actions = {
+        bp: '早晚固定时间测量，测前静坐5分钟。',
+        glucose: '按相同的空腹或餐后条件继续记录。',
+        weight: '晨起后按相同条件称重，每周比较一次。',
+        hr: '静坐5分钟后测量，记录静息心率。',
+        sleep: '记录入睡和起床时间，先看一周规律。',
+        steps: '按体力分段活动，不追求单日精确步数。',
+        spo2: '静坐后复测，连续偏低或不适时联系医生。',
+      };
+      return actions[type] || '保持相同条件继续记录。';
+    }
+
+    function renderMetricSummary(data, m) {
+      const host = document.getElementById('metric-summary');
+      if (!host) return;
+      const series = Array.isArray(data?.series) && data.series.length ? data.series : [];
+      const latest = series.map(item => ({ item, point: (item.observed || []).slice().sort((a, b) => pointTime(a) - pointTime(b)).at(-1) })).filter(x => x.point);
+      if (!latest.length) {
+        host.innerHTML = '<div class="pred-elder-summary-empty">还没有记录。先完成一次测量，我再帮您看变化。</div>';
+        return;
+      }
+      const current = m.type === 'bp' && latest.length >= 2
+        ? `${readableValue(latest[0].point.value)}/${readableValue(latest[1].point.value)} ${m.unit || ''}`
+        : `${m.type === 'glucose' && latest[0].item.label ? `${latest[0].item.label} ` : ''}${readableValue(latest[0].point.value)} ${m.unit || latest[0].item.unit || ''}`;
+      const base = latest[0].item.baseline || data.baseline;
+      const difference = base?.value == null ? null : Number(latest[0].point.value) - Number(base.value);
+      const tolerance = Math.max(Math.abs(Number(base?.value || 0)) * 0.03, m.type === 'glucose' ? 0.2 : 1);
+      const baselineText = difference == null ? '个人基线还在积累' : Math.abs(difference) <= tolerance ? '和个人平时水平接近' : difference > 0 ? '比个人平时水平偏高' : '比个人平时水平偏低';
+      const trendText = data.predTrend === 'up' ? '最近整体向上' : data.predTrend === 'down' ? '最近整体向下' : '最近整体平稳';
+      const grade = forecastQuality(data.analysis);
+      const forecastText = grade.level === 'off' ? '暂不判断未来' : grade.level === 'baseline' ? '未来只作范围参考' : grade.level === 'reference' ? '未来变化仅供参考' : '可查看短期变化范围';
+      host.innerHTML = `
+        <div class="pred-elder-summary-card"><span>现在</span><strong>${current.trim()}</strong><small>${formatPointTime(latest[0].point)}</small></div>
+        <div class="pred-elder-summary-card"><span>变化</span><strong>${baselineText}</strong><small>${trendText} · ${forecastText}</small></div>
+        <div class="pred-elder-summary-card pred-elder-summary-action"><span>下一步</span><strong>${metricAction(m.type)}</strong><small>连续记录比单次波动更重要</small></div>`;
+    }
+
+    function renderMetricSelector() {
+      const selector = document.getElementById('metric-selector');
+      if (!selector) return;
+      selector.innerHTML = metricList.map(m => `<button type="button" class="pred-metric-select ${m.type === selectedMetricType ? 'active' : ''}" data-metric="${m.type}">${m.icon || '测'} ${m.name || m.type}</button>`).join('');
+      selector.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+        selectedMetricType = button.dataset.metric;
+        renderFocusedMetric();
+      }));
+    }
+
+    function renderFocusedMetric() {
+      const host = document.getElementById('metric-charts');
+      const index = metricList.findIndex(m => m.type === selectedMetricType);
+      const m = metricList[index];
+      const data = metricResults[index];
+      renderMetricSelector();
+      if (!m || !data) {
+        host.innerHTML = '<div class="empty" style="padding:40px;text-align:center">该指标暂时没有可用数据</div>';
+        return;
+      }
+      host.innerHTML = renderMetricCard(data, m);
+      renderMetricChart(`metric-svg-${m.type}`, data, m);
+      renderMetricSummary(data, m);
+    }
+
     async function renderMetricCharts() {
       const host = document.getElementById('metric-charts');
       if (!metricList.length) {
@@ -384,20 +502,11 @@
       const promises = metricList.map(m =>
         API.get(`/api/prediction/${m.type}?days=${days}&future=${futureDays}`).catch(err => null)
       );
-      const results = await Promise.all(promises);
-
-      host.innerHTML = results.map((data, i) => {
-        if (!data) return '';
-        const m = metricList[i];
-        return renderMetricCard(data, m);
-      }).join('');
-
-      // 为每个卡渲染图表
-      results.forEach((data, i) => {
-        if (!data) return;
-        const svgId = `metric-svg-${metricList[i].type}`;
-        renderMetricChart(svgId, data, metricList[i]);
-      });
+      metricResults = await Promise.all(promises);
+      if (!selectedMetricType || !metricList.some(m => m.type === selectedMetricType)) {
+        selectedMetricType = metricList.some(m => m.type === 'bp') ? 'bp' : metricList[0]?.type;
+      }
+      renderFocusedMetric();
     }
 
     function renderMetricCard(data, m) {
@@ -407,18 +516,20 @@
       const trendClass = data.predTrend;
       const trendText = trendMap[data.predTrend] || '—';
       const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${unitLabel}` : '无同龄人参考';
+      const forecastGrade = forecastQuality(data.analysis);
+      const granularity = data.analysis?.forecastGranularity || data.series?.[0]?.forecast?.granularity;
       const forecastNote = data.analysis?.forecastAvailable
-        ? '已达到预测门槛，虚线和色带为短期趋势估计'
+        ? `${forecastGrade.label}，虚线和色带为${granularity === 'weekly' ? '周级' : '短期'}范围估计`
         : `${data.analysis?.forecastReason || '历史数据不足，暂不外推'}；请继续打卡记录，数据满足条件后自动生成预测`;
       const quality = data.analysis?.forecastAvailable
-        ? `<span class="pred-quality-ok">● 可外推 ${data.analysis?.forecastDays || data.predicted?.length || 0} 天</span>`
+        ? `<span class="pred-quality-${forecastGrade.level}">● ${forecastGrade.label} · ${data.analysis?.forecastDays || data.predicted?.length || 0} 天</span>`
         : `<span class="pred-quality-off">● 暂不外推</span>`;
       const confidenceText = data.analysis?.confidenceLevel
         ? `数据${data.analysis.confidenceLevel}`
         : '数据质量待积累';
       const dateRange = data.analysis?.dateStart && data.analysis?.dateEnd
         ? `${data.analysis.dateStart} 至 ${data.analysis.dateEnd}` : '日期范围待积累';
-      const modelText = data.analysis?.model ? `趋势模型已回测` : '模型待积累';
+      const modelText = data.analysis?.model ? forecastGrade.detail : '模型待积累';
       const backtestText = data.analysis?.backtest?.folds ? `滚动回测 ${data.analysis.backtest.folds} 折` : '';
       const conditionText = nameLabel.includes('血糖') && data.analysis?.measurementConditionCoverage != null
         ? `测量条件 ${Math.round(data.analysis.measurementConditionCoverage * 100)}%` : '';
@@ -435,16 +546,15 @@
             <div class="pred-metric-title-row">
               <div class="pred-metric-icon" style="background:${m.color}">${m.icon || '测'}</div>
               <div>
-                <div class="pred-metric-name">${nameLabel}趋势预测</div>
-                <div class="pred-metric-tag">${unitLabel ? '单位：' + unitLabel : '定性指标'} · ${peerText} · ${forecastNote}</div>
+                <div class="pred-metric-name">${nameLabel}健康趋势</div>
+                <div class="pred-metric-tag">实线看过去变化，虚线看未来大致范围</div>
               </div>
             </div>
             <span class="pred-metric-badge ${trendClass}">${trendText}</span>
           </div>
           <div class="pred-metric-svg-wrap">
-            <svg id="metric-svg-${m.type}" width="100%" height="220" viewBox="0 0 1060 220" preserveAspectRatio="xMidYMid meet"></svg>
+            <svg id="metric-svg-${m.type}" width="100%" height="300" viewBox="0 0 1060 300" preserveAspectRatio="xMidYMid meet"></svg>
           </div>
-          <div class="pred-quality-row">${quality}<span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
           <div class="pred-legend">${buildLegend({
             ...data,
             series: Array.isArray(data.series) ? data.series.map(series => ({
@@ -458,7 +568,12 @@
             predicted: chartVisibility.forecast ? (data.predicted || []) : [],
             peer: chartVisibility.peer ? (data.peer || []) : [],
           }, '我的数据（实际）', '预测趋势', m.color)}</div>
-          <div class="pred-metric-stats">${statsHtml}</div>
+          <details class="pred-model-details">
+            <summary>查看数据和模型详情</summary>
+            <div class="pred-quality-row">${quality}<span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
+            <div class="pred-metric-tag" style="margin-top:8px">${unitLabel ? '单位：' + unitLabel : '定性指标'} · ${peerText} · ${forecastNote}</div>
+            <div class="pred-metric-stats">${statsHtml}</div>
+          </details>
         </div>
       `;
     }
@@ -475,7 +590,7 @@
       const series = Array.isArray(data.series) && data.series.length ? data.series : [primary];
       const actual = primary.observed || data.actual || [];
       const predicted = chartVisibility.forecast ? (primary.forecast?.points || data.predicted || []) : [];
-      const peer = data.peer;
+      const peer = Array.isArray(data.peer) ? data.peer : [];
       const unitLabel = m.unit || '';
       const showRaw = chartVisibility.raw;
       const showFitted = chartVisibility.fitted;
@@ -487,7 +602,7 @@
         return;
       }
 
-      const W = 1060, H = 220, padL = 50, padR = 30, padT = 25, padB = 35;
+      const W = 1060, H = 300, padL = 62, padR = 34, padT = 34, padB = 46;
       const pointTimestamp = (p, fallback = 0) => pointTime(p, fallback);
       const allSeriesPoints = series.flatMap(s => [
         ...(s.observed || []), ...(s.trend || []), ...(chartVisibility.forecast ? (s.forecast?.points || []) : []),
@@ -499,22 +614,31 @@
       const tEnd = timeline[timeline.length - 1] ?? tStart;
       const tSpan = Math.max(tEnd - tStart, 1);
 
-      const allVals = allSeriesPoints.map(p => Number(p.value)).filter(Number.isFinite);
-      allSeriesPoints.forEach(p => { if (Number.isFinite(p.lower)) allVals.push(Number(p.lower)); if (Number.isFinite(p.upper)) allVals.push(Number(p.upper)); });
-      if (!allVals.length) allVals.push(0);
+      // 纵轴优先服务个人趋势。原始异常值用边缘点表示，不让单次尖峰压扁整张图。
+      const trendVals = series.flatMap(s => [
+        ...(s.trend || []).map(p => Number(p.value)),
+        ...(chartVisibility.forecast ? (s.forecast?.points || []).flatMap(p => [Number(p.value), Number(p.lower), Number(p.upper)]) : []),
+      ]).filter(Number.isFinite);
+      const observedVals = series.flatMap(s => (s.observed || []).filter(p => !p.outlier).map(p => Number(p.value))).filter(Number.isFinite);
+      const robustObserved = observedVals.length > 12 ? [percentile(observedVals, 0.05), percentile(observedVals, 0.95)] : observedVals;
+      const scaleVals = [...trendVals, ...robustObserved];
+      if (!scaleVals.length) scaleVals.push(0);
 
-      const yMin = Math.min(...allVals);
-      const yMax = Math.max(...allVals);
+      const yMin = Math.min(...scaleVals);
+      const yMax = Math.max(...scaleVals);
       const yRange = Math.max(yMax - yMin, 0.1);
-      const yLo = yMin - yRange * 0.15;
-      const yHi = yMax + yRange * 0.15;
+      const yLo = yMin - yRange * 0.12;
+      const yHi = yMax + yRange * 0.12;
 
       // 按真实时间间隔排布，避免长时间缺测被误画成等距连续变化。
       const xToPx = (value) => {
         const timestamp = typeof value === 'number' && value >= tStart - 1 && value <= tEnd + 1 ? value : timeline[value] ?? tStart;
         return padL + (total <= 1 ? (W - padL - padR) / 2 : ((timestamp - tStart) / tSpan) * (W - padL - padR));
       };
-      const yToPx = (v) => H - padB - ((v - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
+      const yToPx = (v, clamp = false) => {
+        const value = clamp ? Math.max(yLo, Math.min(yHi, Number(v))) : Number(v);
+        return H - padB - ((value - yLo) / (yHi - yLo || 1)) * (H - padT - padB);
+      };
 
       // 分割线
       const firstForecast = predicted[0];
@@ -522,18 +646,24 @@
 
       const seriesMarkup = series.map((item, seriesIndex) => {
         const color = item.color || (seriesIndex ? '#9C7BC9' : m.color);
-        const observed = showRaw ? (item.observed || []) : [];
+        const observed = showRaw ? thinObservedPoints(item.observed || []) : [];
         const trend = showFitted ? (item.trend || []) : [];
         const future = showForecast ? (item.forecast?.points || []) : [];
-        const observedDots = observed.map((p, i) => `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value)}" r="${p.outlier ? 4.8 : 3.6}" fill="${p.outlier ? '#A04632' : color}" stroke="#fff" stroke-width="1.5"><title>${formatPointTime(p)} · ${p.value}${item.unit ? ` ${item.unit}` : ''}${p.measurement_condition && p.measurement_condition !== 'unknown' ? ` · ${p.measurement_condition}` : ''}${p.source ? ` · ${p.source}` : ''}</title></circle>`).join('');
+        const observedDots = observed.map((p, i) => {
+          const clipped = Number(p.value) < yLo || Number(p.value) > yHi;
+          return `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value, true)}" r="${p.outlier || clipped ? 4.5 : 3.2}" fill="${p.outlier || clipped ? '#A04632' : color}" stroke="#fff" stroke-width="1.4" opacity="0.78"><title>${formatPointTime(p)} · ${p.value}${item.unit ? ` ${item.unit}` : ''}${clipped ? ' · 超出当前显示范围' : ''}${p.measurement_condition && p.measurement_condition !== 'unknown' ? ` · ${p.measurement_condition}` : ''}${p.source ? ` · ${p.source}` : ''}</title></circle>`;
+        }).join('');
         const trendPath = monotonePath(trend.map((p, i) => ({ x: xToPx(pointTimestamp(p, i)), y: yToPx(p.value) })));
         const anchor = trend.slice(-1)[0] || observed.slice(-1)[0];
         const forecastPoints = anchor ? [{ ...anchor, recorded_at: anchor.recorded_at }, ...future] : future;
         const forecastPath = monotonePath(forecastPoints.map((p, i) => ({ x: xToPx(pointTimestamp(p, i)), y: yToPx(p.value) })));
+        const grade = forecastQuality(item.analysis || data.analysis);
+        const forecastOpacity = grade.level === 'baseline' ? 0.58 : grade.level === 'reference' ? 0.76 : 0.95;
+        const bandOpacity = grade.level === 'baseline' ? 0.055 : grade.level === 'reference' ? 0.085 : 0.13;
         const band = future.length && future.every(p => Number.isFinite(p.lower) && Number.isFinite(p.upper))
-          ? `<polygon points="${anchor && Number.isFinite(anchor.value) ? `${xToPx(pointTimestamp(anchor))},${yToPx(anchor.value)} ` : ''}${future.map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.upper)}`).join(' ')} ${future.slice().reverse().map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.lower)}`).join(' ')}" fill="#2563EB" opacity="0.13"/>` : '';
-        const futureDots = future.map((p, i) => `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value)}" r="2.8" fill="#2563EB" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · 预测 ${p.value}${item.unit ? ` ${item.unit}` : ''} · 区间 ${p.lower}～${p.upper}</title></circle>`).join('');
-        return `${showRaw ? observedDots : ''}${showFitted && trendPath ? `<path d="${trendPath}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/>` : ''}${showForecast ? band : ''}${showForecast && forecastPath ? `<path d="${forecastPath}" fill="none" stroke="#2563EB" stroke-width="2.8" stroke-dasharray="7,4" stroke-linecap="round" opacity="0.95"/>${futureDots}` : ''}`;
+          ? `<polygon points="${anchor && Number.isFinite(anchor.value) ? `${xToPx(pointTimestamp(anchor))},${yToPx(anchor.value, true)} ` : ''}${future.map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.upper, true)}`).join(' ')} ${future.slice().reverse().map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.lower, true)}`).join(' ')}" fill="${color}" opacity="${bandOpacity}"/>` : '';
+        const futureDots = future.map((p, i) => `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value, true)}" r="2.8" fill="${color}" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · ${grade.label} ${p.value}${item.unit ? ` ${item.unit}` : ''} · 80%范围 ${p.lower}～${p.upper} · 模型估计，非实际测量</title></circle>`).join('');
+        return `${showRaw ? observedDots : ''}${showFitted && trendPath ? `<path d="${trendPath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>` : ''}${showForecast ? band : ''}${showForecast && forecastPath ? `<path d="${forecastPath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round" opacity="${forecastOpacity}"/>${futureDots}` : ''}`;
       }).join('');
 
       // 同龄人线
@@ -542,19 +672,19 @@
       // Y轴标签
       const yLabels = [yLo, (yLo + yHi) / 2, yHi].map(v => {
         const y = yToPx(v);
-        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#F0EDE8" stroke-width="1" stroke-dasharray="4,4"/><text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#9C8B7A" font-size="12" font-family="sans-serif">${v.toFixed(1)}</text>`;
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#F0EDE8" stroke-width="1" stroke-dasharray="4,4"/><text x="${padL - 10}" y="${y + 5}" text-anchor="end" fill="#7E7063" font-size="14" font-family="sans-serif">${v.toFixed(1)}</text>`;
       }).join('');
 
       // 同龄人参考线（虚线）
-      const peerRefLine = data.peerBase ? `
-        <line x1="${padL}" y1="${yToPx(data.peerBase.value)}" x2="${W - padR}" y2="${yToPx(data.peerBase.value)}" stroke="#9C8B7A" stroke-width="1" stroke-dasharray="3,5" opacity="0.3"/>
+      const peerRefLine = data.peerBase && Number(data.peerBase.value) >= yLo && Number(data.peerBase.value) <= yHi ? `
+        <line x1="${padL}" y1="${yToPx(data.peerBase.value, true)}" x2="${W - padR}" y2="${yToPx(data.peerBase.value, true)}" stroke="#9C8B7A" stroke-width="1" stroke-dasharray="3,5" opacity="0.3"/>
       ` : '';
       const base = primary.baseline || data.baseline;
-      const baselineBand = base && Number.isFinite(Number(base.lower)) && Number.isFinite(Number(base.upper))
-        ? `<rect x="${padL}" y="${yToPx(Number(base.upper))}" width="${W - padL - padR}" height="${Math.max(1, yToPx(Number(base.lower)) - yToPx(Number(base.upper)))}" fill="${primary.color || m.color}" opacity="0.07"/><text x="${padL + 4}" y="${yToPx(Number(base.upper)) - 4}" fill="#9C8B7A" font-size="10" font-family="sans-serif">个人基线范围</text>`
+      const baselineBand = base && Number.isFinite(Number(base.lower)) && Number.isFinite(Number(base.upper)) && Number(base.upper) >= yLo && Number(base.lower) <= yHi
+        ? `<rect x="${padL}" y="${yToPx(Number(base.upper), true)}" width="${W - padL - padR}" height="${Math.max(1, yToPx(Number(base.lower), true) - yToPx(Number(base.upper), true))}" fill="${primary.color || m.color}" opacity="0.07"/><text x="${padL + 4}" y="${Math.max(padT + 10, yToPx(Number(base.upper), true) - 4)}" fill="#9C8B7A" font-size="10" font-family="sans-serif">个人基线范围</text>`
         : '';
-      const normalBand = !m.dual && Number.isFinite(Number(m.normal_min)) && Number.isFinite(Number(m.normal_max))
-        ? `<rect x="${padL}" y="${yToPx(Number(m.normal_max))}" width="${W - padL - padR}" height="${Math.max(1, yToPx(Number(m.normal_min)) - yToPx(Number(m.normal_max)))}" fill="#7FB069" opacity="0.055"/><text x="${W - padR - 4}" y="${yToPx(Number(m.normal_max)) + 12}" text-anchor="end" fill="#7FB069" font-size="10" font-family="sans-serif">参考范围</text>`
+      const normalBand = !m.dual && Number.isFinite(Number(m.normal_min)) && Number.isFinite(Number(m.normal_max)) && Number(m.normal_max) >= yLo && Number(m.normal_min) <= yHi
+        ? `<rect x="${padL}" y="${yToPx(Number(m.normal_max), true)}" width="${W - padL - padR}" height="${Math.max(1, yToPx(Number(m.normal_min), true) - yToPx(Number(m.normal_max), true))}" fill="#7FB069" opacity="0.055"/><text x="${W - padR - 4}" y="${Math.min(H - padB - 4, yToPx(Number(m.normal_max), true) + 12)}" text-anchor="end" fill="#7FB069" font-size="10" font-family="sans-serif">参考范围</text>`
         : '';
 
       // 数据点
@@ -566,8 +696,8 @@
       const forecastShade = dividerX != null
         ? `<rect x="${dividerX}" y="${padT}" width="${W - padR - dividerX}" height="${H - padT - padB}" fill="#2563EB" opacity="0.035"/>`
         : '';
-      const actualLength = actual.length;
-      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, actualLength, showForecast ? predicted.length : 0);
+      const historicalTimelineLength = firstForecast ? timeline.filter(t => t < pointTimestamp(firstForecast)).length : timeline.length;
+      const timeAxis = buildTimeAxis(timeline, xToPx, padT, H - padB, historicalTimelineLength, showForecast ? predicted.length : 0);
 
       svg.innerHTML = `
         ${yLabels}
