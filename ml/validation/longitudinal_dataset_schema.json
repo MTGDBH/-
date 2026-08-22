@@ -1,0 +1,25 @@
+{
+  "schema_version": "longitudinal-health-dataset.v1",
+  "required_columns": [
+    "participant_id", "timestamp", "metric", "value", "unit", "condition",
+    "source", "device_model", "site_id", "region_id", "measurement_id", "quality_status"
+  ],
+  "recommended_columns": ["age", "gender", "disease_status", "medication_state", "meal_state", "split"],
+  "forbidden_direct_identifier_columns": ["name", "full_name", "id_card", "idcard", "phone", "address"],
+  "allowed_sources": ["real_device", "manual", "clinic", "laboratory"],
+  "allowed_quality_status": ["valid", "questionable", "excluded"],
+  "gates": {
+    "engineering_pilot_participants": 100,
+    "model_development_min_participants": 300,
+    "model_development_target_participants": 500,
+    "target_days_per_participant": 90,
+    "minimum_sites_for_external_holdout": 2,
+    "minimum_external_site_participants": 50
+  },
+  "split_policy": {
+    "development": {"train": 0.70, "validation": 0.15, "test": 0.15},
+    "external": "one or more completely held-out site_id/region_id values",
+    "participant_overlap_allowed": false,
+    "future_to_past_leakage_allowed": false
+  }
+}

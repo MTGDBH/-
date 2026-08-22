@@ -76,13 +76,15 @@ def validate(path: Path) -> dict:
     for row in rows:
         by_series[(row["participant_id"], row["metric"], row["condition"])].add(row["timestamp"].date())
     short_series = [f"{key}:{len(days)} valid days" for key, days in by_series.items() if len(days) < SCHEMA["quality_gates"]["minimum_valid_days_for_7d_forecast"]]
-    if len(participants) < SCHEMA["quality_gates"]["minimum_participants"]:
-        warnings.append(f"participants={len(participants)} < recommended {SCHEMA['quality_gates']['minimum_participants']}")
+    engineering_minimum = SCHEMA["quality_gates"]["engineering_pilot_participants"]
+    development_minimum = SCHEMA["quality_gates"]["model_development_minimum_participants"]
+    if len(participants) < engineering_minimum:
+        warnings.append(f"participants={len(participants)} < engineering pilot minimum {engineering_minimum}")
     if span_days < SCHEMA["quality_gates"]["minimum_span_days"]:
         warnings.append(f"span_days={span_days:.1f} < minimum {SCHEMA['quality_gates']['minimum_span_days']}")
     if short_series:
         warnings.append(f"series below 7-day forecast gate: {len(short_series)}")
-    return {"valid": not errors, "errors": errors, "warnings": warnings, "n_rows": len(rows), "participants": len(participants), "span_days": round(span_days, 2), "series": len(by_series), "short_series": short_series[:20], "data_class": "research_external_candidate"}
+    return {"valid": not errors, "errors": errors, "warnings": warnings, "n_rows": len(rows), "participants": len(participants), "span_days": round(span_days, 2), "series": len(by_series), "short_series": short_series[:20], "readiness": {"engineering_pilot": len(participants) >= engineering_minimum and span_days >= SCHEMA["quality_gates"]["minimum_span_days"], "model_development_minimum": len(participants) >= development_minimum and span_days >= SCHEMA["quality_gates"]["minimum_span_days"]}, "data_class": "research_external_candidate"}
 
 
 def main() -> None:

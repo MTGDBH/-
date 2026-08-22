@@ -71,21 +71,43 @@ def run(df, min_history=28, horizon=7):
         points = [{"t": row.timestamp.isoformat(), "v": float(row.value), "condition": row.get("condition", "unknown"), "id": int(i)} for i, row in group.iterrows()]
         if len(points) < min_history + horizon:
             continue
-        for end in range(min_history, len(points) - horizon + 1, horizon):
+        for end in range(min_history, len(points), horizon):
+            hist = points[:end]
+            origin = pd.Timestamp(hist[-1]["t"])
+            window_end = origin + pd.Timedelta(days=horizon)
+            future = [p for p in points[end:] if origin < pd.Timestamp(p["t"]) <= window_end]
+            if not future:
+                continue
             attempts += 1
-            hist = points[:end]; future = points[end:end + horizon]
             result = analyze(metric_name, "mmHg", hist, forecast_days=horizon, condition_group=None)
             if not result.get("forecast", {}).get("available"):
                 refusals += 1
                 rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "refused", "reason": result.get("forecast", {}).get("reason")})
                 continue
-            pred = result["forecast"]["curve"]["predicted"][:len(future)]
-            lower = result["forecast"]["curve"]["lower"][:len(future)]
-            upper = result["forecast"]["curve"]["upper"][:len(future)]
-            actual = [float(p["v"]) for p in future]
+            forecast_curve = result["forecast"]["curve"]
+            predicted_by_day = {
+                pd.to_datetime(float(ts), unit="s", utc=True).strftime("%Y-%m-%d"): (pred, lo, hi)
+                for ts, pred, lo, hi in zip(
+                    forecast_curve["timestamps"], forecast_curve["predicted"],
+                    forecast_curve["lower"], forecast_curve["upper"], strict=True,
+                )
+            }
+            aligned = []
+            for point in future:
+                day = pd.Timestamp(point["t"]).strftime("%Y-%m-%d")
+                if day in predicted_by_day:
+                    aligned.append((day, float(point["v"]), *predicted_by_day[day]))
+            if not aligned:
+                refusals += 1
+                rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "refused", "reason": "预测日期与真实记录没有交集"})
+                continue
+            actual = [row[1] for row in aligned]
+            pred = [row[2] for row in aligned]
+            lower = [row[3] for row in aligned]
+            upper = [row[4] for row in aligned]
             baseline = [float(hist[-1]["v"])] * len(actual)
             scale = float(np.mean(np.abs(np.diff([float(p["v"]) for p in hist])))) if len(hist) > 1 else 1.0
-            rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "forecasted", "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
+            rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "forecasted", "aligned_dates": [row[0] for row in aligned], "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
     forecasted = [r for r in rows if r["status"] == "forecasted"]
     def aggregate(key):
         vals = [r[key][field] for r in forecasted for field in ()]

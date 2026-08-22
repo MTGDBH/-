@@ -176,6 +176,7 @@ def _metrics(actual, predicted, scale):
     if len(actual) > 1:
         r2 = float(1 - np.sum(errors ** 2) / max(np.sum((actual - np.mean(actual)) ** 2), 1e-9))
     return {
+        'n': int(len(actual)),
         'mae': round(mae, 4) if mae is not None else None,
         'rmse': round(rmse, 4) if rmse is not None else None,
         'bias': round(bias, 4) if bias is not None else None,
@@ -193,32 +194,42 @@ def _backtest(x, y):
     if scale < 1e-6:
         scale = float(np.std(y))
     scale = max(scale, abs(float(np.median(y))) * 0.01, 1e-6)
-    scores, all_residuals = {}, {}
+    scores, all_residuals, all_residual_leads = {}, {}, {}
     start = max(8, int(np.ceil(len(y) * 0.45)))
     for name in candidates:
-        by_horizon, residuals = {}, []
+        by_horizon, residuals, residual_leads = {}, [], []
         for horizon in (1, 3, 7):
             actual, predicted = [], []
-            for end in range(start, len(y) - horizon + 1):
+            folds = 0
+            for end in range(start, len(y)):
+                origin = float(x[end - 1])
+                indexes = np.where((x[end:] > origin) & (x[end:] <= origin + float(horizon) + 1e-9))[0] + end
+                if len(indexes) == 0:
+                    continue
                 try:
-                    _, pred = _fit_predict(name, x[:end], y[:end], x[end:end + horizon])
-                    if len(pred) == horizon and np.all(np.isfinite(pred)):
-                        actual.extend(y[end:end + horizon].tolist())
+                    target_x = x[indexes]
+                    _, pred = _fit_predict(name, x[:end], y[:end], target_x)
+                    if len(pred) == len(indexes) and np.all(np.isfinite(pred)):
+                        folds += 1
+                        actual.extend(y[indexes].tolist())
                         predicted.extend(pred.tolist())
-                        if horizon == 1:
-                            residuals.append(float(y[end] - pred[0]))
+                        if horizon == 7:
+                            residuals.extend((y[indexes] - pred).astype(float).tolist())
+                            residual_leads.extend((target_x - origin).astype(float).tolist())
                 except Exception:
                     continue
             if actual:
                 by_horizon[str(horizon)] = _metrics(actual, predicted, scale)
+                by_horizon[str(horizon)]['origin_folds'] = folds
         if by_horizon:
             primary = by_horizon.get('7') or by_horizon.get('3') or by_horizon.get('1')
             scores[name] = {
                 **primary,
-                'folds': sum(1 for value in by_horizon.values() if value.get('mae') is not None),
+                'folds': sum(int(value.get('origin_folds') or 0) for value in by_horizon.values()),
                 'horizons': by_horizon,
             }
             all_residuals[name] = residuals
+            all_residual_leads[name] = residual_leads
     if not scores:
         return None
     selected = min(scores, key=lambda name: (scores[name]['mase'], abs(scores[name].get('bias') or 0)))
@@ -228,6 +239,7 @@ def _backtest(x, y):
         'scores': scores,
         'folds': scores[selected]['folds'],
         'residuals': [round(float(value), 5) for value in all_residuals.get(selected, [])],
+        'residual_lead_days': [round(float(value), 3) for value in all_residual_leads.get(selected, [])],
     }
 
 

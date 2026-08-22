@@ -1,0 +1,3 @@
+participant_id,timestamp,metric,value,unit,condition,source,device_model,site_id,region_id,measurement_id,quality_status,age,gender,disease_status,medication_state,meal_state,split
+P001,2026-01-01T08:00:00+08:00,bp.systolic,128,mmHg,morning_rest,real_device,DEVICE_MODEL,SITE_A,REGION_A,M001,valid,68,female,hypertension,unchanged,fasting,train
+P001,2026-01-01T08:00:00+08:00,bp.diastolic,78,mmHg,morning_rest,real_device,DEVICE_MODEL,SITE_A,REGION_A,M002,valid,68,female,hypertension,unchanged,fasting,train

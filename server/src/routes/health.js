@@ -34,7 +34,7 @@ function normalizeMeasurementCondition(type, value) {
 router.get('/metric-defs', (_req, res) => {
   const defs = db.prepare(`
     SELECT type, name, unit, value_type, min_value, max_value, normal_min, normal_max,
-           frequency, ml_enabled, description, color, icon, sort
+           frequency, ml_enabled, prediction_mode, description, color, icon, sort
     FROM metric_defs ORDER BY sort
   `).all();
   res.json(defs);

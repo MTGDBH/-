@@ -1,0 +1,13 @@
+# Offline CHARLS model development dependencies. These are intentionally kept
+# out of the smaller online Docker runtime in ml/requirements.txt.
+pandas>=2.2,<4
+numpy>=2.0,<3
+scikit-learn>=1.5,<2
+joblib>=1.4,<2
+
+# The trainer resolves backends in this order: CatBoost, LightGBM, XGBoost.
+# Installing either preferred backend is sufficient; XGBoost remains the tested
+# fallback because it is already required by the online disease-risk service.
+catboost>=1.2,<2
+lightgbm>=4.5,<5
+xgboost==3.4.1

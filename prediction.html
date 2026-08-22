@@ -75,6 +75,7 @@
     let metricList = [];
     let metricResults = [];
     let selectedMetricType = null;
+    const populationPredictionCache = new Map();
     // 默认突出个人趋势与短期范围；原始明细和同龄人参考按需打开，避免第一屏图层过载。
     const chartVisibility = { raw: false, fitted: true, peer: false, forecast: true };
     let zoomTimer = null;
@@ -258,14 +259,22 @@
       return [...keep.values()];
     }
 
-    function buildLegend(data, actualLabel = '我的数据（实际）', forecastLabel = '预测趋势', actualColor = '#F4A261') {
+    function predictionModeLabel(mode) {
+      return ({ value: '数值预测', range: '范围估计', risk: '风险估计', anomaly: '异常识别', derived: '公式推导', not_supported: '暂不支持' })[mode] || '暂不支持';
+    }
+
+    function escapeText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    }
+
+    function buildLegend(data, actualLabel = '直接测量值', forecastLabel = '预测值', actualColor = '#F4A261') {
       const items = [];
       if (Array.isArray(data.series) && data.series.length > 1) {
         data.series.forEach((series, index) => {
           const color = series.color || (index ? '#9C7BC9' : actualColor);
-          if (series.observed?.length) items.push(legendItem(`${series.label || series.id}（实际）`, color));
+          if (series.observed?.length) items.push(legendItem(`${series.label || series.id}（直接测量值）`, color));
           if (series.trend?.length) items.push(legendItem(`${series.label || series.id}趋势`, color, true));
-          if (series.forecast?.points?.length) items.push(legendItem(`${series.label || series.id}预测`, color, true));
+          if (series.forecast?.points?.length) items.push(legendItem(`${series.label || series.id}（预测值）`, color, true));
         });
         if (data.series.some(series => series.forecast?.points?.some(p => Number.isFinite(p.lower) && Number.isFinite(p.upper)))) {
           items.push(legendBandItem('预测范围', '#7A91C7'));
@@ -327,7 +336,7 @@
         fitted: showFitted ? (data.fitted || []) : [],
         predicted: showForecast ? predicted : [],
         peer: showPeer ? peer : [],
-      }, '我的健康分（实际）', '我的健康分（预测）');
+      }, '健康分（直接测量值计算）', '健康分（预测值）');
       const metricCount = Number.isFinite(Number(data.metricCount)) ? data.metricCount : 0;
       const ageGroup = data.ageGroup || '未分组';
       const peerBaseScore = data.peerBaseScore ?? '—';
@@ -489,6 +498,36 @@
       host.innerHTML = renderMetricCard(data, m);
       renderMetricChart(`metric-svg-${m.type}`, data, m);
       renderMetricSummary(data, m);
+      loadPopulationEstimate(m);
+    }
+
+    async function loadPopulationEstimate(m) {
+      const host = document.getElementById(`population-estimate-${m.type}`);
+      if (!host) return;
+      try {
+        let result = populationPredictionCache.get(m.type);
+        if (!result) {
+          result = await API.get(`/api/prediction/population/${m.type}`);
+          populationPredictionCache.set(m.type, result);
+        }
+        if (selectedMetricType !== m.type || !document.getElementById(`population-estimate-${m.type}`)) return;
+        if (result.status !== 'available') {
+          host.innerHTML = `<strong>${escapeText(result.display_label || '估计值')}：</strong>${escapeText(result.reason || '当前资料不足，暂不输出人群模型结果')}`;
+          return;
+        }
+        if (result.prediction_mode === 'risk') {
+          const level = ({ low: '低', medium: '中', high: '高' })[result.risk_level] || '待定';
+          const probability = Number.isFinite(Number(result.risk_probability)) ? `（模型概率 ${Math.round(Number(result.risk_probability) * 100)}%）` : '';
+          host.innerHTML = `<strong>估计值：</strong>长期化验异常风险为<strong>${level}</strong>${probability}。这是筛查风险，不是化验结果。`;
+        } else if (result.components?.systolic && result.components?.diastolic) {
+          host.innerHTML = `<strong>预测值：</strong>CHARLS人群长期模型约 ${escapeText(result.components.systolic.point)}/${escapeText(result.components.diastolic.point)} mmHg；时间尺度约2年，不等同于图中的7天预测。`;
+        } else {
+          const interval = result.lower != null && result.upper != null ? `，范围 ${escapeText(result.lower)}～${escapeText(result.upper)}` : '';
+          host.innerHTML = `<strong>${escapeText(result.display_label || '预测值')}：</strong>CHARLS人群长期模型约 ${escapeText(result.point)}${m.unit ? ` ${escapeText(m.unit)}` : ''}${interval}；不等同于短期曲线。`;
+        }
+      } catch {
+        host.innerHTML = '<strong>估计值：</strong>人群模型暂不可用，已保留个体历史趋势。';
+      }
     }
 
     async function renderMetricCharts() {
@@ -517,6 +556,8 @@
       const trendText = trendMap[data.predTrend] || '—';
       const peerText = data.peerBase ? `同龄人均值 ${data.peerBase.value}${unitLabel}` : '无同龄人参考';
       const forecastGrade = forecastQuality(data.analysis);
+      const predictionMode = data.prediction?.prediction_mode || m.prediction_mode || 'not_supported';
+      const outputLabel = data.prediction?.display_label || (data.analysis?.forecastAvailable ? '预测值' : '估计值');
       const granularity = data.analysis?.forecastGranularity || data.series?.[0]?.forecast?.granularity;
       const forecastNote = data.analysis?.forecastAvailable
         ? `${forecastGrade.label}，虚线和色带为${granularity === 'weekly' ? '周级' : '短期'}范围估计`
@@ -547,10 +588,10 @@
               <div class="pred-metric-icon" style="background:${m.color}">${m.icon || '测'}</div>
               <div>
                 <div class="pred-metric-name">${nameLabel}健康趋势</div>
-                <div class="pred-metric-tag">实线看过去变化，虚线看未来大致范围</div>
+                <div class="pred-metric-tag">圆点为直接测量值；模型生成内容明确标为估计值或预测值</div>
               </div>
             </div>
-            <span class="pred-metric-badge ${trendClass}">${trendText}</span>
+            <span class="pred-metric-badge ${trendClass}">${trendText} · ${predictionModeLabel(predictionMode)}</span>
           </div>
           <div class="pred-metric-svg-wrap">
             <svg id="metric-svg-${m.type}" width="100%" height="300" viewBox="0 0 1060 300" preserveAspectRatio="xMidYMid meet"></svg>
@@ -567,10 +608,11 @@
             fitted: chartVisibility.fitted ? (data.fitted || []) : [],
             predicted: chartVisibility.forecast ? (data.predicted || []) : [],
             peer: chartVisibility.peer ? (data.peer || []) : [],
-          }, '我的数据（实际）', '预测趋势', m.color)}</div>
+          }, '直接测量值', outputLabel, m.color)}</div>
+          <div id="population-estimate-${m.type}" class="pred-metric-tag" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#F7F3ED">正在读取人群模型；短期曲线仍以 Curve V2 为基线。</div>
           <details class="pred-model-details">
             <summary>查看数据和模型详情</summary>
-            <div class="pred-quality-row">${quality}<span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
+            <div class="pred-quality-row">${quality}<span>输出：${outputLabel}</span><span>模式：${predictionModeLabel(predictionMode)}</span><span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>
             <div class="pred-metric-tag" style="margin-top:8px">${unitLabel ? '单位：' + unitLabel : '定性指标'} · ${peerText} · ${forecastNote}</div>
             <div class="pred-metric-stats">${statsHtml}</div>
           </details>
@@ -662,7 +704,7 @@
         const bandOpacity = grade.level === 'baseline' ? 0.055 : grade.level === 'reference' ? 0.085 : 0.13;
         const band = future.length && future.every(p => Number.isFinite(p.lower) && Number.isFinite(p.upper))
           ? `<polygon points="${anchor && Number.isFinite(anchor.value) ? `${xToPx(pointTimestamp(anchor))},${yToPx(anchor.value, true)} ` : ''}${future.map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.upper, true)}`).join(' ')} ${future.slice().reverse().map(p => `${xToPx(pointTimestamp(p))},${yToPx(p.lower, true)}`).join(' ')}" fill="${color}" opacity="${bandOpacity}"/>` : '';
-        const futureDots = future.map((p, i) => `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value, true)}" r="2.8" fill="${color}" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · ${grade.label} ${p.value}${item.unit ? ` ${item.unit}` : ''} · 80%范围 ${p.lower}～${p.upper} · 模型估计，非实际测量</title></circle>`).join('');
+        const futureDots = future.map((p, i) => `<circle cx="${xToPx(pointTimestamp(p, i))}" cy="${yToPx(p.value, true)}" r="2.8" fill="${color}" stroke="#fff" stroke-width="1"><title>${formatPointTime(p)} · 预测值 ${p.value}${item.unit ? ` ${item.unit}` : ''} · 80%范围 ${p.lower}～${p.upper} · 非直接测量值</title></circle>`).join('');
         return `${showRaw ? observedDots : ''}${showFitted && trendPath ? `<path d="${trendPath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>` : ''}${showForecast ? band : ''}${showForecast && forecastPath ? `<path d="${forecastPath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-dasharray="8,5" stroke-linecap="round" opacity="${forecastOpacity}"/>${futureDots}` : ''}`;
       }).join('');
 

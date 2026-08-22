@@ -4,7 +4,7 @@
 import express from 'express';
 import db from '../db.js';
 import { scoreMetric } from '../lib/scoring.js';
-import { runPythonTool } from '../lib/htnPredictor.js';
+import { buildHtnPredictionInput, runPythonTool } from '../lib/htnPredictor.js';
 import { predictDisease, DISEASES } from '../lib/diseasePredictor.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,12 +12,13 @@ import { fileURLToPath } from 'node:url';
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CURVE_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'curve', 'health_curve.py');
+const POPULATION_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'population', 'population_service.py');
 const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'health_score']);
 
 // 指标元数据：以 metric_defs 表为单一数据源
 // 展示附加属性（dual/invasive）仅在此保留，指标定义本身不重复维护
 const ALL_METRICS = new Map(
-  db.prepare('SELECT type, name, unit, color, icon, value_type, normal_min, normal_max FROM metric_defs ORDER BY sort')
+  db.prepare('SELECT type, name, unit, color, icon, value_type, normal_min, normal_max, prediction_mode FROM metric_defs ORDER BY sort')
     .all()
     .map(r => {
       const dual = r.value_type === 'dual';
@@ -82,6 +83,167 @@ function classifyForecastQuality(result) {
   return { level: 'baseline', label: '仅基线参考', mase, reason: '滚动回测未优于简单基线' };
 }
 
+const PREDICTION_SCHEMA_VERSION = 'health-prediction.v1';
+const VALUE_LABELS = { measured: '直接测量值', estimated: '估计值', predicted: '预测值' };
+
+function buildPredictionContract(type, meta, curve) {
+  const mode = meta?.prediction_mode || 'not_supported';
+  const points = curve?.predicted || [];
+  const last = points.at(-1) || null;
+  const available = !!curve?.analysis?.forecastAvailable && !!last;
+  const estimateModes = new Set(['risk', 'anomaly', 'derived', 'range']);
+  const valueKind = available ? 'predicted' : (estimateModes.has(mode) ? 'estimated' : 'predicted');
+  return {
+    schema_version: PREDICTION_SCHEMA_VERSION,
+    metric: type,
+    prediction_mode: mode,
+    value_kind: valueKind,
+    display_label: VALUE_LABELS[valueKind],
+    status: available ? 'available' : 'abstained',
+    horizon_days: available ? Number(curve.analysis?.forecastDays || points.length || 0) : 0,
+    point: available ? Number(last.value) : null,
+    lower: available && Number.isFinite(Number(last.lower)) ? Number(last.lower) : null,
+    upper: available && Number.isFinite(Number(last.upper)) ? Number(last.upper) : null,
+    risk_probability: null,
+    risk_level: null,
+    model: curve?.analysis?.forecastModel || curve?.analysis?.model || null,
+    abstained: !available,
+    reason: available ? null : (curve?.analysis?.forecastReason || `${meta?.name || type}当前没有可用的${mode === 'risk' ? '风险' : mode === 'anomaly' ? '异常' : '预测'}模型`),
+    disclaimer: '模型输出用于健康管理筛查，不是诊断；需要时以规范复测或化验结果为准',
+  };
+}
+
+function projectBloodPressure(systolic, diastolic, minimumPulsePressure = 5) {
+  let s = Number(systolic);
+  let d = Number(diastolic);
+  if (!Number.isFinite(s) || !Number.isFinite(d)) return [systolic, diastolic, false];
+  let changed = false;
+  if (s - d < minimumPulsePressure) {
+    const center = (s + d) / 2;
+    s = center + minimumPulsePressure / 2;
+    d = center - minimumPulsePressure / 2;
+    changed = true;
+  }
+  const clippedS = Math.min(260, Math.max(60, s));
+  const clippedD = Math.min(150, Math.max(40, d));
+  changed ||= clippedS !== s || clippedD !== d;
+  return [+clippedS.toFixed(2), +clippedD.toFixed(2), changed];
+}
+
+function calculateEgfr2021(creatinineUmol, age, gender) {
+  const scr = Number(creatinineUmol) / 88.4;
+  const years = Number(age);
+  if (!Number.isFinite(scr) || scr <= 0 || !Number.isFinite(years) || years < 18) return null;
+  const female = Number(gender) === 0;
+  const kappa = female ? 0.7 : 0.9;
+  const alpha = female ? -0.241 : -0.302;
+  const ratio = scr / kappa;
+  const value = 142 * Math.pow(Math.min(ratio, 1), alpha) * Math.pow(Math.max(ratio, 1), -1.2) * Math.pow(0.9938, years) * (female ? 1.012 : 1);
+  return +value.toFixed(2);
+}
+
+/** Keep paired point forecasts physiologically ordered without changing observations. */
+function enforceBloodPressureJointConstraint(systolicCurve, diastolicCurve) {
+  const diastolicByTime = new Map((diastolicCurve?.predicted || []).map(point => [point.recorded_at, point]));
+  let adjusted = 0;
+  for (const systolic of systolicCurve?.predicted || []) {
+    const diastolic = diastolicByTime.get(systolic.recorded_at);
+    if (!diastolic) continue;
+    const [s, d, changed] = projectBloodPressure(systolic.value, diastolic.value);
+    systolic.value = s;
+    diastolic.value = d;
+    if (Number.isFinite(systolic.lower) && Number.isFinite(systolic.upper)) {
+      systolic.lower = Math.min(s, Number(systolic.lower));
+      systolic.upper = Math.max(s, Number(systolic.upper));
+    }
+    if (Number.isFinite(diastolic.lower) && Number.isFinite(diastolic.upper)) {
+      diastolic.lower = Math.min(d, Number(diastolic.lower));
+      diastolic.upper = Math.max(d, Number(diastolic.upper));
+    }
+    if (changed) adjusted += 1;
+  }
+  return { applied: true, minimumPulsePressure: 5, adjustedPoints: adjusted };
+}
+
+function latestMetricMap(userId) {
+  const result = {};
+  for (const { type } of db.prepare('SELECT type FROM metric_defs').all()) {
+    result[type] = db.prepare('SELECT * FROM metrics WHERE user_id = ? AND type = ? ORDER BY recorded_at DESC LIMIT 1').get(userId, type) || null;
+  }
+  return result;
+}
+
+function buildPopulationFeatures(userId, user) {
+  const metrics = latestMetricMap(userId);
+  const core = buildHtnPredictionInput(metrics, { height: user.height });
+  const assessment = db.prepare('SELECT adl, iadl FROM assessments WHERE user_id = ? ORDER BY created_at DESC LIMIT 1').get(userId) || {};
+  const genderText = String(user.gender || '').toLowerCase();
+  const gender = ['male', 'm', '男', '1'].includes(genderText) ? 1 : (['female', 'f', '女', '0'].includes(genderText) ? 0 : null);
+  const chronicFlags = [user.chronic_diabetes, user.chronic_heart, user.chronic_stroke, user.dyslipidemia, user.lung_disease, user.chronic_kidney];
+  return {
+    age: user.age ?? null,
+    gender,
+    edu: user.education_level ?? null,
+    ...core,
+    mweight: metrics.weight?.value ?? null,
+    grip: metrics.grip?.value ?? null,
+    smokev: user.smoking_status == null ? null : Number(user.smoking_status !== 0),
+    smoken: user.smoking_status == null ? null : Number(user.smoking_status !== 0),
+    drinkev: user.drinking_status == null ? null : Number(user.drinking_status !== 0),
+    drinkl: user.drinking_status == null ? null : Number(user.drinking_status !== 0),
+    exercise: user.exercise_level == null ? null : Number(user.exercise_level > 0),
+    totmet: null,
+    srh: user.self_rated_health ?? null,
+    cesd10: null,
+    total_cognition: null,
+    adlab_c: Number.isFinite(Number(assessment.adl)) && Number(assessment.adl) >= 0 && Number(assessment.adl) <= 6 ? Number(assessment.adl) : null,
+    iadl: Number.isFinite(Number(assessment.iadl)) && Number(assessment.iadl) >= 0 && Number(assessment.iadl) <= 5 ? Number(assessment.iadl) : null,
+    chronic: chronicFlags.every(value => value == null) ? null : Number(chronicFlags.some(Number)),
+    diabe: user.chronic_diabetes ?? null,
+    hearte: user.chronic_heart ?? null,
+    stroke: user.chronic_stroke ?? null,
+    dyslipe: user.dyslipidemia ?? null,
+    lunge: user.lung_disease ?? null,
+    bl_crea: metrics.creatinine?.value != null ? +(metrics.creatinine.value / 88.4).toFixed(5) : null,
+  };
+}
+
+async function runPopulationPrediction(userId, user, type) {
+  const numericTargets = new Map([['hr', 'hr'], ['weight', 'weight'], ['waist', 'waist'], ['grip', 'grip']]);
+  const riskTargets = new Set(['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
+  const features = buildPopulationFeatures(userId, user);
+  if (type === 'bp') {
+    const [systolic, diastolic] = await Promise.all([
+      runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: 'systo', features }, 30000),
+      runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: 'diasto', features }, 30000),
+    ]);
+    if (systolic?.status !== 'available' || diastolic?.status !== 'available') {
+      return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'bp', prediction_mode: 'value', value_kind: 'predicted', display_label: '预测值', status: 'abstained', abstained: true, reason: systolic?.reason || diastolic?.reason || '人群模型不可用', components: { systolic, diastolic } };
+    }
+    const [s, d, adjusted] = projectBloodPressure(systolic.point, diastolic.point);
+    systolic.point = s; diastolic.point = d;
+    return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'bp', prediction_mode: 'value', value_kind: 'predicted', display_label: '预测值', status: 'available', abstained: false, horizon_days: 730, components: { systolic, diastolic }, joint_constraint: { applied: true, adjusted }, disclaimer: 'CHARLS人群长期预测，不代表未来7天，也不是诊断' };
+  }
+  if (numericTargets.has(type)) {
+    return runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: numericTargets.get(type), features }, 30000);
+  }
+  if (riskTargets.has(type)) {
+    const anchorField = { glucose: 'bl_glu', hba1c: 'bl_hbalc', cholesterol: 'bl_cho', uricacid: 'bl_ua', creatinine: 'bl_crea' }[type];
+    const tier = features[anchorField] == null ? 'noninvasive' : 'micro_anchor';
+    return runPythonTool(POPULATION_SCRIPT, { task: 'risk', target: type, tier, features }, 30000);
+  }
+  if (type === 'egfr') {
+    const point = calculateEgfr2021(features.bl_crea == null ? null : features.bl_crea * 88.4, features.age, features.gender);
+    if (point == null) {
+      return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'abstained', horizon_days: 0, model: 'CKD-EPI-2021', abstained: true, reason: '需要规范肌酐、年龄和性别后才能推导eGFR' };
+    }
+    return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'available', horizon_days: 0, point, lower: null, upper: null, model: 'CKD-EPI-2021', abstained: false, reason: null, disclaimer: 'eGFR为公式估算值，需结合持续时间、尿白蛋白和临床评估解释' };
+  }
+  return buildPredictionContract(type, ALL_METRICS.get(type), { analysis: { forecastAvailable: false, forecastReason: '该指标尚无人群模型' }, predicted: [] });
+}
+
+export { buildPopulationFeatures, calculateEgfr2021, projectBloodPressure, runPopulationPrediction };
+
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
   if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
@@ -99,6 +261,7 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
     outlier: (result.curve.raw_outlier_indices || []).includes(i),
     measurement_condition: sourceById.get(result.curve.raw_ids?.[i])?.measurement_condition || conditionGroup || 'unknown',
     source: sourceById.get(result.curve.raw_ids?.[i])?.source || null,
+    value_kind: 'measured', display_label: VALUE_LABELS.measured,
   })) || points.map((p, i) => ({ ...p, day: i, predicted: false, outlier: false }));
   const fittedValues = result?.curve?.fitted || [];
   const fittedTimes = result?.curve?.timestamps || [];
@@ -198,6 +361,7 @@ router.get('/metrics', (req, res) => {
       icon: c.icon,
       dual: false,
       invasive: 'none',
+      prediction_mode: 'not_supported',
       custom: true,
       ref_min: c.ref_min,
       ref_max: c.ref_max,
@@ -225,6 +389,19 @@ router.delete('/custom-metrics/:id', (req, res) => {
 });
 
 // 单指标预测
+router.get('/population/:type', async (req, res) => {
+  const type = String(req.params.type || '');
+  if (!ALL_METRICS.has(type)) return res.status(400).json({ error: '未知指标类型' });
+  try {
+    const result = await runPopulationPrediction(req.user.id, req.user, type);
+    res.json(result);
+  } catch (error) {
+    console.error('[population-prediction] failed:', error.message);
+    res.status(503).json({ success: false, error: 'population prediction unavailable' });
+  }
+});
+
+// Curve V2 个体短期基线；人群模型通过 /population/:type 单独获取，防止混淆时间尺度。
 router.get('/:type', async (req, res) => {
   const { type } = req.params;
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
@@ -244,10 +421,12 @@ router.get('/:type', async (req, res) => {
   const sourcePoints = points.map(p => ({ ...p, value: p.value }));
   let curve;
   let series = [];
+  let jointConstraint = null;
   if (type === 'bp') {
     const systolic = await analyzeCurve('systo', meta.unit, sourcePoints, futureDays);
     const diastolicPoints = sourcePoints.filter(p => p.value2 != null).map(p => ({ ...p, value: p.value2 }));
     const diastolic = await analyzeCurve('diasto', meta.unit, diastolicPoints, futureDays);
+    jointConstraint = enforceBloodPressureJointConstraint(systolic, diastolic);
     curve = systolic;
     series = [
       toCurveSeries('bp.systolic', '收缩压', meta.unit, 'all', systolic, '#F4A261'),
@@ -314,6 +493,8 @@ router.get('/:type', async (req, res) => {
     series,
     eligibility: curve.analysis?.eligibility || null,
     analysis: curve.analysis || null,
+    prediction: buildPredictionContract(type, meta, curve),
+    jointConstraint,
     conditionQuality: curve.conditionQuality || null,
     status: curve.status,
     days,

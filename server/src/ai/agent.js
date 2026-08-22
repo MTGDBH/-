@@ -185,9 +185,14 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
           const routedMetrics = Array.isArray(intent.trendMetrics) ? intent.trendMetrics : [];
           if (routedMetrics.length) {
             const selected = await Promise.all(routedMetrics.map(metric => analyzeHealthTrend(user?.id, { metric, days: args.days })));
+            const successful = selected.filter(item => item?.success);
+            const longDirections = successful.map(item => item.long_term_trend).filter(Boolean);
+            const recentDirections = successful.map(item => item.recent_trend).filter(Boolean);
             r = {
               success: selected.every(item => item?.success !== false), metric: 'selected', requested_days: selected[0]?.requested_days || args.days || 90,
-              analyzed: selected.filter(item => item?.success).map(item => item.metric), metrics: selected.filter(item => item?.success),
+              analyzed: successful.map(item => item.metric), metrics: successful,
+              long_term_trend: longDirections.length && longDirections.every(value => value === longDirections[0]) ? longDirections[0] : 'mixed',
+              recent_trend: recentDirections.length && recentDirections.every(value => value === recentDirections[0]) ? recentDirections[0] : 'mixed',
               note: '只返回本次问题点名的指标；多个指标同时变化不代表因果关系',
             };
           } else {
@@ -836,7 +841,7 @@ async function mockTrendReply(user, allowForecast = true) {
     let s = `${metricName}（${m.unit}）：当前 ${m.latest_value}，长期${long}、近期${recent}，${fluc}`;
     if (m.abnormal_spike) s += '，曾出现明显异常波动';
     if (allowForecast && m.forecast?.available && m.forecast.estimated_value != null) s += `；按当前走势估计 ${m.forecast.days} 天后约 ${m.forecast.estimated_value}（仅供参考）`;
-    else if (!allowForecast) s += '；本次只分析历史变化，未进行未来数值外推';
+    else if (!allowForecast) s += '；本次仅说明历史趋势';
     else if (m.forecast?.reason) s += `；${m.forecast.reason}`;
     return s;
   });
