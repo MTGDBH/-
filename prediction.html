@@ -76,6 +76,8 @@
     let metricResults = [];
     let selectedMetricType = null;
     const populationPredictionCache = new Map();
+    const RESEARCH_METRICS = new Set(['bp', 'hr', 'weight', 'waist', 'grip', 'glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine', 'egfr']);
+    let populationCapabilitiesData = null;
     // 默认突出个人趋势与短期范围；原始明细和同龄人参考按需打开，避免第一屏图层过载。
     const chartVisibility = { raw: false, fitted: true, peer: false, forecast: true };
     let zoomTimer = null;
@@ -127,11 +129,13 @@
     async function loadAll() {
       try {
         // 并行加载：指标列表 + 综合预测
-        const [list, composite] = await Promise.all([
+        const [list, composite, capabilities] = await Promise.all([
           API.get('/api/prediction/overview/list?days=' + days),
           API.get(`/api/prediction/overview/composite?days=${days}&future=${futureDays}`),
+          API.get('/api/prediction/capabilities').catch(() => null),
         ]);
         metricList = list;
+        populationCapabilitiesData = capabilities;
         renderComposite(composite);
         await renderMetricCharts();
       } catch (err) {
@@ -498,12 +502,65 @@
       host.innerHTML = renderMetricCard(data, m);
       renderMetricChart(`metric-svg-${m.type}`, data, m);
       renderMetricSummary(data, m);
-      loadPopulationEstimate(m);
+      if (RESEARCH_METRICS.has(m.type)) loadPopulationEstimate(m);
+    }
+
+    function populationLoadingHtml() {
+      return '<div class="pred-research-skeleton"><span></span><span></span><span></span></div><div class="pred-research-muted">正在校验模型和资料完整度…</div>';
+    }
+
+    function populationCompleteness(result) {
+      const values = [result?.metadata?.feature_completeness, result?.components?.systolic?.metadata?.feature_completeness, result?.components?.diastolic?.metadata?.feature_completeness]
+        .map(Number).filter(Number.isFinite);
+      return values.length ? Math.min(...values) : null;
+    }
+
+    function populationHorizon(result) {
+      const value = Number(result?.horizon_days);
+      if (value === 0) return '当前资料公式推导';
+      if (value >= 1400) return '约4年异常风险';
+      if (value >= 700) return '约2年长期估计';
+      return value > 0 ? `${value}天` : '长期人群尺度';
+    }
+
+    function renderPopulationResult(result, m) {
+      const host = document.getElementById(`population-estimate-${m.type}`);
+      if (!host) return;
+      const version = result.model_version || populationCapabilitiesData?.bundle?.version || '未安装';
+      const completeness = populationCompleteness(result);
+      const completenessHtml = completeness == null ? '' : `<div class="pred-research-completeness"><span style="width:${Math.max(0, Math.min(100, Math.round(completeness * 100)))}%"></span></div><small>资料完整度 ${Math.round(completeness * 100)}%</small>`;
+      const meta = `<div class="pred-research-meta"><span>${escapeText(populationHorizon(result))}</span><span>模型 ${escapeText(version)}</span>${completenessHtml}</div>`;
+      if (result.status !== 'available') {
+        const statusLabel = result.status === 'insufficient_data' ? '资料不足' : result.status === 'not_supported' ? '暂不支持' : result.reason_code === 'MODEL_BUNDLE_MISSING' ? '模型未安装' : '模型不可用';
+        host.innerHTML = `<div class="pred-research-state"><span class="pred-research-status is-muted">${statusLabel}</span><strong>${escapeText(result.reason || '当前不输出长期人群模型结果')}</strong><p>个人历史和 Curve V2 短期趋势仍可正常查看，不会使用缺失资料硬凑结果。</p>${meta}<button type="button" class="pred-research-retry" data-retry-population="${escapeText(m.type)}">重新检查</button></div>`;
+      } else if (result.prediction_mode === 'risk') {
+        const level = ({ low: '低风险', medium: '中风险', high: '高风险' })[result.risk_level] || '风险待定';
+        const probability = Number.isFinite(Number(result.risk_probability)) ? `${Math.round(Number(result.risk_probability) * 100)}%` : '—';
+        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status is-risk">估计值 · ${level}</span><div class="pred-research-value">异常风险概率 ${probability}</div><p>这是长期筛查风险，不是化验结果；建议结合规范复测或实验室检查。</p>${meta}</div>`;
+      } else if (result.components?.systolic && result.components?.diastolic) {
+        const s = result.components.systolic;
+        const d = result.components.diastolic;
+        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status">预测值</span><div class="pred-research-bp"><div><small>收缩压</small><strong>${escapeText(s.point)} <em>mmHg</em></strong><span>${escapeText(s.lower)}～${escapeText(s.upper)}</span></div><div><small>舒张压</small><strong>${escapeText(d.point)} <em>mmHg</em></strong><span>${escapeText(d.lower)}～${escapeText(d.upper)}</span></div></div><p>已应用收缩压/舒张压联合约束；不等同于图中的短期预测。</p>${meta}</div>`;
+      } else {
+        const interval = result.lower != null && result.upper != null ? `<span class="pred-research-interval">参考区间 ${escapeText(result.lower)}～${escapeText(result.upper)}${m.unit ? ` ${escapeText(m.unit)}` : ''}</span>` : '';
+        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status">${escapeText(result.display_label || '预测值')}</span><div class="pred-research-value">${escapeText(result.point)}${m.unit ? ` <em>${escapeText(m.unit)}</em>` : ''}</div>${interval}<p>${result.prediction_mode === 'derived' ? '依据当前资料公式估算。' : 'CHARLS人群长期结果，不等同于短期曲线。'}</p>${meta}</div>`;
+      }
+      host.querySelector('[data-retry-population]')?.addEventListener('click', () => retryPopulationEstimate(m.type));
+    }
+
+    async function retryPopulationEstimate(type) {
+      const m = metricList.find(item => item.type === type);
+      if (!m) return;
+      populationPredictionCache.delete(type);
+      const host = document.getElementById(`population-estimate-${type}`);
+      if (host) host.innerHTML = populationLoadingHtml();
+      await loadPopulationEstimate(m);
     }
 
     async function loadPopulationEstimate(m) {
       const host = document.getElementById(`population-estimate-${m.type}`);
       if (!host) return;
+      if (!RESEARCH_METRICS.has(m.type)) return;
       try {
         let result = populationPredictionCache.get(m.type);
         if (!result) {
@@ -511,22 +568,9 @@
           populationPredictionCache.set(m.type, result);
         }
         if (selectedMetricType !== m.type || !document.getElementById(`population-estimate-${m.type}`)) return;
-        if (result.status !== 'available') {
-          host.innerHTML = `<strong>${escapeText(result.display_label || '估计值')}：</strong>${escapeText(result.reason || '当前资料不足，暂不输出人群模型结果')}`;
-          return;
-        }
-        if (result.prediction_mode === 'risk') {
-          const level = ({ low: '低', medium: '中', high: '高' })[result.risk_level] || '待定';
-          const probability = Number.isFinite(Number(result.risk_probability)) ? `（模型概率 ${Math.round(Number(result.risk_probability) * 100)}%）` : '';
-          host.innerHTML = `<strong>估计值：</strong>长期化验异常风险为<strong>${level}</strong>${probability}。这是筛查风险，不是化验结果。`;
-        } else if (result.components?.systolic && result.components?.diastolic) {
-          host.innerHTML = `<strong>预测值：</strong>CHARLS人群长期模型约 ${escapeText(result.components.systolic.point)}/${escapeText(result.components.diastolic.point)} mmHg；时间尺度约2年，不等同于图中的7天预测。`;
-        } else {
-          const interval = result.lower != null && result.upper != null ? `，范围 ${escapeText(result.lower)}～${escapeText(result.upper)}` : '';
-          host.innerHTML = `<strong>${escapeText(result.display_label || '预测值')}：</strong>CHARLS人群长期模型约 ${escapeText(result.point)}${m.unit ? ` ${escapeText(m.unit)}` : ''}${interval}；不等同于短期曲线。`;
-        }
+        renderPopulationResult(result, m);
       } catch {
-        host.innerHTML = '<strong>估计值：</strong>人群模型暂不可用，已保留个体历史趋势。';
+        renderPopulationResult({ status: 'unavailable', reason_code: 'NETWORK_ERROR', reason: '模型服务连接失败，请稍后重试', horizon_days: m.prediction_mode === 'risk' ? 1460 : 730 }, m);
       }
     }
 
@@ -609,7 +653,14 @@
             predicted: chartVisibility.forecast ? (data.predicted || []) : [],
             peer: chartVisibility.peer ? (data.peer || []) : [],
           }, '直接测量值', outputLabel, m.color)}</div>
-          <div id="population-estimate-${m.type}" class="pred-metric-tag" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#F7F3ED">正在读取人群模型；短期曲线仍以 Curve V2 为基线。</div>
+          <section class="pred-research-card" aria-label="长期人群研究预览">
+            <div class="pred-research-head">
+              <div><strong>${m.type === 'egfr' ? '肾功能公式估算' : 'CHARLS 长期人群估计'}</strong><span>研究预览</span></div>
+              <small>与 Curve V2 短期曲线分开展示</small>
+            </div>
+            <div id="population-estimate-${m.type}" class="pred-research-body" aria-live="polite">${RESEARCH_METRICS.has(m.type) ? populationLoadingHtml() : `<div class="pred-research-state"><span class="pred-research-status is-muted">${predictionModeLabel(predictionMode)}</span><strong>当前没有长期人群模型</strong><p>本指标只展示已支持的个人历史、短期范围或异常识别能力。</p></div>`}</div>
+            <div class="pred-research-disclaimer">研究用途 · 非临床诊断 · 不能替代直接测量或规范化验</div>
+          </section>
           <details class="pred-model-details">
             <summary>查看数据和模型详情</summary>
             <div class="pred-quality-row">${quality}<span>输出：${outputLabel}</span><span>模式：${predictionModeLabel(predictionMode)}</span><span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>

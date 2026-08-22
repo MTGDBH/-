@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import db from './db.js';
 import authRouter, { sessionMiddleware, requireAuth } from './auth.js';
 import { getLLMStatus } from './ai/agent.js';
+import { getModelBundleStatus } from './lib/modelBundle.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,7 +52,8 @@ app.use(sessionMiddleware);
 // ===== 公共路由（不要求登录）=====
 app.get('/api/health', (_req, res) => {
   const llm = getLLMStatus();
-  res.json({ ok: true, time: new Date().toISOString(), mode: llm.mode, provider: llm.provider, model: llm.model });
+  const bundle = getModelBundleStatus();
+  res.json({ ok: true, time: new Date().toISOString(), mode: llm.mode, provider: llm.provider, model: llm.model, populationModels: bundle.status === 'ready' ? 'ready' : 'degraded' });
 });
 app.use('/api/auth', authRouter);
 

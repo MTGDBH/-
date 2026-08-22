@@ -8,12 +8,17 @@ import { buildHtnPredictionInput, runPythonTool } from '../lib/htnPredictor.js';
 import { predictDisease, DISEASES } from '../lib/diseasePredictor.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getModelBundleStatus, populationCapabilities } from '../lib/modelBundle.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CURVE_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'curve', 'health_curve.py');
 const POPULATION_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'population', 'population_service.py');
 const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'health_score']);
+const POPULATION_NUMERIC_TARGETS = new Map([['hr', 'hr'], ['weight', 'weight'], ['waist', 'waist'], ['grip', 'grip']]);
+const POPULATION_RISK_TARGETS = new Set(['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
+const POPULATION_CACHE_TTL_MS = 5 * 60 * 1000;
+const populationCache = new Map();
 
 // 指标元数据：以 metric_defs 表为单一数据源
 // 展示附加属性（dual/invasive）仅在此保留，指标定义本身不重复维护
@@ -142,6 +147,41 @@ function calculateEgfr2021(creatinineUmol, age, gender) {
   return +value.toFixed(2);
 }
 
+function unavailablePopulationResult(type, meta, status, reasonCode, reason, bundleVersion = null) {
+  const mode = meta?.prediction_mode || 'not_supported';
+  const estimated = ['risk', 'derived', 'anomaly', 'range'].includes(mode);
+  return {
+    schema_version: PREDICTION_SCHEMA_VERSION,
+    metric: type,
+    prediction_mode: mode,
+    value_kind: estimated ? 'estimated' : 'predicted',
+    display_label: estimated ? '估计值' : '预测值',
+    status,
+    abstained: true,
+    reason_code: reasonCode,
+    reason,
+    horizon_days: POPULATION_RISK_TARGETS.has(type) ? 1460 : (type === 'egfr' ? 0 : 730),
+    model_version: bundleVersion,
+    disclaimer: '研究用途，不能替代规范测量、化验或临床诊断',
+  };
+}
+
+function normalizePopulationResult(type, meta, result, bundleVersion) {
+  if (!result || result.success === false || !['available', 'insufficient_data', 'unavailable', 'not_supported'].includes(result.status)) {
+    return unavailablePopulationResult(type, meta, 'unavailable', result?.reason_code || 'MODEL_RUNTIME_ERROR', '人群模型运行失败，请稍后重试', bundleVersion);
+  }
+  return {
+    ...result,
+    metric: result.metric || type,
+    prediction_mode: result.prediction_mode || meta?.prediction_mode || 'not_supported',
+    abstained: result.status !== 'available',
+    reason_code: result.reason_code ?? (result.status === 'insufficient_data' ? 'FEATURES_INSUFFICIENT' : null),
+    horizon_days: Number(result.horizon_days ?? (POPULATION_RISK_TARGETS.has(type) ? 1460 : 730)),
+    model_version: result.model_version || bundleVersion,
+    disclaimer: result.disclaimer || '研究用途，不能替代规范测量、化验或临床诊断',
+  };
+}
+
 /** Keep paired point forecasts physiologically ordered without changing observations. */
 function enforceBloodPressureJointConstraint(systolicCurve, diastolicCurve) {
   const diastolicByTime = new Map((diastolicCurve?.predicted || []).map(point => [point.recorded_at, point]));
@@ -209,40 +249,63 @@ function buildPopulationFeatures(userId, user) {
 }
 
 async function runPopulationPrediction(userId, user, type) {
-  const numericTargets = new Map([['hr', 'hr'], ['weight', 'weight'], ['waist', 'waist'], ['grip', 'grip']]);
-  const riskTargets = new Set(['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
   const features = buildPopulationFeatures(userId, user);
-  if (type === 'bp') {
-    const [systolic, diastolic] = await Promise.all([
-      runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: 'systo', features }, 30000),
-      runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: 'diasto', features }, 30000),
-    ]);
-    if (systolic?.status !== 'available' || diastolic?.status !== 'available') {
-      return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'bp', prediction_mode: 'value', value_kind: 'predicted', display_label: '预测值', status: 'abstained', abstained: true, reason: systolic?.reason || diastolic?.reason || '人群模型不可用', components: { systolic, diastolic } };
-    }
-    const [s, d, adjusted] = projectBloodPressure(systolic.point, diastolic.point);
-    systolic.point = s; diastolic.point = d;
-    return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'bp', prediction_mode: 'value', value_kind: 'predicted', display_label: '预测值', status: 'available', abstained: false, horizon_days: 730, components: { systolic, diastolic }, joint_constraint: { applied: true, adjusted }, disclaimer: 'CHARLS人群长期预测，不代表未来7天，也不是诊断' };
-  }
-  if (numericTargets.has(type)) {
-    return runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: numericTargets.get(type), features }, 30000);
-  }
-  if (riskTargets.has(type)) {
-    const anchorField = { glucose: 'bl_glu', hba1c: 'bl_hbalc', cholesterol: 'bl_cho', uricacid: 'bl_ua', creatinine: 'bl_crea' }[type];
-    const tier = features[anchorField] == null ? 'noninvasive' : 'micro_anchor';
-    return runPythonTool(POPULATION_SCRIPT, { task: 'risk', target: type, tier, features }, 30000);
-  }
+  const meta = ALL_METRICS.get(type);
   if (type === 'egfr') {
     const point = calculateEgfr2021(features.bl_crea == null ? null : features.bl_crea * 88.4, features.age, features.gender);
-    if (point == null) {
-      return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'abstained', horizon_days: 0, model: 'CKD-EPI-2021', abstained: true, reason: '需要规范肌酐、年龄和性别后才能推导eGFR' };
-    }
-    return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'available', horizon_days: 0, point, lower: null, upper: null, model: 'CKD-EPI-2021', abstained: false, reason: null, disclaimer: 'eGFR为公式估算值，需结合持续时间、尿白蛋白和临床评估解释' };
+    if (point == null) return unavailablePopulationResult(type, meta, 'insufficient_data', 'FEATURES_INSUFFICIENT', '需要规范肌酐、年龄和性别后才能推导eGFR');
+    return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'available', horizon_days: 0, point, lower: null, upper: null, model: 'CKD-EPI-2021', model_version: 'CKD-EPI-2021', abstained: false, reason_code: null, disclaimer: '公式估算结果不能替代肾功能评估或临床诊断' };
   }
-  return buildPredictionContract(type, ALL_METRICS.get(type), { analysis: { forecastAvailable: false, forecastReason: '该指标尚无人群模型' }, predicted: [] });
+  if (type !== 'bp' && !POPULATION_NUMERIC_TARGETS.has(type) && !POPULATION_RISK_TARGETS.has(type)) {
+    return unavailablePopulationResult(type, meta, 'not_supported', 'MODEL_NOT_SUPPORTED', '该指标当前没有CHARLS长期人群模型');
+  }
+  const bundle = getModelBundleStatus();
+  if (bundle.status !== 'ready') {
+    const reasons = { missing: '模型包未安装，短期Curve V2仍可正常使用', invalid: '模型包校验失败，已停止加载', incompatible: '模型包版本与当前预测契约不兼容' };
+    return unavailablePopulationResult(type, meta, 'unavailable', bundle.reason_code, reasons[bundle.status] || '人群模型暂不可用', bundle.bundle_version);
+  }
+  if (type === 'bp') {
+    const result = await runPythonTool(POPULATION_SCRIPT, { task: 'blood_pressure', features }, 30000);
+    return normalizePopulationResult(type, meta, result, bundle.bundle_version);
+  }
+  if (POPULATION_NUMERIC_TARGETS.has(type)) {
+    const result = await runPythonTool(POPULATION_SCRIPT, { task: 'numeric', target: POPULATION_NUMERIC_TARGETS.get(type), features }, 30000);
+    return normalizePopulationResult(type, meta, result, bundle.bundle_version);
+  }
+  if (POPULATION_RISK_TARGETS.has(type)) {
+    const anchorField = { glucose: 'bl_glu', hba1c: 'bl_hbalc', cholesterol: 'bl_cho', uricacid: 'bl_ua', creatinine: 'bl_crea' }[type];
+    const tier = features[anchorField] == null ? 'noninvasive' : 'micro_anchor';
+    const result = await runPythonTool(POPULATION_SCRIPT, { task: 'risk', target: type, tier, features }, 30000);
+    return normalizePopulationResult(type, meta, result, bundle.bundle_version);
+  }
+  return unavailablePopulationResult(type, meta, 'not_supported', 'MODEL_NOT_SUPPORTED', '该指标当前没有CHARLS长期人群模型');
 }
 
-export { buildPopulationFeatures, calculateEgfr2021, projectBloodPressure, runPopulationPrediction };
+function populationDataSignature(userId, user, type, bundleVersion) {
+  const metric = db.prepare('SELECT MAX(recorded_at) AS updated_at FROM metrics WHERE user_id = ?').get(userId)?.updated_at || 'none';
+  const assessment = db.prepare('SELECT MAX(created_at) AS updated_at FROM assessments WHERE user_id = ?').get(userId)?.updated_at || 'none';
+  const profile = [
+    user.age, user.gender, user.height, user.education_level, user.smoking_status, user.drinking_status,
+    user.exercise_level, user.self_rated_health, user.chronic_diabetes, user.chronic_heart,
+    user.chronic_stroke, user.dyslipidemia, user.lung_disease, user.chronic_kidney,
+  ];
+  return `${userId}|${type}|${bundleVersion || 'none'}|${metric}|${assessment}|${JSON.stringify(profile)}`;
+}
+
+async function cachedPopulationPrediction(userId, user, type) {
+  const bundle = getModelBundleStatus();
+  const key = populationDataSignature(userId, user, type, bundle.bundle_version);
+  const hit = populationCache.get(key);
+  if (hit && Date.now() - hit.createdAt < POPULATION_CACHE_TTL_MS) {
+    return { ...hit.value, cache: { hit: true, ttl_seconds: Math.ceil((POPULATION_CACHE_TTL_MS - (Date.now() - hit.createdAt)) / 1000) } };
+  }
+  const value = await runPopulationPrediction(userId, user, type);
+  populationCache.set(key, { createdAt: Date.now(), value });
+  if (populationCache.size > 500) populationCache.delete(populationCache.keys().next().value);
+  return { ...value, cache: { hit: false, ttl_seconds: POPULATION_CACHE_TTL_MS / 1000 } };
+}
+
+export { buildPopulationFeatures, calculateEgfr2021, projectBloodPressure, runPopulationPrediction, cachedPopulationPrediction, populationDataSignature };
 
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
@@ -389,11 +452,20 @@ router.delete('/custom-metrics/:id', (req, res) => {
 });
 
 // 单指标预测
+router.get('/capabilities', (_req, res) => {
+  const bundle = getModelBundleStatus();
+  res.json({
+    schema_version: PREDICTION_SCHEMA_VERSION,
+    bundle: { status: bundle.status, version: bundle.bundle_version, reason_code: bundle.reason_code },
+    targets: populationCapabilities(),
+  });
+});
+
 router.get('/population/:type', async (req, res) => {
   const type = String(req.params.type || '');
   if (!ALL_METRICS.has(type)) return res.status(400).json({ error: '未知指标类型' });
   try {
-    const result = await runPopulationPrediction(req.user.id, req.user, type);
+    const result = await cachedPopulationPrediction(req.user.id, req.user, type);
     res.json(result);
   } catch (error) {
     console.error('[population-prediction] failed:', error.message);

@@ -1,10 +1,12 @@
 # ===== Node.js =====
 node_modules/
 server/node_modules/
+.venv/
 
 # ===== ML 产物（CHARLS 衍生数据与模型文件，含受访者编码，禁止入库）=====
 ml/data/
 ml/models/
+private-artifacts/
 __pycache__/
 *.py[cod]
 
@@ -26,6 +28,7 @@ server/data/*.db-journal
 
 # ===== 日志 =====
 *.log
+*.pid
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

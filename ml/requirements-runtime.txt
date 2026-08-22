@@ -1,0 +1,7 @@
+# Exact runtime used to serialize the private inference bundle.
+numpy==2.4.6
+pandas==3.0.3
+scikit-learn==1.9.0
+joblib==1.5.3
+lightgbm==4.7.0
+xgboost==3.4.1

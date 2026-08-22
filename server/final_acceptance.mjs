@@ -24,7 +24,12 @@ const risk = (await request('/api/prediction/disease/diabetes', { headers: auth 
 if (!risk.success || risk.risk_probability < 0 || risk.risk_probability > 1) throw new Error('disease risk acceptance failed');
 if (!risk.data_completeness || risk.data_completeness.missing_count !== risk.missing_features.length || !Array.isArray(risk.data_completeness.next_steps)) throw new Error('risk completeness acceptance failed');
 const curve = (await request('/api/prediction/bp?days=90&future=30', { headers: auth })).body;
-if (!curve.actual?.length || !curve.fitted?.length || !curve.predicted?.length || !curve.predicted[0].recorded_at || curve.predicted[0].lower > curve.predicted[0].upper) throw new Error('curve acceptance failed');
+if (!curve.actual?.length || !curve.fitted?.length) throw new Error('curve history acceptance failed');
+if (curve.predicted?.length) {
+  if (!curve.predicted[0].recorded_at || curve.predicted[0].lower > curve.predicted[0].upper) throw new Error('curve forecast contract failed');
+} else if (curve.analysis?.forecastAvailable !== false || !curve.analysis?.forecastReason) {
+  throw new Error('curve refusal contract failed');
+}
 const behaviorCurve = (await request('/api/prediction/steps?days=90&future=30', { headers: auth })).body;
 if (behaviorCurve.predicted?.length !== 0 || !behaviorCurve.analysis?.forecastReason) throw new Error('behavior forecast gate failed');
 const graph = (await request(`/api/knowledge/graph/query?q=${encodeURIComponent('\u8840\u538b\u8fde\u7eed\u504f\u9ad8\u600e\u4e48\u529e')}&disease=hypertension`, { headers: auth })).body;

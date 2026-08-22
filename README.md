@@ -72,6 +72,29 @@
 
 ## 快速开始
 
+### Windows 10/11 一键部署（推荐）
+
+在 PowerShell 中从项目根目录运行：
+
+```powershell
+.\scripts\Install-Local.ps1
+.\scripts\Start-Local.ps1 -SkipSetup
+```
+
+安装脚本固定使用 Node 22.16 和 Python 3.14 x64，在项目 `.venv` 中安装推理依赖，并初始化 SQLite。启动成功后会打开 `http://localhost:3001/prediction.html`。停止服务：
+
+```powershell
+.\scripts\Stop-Local.ps1
+```
+
+人群模型通过私有签名 URL 分发。在 `server\.env` 配置 `MODEL_BUNDLE_URL` 和 `MODEL_BUNDLE_SHA256`；留空时主系统及 Curve V2 正常启动，预测页会明确显示模型包未安装。模型维护者可运行：
+
+```powershell
+.\scripts\New-ModelBundle.ps1 -Version 2026.08.22
+```
+
+生成的 ZIP 位于被 Git 忽略的 `private-artifacts`，只包含校验过的推理产物，不包含 CHARLS 原始数据。
+
 ### 1. 启动后端
 
 **macOS / Linux**
