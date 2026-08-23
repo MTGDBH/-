@@ -7,14 +7,17 @@ import { scoreMetric } from '../lib/scoring.js';
 import { buildHtnPredictionInput, runPythonTool } from '../lib/htnPredictor.js';
 import { predictDisease, DISEASES } from '../lib/diseasePredictor.js';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { getModelBundleStatus, populationCapabilities } from '../lib/modelBundle.js';
+import { intakeSchema, scoreIntake, canActFor, INTAKE_SCHEMA_VERSION } from '../lib/intake.js';
+import { discoverFromIntake, latestDiscoveryEvents } from '../lib/discovery.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CURVE_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'curve', 'health_curve.py');
 const POPULATION_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'population', 'population_service.py');
-const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'health_score']);
+const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'pulse_pressure', 'health_score']);
 const POPULATION_NUMERIC_TARGETS = new Map([['hr', 'hr'], ['weight', 'weight'], ['waist', 'waist'], ['grip', 'grip']]);
 const POPULATION_RISK_TARGETS = new Set(['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
 const POPULATION_OUTCOME_TARGETS = new Map([
@@ -45,38 +48,105 @@ const ALL_METRICS = new Map(
     })
 );
 
+const VIRTUAL_METRICS = new Map([
+  ['bmi', { type: 'bmi', name: 'BMI', unit: 'kg/m²', color: '#5A8045', icon: '体', value_type: 'number', normal_min: 18.5, normal_max: 23.9, prediction_mode: 'derived', dual: false, invasive: 'none' }],
+  ['pulse_pressure', { type: 'pulse_pressure', name: '脉压', unit: 'mmHg', color: '#386FBD', icon: '差', value_type: 'number', normal_min: 20, normal_max: 60, prediction_mode: 'range', dual: false, invasive: 'none' }],
+]);
+const CURVE_DISPLAY_METRICS = Object.freeze([
+  { type: 'bp', group: 'daily', recordable: true, chart_mode: 'forecast' },
+  { type: 'glucose', group: 'daily', recordable: true, chart_mode: 'forecast' },
+  { type: 'hr', group: 'daily', recordable: true, chart_mode: 'forecast' },
+  { type: 'weight', group: 'daily', recordable: true, chart_mode: 'forecast' },
+  { type: 'sleep', group: 'activity', recordable: true, chart_mode: 'trend' },
+  { type: 'steps', group: 'activity', recordable: true, chart_mode: 'trend' },
+  { type: 'spo2', group: 'anomaly', recordable: true, chart_mode: 'anomaly' },
+  { type: 'temp', group: 'anomaly', recordable: true, chart_mode: 'anomaly' },
+  { type: 'resp', group: 'anomaly', recordable: true, chart_mode: 'anomaly' },
+  { type: 'bmi', group: 'derived', recordable: false, derived_from: ['height', 'weight'], chart_mode: 'derived_forecast' },
+  { type: 'pulse_pressure', group: 'derived', recordable: false, derived_from: ['bp.value', 'bp.value2'], chart_mode: 'trend' },
+]);
+
+const PEER_REFERENCE_PATH = path.resolve(__dirname, '..', '..', '..', 'ml', 'population', 'peer_reference.v1.json');
+let PEER_REFERENCE = null;
+try {
+  PEER_REFERENCE = JSON.parse(fs.readFileSync(PEER_REFERENCE_PATH, 'utf8'));
+} catch (error) {
+  console.warn('[peer-reference] aggregate unavailable:', error.message);
+}
+
+const CLINICAL_REFERENCES = Object.freeze({
+  bp: [{ series_id: 'bp.systolic', label: '收缩压', lower: 90, upper: 139 }, { series_id: 'bp.diastolic', label: '舒张压', lower: 60, upper: 89 }],
+  glucose: [{ series_id: 'glucose', label: '血糖（需结合测量条件）', lower: 4, upper: 7 }],
+  hr: [{ series_id: 'hr.resting', label: '静息心率', lower: 60, upper: 100 }],
+  sleep: [{ series_id: 'sleep', label: '睡眠时长', lower: 7, upper: 9 }],
+  spo2: [{ series_id: 'spo2', label: '血氧饱和度', lower: 95, upper: 100 }],
+  temp: [{ series_id: 'temp', label: '腋下体温', lower: 36, upper: 37.3 }],
+  resp: [{ series_id: 'resp', label: '静息呼吸频率', lower: 14, upper: 20 }],
+  bmi: [{ series_id: 'bmi', label: 'BMI', lower: 18.5, upper: 23.9 }],
+  pulse_pressure: [{ series_id: 'pulse_pressure', label: '脉压管理参考', lower: 20, upper: 60 }],
+});
+
+function curveMetricMeta(type) {
+  return ALL_METRICS.get(type) || VIRTUAL_METRICS.get(type) || null;
+}
+
 function predictionMeta(type) {
   if (type === 'steps') return ALL_METRICS.get('steps');
   return ALL_METRICS.get(type) || POPULATION_OUTCOME_TARGETS.get(type) || null;
 }
-
-// 同龄人平均参考值（按年龄段）
-const PEER_AVERAGES = {
-  '60-69': {
-    bp: { value: 125, value2: 78 }, glucose: { value: 5.6 }, hr: { value: 72 },
-    sleep: { value: 7.0 }, spo2: { value: 96 }, weight: { value: 65 }, steps: { value: 5500 },
-    temp: { value: 36.5 }, resp: { value: 16 }, grip: { value: 28 }, bodyfat: { value: 26 },
-    waist: { value: 85 }, uricacid: { value: 340 }, cholesterol: { value: 5.2 }, hba1c: { value: 5.8 },
-  },
-  '70-79': {
-    bp: { value: 130, value2: 80 }, glucose: { value: 5.8 }, hr: { value: 70 },
-    sleep: { value: 6.5 }, spo2: { value: 95 }, weight: { value: 63 }, steps: { value: 4000 },
-    temp: { value: 36.4 }, resp: { value: 17 }, grip: { value: 24 }, bodyfat: { value: 28 },
-    waist: { value: 87 }, uricacid: { value: 360 }, cholesterol: { value: 5.5 }, hba1c: { value: 6.0 },
-  },
-  '80+': {
-    bp: { value: 135, value2: 82 }, glucose: { value: 6.0 }, hr: { value: 68 },
-    sleep: { value: 6.0 }, spo2: { value: 94 }, weight: { value: 60 }, steps: { value: 2500 },
-    temp: { value: 36.3 }, resp: { value: 18 }, grip: { value: 20 }, bodyfat: { value: 30 },
-    waist: { value: 90 }, uricacid: { value: 380 }, cholesterol: { value: 5.8 }, hba1c: { value: 6.2 },
-  },
-};
 
 function getAgeGroup(age) {
   if (!age || age < 60) return '60-69';
   if (age < 70) return '60-69';
   if (age < 80) return '70-79';
   return '80+';
+}
+
+function normalizedSex(gender) {
+  const value = String(gender ?? '').trim().toLowerCase();
+  if (['male', 'm', '男', '1'].includes(value)) return 'male';
+  if (['female', 'f', '女', '0'].includes(value)) return 'female';
+  return null;
+}
+
+function peerReferenceFor(type, user) {
+  const ageGroup = getAgeGroup(user?.age);
+  const sex = normalizedSex(user?.gender);
+  const cohort = PEER_REFERENCE?.age_groups?.[ageGroup];
+  const keyMap = type === 'bp' ? [['bp.systolic', '收缩压'], ['bp.diastolic', '舒张压']] : [[type, curveMetricMeta(type)?.name || type]];
+  if (!cohort || !['bp', 'hr', 'weight', 'bmi', 'sleep'].includes(type)) {
+    return { status: 'unavailable', age_group: ageGroup, sex, reason: '暂无同口径同龄人群数据', series: [] };
+  }
+  const minimum = Number(PEER_REFERENCE.minimum_cell_n || 50);
+  let fallback = !sex;
+  const rows = keyMap.map(([key, label]) => {
+    let item = sex ? cohort[sex]?.[key] : null;
+    let scope = 'age_sex';
+    if (!item || Number(item.n) < minimum) {
+      item = cohort.all?.[key];
+      scope = 'age_only';
+      fallback = true;
+    }
+    return item ? { series_id: key, label, ...item, scope } : null;
+  }).filter(Boolean);
+  if (!rows.length) return { status: 'unavailable', age_group: ageGroup, sex, reason: '同龄人群样本不足', series: [] };
+  return {
+    status: 'available', age_group: ageGroup, sex, fallback, minimum_cell_n: minimum,
+    source: PEER_REFERENCE.source, version: PEER_REFERENCE.schema_version,
+    source_sha256: PEER_REFERENCE.source_sha256, generated_at: PEER_REFERENCE.generated_at,
+    note: '人群四分位范围不是医学正常范围', series: rows,
+  };
+}
+
+function referenceFor(type, user) {
+  const clinicalSeries = CLINICAL_REFERENCES[type] || [];
+  return {
+    clinical: clinicalSeries.length ? {
+      status: 'available', version: 'metric-defs.v1', review_status: 'configured',
+      note: '通用健康管理参考，个体目标以医生建议为准', series: clinicalSeries,
+    } : { status: 'unavailable', reason: '该指标没有通用的单一医学范围', series: [] },
+    peer: peerReferenceFor(type, user),
+  };
 }
 
 function isoFromSeconds(seconds) {
@@ -257,7 +327,8 @@ function buildPopulationFeatures(userId, user) {
     drinkl: user.drinking_status == null ? null : Number(user.drinking_status !== 0),
     exercise: user.exercise_level == null ? null : Number(user.exercise_level > 0),
     totmet: null,
-    srh: manualInputs.srh ?? user.self_rated_health ?? null,
+    // Manual prediction_inputs are legacy/model-coded; profile uses app coding (good=5).
+    srh: manualInputs.srh ?? (user.self_rated_health == null ? null : 6 - Number(user.self_rated_health)),
     cesd10: manualInputs.cesd10 ?? null,
     total_cognition: manualInputs.total_cognition ?? null,
     adlab_c: manualInputs.adlab_c ?? (Number.isFinite(Number(assessment.adl)) && Number(assessment.adl) >= 0 && Number(assessment.adl) <= 6 ? Number(assessment.adl) : null),
@@ -492,7 +563,126 @@ function toCurveSeries(id, label, unit, condition, curve, color) {
   };
 }
 
+function transformCurve(curve, factor, valueKind = 'estimated') {
+  const scale = value => Number.isFinite(Number(value)) ? +(Number(value) * factor).toFixed(2) : value;
+  const points = rows => (rows || []).map(row => ({ ...row, value: scale(row.value), lower: scale(row.lower), upper: scale(row.upper), value_kind: valueKind, display_label: VALUE_LABELS[valueKind] }));
+  const interval = curve?.forecastInterval ? {
+    ...curve.forecastInterval,
+    predicted: (curve.forecastInterval.predicted || []).map(scale),
+    lower: (curve.forecastInterval.lower || []).map(scale),
+    upper: (curve.forecastInterval.upper || []).map(scale),
+  } : null;
+  const stats = curve?.stats ? Object.fromEntries(Object.entries(curve.stats).map(([key, value]) => [key, ['mean', 'median', 'std', 'min', 'max', 'avg'].includes(key) ? scale(value) : value])) : null;
+  return {
+    ...curve,
+    actual: points(curve?.actual), raw: points(curve?.raw), clean: points(curve?.clean),
+    smooth: points(curve?.smooth), fitted: points(curve?.fitted), predicted: points(curve?.predicted),
+    forecastInterval: interval, stats,
+  };
+}
+
+export { referenceFor, peerReferenceFor, transformCurve, curveMetricMeta, CURVE_DISPLAY_METRICS };
+
 // ===== 路由 =====
+
+function resolveSubject(req, rawId = null) {
+  const subjectId = rawId == null || rawId === '' ? req.user.id : Number(rawId);
+  if (!Number.isInteger(subjectId) || subjectId <= 0) return { error: 400, message: 'subject_user_id 不正确' };
+  const access = canActFor(subjectId, req.user.id);
+  if (!access.allowed) return { error: 403, message: '未获得该老人的授权' };
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(subjectId);
+  if (!user) return { error: 404, message: '老人账号不存在' };
+  return { id: subjectId, user, access };
+}
+
+router.get('/intake/schema', (_req, res) => res.json(intakeSchema()));
+
+router.get('/intake/latest', (req, res) => {
+  const subject = resolveSubject(req, req.query.subject_user_id);
+  if (subject.error) return res.status(subject.error).json({ error: subject.message });
+  const intake = db.prepare(`SELECT * FROM health_intakes WHERE subject_user_id = ? ORDER BY recorded_at DESC, id DESC LIMIT 1`).get(subject.id);
+  if (!intake) return res.json({ schema_version: INTAKE_SCHEMA_VERSION, intake: null, answers: {}, scores: {} });
+  const answers = Object.fromEntries(db.prepare('SELECT question_id,value FROM health_intake_answers WHERE intake_id = ?')
+    .all(intake.id).map(row => {
+      try { return [row.question_id, JSON.parse(row.value)]; } catch { return [row.question_id, row.value]; }
+    }));
+  res.json({ schema_version: intake.schema_version, intake: { ...intake, scores: JSON.parse(intake.scores || '{}') }, answers, scores: JSON.parse(intake.scores || '{}') });
+});
+
+router.post('/intakes', (req, res) => {
+  const subject = resolveSubject(req, req.body?.subject_user_id);
+  if (subject.error) return res.status(subject.error).json({ error: subject.message });
+  const scored = scoreIntake(req.body?.answers || {});
+  if (!Object.keys(scored.answers).length) return res.status(400).json({ error: '请至少回答一题' });
+  const recordedAt = req.body?.recorded_at && !Number.isNaN(Date.parse(req.body.recorded_at)) ? new Date(req.body.recorded_at) : new Date();
+  if (recordedAt.getTime() > Date.now() + 5 * 60 * 1000) return res.status(400).json({ error: '记录时间不能晚于当前时间' });
+  const intakeStatus = req.body?.status === 'in_progress' ? 'in_progress' : 'completed';
+  const result = db.transaction(() => {
+    const inserted = db.prepare(`INSERT INTO health_intakes
+      (subject_user_id,actor_user_id,respondent_role,schema_version,status,scores,recorded_at)
+      VALUES (?,?,?,?,?,?,?)`).run(subject.id, req.user.id, subject.access.role, INTAKE_SCHEMA_VERSION,
+        intakeStatus, JSON.stringify(scored.scores), recordedAt.toISOString());
+    const intakeId = Number(inserted.lastInsertRowid);
+    const insertAnswer = db.prepare('INSERT INTO health_intake_answers (intake_id,question_id,value) VALUES (?,?,?)');
+    for (const [id, value] of Object.entries(scored.answers)) insertAnswer.run(intakeId, id, JSON.stringify(value));
+
+    if (intakeStatus === 'completed') {
+      // Only a completed questionnaire may update the model bridge/profile.
+      const insertModelValue = db.prepare(`INSERT INTO prediction_inputs (user_id,field,value,recorded_at,source) VALUES (?,?,?,?,?)`);
+      for (const field of ['cesd10','adlab_c','iadl','fall_down']) {
+        if (scored.scores[field] != null) insertModelValue.run(subject.id, field, scored.scores[field], recordedAt.toISOString(), 'health_intake.v1');
+      }
+      if (scored.scores.srh_charls != null) insertModelValue.run(subject.id, 'srh', scored.scores.srh_charls, recordedAt.toISOString(), 'health_intake.v1');
+      const profile = scored.answers;
+      db.prepare(`UPDATE users SET
+        self_rated_health = COALESCE(?,self_rated_health), smoking_status = COALESCE(?,smoking_status),
+        drinking_status = COALESCE(?,drinking_status), exercise_level = COALESCE(?,exercise_level),
+        chronic_hypertension = COALESCE(?,chronic_hypertension), chronic_diabetes = COALESCE(?,chronic_diabetes),
+        chronic_heart = COALESCE(?,chronic_heart), chronic_stroke = COALESCE(?,chronic_stroke)
+        WHERE id = ?`).run(profile.self_rated_health ?? null, profile.smoking_status ?? null, profile.drinking_status ?? null,
+          profile.exercise_minutes ?? null, profile.known_hypertension ?? null, profile.known_diabetes ?? null, profile.known_heart_disease ?? null,
+          profile.known_stroke ?? null, subject.id);
+    }
+    return intakeId;
+  })();
+  populationCache.clear();
+  const events = intakeStatus === 'completed' ? discoverFromIntake(subject.id, result, scored.answers, scored.scores) : [];
+  res.status(201).json({ ok: true, intake_id: result, subject_user_id: subject.id, respondent_role: subject.access.role,
+    schema_version: INTAKE_SCHEMA_VERSION, scores: scored.scores, events });
+});
+
+router.get('/discovery/overview', async (req, res) => {
+  const subject = resolveSubject(req, req.query.subject_user_id);
+  if (subject.error) return res.status(subject.error).json({ error: subject.message });
+  try {
+    const diseases = await Promise.all([...DISEASES].map(async disease => [disease, await predictDisease(subject.id, subject.user, disease)]));
+    const latest = latestMetricMap(subject.id);
+    const latestValues = Object.values(latest).filter(Boolean);
+    const lastMeasuredAt = latestValues.map(item => item.recorded_at).sort().at(-1) || null;
+    const intake = db.prepare("SELECT id,scores,recorded_at,respondent_role FROM health_intakes WHERE subject_user_id = ? AND status = 'completed' ORDER BY recorded_at DESC,id DESC LIMIT 1").get(subject.id);
+    const events = latestDiscoveryEvents(subject.id);
+    const urgent = events.find(event => event.severity === 'critical');
+    const warning = events.find(event => event.severity === 'warning');
+    const limitedCount = diseases.filter(([, value]) => value.status === 'limited' || value.error === 'no_data').length;
+    res.json({
+      schema_version: 'health-discovery.v1', subject: { id: subject.id, name: subject.user.name, age: subject.user.age },
+      access: { respondent_role: subject.access.role },
+      summary: {
+        current: urgent ? '发现需要立即处理的信号' : warning ? '有需要关注的健康发现' : latestValues.length ? '暂未发现紧急信号' : '请先补充健康记录',
+        change: events.length ? `当前有 ${events.length} 项待处理发现` : (lastMeasuredAt ? '已读取最近健康记录' : '暂无可分析的测量'),
+        action: urgent?.action || warning?.action || (limitedCount ? '先完善档案并继续规范测量' : '保持规律记录'),
+        severity: urgent ? 'critical' : warning ? 'warning' : 'normal',
+      },
+      diseases: Object.fromEntries(diseases), events,
+      data: { latest_measurement_at: lastMeasuredAt, latest_intake: intake ? { ...intake, scores: JSON.parse(intake.scores || '{}') } : null,
+        metric_count: latestValues.length, model_limited_count: limitedCount },
+      disclaimer: '健康发现用于筛查和复测提醒，不是诊断；突发不适应立即联系急救或专业人员。',
+    });
+  } catch (error) {
+    console.error('[discovery-overview] failed:', error);
+    res.status(503).json({ error: '健康发现服务暂时不可用' });
+  }
+});
 
 // 多疾病两年新发风险（由当前用户指标构建输入，禁止客户端直接传模型字段）
 router.get('/disease/:disease', async (req, res) => {
@@ -604,19 +794,24 @@ router.get('/population/:type', async (req, res) => {
 // Curve V2 个体短期基线；人群模型通过 /population/:type 单独获取，防止混淆时间尺度。
 router.get('/:type', async (req, res) => {
   const { type } = req.params;
+  const subject = resolveSubject(req, req.query.subject_user_id);
+  if (subject.error) return res.status(subject.error).json({ error: subject.message });
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
-  const futureDays = Math.min(parseInt(req.query.future || '30', 10), 30);
+  // The server chooses the highest defensible horizon; clients no longer need
+  // to promise a fixed forecast length.
+  const futureDays = 30;
 
-  const meta = ALL_METRICS.get(type);
+  const meta = curveMetricMeta(type);
   if (!meta) return res.status(400).json({ error: '未知指标类型' });
 
   // 获取历史数据
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
+  const sourceType = type === 'bmi' ? 'weight' : type === 'pulse_pressure' ? 'bp' : type;
   const points = db.prepare(`
     SELECT id, value, value2, recorded_at, source, measurement_condition FROM metrics
     WHERE user_id = ? AND type = ? AND recorded_at >= ?
     ORDER BY recorded_at ASC
-  `).all(req.user.id, type, since);
+  `).all(subject.id, sourceType, since);
 
   const sourcePoints = points.map(p => ({ ...p, value: p.value }));
   let curve;
@@ -653,6 +848,23 @@ router.get('/:type', async (req, res) => {
     const group = hasResting ? 'resting' : 'unknown';
     curve = await analyzeCurve('pulse', meta.unit, sourcePoints, futureDays, group);
     series = [toCurveSeries('hr.resting', hasResting ? '静息心率' : '心率（未标记状态）', meta.unit, group, curve, meta.color)];
+  } else if (type === 'bmi') {
+    const height = Number(subject.user.height);
+    const heightM = height > 3 ? height / 100 : height;
+    if (!Number.isFinite(heightM) || heightM < 1 || heightM > 2.2) {
+      curve = await analyzeCurve('weight', 'kg', [], futureDays);
+      curve.analysis = { ...(curve.analysis || {}), forecastAvailable: false, forecastDays: 0, forecastReason: '健康档案缺少有效身高，暂时无法估算BMI', eligibility: { trend: false, forecast: false, required_points: 1, required_span_days: 0 } };
+      series = [toCurveSeries('bmi', 'BMI（系统估算）', meta.unit, 'derived', curve, meta.color)];
+    } else {
+      const weightCurve = await analyzeCurve('weight', 'kg', sourcePoints, futureDays);
+      curve = transformCurve(weightCurve, 1 / (heightM * heightM));
+      series = [toCurveSeries('bmi', 'BMI（由身高体重估算）', meta.unit, 'derived', curve, meta.color)];
+    }
+  } else if (type === 'pulse_pressure') {
+    const derived = sourcePoints.filter(point => Number.isFinite(Number(point.value2))).map(point => ({ ...point, value: +(Number(point.value) - Number(point.value2)).toFixed(2), source: 'derived:bp' }));
+    curve = await analyzeCurve('pulse_pressure', meta.unit, derived, futureDays);
+    curve = transformCurve(curve, 1);
+    series = [toCurveSeries('pulse_pressure', '脉压（收缩压−舒张压）', meta.unit, 'derived', curve, meta.color)];
   } else {
     const curveMetric = type === 'hr' ? 'pulse' : type;
     curve = await analyzeCurve(curveMetric, meta.unit, sourcePoints, futureDays);
@@ -661,15 +873,25 @@ router.get('/:type', async (req, res) => {
   const actualPoints = curve.actual || [];
   const predictedPoints = curve.predicted;
 
-  // 同龄人平均
-  const ageGroup = getAgeGroup(req.user.age);
-  const peerBase = PEER_AVERAGES[ageGroup]?.[type];
+  const reference = referenceFor(type, subject.user);
+  // 兼容旧客户端的同龄人均值字段；新客户端使用 reference.peer 四分位范围。
+  const ageGroup = getAgeGroup(subject.user.age);
+  const peerRows = reference.peer?.series || [];
+  const peerBase = peerRows.length ? {
+    value: peerRows[0].median,
+    ...(peerRows[1] ? { value2: peerRows[1].median } : {}),
+  } : null;
   const totalDays = actualPoints.length + predictedPoints.length;
   const peerLine = peerBase ? generatePeerLine(peerBase.value, totalDays) : [];
 
   // 统计
   const stats = curve.stats;
 
+  const primaryAnalysis = curve.analysis || {};
+  const displayState = primaryAnalysis.forecastAvailable ? 'forecast' : (primaryAnalysis.eligibility?.trend ? 'trend_only' : 'history_only');
+  const nextAction = primaryAnalysis.forecastAvailable
+    ? '按相同条件继续记录，若持续异常请咨询专业人员'
+    : (displayState === 'trend_only' ? '固定时间继续记录，数据更充分后系统会自动更新' : '先完成规律记录，至少7个有效日后查看趋势');
   res.json({
     type,
     meta,
@@ -683,6 +905,7 @@ router.get('/:type', async (req, res) => {
     peer: peerLine,
     peerBase: peerBase || null,
     ageGroup,
+    reference,
     stats,
     predTrend: curve.predTrend,
     fitted: curve.fitted,
@@ -694,6 +917,15 @@ router.get('/:type', async (req, res) => {
     jointConstraint,
     conditionQuality: curve.conditionQuality || null,
     status: curve.status,
+    display_state: displayState,
+    recommended_horizon_days: Number(primaryAnalysis.forecastDays || 0),
+    readiness: {
+      data_points: Number(primaryAnalysis.dataPoints || actualPoints.length),
+      required_points: Number(primaryAnalysis.eligibility?.required_points || 21),
+      required_span_days: Number(primaryAnalysis.eligibility?.required_span_days || 28),
+      reason: primaryAnalysis.forecastReason || null,
+    },
+    action: { level: primaryAnalysis.forecastAvailable ? 'monitor' : 'record', label: nextAction },
     days,
     futureDays,
   });
@@ -773,17 +1005,31 @@ router.get('/overview/composite', async (req, res) => {
 
 // 获取所有有数据的指标列表（用于预测页渲染多张图）
 router.get('/overview/list', (req, res) => {
+  const subject = resolveSubject(req, req.query.subject_user_id);
+  if (subject.error) return res.status(subject.error).json({ error: subject.message });
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
   const types = db.prepare(`
-    SELECT DISTINCT type, COUNT(*) as cnt FROM metrics
+    SELECT type, COUNT(*) as cnt, MAX(recorded_at) AS last_recorded_at FROM metrics
     WHERE user_id = ? AND recorded_at >= ?
     GROUP BY type ORDER BY cnt DESC
-  `).all(req.user.id, since);
-
-  const result = types
-    .filter(t => ALL_METRICS.has(t.type))
-    .map(t => ({ type: t.type, ...ALL_METRICS.get(t.type), count: t.cnt }));
+  `).all(subject.id, since);
+  const counts = new Map(types.map(row => [row.type, row]));
+  const result = CURVE_DISPLAY_METRICS.map(config => {
+    const sourceType = config.type === 'bmi' ? 'weight' : config.type === 'pulse_pressure' ? 'bp' : config.type;
+    const row = counts.get(sourceType) || { cnt: 0, last_recorded_at: null };
+    let count = Number(row.cnt || 0);
+    let dataStatus = count ? 'available' : 'no_data';
+    if (config.type === 'bmi' && !Number(subject.user.height)) dataStatus = 'missing_height';
+    if (config.type === 'pulse_pressure') {
+      count = Number(db.prepare(`SELECT COUNT(*) AS n FROM metrics WHERE user_id = ? AND type = 'bp' AND value2 IS NOT NULL AND recorded_at >= ?`).get(subject.id, since).n || 0);
+      dataStatus = count ? 'available' : 'no_paired_bp';
+    }
+    return {
+      type: config.type, ...curveMetricMeta(config.type), ...config, count,
+      last_recorded_at: row.last_recorded_at, data_status: dataStatus,
+    };
+  });
 
   res.json(result);
 });

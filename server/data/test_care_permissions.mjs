@@ -26,8 +26,18 @@ try {
   const relationships = await request('/api/care/relationships', { headers: memberAuth });
   const seniorId = accepted.body.senior_id;
   const summary = await request(`/api/care/seniors/${seniorId}/summary`, { headers: memberAuth });
-  if (summary.status !== 200 || summary.body.access !== 'authorized_read_only') throw new Error('authorized summary failed');
-  console.log(JSON.stringify({ pass: true, unauthorized_status: before.status, accepted: true, read_only: summary.body.access, relationship_count: relationships.body.as_member?.length || 0 }));
+  if (summary.status !== 200 || summary.body.access !== 'authorized_read_with_intake_write') throw new Error('authorized summary failed');
+  const deniedWrite = await request('/api/prediction/intakes', { method: 'POST', headers: strangerAuth,
+    body: JSON.stringify({ subject_user_id: seniorId, answers: { self_rated_health: 3 } }) });
+  if (deniedWrite.status !== 403) throw new Error(`unauthorized intake write was not denied: ${deniedWrite.status}`);
+  const intake = await request('/api/prediction/intakes', { method: 'POST', headers: memberAuth,
+    body: JSON.stringify({ subject_user_id: seniorId, answers: { self_rated_health: 4, fall_recent: 0 } }) });
+  if (intake.status !== 201 || intake.body.respondent_role !== 'caregiver') throw new Error(`authorized intake write failed: ${JSON.stringify(intake.body)}`);
+  const seniorMetrics = await request(`/api/prediction/overview/list?days=365&subject_user_id=${seniorId}`, { headers: memberAuth });
+  const seniorCurve = await request(`/api/prediction/bp?days=365&subject_user_id=${seniorId}`, { headers: memberAuth });
+  if (seniorMetrics.status !== 200 || seniorCurve.status !== 200) throw new Error('authorized trend view failed');
+  console.log(JSON.stringify({ pass: true, unauthorized_status: before.status, unauthorized_write_status: deniedWrite.status,
+    accepted: true, access: summary.body.access, caregiver_intake: true, caregiver_trend: true, relationship_count: relationships.body.as_member?.length || 0 }));
 } finally {
   for (const cookie of [seniorCookie, memberCookie, strangerCookie]) await request('/api/profile/me', { method: 'DELETE', headers: { Cookie: cookie } });
 }

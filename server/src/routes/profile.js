@@ -14,7 +14,7 @@ router.put('/me', (req, res) => {
   const {
     name, age, height, emergency_name, emergency_phone, notification_prefs,
     education_level, smoking_status, cigarettes_per_day, drinking_status,
-    drinking_frequency, exercise_level, self_rated_health, chronic_diabetes,
+    drinking_frequency, exercise_level, self_rated_health, chronic_hypertension, chronic_diabetes,
     chronic_heart, chronic_stroke, dyslipidemia, lung_disease,
   } = req.body;
   const fields = [];
@@ -42,7 +42,7 @@ router.put('/me', (req, res) => {
   if (drinking_frequency !== undefined) { fields.push('drinking_frequency = ?'); values.push(numberOrNull(drinking_frequency, 0, 365)); }
   if (exercise_level !== undefined) { fields.push('exercise_level = ?'); values.push(numberOrNull(exercise_level, 0, 200)); }
   if (self_rated_health !== undefined) { fields.push('self_rated_health = ?'); values.push(numberOrNull(self_rated_health, 1, 5, true)); }
-  for (const [input, column] of [['chronic_diabetes', 'chronic_diabetes'], ['chronic_heart', 'chronic_heart'], ['chronic_stroke', 'chronic_stroke'], ['dyslipidemia', 'dyslipidemia'], ['lung_disease', 'lung_disease']]) {
+  for (const [input, column] of [['chronic_hypertension', 'chronic_hypertension'], ['chronic_diabetes', 'chronic_diabetes'], ['chronic_heart', 'chronic_heart'], ['chronic_stroke', 'chronic_stroke'], ['dyslipidemia', 'dyslipidemia'], ['lung_disease', 'lung_disease']]) {
     if (req.body[input] !== undefined) { fields.push(`${column} = ?`); values.push(binaryOrNull(req.body[input])); }
   }
 

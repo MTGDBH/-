@@ -22,6 +22,18 @@
       </div>
     </header>
 
+    <section class="agent-context-bar" aria-label="智能体上下文">
+      <label id="agent-subject-wrap" hidden>选择老人
+        <select id="agent-subject"></select>
+      </label>
+      <label>当前对话
+        <select id="agent-conversation"></select>
+      </label>
+      <button type="button" class="btn btn-secondary" id="agent-new-conversation">＋ 新对话</button>
+      <button type="button" class="btn btn-ghost" id="agent-memory-button">已记住的信息</button>
+      <span class="agent-context-note" id="agent-context-note">健康数据每次实时读取，不使用过期预测</span>
+    </section>
+
     <section class="agent-row">
       <div class="chat-area">
         <div class="chat-history" id="chat-history"></div>
@@ -41,21 +53,26 @@
         <div id="plan-list"></div>
       </div>
     </section>
+    <section class="agent-memory-panel" id="agent-memory-panel" hidden>
+      <div class="agent-memory-head"><div><h2>已记住的信息</h2><p>只保存你确认过的偏好和照护信息，不保存健康数值或疾病概率。</p></div><button type="button" id="agent-memory-close">关闭</button></div>
+      <div id="agent-memory-list" class="agent-memory-list"></div>
+    </section>
   </main>
 
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    document.addEventListener('auth:ready', () => {
+    document.addEventListener('auth:ready', async () => {
       bindTabs();
-      loadChat();
-      loadPlan();
       bindSend();
       bindPrompts();
       bindMsgActions();
       bindPlanActions();
+      bindAgentContext();
       renderQuickPrompts('plan');
+      await initAgentContext();
+      loadPlan();
     });
     Auth.init();
 
@@ -68,6 +85,66 @@
     let activeTab = 'plan';
     let lastUserMessage = '';
     let ttsUtterance = null;
+    let me = null;
+    let subjectId = null;
+    let conversationId = null;
+
+    const agentQuery = () => `subject_user_id=${encodeURIComponent(subjectId)}${conversationId ? `&conversation_id=${encodeURIComponent(conversationId)}` : ''}`;
+    const requestId = () => (globalThis.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
+    function bindAgentContext() {
+      document.getElementById('agent-subject').addEventListener('change', async e => {
+        subjectId = Number(e.target.value); conversationId = null;
+        await loadConversations(); await Promise.all([loadChat(), loadMemories(), loadPlan()]);
+      });
+      document.getElementById('agent-conversation').addEventListener('change', async e => { conversationId = Number(e.target.value); await Promise.all([loadChat(), loadPlan()]); });
+      document.getElementById('agent-new-conversation').addEventListener('click', async () => {
+        const created = await API.post('/api/chat/conversations', { subject_user_id: subjectId, title: '新对话' });
+        conversationId = created.id; await loadConversations(); await Promise.all([loadChat(), loadPlan()]);
+      });
+      document.getElementById('agent-memory-button').addEventListener('click', async () => { document.getElementById('agent-memory-panel').hidden = false; await loadMemories(); });
+      document.getElementById('agent-memory-close').addEventListener('click', () => { document.getElementById('agent-memory-panel').hidden = true; });
+      document.getElementById('agent-memory-list').addEventListener('click', handleMemoryAction);
+    }
+
+    async function initAgentContext() {
+      me = await API.get('/api/auth/me'); subjectId = me.id;
+      let relationships = { as_member: [] };
+      try { relationships = await API.get('/api/care/relationships'); } catch {}
+      if (relationships.as_member?.length) {
+        const wrap = document.getElementById('agent-subject-wrap'); wrap.hidden = false;
+        document.getElementById('agent-subject').innerHTML = `<option value="${me.id}">${escapeHTML(me.name)}（本人）</option>` + relationships.as_member.filter(x => x.status === 'active').map(x => `<option value="${x.senior_id}">${escapeHTML(x.name)}（已授权）</option>`).join('');
+      }
+      await loadConversations(); await Promise.all([loadChat(), loadMemories()]);
+    }
+
+    async function loadConversations() {
+      let data = await API.get(`/api/chat/conversations?subject_user_id=${subjectId}`);
+      if (!data.items?.some(x => x.status === 'active')) {
+        const created = await API.post('/api/chat/conversations', { subject_user_id: subjectId, title: '健康对话' });
+        data.items = [created, ...(data.items || [])];
+      }
+      if (!conversationId || !data.items.some(x => Number(x.id) === Number(conversationId) && x.status === 'active')) conversationId = data.items.find(x => x.status === 'active').id;
+      document.getElementById('agent-conversation').innerHTML = data.items.map(x => `<option value="${x.id}" ${Number(x.id)===Number(conversationId)?'selected':''} ${x.status==='archived'?'disabled':''}>${escapeHTML(x.title)}${x.status==='archived'?'（已归档）':''}</option>`).join('');
+      document.getElementById('agent-context-note').textContent = `正在分析：${data.subject?.name || me.name} · 健康数据实时读取`;
+    }
+
+    async function loadMemories() {
+      if (!subjectId) return;
+      const data = await API.get(`/api/agent/memories?subject_user_id=${subjectId}`);
+      const host = document.getElementById('agent-memory-list');
+      host.innerHTML = data.items?.length ? data.items.map(memory => `<article class="agent-memory-item status-${memory.status}"><div><span>${memory.status==='candidate'?'待你确认':'已经记住'}</span><strong>${escapeHTML(memory.content)}</strong><small>${escapeHTML(memory.category)}</small></div><div>${memory.status==='candidate'?`<button data-memory-action="confirm" data-id="${memory.id}">记住</button><button data-memory-action="reject" data-id="${memory.id}">不保存</button>`:`<button data-memory-action="delete" data-id="${memory.id}">删除</button>`}</div></article>`).join('') : '<div class="empty">还没有确认过的长期记忆。</div>';
+    }
+
+    async function handleMemoryAction(e) {
+      const btn = e.target.closest('[data-memory-action]'); if (!btn) return;
+      const id = btn.dataset.id, action = btn.dataset.memoryAction;
+      try {
+        if (action === 'delete') await API.delete(`/api/agent/memories/${id}`);
+        else await API.post(`/api/agent/memories/${id}/${action}`, {});
+        await loadMemories(); toast(action === 'confirm' ? '已记住，可随时删除' : '已更新记忆', 'success');
+      } catch (error) { toast(error.message, 'error'); }
+    }
 
     function bindSend() {
       document.getElementById('btn-send').addEventListener('click', send);
@@ -79,7 +156,7 @@
     async function loadChat() {
       const hist = document.getElementById('chat-history');
       try {
-        const msgs = await API.get('/api/chat/history');
+        const msgs = await API.get(`/api/chat/history?${agentQuery()}`);
         if (!msgs.length) {
           hist.innerHTML = renderMsg({
             role: 'assistant',
@@ -171,7 +248,7 @@
         </div>`;
     }
 
-    function renderEvidence(evidence) {
+    function renderEvidenceBody(evidence) {
       if (!evidence || ((!Array.isArray(evidence.items) || !evidence.items.length) && !evidence.graph)) return '';
       const trendName = { rising: '上升', falling: '下降', stable: '基本稳定', unknown: '暂不判断' };
       const rows = (evidence.items || []).slice(0, 4).map(item => {
@@ -190,16 +267,81 @@
         ${graphCitations.map(c => { const label = typeof c === 'string' ? c : (c.label || c.citation || '知识来源'); const url = typeof c === 'object' ? c.url : ''; return `<div style="margin-top:3px;color:#6f6257">${url ? `<a href="${escapeHTML(url)}" target="_blank" rel="noopener" style="color:#8a6b51;text-decoration:underline">${escapeHTML(label)}</a>` : escapeHTML(label)}</div>`; }).join('')}
         ${graphReasons.length ? `<div style="margin-top:5px;color:#8a6b51">为什么针对您：${graphReasons.map(escapeHTML).join('；')}</div>` : ''}
       </div>` : '';
-      return `<details class="agent-evidence" style="margin-top:10px;padding:9px 12px;background:#fffaf4;border:1px solid #f0dfce;border-radius:12px;font-size:12px">
-        <summary style="cursor:pointer;color:#9a6a42;font-weight:700;list-style-position:inside">查看数据与知识依据</summary>
-        <div style="margin-top:8px">
+      const quality = evidence.data_quality;
+      const qualityHtml = quality ? `<div class="agent-evidence-quality">数据完整度：${Math.round(Number(quality.ratio || 0) * 100)}%${Number(quality.measurement_condition_missing || 0) ? ` · ${Number(quality.measurement_condition_missing)} 条记录缺少测量条件` : ''}</div>` : '';
+      return `<div class="agent-evidence-body">
         ${rows ? `<div style="font-weight:700;color:#9a6a42;margin-bottom:3px">依据 · 后端真实健康数据</div>
         <div style="color:#9c8b7a;margin-bottom:4px">近${Number(evidence.period_days || 90)}天，共 ${Number(evidence.data_points || 0)} 条记录</div>` : ''}
+        ${qualityHtml}
         ${rows}
         ${evidence.missing_metrics && evidence.missing_metrics.length ? `<div style="color:#a87952;margin-top:6px">缺少：${escapeHTML(evidence.missing_metrics.join('、'))}</div>` : ''}
         ${graphHtml}
-        </div>
-      </details>`;
+      </div>`;
+    }
+
+    function renderEvidence(evidence) {
+      const body = renderEvidenceBody(evidence);
+      if (!body) return '';
+      return `<details class="agent-evidence"><summary>查看数据与知识依据</summary>${body}</details>`;
+    }
+
+    function renderToolTrace(m) {
+      const trace = m.tool_trace || m.evidence?.tool_trace || [];
+      if (!trace.length) return '';
+      return `<div class="agent-tool-trace"><strong>本次读取依据</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(item.label || item.name)} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(new Date(item.freshness).toLocaleDateString('zh-CN'))}`:''}</span>`).join('')}</div>`;
+    }
+
+    function renderMemoryCandidates(m) {
+      const rows = m.memory_candidates || [];
+      if (!rows.length) return '';
+      return rows.map(memory => `<div class="agent-memory-candidate"><div><strong>要记住这件事吗？</strong><p>${escapeHTML(memory.content)}</p></div><button data-memory-action="confirm" data-id="${memory.id}">记住</button><button data-memory-action="reject" data-id="${memory.id}">不保存</button></div>`).join('');
+    }
+
+    function renderPlanControl(p) {
+      const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}"`;
+      if (p.requires_confirmation) return `<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认</button><button data-action="dismiss-plan">取消</button></div>`;
+      return `<button class="plan-card-check" data-action="plan" ${attrs} style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>`;
+    }
+
+    function displayDate(value) {
+      const text = String(value || '');
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text.replace(/-/g, '/');
+      if (!text) return '';
+      const date = new Date(text);
+      return Number.isNaN(date.getTime()) ? text : date.toLocaleDateString('zh-CN');
+    }
+
+    function renderCardBasis(m, providerLabel) {
+      const trace = m.tool_trace || m.evidence?.tool_trace || [];
+      const traceHtml = trace.length ? `<div class="agent-card-trace"><strong>读取内容</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(item.label || item.name)} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(displayDate(item.freshness))}`:''}</span>`).join('')}</div>` : '';
+      return `<details class="agent-card-basis"><summary>查看依据</summary><div class="agent-card-basis-inner"><div class="agent-card-provider">回答来源：${escapeHTML(providerLabel)}</div>${traceHtml}${renderEvidenceBody(m.evidence) || '<p>本次没有读取个人健康数据。</p>'}</div></details>`;
+    }
+
+    function renderHealthCard(m, providerLabel) {
+      const p = m.presentation;
+      const toneLabels = { stable: '状态平稳', watch: '建议留意', warning: '重点关注', urgent: '立即求助', insufficient: '资料不足' };
+      const facts = (p.facts || []).slice(0, 3);
+      const actions = (p.actions || []).slice(0, 2);
+      const factHtml = facts.map(fact => `<article class="agent-fact">
+        <span>${escapeHTML(fact.label || '关键数据')}</span>
+        <strong>${escapeHTML(fact.value ?? '—')}<small>${fact.unit ? ` ${escapeHTML(fact.unit)}` : ''}</small></strong>
+        ${fact.trend ? `<em>${escapeHTML(fact.trend)}</em>` : ''}
+        ${fact.measured_at ? `<p>记录时间：${escapeHTML(displayDate(fact.measured_at))}</p>` : ''}
+        ${fact.context ? `<p>${escapeHTML(fact.context)}</p>` : ''}
+      </article>`).join('');
+      const actionHtml = actions.map(action => {
+        const normalized = { title: action.title, desc: action.description, action_type: action.action_type, requires_confirmation: action.requires_confirmation, color: p.mode === 'emergency' ? 'red' : 'orange' };
+        const controls = action.action_type && action.requires_confirmation ? renderPlanControl(normalized) : '';
+        return `<article class="agent-card-action"><div><strong>${escapeHTML(action.title)}</strong><p>${escapeHTML(action.description || '')}</p></div>${controls}</article>`;
+      }).join('');
+      const urgent = p.mode === 'emergency' || p.status?.tone === 'urgent';
+      return `<article class="agent-health-card tone-${escapeHTML(p.status?.tone || 'stable')}" aria-label="${urgent ? '紧急健康提醒' : '健康分析结果'}">
+        <header class="agent-card-status"><span>${escapeHTML(toneLabels[p.status?.tone] || '健康提示')}</span><h3>${escapeHTML(p.status?.title || '当前结论')}</h3><p>${escapeHTML(p.status?.text || m.content || '')}</p></header>
+        <section class="agent-card-section" aria-label="关键数据"><h4>关键数据</h4><div class="agent-facts">${factHtml}</div></section>
+        <section class="agent-card-section" aria-label="下一步行动"><h4>${urgent ? '立即行动' : '下一步行动'}</h4><div class="agent-card-actions">${actionHtml}</div></section>
+        <aside class="agent-card-safety level-${escapeHTML(p.safety?.level || 'routine')}" ${urgent ? 'role="alert"' : ''}><strong>需要帮助时</strong><p>${escapeHTML(p.safety?.text || '')}</p></aside>
+        ${renderCardBasis(m, providerLabel)}
+      </article>`;
     }
 
     function renderMsg(m) {
@@ -208,6 +350,7 @@
         ? `${llmMeta.provider || m.source || '模型'}${llmMeta.model ? ' · ' + llmMeta.model : ''}`
         : (llmMeta.call_status === 'fallback' ? `本地工具结果${llmMeta.fallback_reason ? ' · ' + llmMeta.fallback_reason : ''}` : (m.source === 'mock' ? '本地 Mock 结果' : m.source === 'tool' ? '健康工具结果' : '本地 GraphRAG 结果'));
       const sourceHtml = m.role === 'assistant' ? `<div style="margin:4px 0 5px;color:#a88970;font-size:11px">回答来源：${escapeHTML(providerLabel)}</div>` : '';
+      const hasHealthCard = m.presentation?.mode === 'health_card' || m.presentation?.mode === 'emergency';
       const planHtml = m.plan && m.plan.length ? `
         <div class="msg-plan"><div style="font-size:14px;color:#806B59;margin:4px 0 7px;font-weight:700">今天可以做</div>${m.plan.slice(0, 1).map(p => `
           <div class="plan-card-mini" style="background:${planColorBg(p.color)}">
@@ -215,7 +358,7 @@
             <div class="plan-card-text">
               <div class="plan-card-t" style="color:${planColorFg(p.color)}">把上面的建议设为今日提醒</div>
             </div>
-            <button class="plan-card-check" data-action="plan" data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}" style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>
+            ${renderPlanControl(p)}
           </div>
         `).join('')}</div>` : '';
       if (m.role === 'assistant') {
@@ -223,10 +366,8 @@
           <div class="msg msg-ai">
             <div class="msg-avatar">康</div>
             <div>
-              <div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>
-              ${sourceHtml}
-              ${planHtml}
-              ${renderEvidence(m.evidence)}
+              ${hasHealthCard ? renderHealthCard(m, providerLabel) : `<div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>${sourceHtml}${planHtml}${renderToolTrace(m)}${renderEvidence(m.evidence)}`}
+              ${renderMemoryCandidates(m)}
               ${renderActions(m)}
             </div>
           </div>`;
@@ -245,7 +386,8 @@
       appendUserMsg(text);
       const typingEl = appendTyping();
       try {
-        const r = await API.post('/api/chat', { message: text });
+        const r = await API.post('/api/chat', { message: text, subject_user_id: subjectId, conversation_id: conversationId, client_request_id: requestId() });
+        conversationId = r.conversation_id || conversationId;
         typingEl.remove();
         document.getElementById('chat-history').insertAdjacentHTML('beforeend',
           renderMsg({
@@ -256,6 +398,9 @@
             evidence: r.evidence,
             source: r.source,
             llm: r.llm,
+            presentation: r.presentation,
+            tool_trace: r.tool_trace,
+            memory_candidates: r.memory_candidates,
             id: r.id
           })
         );
@@ -298,6 +443,7 @@
     // ===== 消息操作栏事件绑定（事件委托） =====
     function bindMsgActions() {
       document.getElementById('chat-history').addEventListener('click', (e) => {
+        if (e.target.closest('[data-memory-action]')) { handleMemoryAction(e); return; }
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         const action = btn.dataset.action;
@@ -309,14 +455,16 @@
           case 'regenerate': doRegenerate(btn); break;
           case 'confidence': doConfidence(btn); break;
           case 'plan':       doPlanAction(btn); break;
+          case 'dismiss-plan': btn.closest('.plan-card-mini')?.remove(); break;
         }
       });
     }
 
     function bindPlanActions() {
       document.getElementById('plan-list').addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="plan"]');
-        if (btn) doPlanAction(btn);
+        const btn = e.target.closest('[data-action]');
+        if (btn?.dataset.action === 'plan') doPlanAction(btn);
+        if (btn?.dataset.action === 'dismiss-plan') btn.closest('.plan-card')?.remove();
       });
     }
 
@@ -324,22 +472,24 @@
       const title = decodeURIComponent(btn.dataset.title || '完成健康计划');
       const desc = decodeURIComponent(btn.dataset.desc || '');
       const sensitive = /用药|药物|就医|医生|家属|通知/.test(title + desc);
-      if (sensitive && !window.confirm(`这项建议涉及${/用药|药物/.test(title + desc) ? '用药' : '就医/联系他人'}，确认要创建待办吗？`)) return;
       const actionType = btn.dataset.actionType || (/复测|复查|测量|监测/.test(title) ? 'schedule_recheck' : /通知家属/.test(title) ? 'notify_caregiver' : /联系医生|就医/.test(title) ? 'contact_doctor' : 'create_todo');
       try {
-        // 敏感行动先以 pending_confirmation 写入服务端，确认后再执行；不能只依赖浏览器端的 confirm。
-        const r = await API.post('/api/actions', { action_type: actionType, title, desc, kind: sensitive ? 'sensitive' : 'agent', confirmed: !sensitive });
-        if (sensitive && r.requires_confirmation && r.request?.id) {
-          await API.post(`/api/actions/${r.request.id}/confirm`, {});
+        const r = await API.post('/api/actions', { action_type: actionType, title, desc, kind: sensitive ? 'sensitive' : 'agent', subject_user_id: subjectId, idempotency_key: requestId() });
+        if (!r.requires_confirmation || !r.request?.id) throw new Error('服务端没有返回待确认行动');
+        if (!window.confirm(`待确认预览已生成。确认写入“${title}”吗？系统只会创建站内记录，不会自动打电话或发短信。`)) {
+          await API.post(`/api/actions/${r.request.id}/cancel`, {});
+          toast('已取消，没有创建待办或通知', 'success');
+          return;
         }
-        const actionId = r.request?.id || r.request?.id;
+        await API.post(`/api/actions/${r.request.id}/confirm`, {});
+        const actionId = r.request.id;
         if (actionType === 'schedule_recheck' && actionId) {
           const metricType = /血压/.test(title + desc) ? 'bp' : /血糖/.test(title + desc) ? 'glucose' : /肾功能|eGFR|肌酐/.test(title + desc) ? 'egfr' : null;
           await API.post(`/api/actions/${actionId}/followup`, { metric_type: metricType, due_at: new Date(Date.now() + 86400000).toISOString() });
         }
         btn.textContent = '✓';
         btn.disabled = true;
-        toast(sensitive ? '已确认并记录行动' : '已创建今日待办', 'success');
+        toast('已确认并记录行动', 'success');
       } catch (err) { toast(err.message, 'error'); }
     }
 
@@ -428,21 +578,20 @@
     }
 
     async function doRegenerate(btn) {
-      if (!lastUserMessage) {
-        toast('没有可重新生成的消息', 'error');
-        return;
-      }
+      const messageId = Number(btn.dataset.msgId);
+      if (!messageId) { toast('这条旧消息暂不支持重新生成', 'error'); return; }
       // 找到当前消息的 .msg-ai 容器并替换内容
       const msgEl = btn.closest('.msg-ai');
       if (!msgEl) return;
 
       // 替换为加载状态
-      const contentDiv = msgEl.querySelector('.msg-bubble');
+      const contentDiv = msgEl.querySelector('.msg-bubble') || msgEl.querySelector('.agent-card-status p');
+      if (!contentDiv) { toast('这条消息暂不支持重新生成', 'error'); return; }
       const oldContent = contentDiv.innerHTML;
       contentDiv.innerHTML = `<span class="loading" style="vertical-align:middle"></span> 小康正在重新想…`;
 
       try {
-        const r = await API.post('/api/chat', { message: lastUserMessage });
+        const r = await API.post(`/api/chat/messages/${messageId}/regenerate`, { client_request_id: requestId() });
         // 重新渲染整条消息
         const newHtml = renderMsg({
           role: 'assistant',
@@ -450,8 +599,11 @@
           plan: r.plan,
           confidence: r.confidence || { type: 'common_sense' },
           evidence: r.evidence,
+          presentation: r.presentation,
           source: r.source,
           llm: r.llm,
+          tool_trace: r.tool_trace,
+          memory_candidates: r.memory_candidates,
           id: r.id
         });
         msgEl.outerHTML = newHtml;
@@ -473,8 +625,8 @@
 
     async function loadPlan() {
       try {
-        const r = await API.post('/api/chat', { message: '今天我该怎么调' });
-        const plan = r.plan || [];
+        const messages = await API.get(`/api/chat/history?${agentQuery()}`);
+        const plan = [...messages].reverse().find(item => item.role === 'assistant' && item.plan?.length)?.plan || [];
         document.getElementById('plan-count').textContent = `${plan.length} 项`;
         document.getElementById('plan-today').textContent = new Date().toISOString().slice(0, 10);
         document.getElementById('plan-list').innerHTML = plan.map(p => `
@@ -484,7 +636,7 @@
               <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
               <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
             </div>
-              <button class="plan-card-check" data-action="plan" data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}" style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>
+              ${renderPlanControl(p)}
           </div>
         `).join('') || '<div class="empty">暂无方案，先在左边和小康聊聊</div>';
       } catch (err) {

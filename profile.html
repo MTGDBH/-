@@ -39,9 +39,9 @@
             <div class="form-row"><label for="cigarettes_per_day">每天香烟数量</label><input class="input" id="cigarettes_per_day" type="number" min="0" max="100" step="1" placeholder="不吸烟可填 0" /></div>
             <div class="form-row"><label for="drinking_status">经常饮酒</label><select class="input" id="drinking_status"><option value="">未填写</option><option value="0">否</option><option value="1">是</option></select></div>
             <div class="form-row"><label for="drinking_frequency">每年饮酒天数</label><input class="input" id="drinking_frequency" type="number" min="0" max="365" step="1" /></div>
-            <div class="form-row"><label for="exercise_level">每周活动量（分钟）</label><input class="input" id="exercise_level" type="number" min="0" max="200" step="1" placeholder="散步、太极等" /></div>
+            <div class="form-row"><label for="exercise_level">每周活动量（分钟）</label><input class="input" id="exercise_level" type="number" min="0" max="1260" step="10" placeholder="散步、太极等" /></div>
           </div>
-          <div class="form-row" style="margin-top:8px"><label>既往病史（可多选）</label><div style="display:flex;flex-wrap:wrap;gap:12px;color:var(--c-text-muted);font-size:14px;font-family:var(--font-cn)"><label><input type="checkbox" id="chronic_diabetes" /> 糖尿病</label><label><input type="checkbox" id="chronic_heart" /> 心脏病</label><label><input type="checkbox" id="chronic_stroke" /> 卒中</label><label><input type="checkbox" id="dyslipidemia" /> 血脂异常</label><label><input type="checkbox" id="lung_disease" /> 肺部疾病</label></div></div>
+          <div class="form-row" style="margin-top:8px"><label>既往病史（可多选）</label><div style="display:flex;flex-wrap:wrap;gap:12px;color:var(--c-text-muted);font-size:14px;font-family:var(--font-cn)"><label><input type="checkbox" id="chronic_hypertension" /> 高血压</label><label><input type="checkbox" id="chronic_diabetes" /> 糖尿病</label><label><input type="checkbox" id="chronic_heart" /> 心脏病</label><label><input type="checkbox" id="chronic_stroke" /> 卒中</label><label><input type="checkbox" id="dyslipidemia" /> 血脂异常</label><label><input type="checkbox" id="lung_disease" /> 肺部疾病</label></div></div>
           <button type="submit" class="btn btn-primary" style="align-self:flex-start;min-width:140px">保存风险资料</button>
         </form>
       </section>
@@ -147,7 +147,7 @@
       document.getElementById('emergency_phone').value = u.emergency_phone || '';
       for (const id of ['education_level', 'self_rated_health', 'smoking_status', 'drinking_status']) document.getElementById(id).value = u[id] ?? '';
       for (const id of ['cigarettes_per_day', 'drinking_frequency', 'exercise_level']) document.getElementById(id).value = u[id] ?? '';
-      for (const id of ['chronic_diabetes', 'chronic_heart', 'chronic_stroke', 'dyslipidemia', 'lung_disease']) document.getElementById(id).checked = Number(u[id]) === 1;
+      for (const id of ['chronic_hypertension', 'chronic_diabetes', 'chronic_heart', 'chronic_stroke', 'dyslipidemia', 'lung_disease']) document.getElementById(id).checked = Number(u[id]) === 1;
     }
 
     function bindForms() {
@@ -176,6 +176,7 @@
           smoking_status: valueOrNull('smoking_status'), cigarettes_per_day: valueOrNull('cigarettes_per_day'),
           drinking_status: valueOrNull('drinking_status'), drinking_frequency: valueOrNull('drinking_frequency'),
           exercise_level: valueOrNull('exercise_level'),
+          chronic_hypertension: document.getElementById('chronic_hypertension').checked ? 1 : 0,
           chronic_diabetes: document.getElementById('chronic_diabetes').checked ? 1 : 0,
           chronic_heart: document.getElementById('chronic_heart').checked ? 1 : 0,
           chronic_stroke: document.getElementById('chronic_stroke').checked ? 1 : 0,

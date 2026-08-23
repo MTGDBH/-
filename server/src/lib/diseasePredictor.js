@@ -3,6 +3,7 @@ import db from '../db.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runPythonTool } from './htnPredictor.js';
+import { diseaseModelGate } from './diseaseModelGate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'disease_risk', 'predict_disease.py');
@@ -37,10 +38,12 @@ function buildFeatures(user, metrics, inputs = {}) {
     sleep: v('sleep'),
     smokev: user?.smoking_status ?? null, smoken: user?.cigarettes_per_day ?? null,
     drinkev: user?.drinking_status ?? null, drinkl: user?.drinking_frequency ?? null,
-    exercise: user?.exercise_level ?? null, totmet: user?.exercise_level ?? null,
-    srh: inputs.srh ?? user?.self_rated_health ?? null, cesd10: inputs.cesd10 ?? null, total_cognition: inputs.total_cognition ?? null,
+    exercise: user?.exercise_level == null ? null : Number(Number(user.exercise_level) > 0), totmet: null,
+    // prediction_inputs.srh is legacy/model-coded. Profile values use app coding (good=5).
+    srh: inputs.srh ?? (user?.self_rated_health == null ? null : 6 - Number(user.self_rated_health)), cesd10: inputs.cesd10 ?? null, total_cognition: inputs.total_cognition ?? null,
     adlab_c: inputs.adlab_c ?? null, iadl: inputs.iadl ?? null,
-    chronic: [user?.chronic_diabetes, user?.chronic_heart, user?.chronic_stroke].some(v => v != null) ? 1 : null,
+    chronic: [user?.chronic_hypertension, user?.chronic_diabetes, user?.chronic_heart, user?.chronic_stroke].every(v => v == null)
+      ? null : Number([user?.chronic_hypertension, user?.chronic_diabetes, user?.chronic_heart, user?.chronic_stroke].some(Number)),
     diabe: user?.chronic_diabetes ?? null, hearte: user?.chronic_heart ?? null, stroke: user?.chronic_stroke ?? null,
     dyslipe: user?.dyslipidemia ?? null, lunge: user?.lung_disease ?? null,
   };
@@ -48,6 +51,12 @@ function buildFeatures(user, metrics, inputs = {}) {
 
 export async function predictDisease(userId, user, disease) {
   if (!DISEASES.has(disease)) return { success: false, error: 'unsupported_disease' };
+  const diagnosisFields = { hypertension: 'chronic_hypertension', diabetes: 'chronic_diabetes', heart_disease: 'chronic_heart', stroke: 'chronic_stroke' };
+  if (Number(user?.[diagnosisFields[disease]]) === 1) {
+    return { success: true, disease, status: 'existing_diagnosis', existing_diagnosis: true, risk_tier: 'management',
+      research_details: null, actions: [{ level: 'routine', label: '继续按医嘱管理并关注异常趋势' }],
+      disclaimer: '已确诊疾病不再计算新发风险。' };
+  }
   const metrics = latestMetrics(userId);
   if (!Object.keys(metrics).length) return { success: false, error: 'no_data', disease };
   const features = buildFeatures(user, metrics, latestPredictionInputs(userId));
@@ -66,9 +75,22 @@ export async function predictDisease(userId, user, disease) {
     chronic: '补充既往慢病史', diabe: '确认糖尿病史', hearte: '确认心脏病史', stroke: '确认卒中史',
     dyslipe: '确认血脂异常史', lunge: '确认肺部疾病史',
   };
+  const gate = diseaseModelGate(disease);
+  const rawProbability = result?.success ? { risk_probability: result.risk_probability, risk_percent: result.risk_percent,
+    model: result.model, model_version: result.model_version, horizon_years: result.horizon_years } : null;
+  const screenedTier = result?.risk_level === 'higher' ? 'high' : result?.risk_level === 'moderate' ? 'watch' : 'low';
   return {
     ...result,
     disease,
+    status: gate.passed ? 'available' : 'limited',
+    existing_diagnosis: false,
+    risk_tier: gate.passed ? screenedTier : 'evidence_limited',
+    gate_result: gate,
+    research_details: gate.passed ? rawProbability : null,
+    risk_probability: gate.passed ? result.risk_probability : null,
+    risk_percent: gate.passed ? result.risk_percent : null,
+    actions: [{ level: gate.passed && screenedTier === 'high' ? 'soon' : 'routine', label: '结合规范测量和医生筛查继续评估' }],
+    evidence_freshness: Object.values(metrics).map(row => row.recorded_at).sort().at(-1) || null,
     features,
     data_sources: Object.entries(metrics).map(([type, r]) => ({ type, recorded_at: r.recorded_at, source: r.source })),
     data_completeness: {

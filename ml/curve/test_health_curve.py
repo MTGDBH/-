@@ -126,6 +126,11 @@ r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 1
 ok('跨度不足不预测', r['forecast']['available'] is False and '14天' in r['forecast']['reason'],
    str(r['forecast']))
 
+print('=== 16. 脉压只展示历史趋势 ===')
+r = analyze('pulse_pressure', 'mmHg', pts([42, 43, 41, 44, 45, 43, 44, 46, 45, 44]))
+ok('脉压可形成历史趋势', r['status'] == 'ok' and r['eligibility']['trend'] is True, str(r.get('status')))
+ok('脉压不进行未来数值外推', r['forecast']['available'] is False and r['metric_policy']['forecast'] is False, str(r['forecast']))
+
 print('=== CLI 管道测试 ===')
 payload = json.dumps({'metric': 'systo', 'unit': 'mmHg', 'points': pts([128, 129, 127, 128, 130, 128, 129, 127, 128, 129])})
 proc = subprocess.run([sys.executable, str(Path(__file__).parent / 'health_curve.py')],

@@ -28,6 +28,7 @@ METRIC_POLICIES = {
     'spo2': {'forecast': False, 'anomaly_only': True, 'label': '血氧'},
     'temp': {'forecast': False, 'anomaly_only': True, 'label': '体温'},
     'resp': {'forecast': False, 'anomaly_only': True, 'label': '呼吸频率'},
+    'pulse_pressure': {'forecast': False, 'behavior': True, 'aggregate': 'median', 'label': '脉压'},
 }
 FORECASTABLE_METRICS = {k for k, v in METRIC_POLICIES.items() if v.get('forecast')}
 
@@ -345,7 +346,8 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None):
     horizon = min(requested, max_horizon) if max_horizon else 0
     available = bool(
         metric in FORECASTABLE_METRICS and horizon > 0 and selected and score and fluct != 'high' and
-        (float(score.get('mase')) if score.get('mase') is not None else 99) <= 5.0 and
+        (float(score.get('mase')) if score.get('mase') is not None else 99) < 1.0 and
+        int(score.get('folds') or 0) >= 3 and
         float(score.get('interval_q80') or 0) <= max(abs(float(np.median(y))) * 0.20, 1.0) and
         (not policy.get('condition_required') or condition_coverage >= 1.0) and
         (not policy.get('condition') or condition_group == policy.get('condition'))
@@ -354,8 +356,8 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None):
         reason = f'当前数据最多支持未来{horizon}天；30天需要至少84个有效日且覆盖90天'
     elif not available:
         reason = _forecast_reason(metric, len(y), span, requested, policy, fluct, selected, condition_coverage)
-        if score and (float(score.get('mase') or 99) > 5.0 or float(score.get('interval_q80') or 0) > max(abs(float(np.median(y))) * 0.20, 1.0)):
-            reason = f'{reason}；滚动回测误差或预测区间过宽'
+        if score and (float(score.get('mase') or 99) >= 1.0 or int(score.get('folds') or 0) < 3 or float(score.get('interval_q80') or 0) > max(abs(float(np.median(y))) * 0.20, 1.0)):
+            reason = f'{reason}；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽'
     else:
         reason = None
     forecast = {

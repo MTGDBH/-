@@ -57,6 +57,7 @@ addColumnIfMissing('users', 'drinking_frequency', 'REAL');
 addColumnIfMissing('users', 'exercise_level', 'REAL');
 addColumnIfMissing('users', 'self_rated_health', 'INTEGER');
 addColumnIfMissing('users', 'chronic_diabetes', 'INTEGER');
+addColumnIfMissing('users', 'chronic_hypertension', 'INTEGER');
 addColumnIfMissing('users', 'chronic_heart', 'INTEGER');
 addColumnIfMissing('users', 'chronic_stroke', 'INTEGER');
 addColumnIfMissing('users', 'dyslipidemia', 'INTEGER');
@@ -295,11 +296,129 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_prediction_inputs_user_field_time
     ON prediction_inputs(user_id, field, recorded_at DESC);
+
+  CREATE TABLE IF NOT EXISTS health_intakes (
+    id INTEGER PRIMARY KEY,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    respondent_role TEXT NOT NULL CHECK(respondent_role IN ('self','caregiver')),
+    schema_version TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'completed',
+    scores TEXT NOT NULL DEFAULT '{}',
+    recorded_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_health_intakes_subject_time
+    ON health_intakes(subject_user_id, recorded_at DESC);
+
+  CREATE TABLE IF NOT EXISTS health_intake_answers (
+    id INTEGER PRIMARY KEY,
+    intake_id INTEGER NOT NULL REFERENCES health_intakes(id) ON DELETE CASCADE,
+    question_id TEXT NOT NULL,
+    value TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(intake_id, question_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS discovery_events (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    event_key TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    action TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    source_id INTEGER,
+    rule_version TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    resolved_at TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_discovery_events_user_time
+    ON discovery_events(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_discovery_events_dedupe
+    ON discovery_events(user_id, event_key, created_at DESC);
+`);
+
+// ============= 智能体 V2：对象绑定、分层记忆与可审计工具调用 =============
+db.exec(`
+  CREATE TABLE IF NOT EXISTS agent_conversations (
+    id INTEGER PRIMARY KEY,
+    actor_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL DEFAULT '新对话',
+    summary TEXT NOT NULL DEFAULT '{}',
+    summary_up_to_message_id INTEGER,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','archived')),
+    legacy_key TEXT UNIQUE,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_agent_conversations_actor_subject
+    ON agent_conversations(actor_user_id, subject_user_id, status, updated_at DESC);
+
+  CREATE TABLE IF NOT EXISTS agent_runs (
+    id INTEGER PRIMARY KEY,
+    conversation_id INTEGER NOT NULL REFERENCES agent_conversations(id) ON DELETE CASCADE,
+    actor_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    client_request_id TEXT,
+    intent TEXT NOT NULL DEFAULT '{}',
+    context_manifest TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'running',
+    latency_ms INTEGER,
+    output_message_id INTEGER,
+    error_code TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    completed_at TEXT,
+    UNIQUE(actor_user_id, client_request_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_agent_runs_conversation ON agent_runs(conversation_id, id DESC);
+
+  CREATE TABLE IF NOT EXISTS agent_tool_calls (
+    id INTEGER PRIMARY KEY,
+    run_id INTEGER NOT NULL REFERENCES agent_runs(id) ON DELETE CASCADE,
+    call_index INTEGER NOT NULL,
+    tool_name TEXT NOT NULL,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    arguments TEXT NOT NULL DEFAULT '{}',
+    dedupe_key TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'running',
+    latency_ms INTEGER,
+    error_code TEXT,
+    result_manifest TEXT,
+    result_hash TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    completed_at TEXT,
+    UNIQUE(run_id, dedupe_key)
+  );
+  CREATE INDEX IF NOT EXISTS idx_agent_tool_calls_run ON agent_tool_calls(run_id, call_index);
+
+  CREATE TABLE IF NOT EXISTS agent_memories (
+    id INTEGER PRIMARY KEY,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category TEXT NOT NULL,
+    memory_key TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'candidate' CHECK(status IN ('candidate','confirmed','rejected','superseded')),
+    source_message_id INTEGER,
+    superseded_by INTEGER REFERENCES agent_memories(id) ON DELETE SET NULL,
+    valid_until TEXT,
+    confirmed_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_agent_memories_subject_status
+    ON agent_memories(subject_user_id, status, updated_at DESC);
 `);
 
 // 兼容已有库：给 chat_messages 补置信度和证据列，确保刷新/新对话仍能显示可追溯依据
 addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'evidence', 'TEXT');
+addColumnIfMissing('chat_messages', 'presentation', 'TEXT');
 addColumnIfMissing('chat_messages', 'graph_evidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'provider', 'TEXT');
 addColumnIfMissing('chat_messages', 'model', 'TEXT');
@@ -308,11 +427,35 @@ addColumnIfMissing('chat_messages', 'latency_ms', 'INTEGER');
 addColumnIfMissing('chat_messages', 'tool_calls', 'TEXT');
 addColumnIfMissing('chat_messages', 'fallback_reason', 'TEXT');
 addColumnIfMissing('chat_messages', 'graph_index_version', 'TEXT');
+addColumnIfMissing('chat_messages', 'conversation_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'actor_user_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'subject_user_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'client_request_id', 'TEXT');
+addColumnIfMissing('chat_messages', 'parent_message_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'supersedes_message_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'run_id', 'INTEGER');
+
+// 旧对话按原 user_id 安全回填为本人历史会话，不删除、不改写原内容。
+for (const row of db.prepare('SELECT DISTINCT user_id FROM chat_messages WHERE conversation_id IS NULL').all()) {
+  const legacyKey = `legacy:user:${row.user_id}`;
+  db.prepare(`INSERT INTO agent_conversations (actor_user_id,subject_user_id,title,legacy_key)
+    VALUES (?,?,?,?) ON CONFLICT(legacy_key) DO NOTHING`).run(row.user_id, row.user_id, '历史对话', legacyKey);
+  const conversation = db.prepare('SELECT id FROM agent_conversations WHERE legacy_key = ?').get(legacyKey);
+  db.prepare(`UPDATE chat_messages SET conversation_id = ?, actor_user_id = COALESCE(actor_user_id,user_id),
+    subject_user_id = COALESCE(subject_user_id,user_id) WHERE user_id = ? AND conversation_id IS NULL`).run(conversation.id, row.user_id);
+}
+
+addColumnIfMissing('action_requests', 'actor_user_id', 'INTEGER');
+addColumnIfMissing('action_requests', 'subject_user_id', 'INTEGER');
+addColumnIfMissing('action_requests', 'idempotency_key', 'TEXT');
+db.prepare('UPDATE action_requests SET actor_user_id = COALESCE(actor_user_id,user_id), subject_user_id = COALESCE(subject_user_id,user_id)').run();
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_action_requests_actor_idempotency ON action_requests(actor_user_id,idempotency_key) WHERE idempotency_key IS NOT NULL');
 
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');
 addColumnIfMissing('metrics', 'measurement_condition', 'TEXT');
 addColumnIfMissing('metrics', 'data_quality', 'TEXT');
+addColumnIfMissing('metrics', 'measurement_context', 'TEXT');
 addColumnIfMissing('metric_defs', 'prediction_mode', "TEXT NOT NULL DEFAULT 'not_supported'");
 // 设备同步状态扩展
 addColumnIfMissing('devices', 'battery_level', 'INTEGER');

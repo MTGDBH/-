@@ -3,6 +3,7 @@ import express from 'express';
 import db from '../db.js';
 import { evaluateHealth } from '../lib/scoring.js';
 import { triggerTrendAlerts } from '../lib/trendAlerts.js';
+import { discoverFromMeasurement } from '../lib/discovery.js';
 
 const router = express.Router();
 
@@ -122,7 +123,7 @@ router.get('/metrics/:type/history', (req, res) => {
 // 录入 / 更新指标
 // source: manual（用户录入，默认）| device（真实设备）| synthetic（演示/测试）
 router.post('/metrics', (req, res) => {
-  const { type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition } = req.body;
+  const { type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, measurement_context } = req.body;
   if (!type || value == null) {
     return res.status(400).json({ error: 'missing type or value' });
   }
@@ -147,15 +148,19 @@ router.post('/metrics', (req, res) => {
     const existing = db.prepare('SELECT * FROM metrics WHERE id = ?').get(duplicate.id);
     return res.status(200).json({ ...existing, duplicate: true, quality: { valid: true, duplicate: true, flags: ['duplicate_measurement'] } });
   }
+  const safeContext = measurement_context && typeof measurement_context === 'object' && !Array.isArray(measurement_context)
+    ? Object.fromEntries(Object.entries(measurement_context).filter(([key, val]) => /^[a-z_]{1,40}$/.test(key) && ['string','number','boolean'].includes(typeof val)).slice(0, 12))
+    : {};
   const quality = { valid: true, duplicate: false, flags: [], source: src, timestamp_quality: recorded_at ? 'provided' : 'server_time', condition_present: normalizedCondition !== 'unknown', measurement_condition: normalizedCondition };
   const r = db.prepare(`
-    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, data_quality)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO metrics (user_id, type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, data_quality, measurement_context)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(req.user.id, type, value, value2 ?? null, unit ?? null,
-         parsedAt.toISOString(), src, note ?? null, device_id ?? null, normalizedCondition, JSON.stringify(quality));
+         parsedAt.toISOString(), src, note ?? null, device_id ?? null, normalizedCondition, JSON.stringify(quality), JSON.stringify(safeContext));
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
   // 趋势提醒异步执行，不阻塞指标保存；普通变化不会产生提醒。
   if (src !== 'synthetic') {
+    discoverFromMeasurement(req.user.id, row);
     triggerTrendAlerts(req.user.id, type).catch(err =>
       console.error('[trend-alert] analysis failed:', err.message)
     );

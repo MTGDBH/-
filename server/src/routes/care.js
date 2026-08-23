@@ -55,7 +55,8 @@ router.get('/seniors/:id/summary', (req, res) => {
   const alerts = db.prepare(`SELECT id, metric_type, severity, title, message, status, created_at FROM alerts WHERE user_id = ? ORDER BY id DESC LIMIT 20`).all(seniorId);
   const today = new Date().toISOString().slice(0, 10);
   const todos = db.prepare('SELECT id, title, time, kind, completed, date FROM todos WHERE user_id = ? AND date = ? ORDER BY time').all(seniorId, today);
-  return res.json({ senior: safeUser(senior), context, alerts, todos, access: 'authorized_read_only' });
+  return res.json({ senior: safeUser(senior), context, alerts, todos, access: 'authorized_read_with_intake_write',
+    capabilities: { view_summary: true, submit_health_intake: true, write_measurements: false } });
 });
 
 router.delete('/relationships/:id', (req, res) => {

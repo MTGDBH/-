@@ -107,3 +107,27 @@ export async function analyzeHealthTrend(userId, opts = {}) {
     note: 'co_occurrence 仅描述多个指标同时出现的变化方向，不表示因果关系',
   };
 }
+
+/** 多指标一次 Python 批处理；只返回本次问题需要的指标。 */
+export async function analyzeSelectedHealthTrends(userId, metrics = [], daysInput = 90) {
+  const days = Math.max(7, Math.min(LOOKBACK_MAX, parseInt(daysInput || '90', 10) || 90));
+  const selected = [...new Set((metrics || []).map(String))].filter(metric => TREND_METRICS[metric]);
+  if (!selected.length) return { success: true, metric: 'selected', requested_days: days, analyzed: [], metrics: [] };
+  const batch = [];
+  for (const metric of selected) {
+    const built = buildPoints(userId, metric, days);
+    if (built.ok && built.points.length) batch.push({ metric, unit: built.unit, points: built.points });
+  }
+  if (!batch.length) return { success: true, metric: 'selected', requested_days: days, analyzed: [], metrics: [], status: 'insufficient_data' };
+  const bulk = await runPythonTool(CURVE_SCRIPT, { batch, forecast_days: 30 });
+  if (!bulk.success) return bulk;
+  const results = (bulk.metrics || []).filter(result => selected.includes(result.metric));
+  const dataFreshness = batch.flatMap(item => item.points).map(point => point.t).filter(Boolean).sort().at(-1) || null;
+  return {
+    success: true, metric: 'selected', requested_days: days,
+    analyzed: results.filter(result => result.status === 'ok').map(result => result.metric),
+    metrics: results,
+    data_freshness: dataFreshness,
+    note: '多个指标同时变化不代表因果关系',
+  };
+}

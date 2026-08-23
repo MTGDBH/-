@@ -8,20 +8,20 @@
   "days": 90,
   "evaluation": {
     "attempts": 34,
-    "forecasted_windows": 33,
-    "refused_windows": 1,
-    "refusal_rate": 0.029411764705882353,
+    "forecasted_windows": 26,
+    "refused_windows": 8,
+    "refusal_rate": 0.23529411764705882,
     "curve_v2": {
-      "mae": 4.411444444444444,
-      "rmse": 5.334826477268829,
-      "mase": 0.7574086628559786,
-      "coverage_80": 0.7626262626262627,
-      "interval_width": 13.845316017316016
+      "mae": 3.8161501831501825,
+      "rmse": 4.604882349189676,
+      "mase": 0.7240998820753689,
+      "coverage_80": 0.7783882783882785,
+      "interval_width": 12.331543956043955
     },
     "last_value_baseline": {
-      "mae": 7.0033419913419905,
-      "rmse": 7.919006274319614,
-      "mase": 1.2062212368043468
+      "mae": 6.029375457875457,
+      "rmse": 6.872872045992755,
+      "mase": 1.1474983172752964
     },
     "windows": [
       {
@@ -316,33 +316,8 @@
         "participant_id": "demo_b",
         "metric": "systo",
         "origin": "2026-02-04T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-05",
-          "2026-02-06",
-          "2026-02-07",
-          "2026-02-08",
-          "2026-02-09",
-          "2026-02-10",
-          "2026-02-11"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 7.574285714285708,
-          "rmse": 9.307941309901528,
-          "mase": 0.9946918280637853,
-          "coverage_80": 0.7142857142857143,
-          "interval_width": 23.722857142857144
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 15.134285714285706,
-          "rmse": 17.245719965917825,
-          "mase": 1.9875075870440861,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_b",
@@ -377,32 +352,8 @@
         "participant_id": "demo_b",
         "metric": "systo",
         "origin": "2026-02-21T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-22",
-          "2026-02-24",
-          "2026-02-25",
-          "2026-02-26",
-          "2026-02-27",
-          "2026-02-28"
-        ],
-        "curve_v2": {
-          "n": 6,
-          "mae": 2.883333333333335,
-          "rmse": 4.014938770807519,
-          "mase": 0.338999657081272,
-          "coverage_80": 1.0,
-          "interval_width": 25.435000000000002
-        },
-        "last_value_baseline": {
-          "n": 6,
-          "mae": 5.723333333333339,
-          "rmse": 6.321516168346542,
-          "mase": 0.6729045216283749,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "linear"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_b",
@@ -869,158 +820,36 @@
         "participant_id": "demo_d",
         "metric": "systo",
         "origin": "2026-02-15T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-16",
-          "2026-02-18",
-          "2026-02-20",
-          "2026-02-21",
-          "2026-02-22"
-        ],
-        "curve_v2": {
-          "n": 5,
-          "mae": 3.2879999999999994,
-          "rmse": 4.082587414863272,
-          "mase": 0.4775345377258236,
-          "coverage_80": 1.0,
-          "interval_width": 16.326000000000004
-        },
-        "last_value_baseline": {
-          "n": 5,
-          "mae": 8.792000000000002,
-          "rmse": 9.507214102985165,
-          "mase": 1.2769110874955727,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "origin": "2026-02-24T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-25",
-          "2026-02-26",
-          "2026-02-27",
-          "2026-02-28",
-          "2026-03-01",
-          "2026-03-02",
-          "2026-03-03"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 5.775714285714282,
-          "rmse": 8.170632953274964,
-          "mase": 0.8527399517525931,
-          "coverage_80": 0.7142857142857143,
-          "interval_width": 15.222857142857139
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 12.084285714285711,
-          "rmse": 13.167055750730952,
-          "mase": 1.7841521770653443,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "origin": "2026-03-03T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-04",
-          "2026-03-05",
-          "2026-03-06",
-          "2026-03-07",
-          "2026-03-08",
-          "2026-03-10"
-        ],
-        "curve_v2": {
-          "n": 6,
-          "mae": 8.715000000000009,
-          "rmse": 10.311665723829503,
-          "mase": 1.191491212806683,
-          "coverage_80": 0.5,
-          "interval_width": 15.550000000000002
-        },
-        "last_value_baseline": {
-          "n": 6,
-          "mae": 8.348333333333334,
-          "rmse": 9.682464390157428,
-          "mase": 1.1413615385252764,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "origin": "2026-03-11T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-12",
-          "2026-03-13",
-          "2026-03-14",
-          "2026-03-15",
-          "2026-03-16",
-          "2026-03-17",
-          "2026-03-18"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 7.411428571428571,
-          "rmse": 8.408842284846859,
-          "mase": 0.9621604159063853,
-          "coverage_80": 0.7142857142857143,
-          "interval_width": 19.92714285714285
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 12.914285714285702,
-          "rmse": 14.109498320533673,
-          "mase": 1.6765478334220731,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "linear"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "origin": "2026-03-18T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-19",
-          "2026-03-20",
-          "2026-03-21",
-          "2026-03-22",
-          "2026-03-23",
-          "2026-03-24",
-          "2026-03-25"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 10.709999999999999,
-          "rmse": 12.025724213416122,
-          "mase": 1.3502713369511592,
-          "coverage_80": 0.2857142857142857,
-          "interval_width": 20.091428571428573
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 11.349999999999985,
-          "rmse": 12.599065158064011,
-          "mase": 1.4309598202050084,
-          "coverage_80": null,
-          "interval_width": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "当前数据暂不满足预测条件；滚动回测未稳定优于简单基线、验证起点不足或预测区间过宽"
       },
       {
         "participant_id": "demo_d",

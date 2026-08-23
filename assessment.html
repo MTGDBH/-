@@ -69,15 +69,16 @@
     <section class="disease-risk-panel" aria-labelledby="disease-risk-title">
       <div class="disease-risk-head">
         <div>
-          <div class="disease-risk-title" id="disease-risk-title">常见疾病风险筛查</div>
-          <div class="disease-risk-sub">结合你的近期健康记录估算未来两年风险 · 结果仅用于健康管理参考</div>
+          <div class="disease-risk-title" id="disease-risk-title">健康预测与疾病发现</div>
+          <div class="disease-risk-sub">曲线、四类疾病筛查、资料完整度和下一步行动已集中到健康发现中心</div>
         </div>
-        <span class="risk-horizon-badge">未来两年</span>
+        <span class="risk-horizon-badge">统一结果</span>
       </div>
-      <div class="disease-risk-grid" id="disease-risk-grid">
-        <div class="risk-loading"><span class="risk-loading-dot"></span>正在读取健康数据并计算风险…</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px;border-radius:14px;background:#FFF8F0;flex-wrap:wrap">
+        <div style="font-size:16px;line-height:1.7;color:#625449">疾病概率只有通过严格验证门槛时才会显示；突发症状和异常测量会优先提示。</div>
+        <a class="btn btn-primary" href="prediction.html">查看完整健康发现 →</a>
       </div>
-      <div class="disease-risk-foot">风险概率不是诊断结果。数据不足时，建议继续规律记录血压、血糖等指标。</div>
+      <div class="disease-risk-foot">这里不再重复计算，避免不同页面出现不一致结论。</div>
     </section>
   </main>
 
@@ -96,7 +97,6 @@
         renderAdlIadl(d);
         renderSuggest(d.suggestions);
         document.getElementById('evaluated-at').textContent = '最近评估：' + (d.evaluated_at || '').slice(0, 16).replace('T', ' ');
-        loadDiseaseRisks();
       } catch (err) {
         document.getElementById('summary-text').textContent = '加载失败：' + err.message;
       }

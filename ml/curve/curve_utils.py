@@ -18,6 +18,7 @@ MEDICAL_BOUNDS = {
     'uricacid': (50, 1200), 'sleep': (0, 16),
     'waist': (40, 160), 'spo2': (50, 100), 'steps': (0, 100000), 'temp': (30, 45),
     'resp': (5, 60), 'grip': (0, 100), 'bodyfat': (5, 70),
+    'pulse_pressure': (5, 160),
     'health_score': (0, 100),
 }
 

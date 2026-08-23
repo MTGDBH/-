@@ -1,0 +1,421 @@
+{
+  "schema_version": "charls-peer-reference.v1",
+  "generated_at": "2026-08-23T08:59:05.200204+00:00",
+  "source": "CHARLS baseline wave 1, participant-deduplicated",
+  "source_sha256": "ace2486b3f60bd36de372e2c907f24945f5e409796d2e1969271eea6e6a0a4ba",
+  "sex_encoding": {
+    "female": 0,
+    "male": 1
+  },
+  "minimum_cell_n": 50,
+  "participants_60_plus": 7560,
+  "age_groups": {
+    "60-69": {
+      "all": {
+        "bp.systolic": {
+          "n": 3841,
+          "p25": 116.5,
+          "median": 129.0,
+          "p75": 145.0,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 3835,
+          "p25": 67.0,
+          "median": 74.5,
+          "p75": 83.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 3835,
+          "p25": 65.0,
+          "median": 71.5,
+          "p75": 78.5,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 3851,
+          "p25": 49.9,
+          "median": 56.8,
+          "p75": 65.0,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 3825,
+          "p25": 20.58,
+          "median": 22.95,
+          "p75": 25.61,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 4385,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "female": {
+        "bp.systolic": {
+          "n": 1910,
+          "p25": 116.5,
+          "median": 130.5,
+          "p75": 147.0,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 1907,
+          "p25": 67.0,
+          "median": 74.0,
+          "p75": 83.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 1909,
+          "p25": 65.5,
+          "median": 72.0,
+          "p75": 79.0,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 1922,
+          "p25": 47.23,
+          "median": 54.0,
+          "p75": 61.7,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 1909,
+          "p25": 21.02,
+          "median": 23.52,
+          "p75": 26.18,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 2176,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "male": {
+        "bp.systolic": {
+          "n": 1931,
+          "p25": 116.0,
+          "median": 128.5,
+          "p75": 142.5,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 1928,
+          "p25": 67.0,
+          "median": 74.5,
+          "p75": 83.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 1926,
+          "p25": 64.0,
+          "median": 71.0,
+          "p75": 78.0,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 1929,
+          "p25": 52.9,
+          "median": 59.8,
+          "p75": 67.8,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 1916,
+          "p25": 20.35,
+          "median": 22.36,
+          "p75": 24.99,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 2209,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      }
+    },
+    "70-79": {
+      "all": {
+        "bp.systolic": {
+          "n": 1797,
+          "p25": 122.0,
+          "median": 137.0,
+          "p75": 152.0,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 1797,
+          "p25": 66.0,
+          "median": 74.0,
+          "p75": 82.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 1793,
+          "p25": 65.0,
+          "median": 71.5,
+          "p75": 78.5,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 1785,
+          "p25": 46.4,
+          "median": 52.8,
+          "p75": 60.3,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 1763,
+          "p25": 19.52,
+          "median": 21.86,
+          "p75": 24.36,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 2073,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "female": {
+        "bp.systolic": {
+          "n": 879,
+          "p25": 125.5,
+          "median": 140.0,
+          "p75": 153.5,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 879,
+          "p25": 67.0,
+          "median": 74.0,
+          "p75": 81.5,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 878,
+          "p25": 66.5,
+          "median": 72.5,
+          "p75": 79.0,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 877,
+          "p25": 43.3,
+          "median": 50.1,
+          "p75": 57.3,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 864,
+          "p25": 19.86,
+          "median": 22.29,
+          "p75": 24.9,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 1013,
+          "p25": 4.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "male": {
+        "bp.systolic": {
+          "n": 918,
+          "p25": 119.5,
+          "median": 134.5,
+          "p75": 149.38,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 918,
+          "p25": 64.5,
+          "median": 74.0,
+          "p75": 82.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 915,
+          "p25": 63.5,
+          "median": 70.5,
+          "p75": 78.0,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 908,
+          "p25": 49.5,
+          "median": 55.3,
+          "p75": 63.7,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 899,
+          "p25": 19.22,
+          "median": 21.42,
+          "p75": 23.77,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 1060,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      }
+    },
+    "80+": {
+      "all": {
+        "bp.systolic": {
+          "n": 412,
+          "p25": 126.0,
+          "median": 142.5,
+          "p75": 159.62,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 412,
+          "p25": 65.0,
+          "median": 72.0,
+          "p75": 79.5,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 412,
+          "p25": 65.0,
+          "median": 72.0,
+          "p75": 79.5,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 407,
+          "p25": 41.75,
+          "median": 48.5,
+          "p75": 56.15,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 395,
+          "p25": 19.17,
+          "median": 21.18,
+          "p75": 23.54,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 482,
+          "p25": 4.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "female": {
+        "bp.systolic": {
+          "n": 229,
+          "p25": 129.5,
+          "median": 146.0,
+          "p75": 163.5,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 229,
+          "p25": 65.5,
+          "median": 73.0,
+          "p75": 81.0,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 229,
+          "p25": 67.5,
+          "median": 74.0,
+          "p75": 80.5,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 230,
+          "p25": 39.73,
+          "median": 45.2,
+          "p75": 52.45,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 221,
+          "p25": 19.31,
+          "median": 21.31,
+          "p75": 23.77,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 258,
+          "p25": 4.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      },
+      "male": {
+        "bp.systolic": {
+          "n": 183,
+          "p25": 122.25,
+          "median": 138.0,
+          "p75": 153.0,
+          "unit": "mmHg"
+        },
+        "bp.diastolic": {
+          "n": 183,
+          "p25": 65.0,
+          "median": 70.5,
+          "p75": 78.25,
+          "unit": "mmHg"
+        },
+        "hr": {
+          "n": 183,
+          "p25": 62.0,
+          "median": 69.5,
+          "p75": 77.25,
+          "unit": "bpm"
+        },
+        "weight": {
+          "n": 177,
+          "p25": 47.1,
+          "median": 53.2,
+          "p75": 59.1,
+          "unit": "kg"
+        },
+        "bmi": {
+          "n": 174,
+          "p25": 19.13,
+          "median": 20.99,
+          "p75": 22.84,
+          "unit": "kg/m²"
+        },
+        "sleep": {
+          "n": 224,
+          "p25": 5.0,
+          "median": 6.0,
+          "p75": 8.0,
+          "unit": "h"
+        }
+      }
+    }
+  },
+  "limitations": [
+    "人群四分位范围不是医学正常范围",
+    "CHARLS调查口径与家庭设备口径可能不同",
+    "不支持血氧、步数、体温、呼吸频率和条件化血糖的同口径比较"
+  ]
+}
