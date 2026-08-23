@@ -1024,6 +1024,9 @@ ul, ol { list-style: none; }
   .disease-risk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* HTML 的 hidden 属性必须优先于组件 display，避免加载状态完成后仍然显示。 */
+[hidden] { display: none !important; }
+
 /* ========================================================================
    顶部栏（topbar）— 由 auth.js 注入
    ======================================================================== */
@@ -2974,3 +2977,166 @@ ul, ol { list-style: none; }
 .agent-health-card button{min-height:48px}.agent-health-card button:focus-visible{outline:4px solid #2f70c0;outline-offset:3px}
 @media(max-width:800px){.agent-health-card{width:calc(100vw - 76px);font-size:18px}.agent-card-status,.agent-card-section,.agent-card-safety{padding:18px}.agent-card-basis>summary{padding:3px 18px}.agent-card-basis-inner{padding:2px 18px 18px}.agent-facts{grid-template-columns:1fr}.agent-card-action{align-items:stretch;flex-direction:column}.agent-card-action .agent-action-preview-controls{width:100%}.agent-card-action .agent-action-preview-controls button{flex:1}.agent-card-status p{font-size:22px}}
 @media(max-width:480px){.agent-health-card{width:calc(100vw - 66px);border-radius:16px}.agent-card-status p{font-size:21px}.agent-fact>strong{font-size:22px}}
+
+/* 智能体 V3：主动随访、复测匹配与澄清卡 */
+.agent-inbox{margin:16px 0 20px;border:2px solid #dfc18d;border-radius:18px;background:#fffaf0;overflow:hidden}.agent-inbox-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;border-bottom:1px solid #ead8b8}.agent-inbox-head span{color:#8c5724;font-size:14px;font-weight:800}.agent-inbox-head h2{margin:2px 0 0;font-size:23px}.agent-inbox-head>strong{padding:6px 12px;border-radius:999px;background:#8c5724;color:#fff}.agent-inbox-list{display:grid;gap:12px;padding:16px}.agent-inbox-item{padding:17px;border:1px solid #dfd4c8;border-left:6px solid #d3893e;border-radius:14px;background:#fff;font-size:17px;line-height:1.55}.agent-inbox-item.status-overdue{border-left-color:#a82a2a;background:#fff7f7}.agent-inbox-item.status-pending_result_confirmation{border-left-color:#315f9a;background:#f7fbff}.agent-inbox-item.completed{border-left-color:#4f793d;background:#f7fbf4}.agent-inbox-item-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.agent-inbox-item-head>span{padding:4px 9px;border-radius:999px;background:#f5e6ce;color:#78501e;font-size:14px;font-weight:800}.agent-inbox-item-head strong{font-size:20px}.agent-inbox-item-head time{margin-left:auto;color:#73665b;font-size:15px}.agent-inbox-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}.agent-inbox-actions button,.agent-inbox-actions .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 17px;border:2px solid #b9793f;border-radius:11px;background:#fff;color:#75451f;font:700 16px var(--font-cn);cursor:pointer}.agent-inbox-actions button:first-child,.agent-inbox-actions .btn:first-child{background:#c87534;color:#fff}.followup-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.followup-pair>div{padding:13px;border:1px solid #d6e0e9;border-radius:12px;background:#fff}.followup-pair small,.followup-pair strong,.followup-pair p{display:block}.followup-pair strong{margin:5px 0;font-size:22px}.followup-pair p{margin:0;color:#6e6258;font-size:14px}.followup-comparison{margin-top:12px;padding:14px;border-radius:12px;background:#f2f6ee}.followup-comparison>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:7px 0}.followup-comparison p{margin:5px 0;color:#5e554d}
+.agent-schedule-picker{width:100%;margin:10px 0;padding:12px;border-radius:12px;background:#fff;border:1px solid #e4d2bd}.agent-schedule-picker>strong{display:block;margin-bottom:8px}.agent-schedule-picker>div{display:flex;gap:8px;flex-wrap:wrap}.agent-schedule-picker button{min-height:48px;padding:7px 14px;border:2px solid #d2b99e;border-radius:10px;background:#fff;color:#654b36;font:700 16px var(--font-cn);cursor:pointer}.agent-schedule-picker button.selected{border-color:#b65f25;background:#b65f25;color:#fff}.agent-schedule-picker input{width:100%;min-height:50px;margin-top:10px;padding:7px 10px;border:2px solid #bca890;border-radius:10px;font:17px var(--font-cn)}
+.plan-card-mini .agent-schedule-picker{flex:1 1 360px;width:auto;min-width:0}.plan-card-mini .agent-action-preview-controls{flex:0 0 auto}
+.agent-clarification-card{width:min(650px,calc(100vw - 110px));padding:22px;border:3px solid #8aa9cc;border-radius:18px;background:#f7fbff;font-size:18px}.agent-clarification-card>span{color:#315f9a;font-size:15px;font-weight:800}.agent-clarification-card h3{margin:8px 0 4px;font-size:23px}.agent-clarification-card p{margin:0 0 14px}.agent-clarification-card>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.agent-clarification-card button{min-height:52px;border:2px solid #547fae;border-radius:11px;background:#fff;color:#2f5d8d;font:700 17px var(--font-cn);cursor:pointer}.agent-clarification-card small{display:block;margin-top:13px;color:#675f58}.agent-feedback-reasons{display:flex;align-items:center;gap:7px;flex-wrap:wrap;width:100%;margin-top:8px;padding:10px;border-radius:11px;background:#fff6ed}.agent-feedback-reasons strong{width:100%;color:#73543d}.agent-feedback-reasons button{min-height:48px;padding:7px 12px;border:1px solid #c89b75;border-radius:9px;background:#fff;color:#704722;font:700 14px var(--font-cn);cursor:pointer}
+.agent-inbox button:focus-visible,.agent-inbox a:focus-visible,.agent-schedule-picker button:focus-visible,.agent-clarification-card button:focus-visible,.agent-feedback-reasons button:focus-visible{outline:4px solid #2f70c0;outline-offset:3px}
+@media(max-width:800px){.agent-inbox-head{align-items:flex-start;flex-direction:column}.agent-inbox-item-head time{width:100%;margin-left:0}.followup-pair{grid-template-columns:1fr}.agent-clarification-card{width:calc(100vw - 76px)}.agent-clarification-card>div{grid-template-columns:1fr}.agent-inbox-actions{display:grid;grid-template-columns:1fr 1fr}.agent-inbox-actions button,.agent-inbox-actions .btn{width:100%}}
+@media(max-width:800px){.plan-card-mini{align-items:stretch;flex-wrap:wrap}.plan-card-mini .agent-schedule-picker{flex-basis:calc(100% - 52px)}.plan-card-mini .agent-action-preview-controls{width:100%;padding-left:48px}.plan-card-mini .agent-action-preview-controls button{flex:1}}
+
+/* 待处理事项移入右侧辅助栏，默认折叠，避免打断主对话。 */
+.agent-inbox-sidebar{margin:0 0 2px;border-width:1px;border-radius:16px;background:#fffaf0}
+.agent-inbox-sidebar .agent-inbox-head{
+  width:100%;
+  min-height:68px;
+  padding:13px 14px;
+  border:0;
+  border-radius:15px;
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  cursor:pointer;
+  font-family:var(--font-cn);
+}
+.agent-inbox-sidebar .agent-inbox-head h2{font-size:19px}
+.agent-inbox-sidebar .agent-inbox-head>strong{margin-left:auto;font-size:13px;white-space:nowrap}
+.agent-inbox-sidebar .agent-inbox-head>i{margin-left:2px;color:#8b6a48;font-size:22px;font-style:normal;transition:transform .18s}
+.agent-inbox-sidebar:not(.is-collapsed) .agent-inbox-head>i{transform:rotate(180deg)}
+.agent-inbox-sidebar.is-collapsed .agent-inbox-list{display:none}
+.agent-inbox-sidebar .agent-inbox-list{gap:9px;padding:10px;border-top:1px solid #ead8b8}
+.agent-inbox-sidebar .agent-inbox-item{padding:13px;border-left-width:4px;font-size:15px}
+.agent-inbox-sidebar .agent-inbox-item-head{gap:7px}
+.agent-inbox-sidebar .agent-inbox-item-head strong{font-size:18px}
+.agent-inbox-sidebar .agent-inbox-item-head time{width:100%;margin-left:0;font-size:13px}
+.agent-inbox-sidebar .agent-inbox-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.agent-inbox-sidebar .agent-inbox-actions button,.agent-inbox-sidebar .agent-inbox-actions .btn{width:100%;padding:7px 10px;font-size:15px}
+.agent-inbox-sidebar .followup-pair{grid-template-columns:1fr;gap:8px}
+
+/* 智能管家单入口：明确的今日方案入口与独立贴士卡 */
+.agent-daily-plan-button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:10px 22px;border:2px solid #a9501f;border-radius:15px;background:#d87838;color:#fff;font:800 18px var(--font-cn);cursor:pointer;box-shadow:0 5px 14px rgba(160,77,32,.18)}
+.agent-daily-plan-button:hover{background:#bf642d}.agent-daily-plan-button:focus-visible{outline:4px solid #2f70c0;outline-offset:3px}
+.agent-daily-tip{margin-top:22px;padding-top:20px;border-top:2px solid #eadfd4}.agent-daily-tip-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.agent-daily-tip-head span{color:#7b6b5e;font-size:14px;font-weight:800}.agent-daily-tip-head h2{margin:2px 0 0;font-size:22px}.agent-daily-tip-head>strong{padding:5px 10px;border-radius:999px;background:#edf4e8;color:#446437;font-size:14px;white-space:nowrap}.agent-daily-tip-head>strong.preview{background:#fff0d8;color:#7a511b}.agent-daily-tip-head>strong.empty{background:#eee9e4;color:#655c54}
+.agent-daily-tip-content{margin-top:13px;padding:16px;border:1px solid #e4d8cb;border-radius:14px;background:#fffaf4;color:#4f443b;font-size:17px;line-height:1.7}.agent-daily-tip-content h3{margin:0 0 7px;font-size:20px;color:#382f28}.agent-daily-tip-content p{margin:5px 0}.agent-daily-tip-content small{display:block;margin-top:10px;color:#6f6258;font-size:14px}.agent-daily-tip-content a{display:inline-flex;align-items:center;min-height:48px;margin-top:9px;color:#865126;font-weight:800;text-decoration:underline}.agent-tip-why{padding:8px 10px;border-radius:9px;background:#eef5e9;color:#46633c}
+@media(max-width:800px){.agent-page-head{align-items:stretch!important;flex-direction:column;gap:15px}.agent-daily-plan-button{width:100%}.agent-daily-tip-content{font-size:18px}}
+
+/* 智能管家桌面排版校正：主对话优先，右栏保持辅助层级。 */
+.agent-main{max-width:1520px}
+.agent-row{
+  grid-template-columns:minmax(0,var(--agent-chat-width,1fr)) 14px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+}
+.agent-row .chat-area{min-width:0}
+.agent-row .plan-area{min-width:0;align-self:start}
+.agent-splitter{
+  position:relative;
+  align-self:stretch;
+  min-height:240px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:#8d7d70;
+  cursor:col-resize;
+  touch-action:none;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  outline:none;
+}
+.agent-splitter::before{
+  content:"";
+  position:absolute;
+  inset:0 5px;
+  border-radius:999px;
+  background:#ded5cd;
+  transition:background .15s,box-shadow .15s,transform .15s;
+}
+.agent-splitter span{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:48px;
+  border:1px solid #d0c2b6;
+  border-radius:12px;
+  background:#fff;
+  color:#806f62;
+  font-size:22px;
+  line-height:1;
+  box-shadow:0 4px 12px rgba(75,59,45,.12);
+}
+.agent-splitter:hover::before,.agent-splitter:focus-visible::before,.agent-is-resizing .agent-splitter::before{background:#d87838;box-shadow:0 0 0 3px rgba(216,120,56,.18);transform:scaleX(1.15)}
+.agent-splitter:focus-visible span{outline:3px solid #2f70c0;outline-offset:2px}
+.agent-is-resizing,.agent-is-resizing *{cursor:col-resize!important;user-select:none!important}
+.msg-ai{min-width:0;width:100%}
+.msg-ai>div:last-child{min-width:0;flex:1}
+
+/* 健康回答卡：18px 正文仍适老，结论不再像页面大标题一样抢占视觉。 */
+.agent-health-card{width:min(100%,820px);font-size:18px;line-height:1.65}
+.agent-card-status{padding:20px 22px}
+.agent-card-status h3{margin:10px 0 5px;font-size:18px}
+.agent-card-status p{font-size:22px;line-height:1.55;letter-spacing:0;font-weight:750}
+.agent-card-section{padding:18px 22px}
+.agent-card-section h4,.agent-card-safety strong{font-size:19px}
+.agent-fact>strong{font-size:22px}
+.agent-card-safety{padding:17px 22px}
+
+/* 行动卡改成纵向信息流，避免时间选择器把建议文字挤成竖排。 */
+.agent-card-action{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:10px;padding:15px 16px}
+.agent-card-action>.agent-schedule-picker{margin:2px 0 0;width:100%}
+.agent-card-action>.agent-action-preview-controls{justify-content:flex-end;width:100%}
+.agent-action-metric{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  margin-top:9px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#e8f2e2;
+  color:#3f6334;
+  font-size:15px;
+  font-weight:800;
+}
+.agent-action-metric.is-missing{background:#fff0d9;color:#80521f}
+.agent-no-action{margin:0;padding:12px 14px;border-radius:12px;background:#f7f4f0;color:#6f6359;font-size:16px}
+
+/* 右栏方案紧凑排列，不让单条建议占据整张大卡。 */
+#plan-list{display:grid;gap:12px}
+#plan-list .plan-card{
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr);
+  align-items:center;
+  gap:10px 12px;
+  padding:15px;
+}
+#plan-list .plan-card-icon{grid-column:1;grid-row:1}
+#plan-list .plan-card-text{grid-column:2;grid-row:1}
+#plan-list .plan-card-t{font-size:16px;line-height:1.45}
+#plan-list .plan-card-d{margin-top:3px;font-size:14px;line-height:1.55}
+#plan-list .agent-schedule-picker{grid-column:1/-1;margin:2px 0 0;width:100%}
+#plan-list .agent-action-preview-controls{grid-column:1/-1;justify-content:flex-end;width:100%}
+.plan-area .plan-title{font-size:22px}
+.plan-area .plan-sub{font-size:14px}
+
+@media(max-width:1180px){
+  .agent-row{grid-template-columns:1fr}
+  .agent-splitter{display:none}
+  .agent-row .plan-area{width:100%}
+  .agent-health-card{max-width:820px}
+}
+@media(max-width:800px){
+  .agent-main{padding-left:18px;padding-right:18px}
+  .agent-row{gap:16px}
+  .chat-area,.plan-area{padding:18px;border-radius:22px}
+  .agent-health-card{width:100%;max-width:none}
+  .agent-card-status p{font-size:21px}
+  .agent-card-status,.agent-card-section,.agent-card-safety{padding:17px}
+  #plan-list .agent-action-preview-controls,.agent-card-action>.agent-action-preview-controls{display:grid;grid-template-columns:1fr 1fr}
+  #plan-list .agent-action-preview-controls button,.agent-card-action>.agent-action-preview-controls button{width:100%}
+}

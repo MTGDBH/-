@@ -1,7 +1,7 @@
 {
   "schema_version": "evidence-conflict.v1",
-  "index_version": "2026-08-21.v6",
-  "checked_relationships": 419,
+  "index_version": "2026-08-23.v7",
+  "checked_relationships": 557,
   "conflict_count": 0,
   "conflicts": [],
   "policy": "冲突关系进入医生审核，老人端不直接使用冲突结论。"

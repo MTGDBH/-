@@ -3,7 +3,7 @@ import { AGENT_TOOL_POLICIES, classifyAgentIntent, emergencyReply, groundedNumbe
 
 const namesFor = message => planAgentTools(classifyAgentIntent(message), message).map(item => item.name);
 
-assert.deepEqual(namesFor('请介绍健康管理的基本概念'), [], '普通知识不应读取个人健康工具');
+assert.deepEqual(namesFor('请介绍健康管理的基本概念'), ['knowledge'], '普通知识只应读取健康知识工具');
 assert.equal(needsLiveHealthContext('请介绍健康管理的基本概念', classifyAgentIntent('请介绍健康管理的基本概念')), false);
 assert.equal(needsLiveHealthContext('血压为什么影响脑卒中', classifyAgentIntent('血压为什么影响脑卒中')), false, '一般健康教育不能读取个人指标');
 assert.equal(needsLiveHealthContext('为什么我的血压最近偏高', classifyAgentIntent('为什么我的血压最近偏高')), true);
@@ -14,6 +14,9 @@ assert.deepEqual(namesFor('看看总体健康状况'), ['health_summary', 'alert
 assert.ok(namesFor('最近睡眠怎么样').includes('behavior'));
 assert.ok(namesFor('设备为什么没有同步').includes('device'));
 assert.ok(namesFor('血压为什么会影响脑卒中').includes('knowledge'));
+assert.deepEqual(namesFor('请根据我当前的健康记录生成今日健康方案'), ['health_summary', 'alerts', 'behavior'], '今日方案固定读取三项实时证据');
+assert.deepEqual(namesFor('今天有什么养生贴士'), ['knowledge'], '贴士只读取知识工具');
+assert.equal(needsLiveHealthContext('今天有什么养生贴士', classifyAgentIntent('今天有什么养生贴士')), false, '贴士不得加载个人健康指标');
 
 const crowded = namesFor('看看总体健康、睡眠、设备同步和待处理预警');
 assert.ok(crowded.length <= 3, '单轮工具预算最多3项');

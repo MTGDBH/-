@@ -17,6 +17,7 @@ export async function queryKnowledgeGraph(question, disease = null, context = {}
       audience: options.audience || 'elderly',
       explain_level: options.explainLevel || 'standard',
       backend: options.backend || 'local_hybrid',
+      enable_hidden_relationships: options.enableHiddenRelationships !== false && process.env.GRAPHRAG_RESEARCH_RELATIONSHIPS !== '0',
     },
   });
   // CLI 接口通过 argparse，runPythonTool 只能传 stdin；用 query 参数兼容服务端调用。

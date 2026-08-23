@@ -1,6 +1,6 @@
 {
-  "index_version": "2026-08-21.v6",
-  "generated_at": "2026-08-21",
+  "index_version": "2026-08-23.v7",
+  "generated_at": "2026-08-23",
   "sources": [
     {
       "file": "ada_older_adults_2025.md",
@@ -16,7 +16,23 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
+    },
+    {
+      "file": "ada_older_adults_2026.md",
+      "source_id": "ada_older_adults_2026",
+      "sha256": "aa9c3435e51635403f496fa5ca6dae4b30836cc822d3b2718d2cbc513fcab6d6",
+      "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+      "publisher": "American Diabetes Association Professional Practice Committee",
+      "publication_year": "2026",
+      "document_type": "clinical_standard_summary",
+      "evidence_level": "clinical_standard",
+      "review_status": "pending_medical_review",
+      "version": "2026.1",
+      "population": "older_adults_with_diabetes",
+      "limitations": "标准用于临床综合评估",
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "aha_lifes_essential_8_2022.md",
@@ -32,7 +48,23 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
+    },
+    {
+      "file": "aha_sleep_brain_2024.md",
+      "source_id": "aha_sleep_brain_2024",
+      "sha256": "de376a00c161f34c7c812b6c91cd79e57d908b5139870f74e202e0d10de39a9c",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/38235581/",
+      "publisher": "American Heart Association",
+      "publication_year": "2024",
+      "document_type": "scientific_statement_summary",
+      "evidence_level": "professional_statement",
+      "review_status": "pending_medical_review",
+      "version": "2024.1",
+      "population": "adults_with_older_adult_context",
+      "limitations": "睡眠与脑健康证据包含观察性关联和机制研究，不能由睡眠记录直接诊断脑血管病或认知障碍。",
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "aha_stroke_prevention_2024.md",
@@ -48,7 +80,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "cardiovascular.md",
@@ -64,7 +96,39 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
+    },
+    {
+      "file": "cdc_steadi_2025.md",
+      "source_id": "cdc_steadi_2025",
+      "sha256": "c4dd3f84423158db8eda2d66bc2882e18cf9649d7413df5688237405518d58dd",
+      "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+      "publisher": "Centers for Disease Control and Prevention",
+      "publication_year": "2025",
+      "document_type": "public_health_clinical_resource",
+      "evidence_level": "public_guidance",
+      "review_status": "pending_medical_review",
+      "version": "2025.1",
+      "population": "adults_age_65_and_older",
+      "limitations": "STEADI 用于跌倒风险筛查与协同管理",
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
+    },
+    {
+      "file": "cdc_vision_falls_2024.md",
+      "source_id": "cdc_vision_falls_2024",
+      "sha256": "1137a115d89e82356e0c57699e27eadfa1a1b7c340c6e8a9061091425e9774f0",
+      "source_url": "https://www.cdc.gov/vision-health/prevention/older-adult-falls.html",
+      "publisher": "Centers for Disease Control and Prevention",
+      "publication_year": "2024",
+      "document_type": "public_health_guidance",
+      "evidence_level": "public_guidance",
+      "review_status": "pending_medical_review",
+      "version": "2024.1",
+      "population": "older_adults_with_or_at_risk_of_vision_impairment",
+      "limitations": "公共健康资料描述风险网络，不代表视力问题一定导致跌倒或社会孤立。",
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "diabetes.md",
@@ -80,7 +144,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "dpp_2002.md",
@@ -96,7 +160,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "elderly_frailty.md",
@@ -112,7 +176,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "hypertension.md",
@@ -128,7 +192,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "kdigo_ckd_2024.md",
@@ -144,7 +208,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "older_adult_safety.md",
@@ -160,7 +224,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "older_cvd_risk_review_2020.md",
@@ -176,7 +240,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "older_physical_activity_review_2022.md",
@@ -192,7 +256,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "predimed_2018.md",
@@ -208,7 +272,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "sprint_2015.md",
@@ -224,7 +288,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "who_cvd_2025.md",
@@ -240,7 +304,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "who_diabetes_2024.md",
@@ -256,7 +320,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "who_hypertension_2025.md",
@@ -272,7 +336,23 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
+    },
+    {
+      "file": "who_icope_2017.md",
+      "source_id": "who_icope_2017",
+      "sha256": "7091069b2ba2c21dfb50e84eedbd5f3d5e5a18c0c0ff1e6157213d317ee247bc",
+      "source_url": "https://www.who.int/publications/i/item/9789241550109",
+      "publisher": "World Health Organization",
+      "publication_year": "2017",
+      "document_type": "clinical_guideline_summary",
+      "evidence_level": "authoritative_guidance",
+      "review_status": "pending_medical_review",
+      "version": "2017.1",
+      "population": "community_dwelling_older_adults",
+      "limitations": "本摘要用于综合筛查和转介路径，不替代对单项功能下降的正式评估或诊断。",
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "who_physical_activity_2020.md",
@@ -288,7 +368,7 @@
       "population": "older_adults_contextualized",
       "limitations": "来源摘要，不能替代原文或个体医学判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_01",
@@ -303,8 +383,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_02",
@@ -319,8 +399,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_03",
@@ -335,8 +415,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_04",
@@ -351,8 +431,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_05",
@@ -367,8 +447,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_06",
@@ -383,8 +463,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:hypertension_curated_07",
@@ -399,8 +479,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_01",
@@ -415,8 +495,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_02",
@@ -431,8 +511,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_03",
@@ -447,8 +527,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_04",
@@ -463,8 +543,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_05",
@@ -479,8 +559,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_06",
@@ -495,8 +575,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_curated_07",
@@ -511,8 +591,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_01",
@@ -527,8 +607,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_02",
@@ -543,8 +623,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_03",
@@ -559,8 +639,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_04",
@@ -575,8 +655,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_05",
@@ -591,8 +671,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_06",
@@ -607,8 +687,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:cardiovascular_curated_07",
@@ -623,8 +703,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_01",
@@ -639,8 +719,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_02",
@@ -655,8 +735,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_03",
@@ -671,8 +751,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_04",
@@ -687,8 +767,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_05",
@@ -703,8 +783,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_06",
@@ -719,8 +799,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_curated_07",
@@ -735,8 +815,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_01",
@@ -751,8 +831,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_02",
@@ -767,8 +847,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_03",
@@ -783,8 +863,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_04",
@@ -799,8 +879,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_05",
@@ -815,8 +895,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_06",
@@ -831,8 +911,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:chronic_kidney_disease_curated_07",
@@ -847,8 +927,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_01",
@@ -863,8 +943,8 @@
       "version": "2025.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_02",
@@ -879,8 +959,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_03",
@@ -895,8 +975,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_04",
@@ -911,8 +991,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_05",
@@ -927,8 +1007,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_06",
@@ -943,8 +1023,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_curated_07",
@@ -959,8 +1039,8 @@
       "version": "2024.registry",
       "population": "older_adults",
       "limitations": "本条为来源摘要，不替代原文；观察性证据仅表示相关或预测因素，不自动推断因果。",
-      "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "retrieved_at": "2026-08-23",
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:who_hypertension_2025_guidance",
@@ -976,7 +1056,7 @@
       "population": "adults; older_adults_contextualized",
       "limitations": "事实表不是针对某一位老人的个体治疗方案；阈值需结合测量条件、症状、共病和医生判断。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:older_bp_control_2021_systematic_review",
@@ -992,7 +1072,7 @@
       "population": "hypertensive older_adults; mean_age_about_69",
       "limitations": "不同试验目标、随访和人群差异较大；不能把汇总效应直接转换成个人治疗目标。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:sprint_2015_key_trial",
@@ -1008,7 +1088,7 @@
       "population": "adults_at_increased_cardiovascular_risk; age_>=75_subgroup",
       "limitations": "排除了糖尿病和既往卒中等部分人群；测量方案与家庭血压计不同，不应直接生成个人药物目标。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:ada_older_adults_2025_guidance",
@@ -1024,7 +1104,7 @@
       "population": "older_adults_with_diabetes; frailty_or_cognitive_impairment_context",
       "limitations": "标准需要由临床人员结合病史和治疗方案执行；系统不提供药物剂量或停药建议。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:diabetes_lifestyle_2019_systematic_review",
@@ -1040,7 +1120,7 @@
       "population": "adults_with_impaired_glucose_tolerance",
       "limitations": "主要对象是糖耐量受损人群，不能把群体风险降低幅度直接套用于已患糖尿病或虚弱老人。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:dpp_2002_key_trial",
@@ -1056,7 +1136,7 @@
       "population": "adults_with_impaired_glucose_tolerance",
       "limitations": "试验干预强度和支持条件高于普通家庭记录；系统只能转化为可执行的记录、复测和生活方式提醒。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:who_cvd_2025_guidance",
@@ -1072,7 +1152,7 @@
       "population": "general_population; older_adults_contextualized",
       "limitations": "事实表用于公共卫生框架，不提供个人绝对风险或处方决策。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:elderly_cvd_statins_2015_systematic_review",
@@ -1088,7 +1168,7 @@
       "population": "adults_>=65_without_known_cvd",
       "limitations": "对卒中、全因死亡和认知等结局证据不充分；系统不得据此建议开始或调整药物。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:predimed_2018_key_trial",
@@ -1104,7 +1184,7 @@
       "population": "adults_at_high_cardiovascular_risk",
       "limitations": "饮食干预来自高风险人群和特定支持环境；不能把饮食试验结果包装为个人确定性效果。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:aha_asa_stroke_2024_guidance",
@@ -1120,7 +1200,7 @@
       "population": "adults_at_risk_of_first_stroke; older_adults_contextualized",
       "limitations": "一级预防指南不能替代急诊诊断或既往卒中患者的专门二级预防方案。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_bp_2021_systematic_review",
@@ -1136,7 +1216,7 @@
       "population": "adults_with_hypertension_or_stroke_risk",
       "limitations": "不同药物、目标和试验人群存在异质性；不应由系统直接推荐具体药物类别或剂量。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:stroke_lifestyle_2013_key_trial",
@@ -1152,7 +1232,7 @@
       "population": "sedentary_overweight_or_obese_older_adults",
       "limitations": "样本量小、随访短，主要是风险因素变化而不是卒中事件；只能支持行为记录和教育。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:kdigo_ckd_2024_guidance",
@@ -1168,7 +1248,7 @@
       "population": "adults_with_ckd; older_adults_contextualized",
       "limitations": "肾功能分期和用药安全需要实验室数据与医生判断；单次eGFR不能定义趋势。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:ckd_bp_2017_systematic_review",
@@ -1184,7 +1264,7 @@
       "population": "adults_with_nondiabetic_ckd",
       "limitations": "研究对象并非全部老年人，蛋白尿亚组存在差异；不能把结果转成个人降压目标。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:proercan_2024_key_trial",
@@ -1200,7 +1280,7 @@
       "population": "older_adults_>65; hypertension; CKD_stage_3_to_4_without_proteinuria",
       "limitations": "样本量小、开放标签、特定非蛋白尿人群；不得据此指导系统自动换药或停药。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:who_ageing_2024_frailty_guidance",
@@ -1216,7 +1296,7 @@
       "population": "older_adults; intrinsic_capacity_and_function",
       "limitations": "公共卫生框架不等于个体衰弱诊断；跌倒和认知问题需要专业评估。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:frailty_management_2019_systematic_review",
@@ -1232,7 +1312,7 @@
       "population": "frail_older_adults",
       "limitations": "干预、结局和人群差异大，证据质量有限；不能直接承诺个人一定改善。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     },
     {
       "file": "registry:grandmove_2025_key_trial",
@@ -1248,7 +1328,7 @@
       "population": "community_dwelling_older_adults_with_frailty_or_prefrailty",
       "limitations": "活跃对照设计、依从性和随访脱落会影响解释；衰弱老人增加活动强度前需评估跌倒风险。",
       "retrieved_at": "2026-08-21",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-23.v7"
     }
   ],
   "invalid_relations": []

@@ -18,14 +18,17 @@ try {
   const first = await request('/api/health/metrics', { method: 'POST', headers: auth, body: JSON.stringify({ type: 'bp', value: 145, value2: 88, measurement_condition: '静坐5分钟后', recorded_at: new Date().toISOString() }) });
   const duplicate = await request('/api/health/metrics', { method: 'POST', headers: auth, body: JSON.stringify({ type: 'bp', value: 145, value2: 88, measurement_condition: '静坐5分钟后', recorded_at: first.body.recorded_at }) });
   if (!duplicate.body.duplicate) throw new Error('duplicate measurement was not marked');
-  const action = await request('/api/actions', { method: 'POST', headers: auth, body: JSON.stringify({ action_type: 'schedule_recheck', title: '复测血压', desc: '明早固定时间测量', confirmed: true }) });
-  const followup = await request(`/api/actions/${action.body.request.id}/followup`, { method: 'POST', headers: auth, body: JSON.stringify({ metric_type: 'bp' }) });
-  if (!followup.body.id || followup.body.status !== 'scheduled') throw new Error('follow-up was not scheduled');
+  const due = new Date(Date.now() + 24 * 3600000).toISOString();
+  const action = await request('/api/actions', { method: 'POST', headers: auth, body: JSON.stringify({ action_type: 'schedule_recheck', title: '复测血压', desc: '明早固定时间测量', metric_type: 'bp', baseline_metric_id: first.body.id, due_at: due, idempotency_key: `quality-${Date.now()}` }) });
+  if (!action.body.requires_confirmation || action.body.request.status !== 'pending_confirmation') throw new Error('recheck action bypassed confirmation');
+  const confirmed = await request(`/api/actions/${action.body.request.id}/confirm`, { method: 'POST', headers: auth, body: '{}' });
+  const followup = confirmed.body.followup;
+  if (!followup?.id || followup.status !== 'scheduled') throw new Error('follow-up was not created atomically');
   const sources = (await request('/api/knowledge/graph/sources', { headers: doctorAuth })).body;
   const sourceId = sources.sources?.[0]?.source_id;
   const review = await request('/api/knowledge/graph/reviews', { method: 'POST', headers: doctorAuth, body: JSON.stringify({ source_id: sourceId, status: 'approved', notes: '演示审核通过' }) });
   if (review.body.status !== 'approved') throw new Error('knowledge review was not persisted');
-  console.log(JSON.stringify({ pass: true, quality_flags: duplicate.body.quality?.flags || [], duplicate_marked: true, followup_status: followup.body.status, source_review: review.body.status }));
+  console.log(JSON.stringify({ pass: true, quality_flags: duplicate.body.quality?.flags || [], duplicate_marked: true, followup_status: followup.status, source_review: review.body.status }));
 } finally {
   await request('/api/profile/me', { method: 'DELETE', headers: auth });
   await request('/api/profile/me', { method: 'DELETE', headers: doctorAuth });

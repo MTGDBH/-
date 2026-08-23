@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
   if (q) { where.push('(title LIKE ? OR summary LIKE ? OR body LIKE ?)'); params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
 
   const sql = `
-    SELECT id, category, title, summary, tags, audience, view_count, created_at
+    SELECT id, category, title, summary, tags, audience, view_count, review_status, review_version, reviewed_at, source_label, source_url, created_at
     FROM knowledge_articles
     ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
     ORDER BY id DESC
@@ -72,7 +72,10 @@ router.get('/graph/query', async (req, res) => {
   const question = String(req.query.q || '').trim();
   if (!question) return res.status(400).json({ error: 'q is required' });
   const disease = req.query.disease ? String(req.query.disease) : null;
-  const audience = ['elderly', 'caregiver', 'doctor'].includes(req.query.audience) ? req.query.audience : 'elderly';
+  const roleAudience = req.user?.role === 'doctor' ? 'doctor' : req.user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+  const requestedAudience = ['elderly', 'caregiver', 'doctor'].includes(req.query.audience) ? req.query.audience : roleAudience;
+  // 查询者不能通过 URL 参数把自己提升到医生视图。
+  const audience = requestedAudience === 'doctor' && req.user?.role !== 'doctor' ? roleAudience : requestedAudience;
   try {
     res.json(await queryKnowledgeGraph(question, disease, buildHealthContext(req.user, 90), {
       audience,
@@ -85,6 +88,26 @@ router.get('/graph/query', async (req, res) => {
   catch { res.status(503).json({ error: 'knowledge graph unavailable' }); }
 });
 
+// 测试版关系发现：所有登录角色可只读查看；仍禁止自动生成医疗行动。
+router.get('/graph/relationship-candidates', async (req, res) => {
+  const question = String(req.query.q || '老年人 功能 情绪 认知 跌倒 多重用药 睡眠 营养').trim();
+  const audience = req.user?.role === 'doctor' ? 'doctor' : req.user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+  try {
+    const result = await queryKnowledgeGraph(question, null, {}, {
+      audience, topK: 8, maxHops: 2, includeTrace: false,
+      explainLevel: audience === 'doctor' ? 'audit' : 'standard', enableHiddenRelationships: true,
+    });
+    res.json({
+      index_version: result.index_version,
+      items: result.relationship_candidates || [],
+      summary: result.relationship_candidate_summary,
+      disclaimer: '测试版已启用这些两跳关联线索。它们可帮助拓展观察方向，但不代表直接因果，也不会自动生成诊断、用药或健康行动。',
+    });
+  } catch {
+    res.status(503).json({ error: '关系发现暂时不可用' });
+  }
+});
+
 // 热门关键词（从 tags 提取）
 router.get('/meta/popular-tags', (_req, res) => {
   const rows = db.prepare('SELECT tags FROM knowledge_articles').all();
@@ -93,6 +116,20 @@ router.get('/meta/popular-tags', (_req, res) => {
     try { for (const t of (r.tags ? JSON.parse(r.tags) : [])) counts[t] = (counts[t] || 0) + 1; } catch {}
   }
   res.json(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([tag, count]) => ({ tag, count })));
+});
+
+// 文章级医学审核；每日贴士只有 approved 才允许个性化。
+router.post('/articles/:id/review', (req, res) => {
+  if (!requireDoctor(req, res)) return;
+  const id = Number(req.params.id);
+  const status = String(req.body?.status || '').trim();
+  const version = String(req.body?.review_version || '').trim().slice(0, 80) || null;
+  if (!Number.isInteger(id) || !['pending', 'approved', 'rejected'].includes(status)) return res.status(400).json({ error: '审核参数不正确' });
+  if (!db.prepare('SELECT id FROM knowledge_articles WHERE id=?').get(id)) return res.status(404).json({ error: '文章不存在' });
+  const reviewedAt = status === 'pending' ? null : new Date().toISOString();
+  db.prepare(`UPDATE knowledge_articles SET review_status=?,review_version=?,reviewed_by=?,reviewed_at=? WHERE id=?`)
+    .run(status, version, status === 'pending' ? null : req.user.id, reviewedAt, id);
+  res.json(db.prepare(`SELECT id,category,title,review_status,review_version,reviewed_by,reviewed_at FROM knowledge_articles WHERE id=?`).get(id));
 });
 
 // 单篇

@@ -75,4 +75,36 @@
   ,{"source":"disease:frailty","target":"care_action:fall_risk_review","type":"requires_medical_review","evidence":"elderly_frailty.md#安全行动","strength":"high"}
   ,{"source":"disease:frailty","target":"disease:chronic_kidney_disease","type":"coexists_with","evidence":"elderly_frailty.md#评估维度","strength":"moderate"}
   ,{"source":"intervention:low_to_moderate_activity","target":"disease:frailty","type":"supportive_evidence","evidence":"elderly_frailty.md#安全行动","strength":"moderate"}
+  ,{"source":"symptom:mobility_limitation","target":"risk_factor:fall_risk","type":"associated_with","evidence":"who_icope_2017.md#综合评估","strength":"moderate","causal_status":"association"}
+  ,{"source":"intervention:strength_balance_activity","target":"symptom:mobility_limitation","type":"may_improve","evidence":"who_icope_2017.md#营养与活动","strength":"moderate","causal_status":"guidance","condition":"activity_tolerance_allows"}
+  ,{"source":"intervention:nutrition_support","target":"metric:grip","type":"may_improve","evidence":"who_icope_2017.md#营养与活动","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"symptom:hearing_loss","target":"care_action:sensory_assessment","type":"recommended_for","evidence":"who_icope_2017.md#感官情绪认知","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"symptom:vision_impairment","target":"care_action:sensory_assessment","type":"recommended_for","evidence":"who_icope_2017.md#感官情绪认知","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"symptom:depressive_symptoms","target":"care_action:comprehensive_geriatric_assessment","type":"recommended_for","evidence":"who_icope_2017.md#感官情绪认知","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"symptom:cognitive_concern","target":"care_action:formal_cognitive_screening","type":"recommended_for","evidence":"who_icope_2017.md#感官情绪认知","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"population:cognitive_impairment","target":"care_action:caregiver_support","type":"recommended_for","evidence":"who_icope_2017.md#跌倒与照护支持","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"risk_factor:orthostatic_hypotension","target":"risk_factor:fall_risk","type":"associated_with","evidence":"cdc_steadi_2025.md#体位性低血压","strength":"moderate","causal_status":"association"}
+  ,{"source":"metric:standing_bp","target":"risk_factor:orthostatic_hypotension","type":"monitoring_signal","evidence":"cdc_steadi_2025.md#体位性低血压","strength":"moderate","causal_status":"guidance","condition":"lying_and_standing_measurements_with_symptoms"}
+  ,{"source":"risk_factor:polypharmacy","target":"risk_factor:fall_risk","type":"associated_with","evidence":"cdc_steadi_2025.md#药物与跌倒","strength":"moderate","causal_status":"association"}
+  ,{"source":"symptom:drowsiness_or_slow_reaction","target":"risk_factor:fall_risk","type":"associated_with","evidence":"cdc_steadi_2025.md#药物与跌倒","strength":"moderate","causal_status":"association"}
+  ,{"source":"care_action:medication_review","target":"risk_factor:polypharmacy","type":"recommended_for","evidence":"cdc_steadi_2025.md#协同处理","strength":"high","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"risk_factor:fall_risk","target":"care_action:medication_review","type":"requires_clinician_review","evidence":"cdc_steadi_2025.md#协同处理","strength":"high","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"risk_factor:polypharmacy","target":"care_action:do_not_self_adjust_medication","type":"do_not_self_adjust_medication","evidence":"cdc_steadi_2025.md#药物与跌倒","strength":"high","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"symptom:vision_impairment","target":"risk_factor:fall_risk","type":"associated_with","evidence":"cdc_vision_falls_2024.md#视力慢病与跌倒","strength":"moderate","causal_status":"association"}
+  ,{"source":"symptom:vision_impairment","target":"social_factor:social_isolation","type":"associated_with","evidence":"cdc_vision_falls_2024.md#社会支持","strength":"low","causal_status":"association"}
+  ,{"source":"social_factor:social_isolation","target":"care_action:caregiver_support","type":"recommended_for","evidence":"cdc_vision_falls_2024.md#社会支持","strength":"moderate","causal_status":"guidance"}
+  ,{"source":"risk_factor:fall_risk","target":"intervention:home_safety_improvement","type":"managed_by","evidence":"cdc_vision_falls_2024.md#预防行动","strength":"moderate","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"behavior:disturbed_sleep","target":"disease:stroke","type":"associated_with","evidence":"aha_sleep_brain_2024.md#睡眠与脑健康","strength":"moderate","causal_status":"association"}
+  ,{"source":"behavior:disturbed_sleep","target":"risk_factor:cognitive_decline","type":"associated_with","evidence":"aha_sleep_brain_2024.md#睡眠与脑健康","strength":"moderate","causal_status":"association"}
+  ,{"source":"behavior:disturbed_sleep","target":"care_action:sleep_symptom_review","type":"requires_medical_review","evidence":"aha_sleep_brain_2024.md#老年人解释边界","strength":"moderate","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"disease:diabetes","target":"population:cognitive_impairment","type":"associated_with","evidence":"ada_older_adults_2026.md#认知与低血糖","strength":"moderate","causal_status":"association"}
+  ,{"source":"risk_factor:hypoglycemia","target":"risk_factor:cognitive_decline","type":"associated_with","evidence":"ada_older_adults_2026.md#认知与低血糖","strength":"moderate","causal_status":"association"}
+  ,{"source":"population:cognitive_impairment","target":"risk_factor:hypoglycemia","type":"associated_with","evidence":"ada_older_adults_2026.md#认知与低血糖","strength":"moderate","causal_status":"association"}
+  ,{"source":"population:cognitive_impairment","target":"care_action:simplify_care_plan","type":"recommended_for","evidence":"ada_older_adults_2026.md#认知与低血糖","strength":"high","causal_status":"guidance","review_status":"pending_medical_review"}
+  ,{"source":"risk_factor:malnutrition","target":"metric:adl","type":"associated_with","evidence":"ada_older_adults_2026.md#营养肌力与功能","strength":"moderate","causal_status":"association"}
+  ,{"source":"risk_factor:malnutrition","target":"metric:grip","type":"associated_with","evidence":"ada_older_adults_2026.md#营养肌力与功能","strength":"moderate","causal_status":"association"}
+  ,{"source":"risk_factor:malnutrition","target":"risk_factor:cognitive_decline","type":"associated_with","evidence":"ada_older_adults_2026.md#营养肌力与功能","strength":"moderate","causal_status":"association"}
+  ,{"source":"disease:diabetes","target":"disease:frailty","type":"coexists_with","evidence":"ada_older_adults_2026.md#综合评估","strength":"moderate","causal_status":"association"}
+  ,{"source":"disease:diabetes","target":"symptom:depressive_symptoms","type":"coexists_with","evidence":"ada_older_adults_2026.md#综合评估","strength":"moderate","causal_status":"association"}
+  ,{"source":"population:cognitive_impairment","target":"care_action:caregiver_involvement","type":"recommended_for","evidence":"ada_older_adults_2026.md#照护支持","strength":"high","causal_status":"guidance","review_status":"pending_medical_review"}
 ]

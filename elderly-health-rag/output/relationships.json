@@ -29,6 +29,13 @@
   },
   {
     "source": "disease:diabetes",
+    "target": "risk_factor:多重用药",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
     "target": "older_adult_context:老年",
     "type": "mentions",
     "chunk_id": "ada_older_adults_2025:0",
@@ -58,6 +65,13 @@
   {
     "source": "disease:diabetes",
     "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2025:0",
+    "evidence": "ada_older_adults_2025.md#老年人综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:抑郁",
     "type": "mentions",
     "chunk_id": "ada_older_adults_2025:0",
     "evidence": "ada_older_adults_2025.md#老年人综合评估"
@@ -152,6 +166,195 @@
     "type": "mentions",
     "chunk_id": "ada_older_adults_2025:2",
     "evidence": "ada_older_adults_2025.md#用药边界"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:多重用药",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:抑郁",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence": "ada_older_adults_2026.md#综合评估"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "danger_sign:严重低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:营养不良",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "measurement:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence": "ada_older_adults_2026.md#照护支持"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "risk_factor:血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence": "ada_older_adults_2026.md#照护支持"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence": "ada_older_adults_2026.md#照护支持"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence": "ada_older_adults_2026.md#照护支持"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "older_adult_context:低血糖",
+    "type": "mentions",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence": "ada_older_adults_2026.md#照护支持"
   },
   {
     "source": "disease:cardiovascular",
@@ -365,6 +568,118 @@
   },
   {
     "source": "disease:stroke",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "intervention:记录",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "danger_sign:胸痛",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "danger_sign:呼吸困难",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "danger_sign:意识改变",
+    "type": "mentions",
+    "chunk_id": "aha_sleep_brain_2024:2",
+    "evidence": "aha_sleep_brain_2024.md#行动边界"
+  },
+  {
+    "source": "disease:stroke",
     "target": "measurement:血压",
     "type": "mentions",
     "chunk_id": "aha_stroke_prevention_2024:0",
@@ -408,6 +723,13 @@
   {
     "source": "disease:stroke",
     "target": "danger_sign:面歪",
+    "type": "mentions",
+    "chunk_id": "aha_stroke_prevention_2024:2",
+    "evidence": "aha_stroke_prevention_2024.md#社会决定因素与急症"
+  },
+  {
+    "source": "disease:stroke",
+    "target": "older_adult_context:照护支持",
     "type": "mentions",
     "chunk_id": "aha_stroke_prevention_2024:2",
     "evidence": "aha_stroke_prevention_2024.md#社会决定因素与急症"
@@ -523,6 +845,244 @@
     "type": "mentions",
     "chunk_id": "cardiovascular:2",
     "evidence": "cardiovascular.md#危险信号"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:0",
+    "evidence": "cdc_steadi_2025.md#多因素风险评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:0",
+    "evidence": "cdc_steadi_2025.md#多因素风险评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:0",
+    "evidence": "cdc_steadi_2025.md#多因素风险评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:0",
+    "evidence": "cdc_steadi_2025.md#多因素风险评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:0",
+    "evidence": "cdc_steadi_2025.md#多因素风险评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:睡眠",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:睡眠",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:药物复核",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:2",
+    "evidence": "cdc_steadi_2025.md#体位性低血压"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:血压",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:2",
+    "evidence": "cdc_steadi_2025.md#体位性低血压"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:复测",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence": "cdc_steadi_2025.md#协同处理"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:药物复核",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence": "cdc_steadi_2025.md#协同处理"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:力量和平衡训练",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence": "cdc_steadi_2025.md#协同处理"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:居家安全",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence": "cdc_steadi_2025.md#协同处理"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence": "cdc_steadi_2025.md#协同处理"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:联系家属",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence": "cdc_vision_falls_2024.md#社会支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:2",
+    "evidence": "cdc_vision_falls_2024.md#预防行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:2",
+    "evidence": "cdc_vision_falls_2024.md#预防行动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "cdc_vision_falls_2024:2",
+    "evidence": "cdc_vision_falls_2024.md#预防行动"
   },
   {
     "source": "disease:diabetes",
@@ -1115,6 +1675,13 @@
   {
     "source": "disease:chronic_kidney_disease",
     "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "kdigo_ckd_2024:3",
+    "evidence": "kdigo_ckd_2024.md#老年人安全边界"
+  },
+  {
+    "source": "disease:chronic_kidney_disease",
+    "target": "risk_factor:多重用药",
     "type": "mentions",
     "chunk_id": "kdigo_ckd_2024:3",
     "evidence": "kdigo_ckd_2024.md#老年人安全边界"
@@ -1860,6 +2427,181 @@
     "type": "mentions",
     "chunk_id": "who_hypertension_2025:3",
     "evidence": "who_hypertension_2025.md#并发症"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:老年",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:听力",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:0",
+    "evidence": "who_icope_2017.md#综合评估"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:虚弱",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:虚弱",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:1",
+    "evidence": "who_icope_2017.md#营养与活动"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:视力",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:听力",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:抑郁",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:2",
+    "evidence": "who_icope_2017.md#感官情绪认知"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "measurement:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "risk_factor:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:活动",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "intervention:居家安全",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:跌倒",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:认知",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
+  },
+  {
+    "source": "disease:frailty",
+    "target": "older_adult_context:照护支持",
+    "type": "mentions",
+    "chunk_id": "who_icope_2017:3",
+    "evidence": "who_icope_2017.md#跌倒与照护支持"
   },
   {
     "source": "disease:who_physical_activity_2020",
@@ -4324,6 +5066,616 @@
       "elderly_frailty.md#安全行动"
     ],
     "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:mobility_limitation",
+    "target": "risk_factor:fall_risk",
+    "type": "associated_with",
+    "evidence": "who_icope_2017.md#综合评估",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "who_icope_2017:0",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#综合评估"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "intervention:strength_balance_activity",
+    "target": "symptom:mobility_limitation",
+    "type": "may_improve",
+    "evidence": "who_icope_2017.md#营养与活动",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "condition": "activity_tolerance_allows",
+    "chunk_id": "who_icope_2017:1",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#营养与活动"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "intervention:nutrition_support",
+    "target": "metric:grip",
+    "type": "may_improve",
+    "evidence": "who_icope_2017.md#营养与活动",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:1",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#营养与活动"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:hearing_loss",
+    "target": "care_action:sensory_assessment",
+    "type": "recommended_for",
+    "evidence": "who_icope_2017.md#感官情绪认知",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:2",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#感官情绪认知"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:vision_impairment",
+    "target": "care_action:sensory_assessment",
+    "type": "recommended_for",
+    "evidence": "who_icope_2017.md#感官情绪认知",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:2",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#感官情绪认知"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:depressive_symptoms",
+    "target": "care_action:comprehensive_geriatric_assessment",
+    "type": "recommended_for",
+    "evidence": "who_icope_2017.md#感官情绪认知",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:2",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#感官情绪认知"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:cognitive_concern",
+    "target": "care_action:formal_cognitive_screening",
+    "type": "recommended_for",
+    "evidence": "who_icope_2017.md#感官情绪认知",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:2",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#感官情绪认知"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:cognitive_impairment",
+    "target": "care_action:caregiver_support",
+    "type": "recommended_for",
+    "evidence": "who_icope_2017.md#跌倒与照护支持",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "who_icope_2017:3",
+    "evidence_level": "authoritative_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.who.int/publications/i/item/9789241550109",
+    "evidence_ids": [
+      "who_icope_2017.md#跌倒与照护支持"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:orthostatic_hypotension",
+    "target": "risk_factor:fall_risk",
+    "type": "associated_with",
+    "evidence": "cdc_steadi_2025.md#体位性低血压",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "cdc_steadi_2025:2",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#体位性低血压"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "metric:standing_bp",
+    "target": "risk_factor:orthostatic_hypotension",
+    "type": "monitoring_signal",
+    "evidence": "cdc_steadi_2025.md#体位性低血压",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "condition": "lying_and_standing_measurements_with_symptoms",
+    "chunk_id": "cdc_steadi_2025:2",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#体位性低血压"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:polypharmacy",
+    "target": "risk_factor:fall_risk",
+    "type": "associated_with",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#药物与跌倒"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:drowsiness_or_slow_reaction",
+    "target": "risk_factor:fall_risk",
+    "type": "associated_with",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#药物与跌倒"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "care_action:medication_review",
+    "target": "risk_factor:polypharmacy",
+    "type": "recommended_for",
+    "evidence": "cdc_steadi_2025.md#协同处理",
+    "strength": "high",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#协同处理"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:fall_risk",
+    "target": "care_action:medication_review",
+    "type": "requires_clinician_review",
+    "evidence": "cdc_steadi_2025.md#协同处理",
+    "strength": "high",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "cdc_steadi_2025:3",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#协同处理"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:polypharmacy",
+    "target": "care_action:do_not_self_adjust_medication",
+    "type": "do_not_self_adjust_medication",
+    "evidence": "cdc_steadi_2025.md#药物与跌倒",
+    "strength": "high",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "cdc_steadi_2025:1",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html",
+    "evidence_ids": [
+      "cdc_steadi_2025.md#药物与跌倒"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:vision_impairment",
+    "target": "risk_factor:fall_risk",
+    "type": "associated_with",
+    "evidence": "cdc_vision_falls_2024.md#视力慢病与跌倒",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "cdc_vision_falls_2024:0",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/vision-health/prevention/older-adult-falls.html",
+    "evidence_ids": [
+      "cdc_vision_falls_2024.md#视力慢病与跌倒"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "symptom:vision_impairment",
+    "target": "social_factor:social_isolation",
+    "type": "associated_with",
+    "evidence": "cdc_vision_falls_2024.md#社会支持",
+    "strength": "low",
+    "causal_status": "association",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/vision-health/prevention/older-adult-falls.html",
+    "evidence_ids": [
+      "cdc_vision_falls_2024.md#社会支持"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "social_factor:social_isolation",
+    "target": "care_action:caregiver_support",
+    "type": "recommended_for",
+    "evidence": "cdc_vision_falls_2024.md#社会支持",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "chunk_id": "cdc_vision_falls_2024:1",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/vision-health/prevention/older-adult-falls.html",
+    "evidence_ids": [
+      "cdc_vision_falls_2024.md#社会支持"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:fall_risk",
+    "target": "intervention:home_safety_improvement",
+    "type": "managed_by",
+    "evidence": "cdc_vision_falls_2024.md#预防行动",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "cdc_vision_falls_2024:2",
+    "evidence_level": "public_guidance",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://www.cdc.gov/vision-health/prevention/older-adult-falls.html",
+    "evidence_ids": [
+      "cdc_vision_falls_2024.md#预防行动"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "behavior:disturbed_sleep",
+    "target": "disease:stroke",
+    "type": "associated_with",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence_level": "professional_statement",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/38235581/",
+    "evidence_ids": [
+      "aha_sleep_brain_2024.md#睡眠与脑健康"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "behavior:disturbed_sleep",
+    "target": "risk_factor:cognitive_decline",
+    "type": "associated_with",
+    "evidence": "aha_sleep_brain_2024.md#睡眠与脑健康",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "aha_sleep_brain_2024:0",
+    "evidence_level": "professional_statement",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/38235581/",
+    "evidence_ids": [
+      "aha_sleep_brain_2024.md#睡眠与脑健康"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "behavior:disturbed_sleep",
+    "target": "care_action:sleep_symptom_review",
+    "type": "requires_medical_review",
+    "evidence": "aha_sleep_brain_2024.md#老年人解释边界",
+    "strength": "moderate",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "aha_sleep_brain_2024:1",
+    "evidence_level": "professional_statement",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/38235581/",
+    "evidence_ids": [
+      "aha_sleep_brain_2024.md#老年人解释边界"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "population:cognitive_impairment",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#认知与低血糖"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:hypoglycemia",
+    "target": "risk_factor:cognitive_decline",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#认知与低血糖"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:cognitive_impairment",
+    "target": "risk_factor:hypoglycemia",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#认知与低血糖"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:cognitive_impairment",
+    "target": "care_action:simplify_care_plan",
+    "type": "recommended_for",
+    "evidence": "ada_older_adults_2026.md#认知与低血糖",
+    "strength": "high",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "ada_older_adults_2026:1",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#认知与低血糖"
+    ],
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:malnutrition",
+    "target": "metric:adl",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#营养肌力与功能"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:malnutrition",
+    "target": "metric:grip",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#营养肌力与功能"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "risk_factor:malnutrition",
+    "target": "risk_factor:cognitive_decline",
+    "type": "associated_with",
+    "evidence": "ada_older_adults_2026.md#营养肌力与功能",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:2",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#营养肌力与功能"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "disease:frailty",
+    "type": "coexists_with",
+    "evidence": "ada_older_adults_2026.md#综合评估",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#综合评估"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "disease:diabetes",
+    "target": "symptom:depressive_symptoms",
+    "type": "coexists_with",
+    "evidence": "ada_older_adults_2026.md#综合评估",
+    "strength": "moderate",
+    "causal_status": "association",
+    "chunk_id": "ada_older_adults_2026:0",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#综合评估"
+    ],
+    "review_status": "pending_medical_review",
+    "last_verified": "2026-08-20"
+  },
+  {
+    "source": "population:cognitive_impairment",
+    "target": "care_action:caregiver_involvement",
+    "type": "recommended_for",
+    "evidence": "ada_older_adults_2026.md#照护支持",
+    "strength": "high",
+    "causal_status": "guidance",
+    "review_status": "pending_medical_review",
+    "chunk_id": "ada_older_adults_2026:3",
+    "evidence_level": "clinical_standard",
+    "population": "older_adults",
+    "age_scope": "65+",
+    "time_horizon": "current_monitoring",
+    "source_url": "https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026",
+    "evidence_ids": [
+      "ada_older_adults_2026.md#照护支持"
+    ],
     "last_verified": "2026-08-20"
   }
 ]

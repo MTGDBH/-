@@ -1,8 +1,10 @@
+import { localizeVisibleText, unitName } from './elderlyLanguage.js';
+
 const METRICS = {
-  bp: { label: '最近血压', unit: 'mmHg' },
-  glucose: { label: '最近血糖', unit: 'mmol/L' },
-  hr: { label: '最近心率', unit: 'bpm' },
-  weight: { label: '最近体重', unit: 'kg' },
+  bp: { label: '最近血压', unit: '毫米汞柱' },
+  glucose: { label: '最近血糖', unit: '毫摩尔/升' },
+  hr: { label: '最近心率', unit: '次/分' },
+  weight: { label: '最近体重', unit: '千克' },
   sleep: { label: '最近睡眠', unit: '小时' },
   steps: { label: '最近步数', unit: '步' },
   spo2: { label: '最近血氧', unit: '%' },
@@ -17,7 +19,7 @@ const RISK_NAMES = {
 };
 
 function cleanText(value, max = 220) {
-  return String(value || '')
+  return localizeVisibleText(value)
     .replace(/\*\*/g, '')
     .replace(/高压（高压）/g, '高压')
     .replace(/低压（低压）/g, '低压')
@@ -61,7 +63,7 @@ function liveFacts(liveContext, toolResults) {
     facts.push({
       label: def.label,
       value: isBp ? `${row.value}/${row.value2}` : String(row.value),
-      unit: row.unit || def.unit,
+      unit: unitName(row.unit || def.unit),
       measured_at: row.recorded_at ? String(row.recorded_at).slice(0, 10) : null,
       context: row.measurement_condition || row.note || (needsCondition ? '测量条件未填写' : null),
       trend: trendForMetric(type, toolResults),
@@ -87,6 +89,8 @@ function toolFacts(toolResults) {
   if (device) {
     facts.push({ label: '已连接设备', value: String(device.connected_count || 0), unit: '台', measured_at: null, context: device.sync_failures ? `同步异常 ${device.sync_failures} 台` : '同步状态正常', trend: null });
   }
+  const followups = toolResults.find(item => item.name === 'followup_status' && item.status === 'success')?.result;
+  if (followups) facts.push({ label: '待处理复测', value: String(followups.total || 0), unit: '项', measured_at: null, context: followups.pending_confirmation ? `其中 ${followups.pending_confirmation} 项需确认新测量` : '暂无待确认测量', trend: null });
   return facts;
 }
 
@@ -113,14 +117,25 @@ function defaultAction(intent, tone) {
   return { title: '继续规范记录', description: '固定时间和测量条件，保留连续记录。', action_type: null, requires_confirmation: false };
 }
 
-function presentationActions(plan, intent, tone) {
+function presentationActions(plan, intent, tone, liveContext) {
+  const scheduleFields = item => {
+    const metricType = item.metric_type || (intent.trendMetrics?.some(metric => ['systo','diasto'].includes(metric)) ? 'bp'
+      : intent.trendMetrics?.includes('glucose') ? 'glucose' : intent.trendMetrics?.includes('pulse') ? 'hr'
+      : intent.trendMetrics?.includes('weight') ? 'weight' : intent.trendMetrics?.includes('sleep') ? 'sleep' : null);
+    return { metric_type: metricType, baseline_metric_id: item.baseline_metric_id || liveContext?.latest?.[metricType]?.id || null,
+      schedule_options: [{ key: 'later_today', label: '今天稍后' }, { key: 'tomorrow_morning', label: '明早' }, { key: 'custom', label: '自选时间' }] };
+  };
   const actions = (plan || []).slice(0, 2).map(item => ({
     title: cleanText(item.title, 80),
     description: cleanText(item.desc || item.description, 160),
     action_type: item.action_type || null,
     requires_confirmation: !!item.action_type,
+    ...(item.action_type === 'schedule_recheck' ? scheduleFields(item) : {}),
   })).filter(item => item.title);
-  return actions.length ? actions : [defaultAction(intent, tone)];
+  if (intent.trendHit && !actions.some(item => item.action_type === 'schedule_recheck')) {
+    actions.unshift({ title: '安排一次规范复测', description: '选择时间后先生成待确认预览，确认后才创建站内待办。', action_type: 'schedule_recheck', requires_confirmation: true, ...scheduleFields({}) });
+  }
+  return actions.length ? actions.slice(0, 2) : [defaultAction(intent, tone)];
 }
 
 function safetyFor(tone, intent, response) {
@@ -134,7 +149,7 @@ function safetyFor(tone, intent, response) {
 export function buildAgentPresentation({ response, toolResults = [], liveContext = null, intent = {}, subject = {}, actor = {}, message = '' }) {
   const emergency = response?.source === 'safety_rule';
   const personalCard = emergency || intent.trendHit || intent.riskHit || intent.diseaseRiskHit || intent.healthSummaryHit
-    || intent.behaviorHit || intent.deviceHit || intent.alertsHit || intent.actionHit || !!liveContext;
+    || intent.behaviorHit || intent.deviceHit || intent.alertsHit || intent.actionHit || intent.followupHit || !!liveContext;
   if (!personalCard) return { mode: 'plain' };
   const tone = toneFor(response, toolResults);
   const facts = emergency
@@ -147,7 +162,7 @@ export function buildAgentPresentation({ response, toolResults = [], liveContext
     subject_name: caregiver ? cleanText(subject.name, 40) : null,
     status: { title: caregiver ? `${cleanText(subject.name, 30)}的当前结论` : '当前结论', text: statusText(response?.content), tone },
     facts,
-    actions: presentationActions(emergency ? [] : response?.plan, intent, tone),
+    actions: presentationActions(emergency ? [] : response?.plan, intent, tone, liveContext),
     safety: safetyFor(tone, intent, response),
   };
 }

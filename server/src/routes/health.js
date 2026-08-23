@@ -4,6 +4,7 @@ import db from '../db.js';
 import { evaluateHealth } from '../lib/scoring.js';
 import { triggerTrendAlerts } from '../lib/trendAlerts.js';
 import { discoverFromMeasurement } from '../lib/discovery.js';
+import { matchMeasurementToFollowup } from '../lib/followups.js';
 
 const router = express.Router();
 
@@ -159,13 +160,15 @@ router.post('/metrics', (req, res) => {
          parsedAt.toISOString(), src, note ?? null, device_id ?? null, normalizedCondition, JSON.stringify(quality), JSON.stringify(safeContext));
   const row = db.prepare('SELECT * FROM metrics WHERE id = ?').get(r.lastInsertRowid);
   // 趋势提醒异步执行，不阻塞指标保存；普通变化不会产生提醒。
+  let followupMatch = null;
   if (src !== 'synthetic') {
     discoverFromMeasurement(req.user.id, row);
+    followupMatch = matchMeasurementToFollowup(req.user.id, row);
     triggerTrendAlerts(req.user.id, type).catch(err =>
       console.error('[trend-alert] analysis failed:', err.message)
     );
   }
-  res.json({ ...row, quality });
+  res.json({ ...row, quality, followup_match: followupMatch });
 });
 
 export default router;

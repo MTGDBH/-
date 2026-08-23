@@ -40,6 +40,7 @@ assert.equal(card.status.text, '近期血压总体平稳');
 assert.ok(card.facts.length <= 3, '关键数据最多3项');
 assert.ok(card.actions.length <= 2, '行动最多2项');
 assert.equal(card.facts[0].value, '128/85');
+assert.equal(card.facts[0].unit, '毫米汞柱', '老人端不得显示英文单位');
 assert.equal(card.facts[0].context, '测量条件未填写');
 assert.equal(card.actions[0].requires_confirmation, true);
 assert.equal(groundedNumbersMatch(presentationGroundingText(card), toolResults, liveContext), true, '卡片数字必须可在证据中匹配');
@@ -67,5 +68,12 @@ const insufficient = buildAgentPresentation({
 });
 assert.equal(insufficient.status.tone, 'insufficient');
 assert.equal(insufficient.facts.length, 1);
+
+const localized = buildAgentPresentation({
+  response: { content: 'systo stable，单位 mmHg', plan: [] },
+  toolResults, liveContext, intent: baseIntent, subject, actor,
+});
+assert.doesNotMatch(localized.status.text, /systo|mmHg/i, '内部指标代码不得进入卡片');
+assert.match(localized.status.text, /高压（收缩压）|毫米汞柱/);
 
 console.log('agent presentation v2 structured cards: PASS');

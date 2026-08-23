@@ -6,21 +6,71 @@ import { evaluateHealth, aggregateMetrics } from '../lib/scoring.js';
 import { chat } from '../ai/agent.js';
 import { buildHealthContext, buildEvidenceCard } from '../ai/contextBuilder.js';
 import { ensureConversation, refreshConversationSummary, resolveAgentSubject, runAgentV2 } from '../ai/orchestratorV2.js';
+import { runAgentV3 } from '../ai/orchestratorV3.js';
+import { listFollowups } from '../lib/followups.js';
 
 const router = express.Router();
-const AGENT_V2_ENABLED = process.env.AGENT_ORCHESTRATOR_V2 !== '0';
+const agentV2Enabled = () => process.env.AGENT_ORCHESTRATOR_V2 !== '0';
+const agentV3Enabled = () => process.env.AGENT_ORCHESTRATOR_V3 !== '0';
 
 function parseJSON(value, fallback = null) {
   try { return value == null ? fallback : JSON.parse(value); } catch { return fallback; }
 }
 
+function shanghaiDate() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+}
+
+function tipExcerpt(row) {
+  return String(row.summary || row.body || '')
+    .replace(/#{1,6}\s*/g, '').replace(/\*\*/g, '').replace(/^[-*]\s+/gm, '')
+    .replace(/\|/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 220);
+}
+
+function matchingTipPreference(subjectId, tags) {
+  const tagText = (tags || []).join('、');
+  const allowed = [];
+  if (/饮食|营养|喝水/.test(tagText)) allowed.push('diet');
+  if (/运动|活动|拉伸|步行/.test(tagText)) allowed.push('goal');
+  if (/睡眠|作息/.test(tagText)) allowed.push('schedule');
+  if (!allowed.length) return null;
+  return db.prepare(`SELECT category,content FROM agent_memories WHERE subject_user_id=? AND status='confirmed'
+    AND category IN (${allowed.map(() => '?').join(',')}) AND (valid_until IS NULL OR valid_until>?) ORDER BY updated_at DESC LIMIT 1`)
+    .get(subjectId, ...allowed, new Date().toISOString()) || null;
+}
+
+export function dailyTipForSubject(subject) {
+  const rows = db.prepare(`SELECT id,title,summary,body,tags,audience,review_status,review_version,reviewed_at
+    FROM knowledge_articles WHERE category='tip' AND audience IN ('senior','all') AND review_status<>'rejected' ORDER BY id`).all();
+  const date = shanghaiDate();
+  if (!rows.length) return { date, subject: { id: subject.id, name: subject.name }, status: 'empty', tip: null };
+  const digest = crypto.createHash('sha256').update(`${date}:${subject.id}`).digest();
+  const row = rows[digest.readUInt32BE(0) % rows.length];
+  const tags = parseJSON(row.tags, []);
+  const approved = row.review_status === 'approved';
+  const preference = approved ? matchingTipPreference(subject.id, tags) : null;
+  return {
+    date, subject: { id: subject.id, name: subject.name }, status: 'ready',
+    tip: {
+      id: row.id, title: row.title, text: tipExcerpt(row), tags,
+      display_status: approved ? 'approved' : 'research_preview', status_label: approved ? '已审核' : '研究预览',
+      personalized: !!preference, why_for_you: preference ? '结合了您已确认的相关生活目标或偏好。' : null,
+      review_version: approved ? row.review_version : null, reviewed_at: approved ? row.reviewed_at : null,
+      source_label: '本地健康知识库', source_url: `knowledge.html?id=${row.id}`,
+      safety_text: approved ? '这是日常健康管理参考，身体不适时请及时咨询医生。' : '该内容尚未完成医学审核，仅供研究预览，不作为个人医学建议。',
+    },
+  };
+}
+
 function serializeChatRow(row) {
   if (!row) return null;
+  const feedback = row.id && row.actor_user_id ? db.prepare('SELECT rating,reason FROM agent_message_feedback WHERE message_id=? AND actor_user_id=?').get(row.id, row.actor_user_id) : null;
   return {
     ...row,
     plan: parseJSON(row.plan, null), confidence: parseJSON(row.confidence, { type: 'common_sense' }),
     evidence: parseJSON(row.evidence, null), presentation: parseJSON(row.presentation, null), graph_evidence: parseJSON(row.graph_evidence, null),
     tool_calls: parseJSON(row.tool_calls, []),
+    feedback: feedback || null,
     llm: { provider: row.provider || 'unknown', model: row.model || null, call_status: row.call_status || 'unknown', latency_ms: row.latency_ms, tool_calls: parseJSON(row.tool_calls, []), fallback_reason: row.fallback_reason || null },
   };
 }
@@ -70,10 +120,12 @@ async function handleChatV2(req, res) {
   }
   let result;
   try {
-    result = await runAgentV2({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId });
+    result = agentV3Enabled()
+      ? await runAgentV3({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId })
+      : await runAgentV2({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId });
   } catch (error) {
-    db.prepare(`UPDATE agent_runs SET status='error',error_code='AGENT_V2_FAILED',completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run(new Date().toISOString(), req.user.id, clientRequestId);
-    console.error('[agent-v2] failed:', error.message);
+    db.prepare(`UPDATE agent_runs SET status='error',error_code=?,completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run(agentV3Enabled() ? 'AGENT_V3_FAILED' : 'AGENT_V2_FAILED', new Date().toISOString(), req.user.id, clientRequestId);
+    console.error(agentV3Enabled() ? '[agent-v3] failed:' : '[agent-v2] failed:', error.message);
     return res.status(500).json({ error: 'agent error' });
   }
   const needsPersonalEvidence = !!result.context_manifest?.live_context_loaded;
@@ -293,6 +345,12 @@ router.post('/chat/conversations/:id/archive', (req, res) => {
   res.json({ ok: true });
 });
 
+router.get('/agent/daily-tip', (req, res) => {
+  const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
+  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  res.json(dailyTipForSubject(resolved.subject));
+});
+
 router.get('/agent/memories', (req, res) => {
   const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
   if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
@@ -373,12 +431,53 @@ router.post('/chat/messages/:id/regenerate', async (req, res) => {
   return handleChatV2(req, res);
 });
 
+router.get('/agent/inbox', (req, res) => {
+  const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
+  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  const allItems = listFollowups(resolved.subject.id, { activeOnly: false, limit: 50 });
+  const items = allItems.filter(row => ['scheduled','due','overdue','pending_result_confirmation'].includes(row.status));
+  const actions = db.prepare(`SELECT id,action_type,payload,status,created_at FROM action_requests
+    WHERE actor_user_id=? AND subject_user_id=? AND status='pending_confirmation' ORDER BY id DESC LIMIT 20`).all(req.user.id, resolved.subject.id)
+    .map(row => ({ ...row, payload: parseJSON(row.payload, {}) }));
+  res.json({ subject: { id: resolved.subject.id, name: resolved.subject.name },
+    due: items.filter(row => row.status === 'due'), overdue: items.filter(row => row.status === 'overdue'),
+    pending_result_confirmation: items.filter(row => row.status === 'pending_result_confirmation'),
+    scheduled: items.filter(row => row.status === 'scheduled'), recently_completed: allItems.filter(row => row.status === 'completed').sort((a,b) => String(b.completed_at || '').localeCompare(String(a.completed_at || ''))).slice(0, 3), pending_actions: actions,
+    counts: { total: items.length, due: items.filter(row => row.status === 'due').length, overdue: items.filter(row => row.status === 'overdue').length, pending_confirmation: items.filter(row => row.status === 'pending_result_confirmation').length } });
+});
+
+router.put('/agent/messages/:id/feedback', (req, res) => {
+  const message = db.prepare(`SELECT m.*,r.intent FROM chat_messages m LEFT JOIN agent_runs r ON r.id=m.run_id
+    WHERE m.id=? AND m.role='assistant' AND m.actor_user_id=?`).get(Number(req.params.id), req.user.id);
+  if (!message) return res.status(404).json({ error: '回答不存在' });
+  const resolved = resolveAgentRequestSubject(req, message.subject_user_id);
+  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  const rating = String(req.body?.rating || '');
+  if (!['like', 'dislike'].includes(rating)) return res.status(400).json({ error: 'rating must be like or dislike' });
+  const allowedReasons = new Set(['没看懂', '数据不对', '建议没用', '没有回答问题']);
+  const reason = rating === 'dislike' && allowedReasons.has(req.body?.reason) ? req.body.reason : null;
+  const mode = parseJSON(message.presentation, {})?.mode || null;
+  db.prepare(`INSERT INTO agent_message_feedback (message_id,run_id,actor_user_id,subject_user_id,rating,reason,intent,presentation_mode)
+    VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(message_id,actor_user_id) DO UPDATE SET rating=excluded.rating,reason=excluded.reason,intent=excluded.intent,presentation_mode=excluded.presentation_mode,updated_at=datetime('now','localtime')`)
+    .run(message.id, message.run_id, req.user.id, message.subject_user_id, rating, reason, message.intent || '{}', mode);
+  res.json(db.prepare('SELECT rating,reason,updated_at FROM agent_message_feedback WHERE message_id=? AND actor_user_id=?').get(message.id, req.user.id));
+});
+
+router.delete('/agent/messages/:id/feedback', (req, res) => {
+  const message = db.prepare(`SELECT id,subject_user_id FROM chat_messages WHERE id=? AND role='assistant' AND actor_user_id=?`).get(Number(req.params.id), req.user.id);
+  if (!message) return res.status(404).json({ error: '回答不存在' });
+  const resolved = resolveAgentRequestSubject(req, message.subject_user_id);
+  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  db.prepare('DELETE FROM agent_message_feedback WHERE message_id=? AND actor_user_id=?').run(message.id, req.user.id);
+  res.json({ ok: true });
+});
+
 router.post('/chat', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) {
     return res.status(400).json({ error: 'message is required' });
   }
-  if (AGENT_V2_ENABLED) return handleChatV2(req, res);
+  if (agentV2Enabled()) return handleChatV2(req, res);
 
   const history = db.prepare(`
     SELECT role, content FROM chat_messages
@@ -444,7 +543,7 @@ router.post('/chat', async (req, res) => {
 });
 
 router.get('/chat/history', (req, res) => {
-  if (AGENT_V2_ENABLED) {
+  if (agentV2Enabled()) {
     const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
     if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
     const conversation = ensureConversation(req.user.id, resolved.subject.id, req.query.conversation_id);

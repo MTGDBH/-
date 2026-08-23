@@ -1,19 +1,19 @@
 {
   "schema_version": "medical-pre-review.v1",
-  "index_version": "2026-08-21.v6",
-  "generated_at": "2026-08-21",
+  "index_version": "2026-08-23.v7",
+  "generated_at": "2026-08-23",
   "reviewer": "AI evidence-governance pre-review (not a licensed clinician)",
   "scope": "high-strength or safety relations",
   "counts": {
-    "eligible_for_demo_education": 66,
-    "needs_clinician_confirmation": 17
+    "eligible_for_demo_education": 70,
+    "needs_clinician_confirmation": 20
   },
-  "relations_reviewed": 83,
+  "relations_reviewed": 90,
   "clinical_signoff_required": true,
   "policy": "Never convert pending_medical_review to approved automatically.",
   "relations": [
     {
-      "relation_index": 280,
+      "relation_index": 389,
       "source": "disease:hypertension",
       "target": "evidence_source:hypertension_curated_01",
       "type": "supportive_evidence",
@@ -48,7 +48,7 @@
       }
     },
     {
-      "relation_index": 281,
+      "relation_index": 390,
       "source": "disease:hypertension",
       "target": "evidence_source:hypertension_curated_02",
       "type": "supportive_evidence",
@@ -83,7 +83,7 @@
       }
     },
     {
-      "relation_index": 285,
+      "relation_index": 394,
       "source": "disease:hypertension",
       "target": "evidence_source:hypertension_curated_06",
       "type": "supportive_evidence",
@@ -120,7 +120,7 @@
       }
     },
     {
-      "relation_index": 286,
+      "relation_index": 395,
       "source": "disease:hypertension",
       "target": "evidence_source:hypertension_curated_07",
       "type": "supportive_evidence",
@@ -155,7 +155,7 @@
       }
     },
     {
-      "relation_index": 287,
+      "relation_index": 396,
       "source": "disease:diabetes",
       "target": "evidence_source:diabetes_curated_01",
       "type": "supportive_evidence",
@@ -190,7 +190,7 @@
       }
     },
     {
-      "relation_index": 288,
+      "relation_index": 397,
       "source": "disease:diabetes",
       "target": "evidence_source:diabetes_curated_02",
       "type": "supportive_evidence",
@@ -225,7 +225,7 @@
       }
     },
     {
-      "relation_index": 292,
+      "relation_index": 401,
       "source": "disease:diabetes",
       "target": "evidence_source:diabetes_curated_06",
       "type": "supportive_evidence",
@@ -262,7 +262,7 @@
       }
     },
     {
-      "relation_index": 293,
+      "relation_index": 402,
       "source": "disease:diabetes",
       "target": "evidence_source:diabetes_curated_07",
       "type": "supportive_evidence",
@@ -297,7 +297,7 @@
       }
     },
     {
-      "relation_index": 294,
+      "relation_index": 403,
       "source": "disease:cardiovascular",
       "target": "evidence_source:cardiovascular_curated_01",
       "type": "supportive_evidence",
@@ -332,7 +332,7 @@
       }
     },
     {
-      "relation_index": 295,
+      "relation_index": 404,
       "source": "disease:cardiovascular",
       "target": "evidence_source:cardiovascular_curated_02",
       "type": "supportive_evidence",
@@ -367,7 +367,7 @@
       }
     },
     {
-      "relation_index": 299,
+      "relation_index": 408,
       "source": "disease:cardiovascular",
       "target": "evidence_source:cardiovascular_curated_06",
       "type": "supportive_evidence",
@@ -404,7 +404,7 @@
       }
     },
     {
-      "relation_index": 300,
+      "relation_index": 409,
       "source": "disease:cardiovascular",
       "target": "evidence_source:cardiovascular_curated_07",
       "type": "supportive_evidence",
@@ -439,7 +439,7 @@
       }
     },
     {
-      "relation_index": 301,
+      "relation_index": 410,
       "source": "disease:stroke",
       "target": "evidence_source:stroke_curated_01",
       "type": "supportive_evidence",
@@ -474,7 +474,7 @@
       }
     },
     {
-      "relation_index": 302,
+      "relation_index": 411,
       "source": "disease:stroke",
       "target": "evidence_source:stroke_curated_02",
       "type": "supportive_evidence",
@@ -509,7 +509,7 @@
       }
     },
     {
-      "relation_index": 306,
+      "relation_index": 415,
       "source": "disease:stroke",
       "target": "evidence_source:stroke_curated_06",
       "type": "supportive_evidence",
@@ -546,7 +546,7 @@
       }
     },
     {
-      "relation_index": 307,
+      "relation_index": 416,
       "source": "disease:stroke",
       "target": "evidence_source:stroke_curated_07",
       "type": "supportive_evidence",
@@ -581,7 +581,7 @@
       }
     },
     {
-      "relation_index": 308,
+      "relation_index": 417,
       "source": "disease:chronic_kidney_disease",
       "target": "evidence_source:chronic_kidney_disease_curated_01",
       "type": "supportive_evidence",
@@ -616,7 +616,7 @@
       }
     },
     {
-      "relation_index": 309,
+      "relation_index": 418,
       "source": "disease:chronic_kidney_disease",
       "target": "evidence_source:chronic_kidney_disease_curated_02",
       "type": "supportive_evidence",
@@ -651,7 +651,7 @@
       }
     },
     {
-      "relation_index": 313,
+      "relation_index": 422,
       "source": "disease:chronic_kidney_disease",
       "target": "evidence_source:chronic_kidney_disease_curated_06",
       "type": "supportive_evidence",
@@ -688,7 +688,7 @@
       }
     },
     {
-      "relation_index": 314,
+      "relation_index": 423,
       "source": "disease:chronic_kidney_disease",
       "target": "evidence_source:chronic_kidney_disease_curated_07",
       "type": "supportive_evidence",
@@ -723,7 +723,7 @@
       }
     },
     {
-      "relation_index": 315,
+      "relation_index": 424,
       "source": "disease:frailty",
       "target": "evidence_source:frailty_curated_01",
       "type": "supportive_evidence",
@@ -758,7 +758,7 @@
       }
     },
     {
-      "relation_index": 316,
+      "relation_index": 425,
       "source": "disease:frailty",
       "target": "evidence_source:frailty_curated_02",
       "type": "supportive_evidence",
@@ -793,7 +793,7 @@
       }
     },
     {
-      "relation_index": 320,
+      "relation_index": 429,
       "source": "disease:frailty",
       "target": "evidence_source:frailty_curated_06",
       "type": "supportive_evidence",
@@ -830,7 +830,7 @@
       }
     },
     {
-      "relation_index": 321,
+      "relation_index": 430,
       "source": "disease:frailty",
       "target": "evidence_source:frailty_curated_07",
       "type": "supportive_evidence",
@@ -865,7 +865,7 @@
       }
     },
     {
-      "relation_index": 322,
+      "relation_index": 431,
       "source": "disease:hypertension",
       "target": "evidence_source:who_hypertension_2025_guidance",
       "type": "supportive_evidence",
@@ -900,7 +900,7 @@
       }
     },
     {
-      "relation_index": 325,
+      "relation_index": 434,
       "source": "disease:diabetes",
       "target": "evidence_source:ada_older_adults_2025_guidance",
       "type": "supportive_evidence",
@@ -935,7 +935,7 @@
       }
     },
     {
-      "relation_index": 328,
+      "relation_index": 437,
       "source": "disease:heart_disease",
       "target": "evidence_source:who_cvd_2025_guidance",
       "type": "supportive_evidence",
@@ -970,7 +970,7 @@
       }
     },
     {
-      "relation_index": 331,
+      "relation_index": 440,
       "source": "disease:stroke",
       "target": "evidence_source:aha_asa_stroke_2024_guidance",
       "type": "supportive_evidence",
@@ -1005,7 +1005,7 @@
       }
     },
     {
-      "relation_index": 334,
+      "relation_index": 443,
       "source": "disease:chronic_kidney_disease",
       "target": "evidence_source:kdigo_ckd_2024_guidance",
       "type": "supportive_evidence",
@@ -1040,7 +1040,7 @@
       }
     },
     {
-      "relation_index": 337,
+      "relation_index": 446,
       "source": "disease:frailty",
       "target": "evidence_source:who_ageing_2024_frailty_guidance",
       "type": "supportive_evidence",
@@ -1075,7 +1075,7 @@
       }
     },
     {
-      "relation_index": 340,
+      "relation_index": 449,
       "source": "disease:hypertension",
       "target": "risk_factor:high_salt_diet",
       "type": "has_risk_factor",
@@ -1110,7 +1110,7 @@
       }
     },
     {
-      "relation_index": 341,
+      "relation_index": 450,
       "source": "disease:hypertension",
       "target": "risk_factor:physical_inactivity",
       "type": "has_risk_factor",
@@ -1145,7 +1145,7 @@
       }
     },
     {
-      "relation_index": 342,
+      "relation_index": 451,
       "source": "disease:hypertension",
       "target": "risk_factor:obesity",
       "type": "has_risk_factor",
@@ -1180,7 +1180,7 @@
       }
     },
     {
-      "relation_index": 343,
+      "relation_index": 452,
       "source": "disease:hypertension",
       "target": "risk_factor:tobacco",
       "type": "has_risk_factor",
@@ -1215,7 +1215,7 @@
       }
     },
     {
-      "relation_index": 344,
+      "relation_index": 453,
       "source": "disease:hypertension",
       "target": "risk_factor:alcohol",
       "type": "has_risk_factor",
@@ -1250,7 +1250,7 @@
       }
     },
     {
-      "relation_index": 345,
+      "relation_index": 454,
       "source": "disease:hypertension",
       "target": "risk_factor:age_over_65",
       "type": "has_nonmodifiable_factor",
@@ -1285,7 +1285,7 @@
       }
     },
     {
-      "relation_index": 346,
+      "relation_index": 455,
       "source": "disease:hypertension",
       "target": "metric:bp",
       "type": "measured_by",
@@ -1320,7 +1320,7 @@
       }
     },
     {
-      "relation_index": 348,
+      "relation_index": 457,
       "source": "disease:hypertension",
       "target": "disease:heart_disease",
       "type": "increases_risk_of",
@@ -1356,7 +1356,7 @@
       }
     },
     {
-      "relation_index": 349,
+      "relation_index": 458,
       "source": "disease:hypertension",
       "target": "disease:stroke",
       "type": "increases_risk_of",
@@ -1392,7 +1392,7 @@
       }
     },
     {
-      "relation_index": 350,
+      "relation_index": 459,
       "source": "disease:hypertension",
       "target": "disease:chronic_kidney_disease",
       "type": "increases_risk_of",
@@ -1428,7 +1428,7 @@
       }
     },
     {
-      "relation_index": 351,
+      "relation_index": 460,
       "source": "disease:hypertension",
       "target": "intervention:home_bp_remeasurement",
       "type": "managed_by",
@@ -1463,7 +1463,7 @@
       }
     },
     {
-      "relation_index": 352,
+      "relation_index": 461,
       "source": "disease:hypertension",
       "target": "intervention:salt_reduction",
       "type": "managed_by",
@@ -1498,7 +1498,7 @@
       }
     },
     {
-      "relation_index": 353,
+      "relation_index": 462,
       "source": "disease:hypertension",
       "target": "intervention:regular_activity",
       "type": "managed_by",
@@ -1533,7 +1533,7 @@
       }
     },
     {
-      "relation_index": 354,
+      "relation_index": 463,
       "source": "disease:diabetes",
       "target": "risk_factor:obesity",
       "type": "has_risk_factor",
@@ -1568,7 +1568,7 @@
       }
     },
     {
-      "relation_index": 355,
+      "relation_index": 464,
       "source": "disease:diabetes",
       "target": "risk_factor:physical_inactivity",
       "type": "has_risk_factor",
@@ -1605,7 +1605,7 @@
       }
     },
     {
-      "relation_index": 357,
+      "relation_index": 466,
       "source": "disease:diabetes",
       "target": "metric:glucose",
       "type": "measured_by",
@@ -1642,7 +1642,7 @@
       }
     },
     {
-      "relation_index": 358,
+      "relation_index": 467,
       "source": "disease:diabetes",
       "target": "metric:hba1c",
       "type": "measured_by",
@@ -1679,7 +1679,7 @@
       }
     },
     {
-      "relation_index": 359,
+      "relation_index": 468,
       "source": "disease:diabetes",
       "target": "disease:heart_disease",
       "type": "increases_risk_of",
@@ -1717,7 +1717,7 @@
       }
     },
     {
-      "relation_index": 360,
+      "relation_index": 469,
       "source": "disease:diabetes",
       "target": "disease:stroke",
       "type": "increases_risk_of",
@@ -1755,7 +1755,7 @@
       }
     },
     {
-      "relation_index": 361,
+      "relation_index": 470,
       "source": "disease:diabetes",
       "target": "disease:chronic_kidney_disease",
       "type": "increases_risk_of",
@@ -1793,7 +1793,7 @@
       }
     },
     {
-      "relation_index": 362,
+      "relation_index": 471,
       "source": "disease:diabetes",
       "target": "intervention:healthy_diet",
       "type": "managed_by",
@@ -1830,7 +1830,7 @@
       }
     },
     {
-      "relation_index": 363,
+      "relation_index": 472,
       "source": "disease:diabetes",
       "target": "intervention:regular_activity",
       "type": "managed_by",
@@ -1867,7 +1867,7 @@
       }
     },
     {
-      "relation_index": 364,
+      "relation_index": 473,
       "source": "disease:diabetes",
       "target": "intervention:annual_complication_screening",
       "type": "managed_by",
@@ -1902,7 +1902,7 @@
       }
     },
     {
-      "relation_index": 365,
+      "relation_index": 474,
       "source": "disease:heart_disease",
       "target": "risk_factor:high_bp",
       "type": "has_risk_factor",
@@ -1939,7 +1939,7 @@
       }
     },
     {
-      "relation_index": 366,
+      "relation_index": 475,
       "source": "disease:heart_disease",
       "target": "risk_factor:high_glucose",
       "type": "has_risk_factor",
@@ -1976,7 +1976,7 @@
       }
     },
     {
-      "relation_index": 367,
+      "relation_index": 476,
       "source": "disease:heart_disease",
       "target": "risk_factor:high_lipids",
       "type": "has_risk_factor",
@@ -2013,7 +2013,7 @@
       }
     },
     {
-      "relation_index": 368,
+      "relation_index": 477,
       "source": "disease:heart_disease",
       "target": "risk_factor:tobacco",
       "type": "has_risk_factor",
@@ -2050,7 +2050,7 @@
       }
     },
     {
-      "relation_index": 370,
+      "relation_index": 479,
       "source": "disease:stroke",
       "target": "disease:hypertension",
       "type": "major_preventable_driver",
@@ -2088,7 +2088,7 @@
       }
     },
     {
-      "relation_index": 371,
+      "relation_index": 480,
       "source": "disease:stroke",
       "target": "risk_factor:sedentary_behavior",
       "type": "has_risk_factor",
@@ -2125,7 +2125,7 @@
       }
     },
     {
-      "relation_index": 372,
+      "relation_index": 481,
       "source": "disease:stroke",
       "target": "risk_factor:unhealthy_diet",
       "type": "has_risk_factor",
@@ -2160,7 +2160,7 @@
       }
     },
     {
-      "relation_index": 374,
+      "relation_index": 483,
       "source": "disease:stroke",
       "target": "symptom:face_arm_speech_emergency",
       "type": "urgent_signal",
@@ -2197,7 +2197,7 @@
       }
     },
     {
-      "relation_index": 377,
+      "relation_index": 486,
       "source": "intervention:mediterranean_diet",
       "target": "disease:stroke",
       "type": "prevention_evidence",
@@ -2232,7 +2232,7 @@
       }
     },
     {
-      "relation_index": 378,
+      "relation_index": 487,
       "source": "intervention:lifestyle_program",
       "target": "disease:diabetes",
       "type": "prevention_evidence",
@@ -2269,7 +2269,7 @@
       }
     },
     {
-      "relation_index": 380,
+      "relation_index": 489,
       "source": "metric:bp",
       "target": "disease:stroke",
       "type": "monitoring_signal",
@@ -2306,7 +2306,7 @@
       }
     },
     {
-      "relation_index": 381,
+      "relation_index": 490,
       "source": "intervention:mediterranean_diet",
       "target": "disease:heart_disease",
       "type": "prevention_evidence",
@@ -2341,7 +2341,7 @@
       }
     },
     {
-      "relation_index": 382,
+      "relation_index": 491,
       "source": "intervention:mediterranean_diet",
       "target": "disease:stroke",
       "type": "prevention_evidence",
@@ -2376,7 +2376,7 @@
       }
     },
     {
-      "relation_index": 389,
+      "relation_index": 498,
       "source": "disease:chronic_kidney_disease",
       "target": "metric:egfr",
       "type": "measured_by",
@@ -2411,7 +2411,7 @@
       }
     },
     {
-      "relation_index": 390,
+      "relation_index": 499,
       "source": "disease:chronic_kidney_disease",
       "target": "metric:creatinine",
       "type": "measured_by",
@@ -2446,7 +2446,7 @@
       }
     },
     {
-      "relation_index": 391,
+      "relation_index": 500,
       "source": "disease:chronic_kidney_disease",
       "target": "metric:urine_albumin",
       "type": "measured_by",
@@ -2481,7 +2481,7 @@
       }
     },
     {
-      "relation_index": 392,
+      "relation_index": 501,
       "source": "disease:chronic_kidney_disease",
       "target": "disease:hypertension",
       "type": "coexists_with",
@@ -2516,7 +2516,7 @@
       }
     },
     {
-      "relation_index": 393,
+      "relation_index": 502,
       "source": "disease:chronic_kidney_disease",
       "target": "disease:diabetes",
       "type": "coexists_with",
@@ -2551,7 +2551,7 @@
       }
     },
     {
-      "relation_index": 395,
+      "relation_index": 504,
       "source": "disease:chronic_kidney_disease",
       "target": "risk_factor:polypharmacy",
       "type": "requires_clinician_review",
@@ -2586,7 +2586,7 @@
       }
     },
     {
-      "relation_index": 396,
+      "relation_index": 505,
       "source": "metric:bp",
       "target": "disease:chronic_kidney_disease",
       "type": "monitoring_signal",
@@ -2621,7 +2621,7 @@
       }
     },
     {
-      "relation_index": 397,
+      "relation_index": 506,
       "source": "metric:glucose",
       "target": "disease:chronic_kidney_disease",
       "type": "monitoring_signal",
@@ -2656,7 +2656,7 @@
       }
     },
     {
-      "relation_index": 398,
+      "relation_index": 507,
       "source": "disease:chronic_kidney_disease",
       "target": "care_action:kidney_function_recheck",
       "type": "requires_remeasurement",
@@ -2691,7 +2691,7 @@
       }
     },
     {
-      "relation_index": 399,
+      "relation_index": 508,
       "source": "disease:chronic_kidney_disease",
       "target": "care_action:clinician_review",
       "type": "requires_clinician_review",
@@ -2726,7 +2726,7 @@
       }
     },
     {
-      "relation_index": 403,
+      "relation_index": 512,
       "source": "population:frail_older_adults",
       "target": "intervention:low_to_moderate_activity",
       "type": "requires_clinician_review",
@@ -2761,7 +2761,7 @@
       }
     },
     {
-      "relation_index": 404,
+      "relation_index": 513,
       "source": "population:frail_older_adults",
       "target": "care_action:fall_risk_review",
       "type": "requires_medical_review",
@@ -2796,7 +2796,7 @@
       }
     },
     {
-      "relation_index": 406,
+      "relation_index": 515,
       "source": "disease:diabetes",
       "target": "risk_factor:hypoglycemia",
       "type": "urgent_signal",
@@ -2832,7 +2832,7 @@
       }
     },
     {
-      "relation_index": 407,
+      "relation_index": 516,
       "source": "risk_factor:hypoglycemia",
       "target": "care_action:clinician_review",
       "type": "requires_medical_review",
@@ -2867,7 +2867,7 @@
       }
     },
     {
-      "relation_index": 408,
+      "relation_index": 517,
       "source": "risk_factor:polypharmacy",
       "target": "care_action:do_not_self_adjust_medication",
       "type": "do_not_self_adjust_medication",
@@ -2902,7 +2902,7 @@
       }
     },
     {
-      "relation_index": 412,
+      "relation_index": 521,
       "source": "disease:frailty",
       "target": "risk_factor:fall_risk",
       "type": "has_risk_factor",
@@ -2937,7 +2937,7 @@
       }
     },
     {
-      "relation_index": 413,
+      "relation_index": 522,
       "source": "disease:frailty",
       "target": "care_action:fall_risk_review",
       "type": "requires_medical_review",
@@ -2969,6 +2969,258 @@
         ],
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 537,
+      "source": "care_action:medication_review",
+      "target": "risk_factor:polypharmacy",
+      "type": "recommended_for",
+      "strength": "high",
+      "evidence": "cdc_steadi_2025.md#协同处理",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 538,
+      "source": "risk_factor:fall_risk",
+      "target": "care_action:medication_review",
+      "type": "requires_clinician_review",
+      "strength": "high",
+      "evidence": "cdc_steadi_2025.md#协同处理",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 539,
+      "source": "risk_factor:polypharmacy",
+      "target": "care_action:do_not_self_adjust_medication",
+      "type": "do_not_self_adjust_medication",
+      "strength": "high",
+      "evidence": "cdc_steadi_2025.md#药物与跌倒",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "明确提醒不要自行加减药，出现不适时联系医生或药师。",
+        "forbidden_expression": "不得给出剂量、换药、停药或服药时间调整方案。",
+        "required_guardrails": [
+          "用药相关行动必须二次确认",
+          "保存审计记录"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 543,
+      "source": "risk_factor:fall_risk",
+      "target": "intervention:home_safety_improvement",
+      "type": "managed_by",
+      "strength": "moderate",
+      "evidence": "cdc_vision_falls_2024.md#预防行动",
+      "evidence_level": "public_guidance",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据等级较弱，建议补充指南或系统综述",
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "可作为生活方式或监测方向，具体目标结合年龄、虚弱、共病和医生意见。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明",
+          "优先补充指南或系统综述，并保留需临床确认状态"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 546,
+      "source": "behavior:disturbed_sleep",
+      "target": "care_action:sleep_symptom_review",
+      "type": "requires_medical_review",
+      "strength": "moderate",
+      "evidence": "aha_sleep_brain_2024.md#老年人解释边界",
+      "evidence_level": "professional_statement",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "needs_clinician_confirmation",
+      "ai_pre_review_reasons": [
+        "涉及急症、阈值、复测、用药或疾病因果，需要临床人员确认",
+        "证据等级较弱，建议补充指南或系统综述"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
+        "allowed_expression": "提示安排医生复核，并把指标时间线、测量条件和用药清单带给医生。",
+        "forbidden_expression": "不得由系统替医生决定用药、诊断或复查结果。",
+        "required_guardrails": [
+          "行动需要确认",
+          "记录复核状态和执行时间"
+        ],
+        "clinical_confirmation_required": true,
+        "decision_label": "AI预审：保留并要求临床确认"
+      }
+    },
+    {
+      "relation_index": 550,
+      "source": "population:cognitive_impairment",
+      "target": "care_action:simplify_care_plan",
+      "type": "recommended_for",
+      "strength": "high",
+      "evidence": "ada_older_adults_2026.md#认知与低血糖",
+      "evidence_level": "clinical_standard",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
+      }
+    },
+    {
+      "relation_index": 556,
+      "source": "population:cognitive_impairment",
+      "target": "care_action:caregiver_involvement",
+      "type": "recommended_for",
+      "strength": "high",
+      "evidence": "ada_older_adults_2026.md#照护支持",
+      "evidence_level": "clinical_standard",
+      "existing_review_status": "pending_medical_review",
+      "ai_pre_review_status": "eligible_for_demo_education",
+      "ai_pre_review_reasons": [
+        "证据字段完整，可用于演示/健康教育；不等于临床批准"
+      ],
+      "evidence_checks": {
+        "required_relation_fields": true,
+        "source_registered": true,
+        "source_metadata_complete": true,
+        "evidence_level_supported": true,
+        "older_adult_scope_present": true,
+        "evidence_id_traceable": true,
+        "source_freshness_recorded": true
+      },
+      "review_boundary": "AI预审核不是医生签字；老人端临床使用仍需授权审核人确认",
+      "ai_review_opinion": {
+        "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
+        "allowed_expression": "使用“可能、相关、需要结合连续记录/医生评估”等保守表述。",
+        "forbidden_expression": "不得使用“必然、已经确诊、只要这样做就能避免”等确定性表述。",
+        "required_guardrails": [
+          "保留证据 ID、来源 URL、版本和适用人群",
+          "显示不替代医生诊断免责声明"
+        ],
+        "clinical_confirmation_required": false,
+        "decision_label": "AI预审：允许演示/健康教育"
       }
     }
   ]

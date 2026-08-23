@@ -7,6 +7,10 @@
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:1",
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:2",
+      "ada_older_adults_2026:3",
       "diabetes:0",
       "diabetes:1",
       "diabetes:2",
@@ -38,6 +42,9 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:3",
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "cardiovascular:0",
@@ -61,6 +68,9 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:3",
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "cardiovascular:0",
@@ -83,13 +93,21 @@
     "name": "跌倒",
     "chunk_ids": [
       "ada_older_adults_2025:0",
+      "ada_older_adults_2026:0",
       "aha_lifes_essential_8_2022:2",
+      "aha_sleep_brain_2024:1",
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
       "elderly_frailty:0",
       "elderly_frailty:2",
       "kdigo_ckd_2024:3",
       "older_adult_safety:0",
       "older_physical_activity_review_2022:1",
       "who_hypertension_2025:2",
+      "who_icope_2017:1",
+      "who_icope_2017:3",
       "who_physical_activity_2020:0"
     ]
   },
@@ -100,12 +118,25 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:1",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:2",
       "aha_lifes_essential_8_2022:2",
       "kdigo_ckd_2024:0",
       "kdigo_ckd_2024:3",
       "older_adult_safety:0",
       "older_physical_activity_review_2022:1",
-      "who_hypertension_2025:2"
+      "who_hypertension_2025:2",
+      "who_icope_2017:1"
+    ]
+  },
+  {
+    "id": "risk_factor:多重用药",
+    "type": "risk_factor",
+    "name": "多重用药",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2026:0",
+      "kdigo_ckd_2024:3"
     ]
   },
   {
@@ -115,11 +146,14 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:0",
+      "aha_sleep_brain_2024:1",
       "elderly_frailty:0",
       "kdigo_ckd_2024:0",
       "older_adult_safety:0",
       "older_cvd_risk_review_2020:1",
       "older_physical_activity_review_2022:0",
+      "who_icope_2017:0",
       "who_physical_activity_2020:0"
     ]
   },
@@ -130,12 +164,15 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:1",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:2",
       "aha_lifes_essential_8_2022:2",
       "kdigo_ckd_2024:0",
       "kdigo_ckd_2024:3",
       "older_adult_safety:0",
       "older_physical_activity_review_2022:1",
-      "who_hypertension_2025:2"
+      "who_hypertension_2025:2",
+      "who_icope_2017:1"
     ]
   },
   {
@@ -144,13 +181,21 @@
     "name": "跌倒",
     "chunk_ids": [
       "ada_older_adults_2025:0",
+      "ada_older_adults_2026:0",
       "aha_lifes_essential_8_2022:2",
+      "aha_sleep_brain_2024:1",
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
       "elderly_frailty:0",
       "elderly_frailty:2",
       "kdigo_ckd_2024:3",
       "older_adult_safety:0",
       "older_physical_activity_review_2022:1",
       "who_hypertension_2025:2",
+      "who_icope_2017:1",
+      "who_icope_2017:3",
       "who_physical_activity_2020:0"
     ]
   },
@@ -160,10 +205,19 @@
     "name": "认知",
     "chunk_ids": [
       "ada_older_adults_2025:0",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:2",
+      "ada_older_adults_2026:3",
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:1",
       "elderly_frailty:0",
       "kdigo_ckd_2024:0",
       "kdigo_ckd_2024:3",
-      "older_adult_safety:0"
+      "older_adult_safety:0",
+      "who_icope_2017:0",
+      "who_icope_2017:2",
+      "who_icope_2017:3"
     ]
   },
   {
@@ -173,9 +227,22 @@
     "chunk_ids": [
       "ada_older_adults_2025:0",
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:0",
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:3",
       "diabetes:1",
       "diabetes:2",
       "older_adult_safety:1"
+    ]
+  },
+  {
+    "id": "older_adult_context:抑郁",
+    "type": "older_adult_context",
+    "name": "抑郁",
+    "chunk_ids": [
+      "ada_older_adults_2025:0",
+      "ada_older_adults_2026:0",
+      "who_icope_2017:2"
     ]
   },
   {
@@ -203,11 +270,15 @@
     "name": "活动",
     "chunk_ids": [
       "ada_older_adults_2025:1",
+      "ada_older_adults_2026:2",
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "aha_lifes_essential_8_2022:2",
       "aha_stroke_prevention_2024:0",
       "cardiovascular:0",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
+      "cdc_vision_falls_2024:2",
       "diabetes:1",
       "dpp_2002:0",
       "dpp_2002:1",
@@ -223,6 +294,10 @@
       "who_diabetes_2024:2",
       "who_hypertension_2025:1",
       "who_hypertension_2025:2",
+      "who_icope_2017:0",
+      "who_icope_2017:1",
+      "who_icope_2017:2",
+      "who_icope_2017:3",
       "who_physical_activity_2020:0",
       "who_physical_activity_2020:1",
       "who_physical_activity_2020:2"
@@ -253,11 +328,15 @@
     "name": "活动",
     "chunk_ids": [
       "ada_older_adults_2025:1",
+      "ada_older_adults_2026:2",
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
       "aha_lifes_essential_8_2022:2",
       "aha_stroke_prevention_2024:0",
       "cardiovascular:0",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
+      "cdc_vision_falls_2024:2",
       "diabetes:1",
       "dpp_2002:0",
       "dpp_2002:1",
@@ -273,6 +352,10 @@
       "who_diabetes_2024:2",
       "who_hypertension_2025:1",
       "who_hypertension_2025:2",
+      "who_icope_2017:0",
+      "who_icope_2017:1",
+      "who_icope_2017:2",
+      "who_icope_2017:3",
       "who_physical_activity_2020:0",
       "who_physical_activity_2020:1",
       "who_physical_activity_2020:2"
@@ -285,6 +368,7 @@
     "chunk_ids": [
       "ada_older_adults_2025:2",
       "cardiovascular:1",
+      "cdc_steadi_2025:3",
       "diabetes:0",
       "hypertension:0",
       "kdigo_ckd_2024:1",
@@ -302,6 +386,9 @@
     "name": "记录",
     "chunk_ids": [
       "ada_older_adults_2025:2",
+      "ada_older_adults_2026:3",
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:2",
       "diabetes:0",
       "hypertension:0",
       "kdigo_ckd_2024:3",
@@ -322,6 +409,22 @@
       "elderly_frailty:1",
       "kdigo_ckd_2024:3",
       "who_cvd_2025:2"
+    ]
+  },
+  {
+    "id": "danger_sign:严重低血糖",
+    "type": "danger_sign",
+    "name": "严重低血糖",
+    "chunk_ids": [
+      "ada_older_adults_2026:1"
+    ]
+  },
+  {
+    "id": "risk_factor:营养不良",
+    "type": "risk_factor",
+    "name": "营养不良",
+    "chunk_ids": [
+      "ada_older_adults_2026:2"
     ]
   },
   {
@@ -358,6 +461,9 @@
       "aha_lifes_essential_8_2022:1",
       "aha_stroke_prevention_2024:0",
       "cardiovascular:0",
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:2",
       "hypertension:0",
       "hypertension:1",
       "hypertension:2",
@@ -395,6 +501,10 @@
     "chunk_ids": [
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:1",
+      "aha_sleep_brain_2024:2",
+      "cdc_steadi_2025:1",
       "diabetes:1",
       "elderly_frailty:1",
       "hypertension:1",
@@ -410,6 +520,9 @@
       "aha_lifes_essential_8_2022:1",
       "aha_stroke_prevention_2024:0",
       "cardiovascular:0",
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:2",
       "hypertension:0",
       "hypertension:1",
       "hypertension:2",
@@ -447,6 +560,10 @@
     "chunk_ids": [
       "aha_lifes_essential_8_2022:0",
       "aha_lifes_essential_8_2022:1",
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:1",
+      "aha_sleep_brain_2024:2",
+      "cdc_steadi_2025:1",
       "diabetes:1",
       "elderly_frailty:1",
       "hypertension:1",
@@ -458,6 +575,9 @@
     "type": "disease",
     "name": "stroke",
     "chunk_ids": [
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:1",
+      "aha_sleep_brain_2024:2",
       "aha_stroke_prevention_2024:0",
       "aha_stroke_prevention_2024:1",
       "aha_stroke_prevention_2024:2",
@@ -473,6 +593,45 @@
       "registry:stroke_curated_06:0",
       "registry:stroke_curated_07:0",
       "registry:stroke_lifestyle_2013_key_trial:0",
+      "who_hypertension_2025:3"
+    ]
+  },
+  {
+    "id": "danger_sign:胸痛",
+    "type": "danger_sign",
+    "name": "胸痛",
+    "chunk_ids": [
+      "aha_sleep_brain_2024:2",
+      "cardiovascular:2",
+      "hypertension:2",
+      "who_hypertension_2025:3",
+      "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "danger_sign:呼吸困难",
+    "type": "danger_sign",
+    "name": "呼吸困难",
+    "chunk_ids": [
+      "aha_sleep_brain_2024:2",
+      "cardiovascular:2",
+      "hypertension:2",
+      "kdigo_ckd_2024:3",
+      "who_cvd_2025:2",
+      "who_hypertension_2025:3",
+      "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "danger_sign:意识改变",
+    "type": "danger_sign",
+    "name": "意识改变",
+    "chunk_ids": [
+      "aha_sleep_brain_2024:2",
+      "elderly_frailty:2",
+      "hypertension:2",
+      "kdigo_ckd_2024:3",
+      "older_adult_safety:1",
       "who_hypertension_2025:3"
     ]
   },
@@ -506,6 +665,15 @@
     ]
   },
   {
+    "id": "older_adult_context:照护支持",
+    "type": "older_adult_context",
+    "name": "照护支持",
+    "chunk_ids": [
+      "aha_stroke_prevention_2024:2",
+      "who_icope_2017:3"
+    ]
+  },
+  {
     "id": "risk_factor:吸烟",
     "type": "risk_factor",
     "name": "吸烟",
@@ -513,30 +681,6 @@
       "cardiovascular:0",
       "hypertension:1",
       "older_cvd_risk_review_2020:0"
-    ]
-  },
-  {
-    "id": "danger_sign:胸痛",
-    "type": "danger_sign",
-    "name": "胸痛",
-    "chunk_ids": [
-      "cardiovascular:2",
-      "hypertension:2",
-      "who_hypertension_2025:3",
-      "who_physical_activity_2020:2"
-    ]
-  },
-  {
-    "id": "danger_sign:呼吸困难",
-    "type": "danger_sign",
-    "name": "呼吸困难",
-    "chunk_ids": [
-      "cardiovascular:2",
-      "hypertension:2",
-      "kdigo_ckd_2024:3",
-      "who_cvd_2025:2",
-      "who_hypertension_2025:3",
-      "who_physical_activity_2020:2"
     ]
   },
   {
@@ -548,27 +692,18 @@
     ]
   },
   {
-    "id": "intervention:联系家属",
-    "type": "intervention",
-    "name": "联系家属",
-    "chunk_ids": [
-      "diabetes:2",
-      "elderly_frailty:2"
-    ]
-  },
-  {
-    "id": "danger_sign:意识模糊",
-    "type": "danger_sign",
-    "name": "意识模糊",
-    "chunk_ids": [
-      "diabetes:2"
-    ]
-  },
-  {
     "id": "disease:frailty",
     "type": "disease",
     "name": "frailty",
     "chunk_ids": [
+      "ada_older_adults_2026:0",
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:2",
+      "cdc_steadi_2025:3",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
+      "cdc_vision_falls_2024:2",
       "elderly_frailty:0",
       "elderly_frailty:1",
       "elderly_frailty:2",
@@ -581,19 +716,70 @@
       "registry:frailty_curated_07:0",
       "registry:frailty_management_2019_systematic_review:0",
       "registry:grandmove_2025_key_trial:0",
-      "registry:who_ageing_2024_frailty_guidance:0"
+      "registry:who_ageing_2024_frailty_guidance:0",
+      "who_icope_2017:0",
+      "who_icope_2017:1",
+      "who_icope_2017:2",
+      "who_icope_2017:3"
     ]
   },
   {
-    "id": "danger_sign:意识改变",
-    "type": "danger_sign",
-    "name": "意识改变",
+    "id": "older_adult_context:视力",
+    "type": "older_adult_context",
+    "name": "视力",
     "chunk_ids": [
-      "elderly_frailty:2",
-      "hypertension:2",
-      "kdigo_ckd_2024:3",
-      "older_adult_safety:1",
-      "who_hypertension_2025:3"
+      "cdc_steadi_2025:0",
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:3",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
+      "cdc_vision_falls_2024:2",
+      "who_icope_2017:0",
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "intervention:药物复核",
+    "type": "intervention",
+    "name": "药物复核",
+    "chunk_ids": [
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:3"
+    ]
+  },
+  {
+    "id": "intervention:力量和平衡训练",
+    "type": "intervention",
+    "name": "力量和平衡训练",
+    "chunk_ids": [
+      "cdc_steadi_2025:3"
+    ]
+  },
+  {
+    "id": "intervention:居家安全",
+    "type": "intervention",
+    "name": "居家安全",
+    "chunk_ids": [
+      "cdc_steadi_2025:3",
+      "who_icope_2017:3"
+    ]
+  },
+  {
+    "id": "intervention:联系家属",
+    "type": "intervention",
+    "name": "联系家属",
+    "chunk_ids": [
+      "cdc_vision_falls_2024:1",
+      "diabetes:2",
+      "elderly_frailty:2"
+    ]
+  },
+  {
+    "id": "danger_sign:意识模糊",
+    "type": "danger_sign",
+    "name": "意识模糊",
+    "chunk_ids": [
+      "diabetes:2"
     ]
   },
   {
@@ -720,6 +906,15 @@
     "chunk_ids": [
       "who_cvd_2025:2",
       "who_physical_activity_2020:2"
+    ]
+  },
+  {
+    "id": "older_adult_context:听力",
+    "type": "older_adult_context",
+    "name": "听力",
+    "chunk_ids": [
+      "who_icope_2017:0",
+      "who_icope_2017:2"
     ]
   },
   {
@@ -1650,6 +1845,8 @@
     "name": "polypharmacy",
     "label": "风险因素",
     "chunk_ids": [
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:3",
       "kdigo_ckd_2024:3",
       "older_adult_safety:1"
     ]
@@ -1727,7 +1924,10 @@
     "name": "cognitive_impairment",
     "label": "人群",
     "chunk_ids": [
-      "older_adult_safety:2"
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:3",
+      "older_adult_safety:2",
+      "who_icope_2017:3"
     ]
   },
   {
@@ -1736,6 +1936,7 @@
     "name": "caregiver_involvement",
     "label": "照护行动",
     "chunk_ids": [
+      "ada_older_adults_2026:3",
       "older_adult_safety:2"
     ]
   },
@@ -1745,6 +1946,7 @@
     "name": "hypoglycemia",
     "label": "风险因素",
     "chunk_ids": [
+      "ada_older_adults_2026:1",
       "older_adult_safety:1"
     ]
   },
@@ -1754,6 +1956,7 @@
     "name": "do_not_self_adjust_medication",
     "label": "照护行动",
     "chunk_ids": [
+      "cdc_steadi_2025:1",
       "older_adult_safety:1"
     ]
   },
@@ -1763,7 +1966,9 @@
     "name": "grip",
     "label": "指标",
     "chunk_ids": [
-      "elderly_frailty:1"
+      "ada_older_adults_2026:2",
+      "elderly_frailty:1",
+      "who_icope_2017:1"
     ]
   },
   {
@@ -1790,7 +1995,228 @@
     "name": "fall_risk",
     "label": "风险因素",
     "chunk_ids": [
-      "elderly_frailty:2"
+      "cdc_steadi_2025:1",
+      "cdc_steadi_2025:2",
+      "cdc_steadi_2025:3",
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:2",
+      "elderly_frailty:2",
+      "who_icope_2017:0"
+    ]
+  },
+  {
+    "id": "symptom:mobility_limitation",
+    "type": "symptom",
+    "name": "mobility_limitation",
+    "label": "症状",
+    "chunk_ids": [
+      "who_icope_2017:0",
+      "who_icope_2017:1"
+    ]
+  },
+  {
+    "id": "intervention:strength_balance_activity",
+    "type": "intervention",
+    "name": "strength_balance_activity",
+    "label": "干预",
+    "chunk_ids": [
+      "who_icope_2017:1"
+    ]
+  },
+  {
+    "id": "intervention:nutrition_support",
+    "type": "intervention",
+    "name": "nutrition_support",
+    "label": "干预",
+    "chunk_ids": [
+      "who_icope_2017:1"
+    ]
+  },
+  {
+    "id": "symptom:hearing_loss",
+    "type": "symptom",
+    "name": "hearing_loss",
+    "label": "症状",
+    "chunk_ids": [
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "care_action:sensory_assessment",
+    "type": "care_action",
+    "name": "sensory_assessment",
+    "label": "照护行动",
+    "chunk_ids": [
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "symptom:vision_impairment",
+    "type": "symptom",
+    "name": "vision_impairment",
+    "label": "症状",
+    "chunk_ids": [
+      "cdc_vision_falls_2024:0",
+      "cdc_vision_falls_2024:1",
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "symptom:depressive_symptoms",
+    "type": "symptom",
+    "name": "depressive_symptoms",
+    "label": "症状",
+    "chunk_ids": [
+      "ada_older_adults_2026:0",
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "care_action:comprehensive_geriatric_assessment",
+    "type": "care_action",
+    "name": "comprehensive_geriatric_assessment",
+    "label": "照护行动",
+    "chunk_ids": [
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "symptom:cognitive_concern",
+    "type": "symptom",
+    "name": "cognitive_concern",
+    "label": "症状",
+    "chunk_ids": [
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "care_action:formal_cognitive_screening",
+    "type": "care_action",
+    "name": "formal_cognitive_screening",
+    "label": "照护行动",
+    "chunk_ids": [
+      "who_icope_2017:2"
+    ]
+  },
+  {
+    "id": "care_action:caregiver_support",
+    "type": "care_action",
+    "name": "caregiver_support",
+    "label": "照护行动",
+    "chunk_ids": [
+      "cdc_vision_falls_2024:1",
+      "who_icope_2017:3"
+    ]
+  },
+  {
+    "id": "risk_factor:orthostatic_hypotension",
+    "type": "risk_factor",
+    "name": "orthostatic_hypotension",
+    "label": "风险因素",
+    "chunk_ids": [
+      "cdc_steadi_2025:2"
+    ]
+  },
+  {
+    "id": "metric:standing_bp",
+    "type": "metric",
+    "name": "standing_bp",
+    "label": "指标",
+    "chunk_ids": [
+      "cdc_steadi_2025:2"
+    ]
+  },
+  {
+    "id": "symptom:drowsiness_or_slow_reaction",
+    "type": "symptom",
+    "name": "drowsiness_or_slow_reaction",
+    "label": "症状",
+    "chunk_ids": [
+      "cdc_steadi_2025:1"
+    ]
+  },
+  {
+    "id": "care_action:medication_review",
+    "type": "care_action",
+    "name": "medication_review",
+    "label": "照护行动",
+    "chunk_ids": [
+      "cdc_steadi_2025:3"
+    ]
+  },
+  {
+    "id": "social_factor:social_isolation",
+    "type": "social_factor",
+    "name": "social_isolation",
+    "label": "社会因素",
+    "chunk_ids": [
+      "cdc_vision_falls_2024:1"
+    ]
+  },
+  {
+    "id": "intervention:home_safety_improvement",
+    "type": "intervention",
+    "name": "home_safety_improvement",
+    "label": "干预",
+    "chunk_ids": [
+      "cdc_vision_falls_2024:2"
+    ]
+  },
+  {
+    "id": "behavior:disturbed_sleep",
+    "type": "behavior",
+    "name": "disturbed_sleep",
+    "label": "行为",
+    "chunk_ids": [
+      "aha_sleep_brain_2024:0",
+      "aha_sleep_brain_2024:1"
+    ]
+  },
+  {
+    "id": "risk_factor:cognitive_decline",
+    "type": "risk_factor",
+    "name": "cognitive_decline",
+    "label": "风险因素",
+    "chunk_ids": [
+      "ada_older_adults_2026:1",
+      "ada_older_adults_2026:2",
+      "aha_sleep_brain_2024:0"
+    ]
+  },
+  {
+    "id": "care_action:sleep_symptom_review",
+    "type": "care_action",
+    "name": "sleep_symptom_review",
+    "label": "照护行动",
+    "chunk_ids": [
+      "aha_sleep_brain_2024:1"
+    ]
+  },
+  {
+    "id": "care_action:simplify_care_plan",
+    "type": "care_action",
+    "name": "simplify_care_plan",
+    "label": "照护行动",
+    "chunk_ids": [
+      "ada_older_adults_2026:1"
+    ]
+  },
+  {
+    "id": "risk_factor:malnutrition",
+    "type": "risk_factor",
+    "name": "malnutrition",
+    "label": "风险因素",
+    "chunk_ids": [
+      "ada_older_adults_2026:2"
+    ]
+  },
+  {
+    "id": "metric:adl",
+    "type": "metric",
+    "name": "adl",
+    "label": "指标",
+    "chunk_ids": [
+      "ada_older_adults_2026:2"
     ]
   }
 ]

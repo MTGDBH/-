@@ -1,14 +1,16 @@
 # GraphRAG 知识源与证据治理清单
 
-更新时间：2026-08-21
+更新时间：2026-08-23
 
 本轮知识库不是把网页全文复制进系统，而是将公开权威页面和论文的关键结论做成可审计摘要，并在每条摘要上保留来源 URL、发布机构、年份、文献类型和证据等级。正式医疗使用前仍需医学专家逐条审核。
 
-当前索引为 `2026-08-21.v6`：18 个原始文献摘要 + 42 个分层注册摘要 + 18 个可追溯的指南/系统综述/关键研究来源，共 78 个可审计来源、111 个分块、157 个实体和 416 条关系。每条来源登记版本、发布时间、适用人群、限制、PMID/DOI（如有）、原文 URL 和审核状态；不复制论文全文。
+当前索引为 `2026-08-23.v7`：共 83 个可审计来源、129 个分块、192 个实体和 557 条索引关系。每条来源登记版本、发布时间、适用人群、限制、PMID/DOI（如有）、原文 URL 和审核状态；不复制论文全文。
 
 所有高强度关系以及急症、用药、医生复核、疾病风险和干预关系，都会写入 `output/relation_review_manifest.json`。默认状态为 `pending_medical_review`，在医学人员确认前只能用于演示、检索审计和健康教育；`validate_graph.py` 会检查每条高风险索引关系是否具有明确审核状态。
 
-逐条审核字段和准入规则见 [`MEDICAL_REVIEW_PROTOCOL.md`](MEDICAL_REVIEW_PROTOCOL.md)。当前已生成 83 条关系的 AI 预审核报告 `output/medical_pre_review.json`：66 条仅可用于演示/健康教育，17 条仍需临床确认。该报告建立的是可审计的预审核队列，不把 `pending_medical_review` 误报为临床批准。
+逐条审核字段和准入规则见 [`MEDICAL_REVIEW_PROTOCOL.md`](MEDICAL_REVIEW_PROTOCOL.md)。当前已生成 90 条高风险关系的 AI 预审核报告 `output/medical_pre_review.json`：70 条仅可用于演示/健康教育，20 条仍需临床确认。该报告建立的是可审计的预审核队列，不把 `pending_medical_review` 误报为临床批准。
+
+系统还生成 `output/hidden_relationship_candidates.json`，当前包含 221 条缺少直接边的两跳关联候选。测试版通过 `GRAPHRAG_RESEARCH_RELATIONSHIPS` 启用研究预览：医生最多查看 8 条，老人和家属最多查看 3 条；每条必须显示中间节点、两段证据和“尚未证明直接因果”提示。候选可参与知识解释，但不会自动写回图谱，也不能生成诊断、用药调整、急症降级或自动健康行动。
 
 证据冲突检测结果写入 `output/evidence_conflicts.json`，查询结果同时返回 `evidence_conflicts`、`graph_paths[].explanation`、证据等级、适用人群、关系条件、审核状态和 AI 预审核状态。老人端会过滤待临床确认关系，医生/审计端保留完整路径；准入回归见 `reports/medical-gate-regression-20260821.json`。关键词、普通 RAG、GraphRAG 的同题对照见 `reports/graphrag-method-comparison-20260821.md`；61 条黄金问题和 20 组配对老人个性化评测见 `reports/graphrag-personalization-pairs-20260821.md`。
 
@@ -30,6 +32,11 @@
 | `kdigo_ckd_2024.md` | [KDIGO CKD Evaluation and Management](https://kdigo.org/guidelines/ckd-evaluation-and-management/) | 临床指南摘要 | eGFR、肌酐、尿白蛋白、血压和糖尿病共病 |
 | `who_physical_activity_2020.md` | [WHO Guidelines on Physical Activity](https://www.who.int/publications/i/item/9789240015128) | 全球指南摘要 | 活动、久坐、老年人功能状态和安全边界 |
 | `older_adult_safety.md` | [ADA Older Adults Standards](https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025) | 临床标准摘要 | 虚弱、跌倒、认知、低血糖、多重用药和回答边界 |
+| `who_icope_2017.md` | [WHO ICOPE](https://www.who.int/publications/i/item/9789241550109) | WHO 指南 | 功能、营养、视听、认知、情绪、跌倒和照护支持的整合评估 |
+| `cdc_steadi_2025.md` | [CDC STEADI 药学照护](https://www.cdc.gov/steadi/hcp/clinical-resources/pharmacy-care.html) | 公共卫生临床资源 | 多重用药、头晕、体位性变化、药物复核与跌倒风险 |
+| `cdc_vision_falls_2024.md` | [CDC 视力与跌倒](https://www.cdc.gov/vision-health/prevention/older-adult-falls.html) | 公共卫生资料 | 视力、慢病、药物、社会隔离与跌倒的综合发现 |
+| `aha_sleep_brain_2024.md` | [AHA 睡眠与脑健康声明](https://pubmed.ncbi.nlm.nih.gov/38235581/) | 科学声明 | 睡眠紊乱与卒中、认知及脑健康的关联边界 |
+| `ada_older_adults_2026.md` | [ADA 老年照护标准 2026](https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026) | 临床标准 | 功能、认知、低血糖、虚弱、营养、多重用药和照护支持 |
 | `elderly_frailty.md` | [WHO/ADA older-adult safety summaries](https://diabetesjournals.org/care/article/48/Supplement_1/S266/157556/13-Older-Adults-Standards-of-Care-in-Diabetes-2025) | 老年安全摘要 | 虚弱、跌倒风险、认知和分层行动 |
 | `hypertension.md` | 项目早期高血压知识摘要 | 内部演示摘要 | 血压阈值、复测和安全边界（待医学审核） |
 | `diabetes.md` | 项目早期糖尿病知识摘要 | 内部演示摘要 | 血糖监测和生活方式（待医学审核） |

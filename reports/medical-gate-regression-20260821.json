@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "elderly_blocked_edge_count": 16,
+  "elderly_blocked_edge_count": 18,
   "doctor_blocked_edge_count": 0,
   "failures": []
 }

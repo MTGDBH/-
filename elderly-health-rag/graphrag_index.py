@@ -9,7 +9,33 @@ INPUT = ROOT / 'input' / 'guidelines'
 OUTPUT = ROOT / 'output'
 RELATIONS_FILE = ROOT / 'input' / 'relations.json'
 EVIDENCE_REGISTRY_FILE = ROOT / 'input' / 'evidence_registry.json'
-INDEX_VERSION = '2026-08-21.v6'
+INDEX_VERSION = '2026-08-23.v7'
+
+CHINESE_DISPLAY_NAMES = {
+    'activity_pattern':'活动模式','age_over_65':'65岁以上','alcohol':'饮酒','annual_complication_screening':'年度并发症筛查',
+    'bp':'血压','caregiver_involvement':'照护者参与','caregiver_support':'照护支持','cholesterol':'胆固醇',
+    'chronic_kidney_disease':'慢性肾脏病','clinician_review':'专业人员复核','cognitive_decline':'认知下降',
+    'cognitive_impairment':'认知功能受损','comprehensive_geriatric_assessment':'老年综合评估','creatinine':'肌酐',
+    'dehydration':'脱水','depressive_symptoms':'抑郁症状','diabetes':'糖尿病','disturbed_sleep':'睡眠紊乱',
+    'do_not_self_adjust_medication':'不要自行调整药物','drowsiness_or_slow_reaction':'困倦或反应变慢','egfr':'估算肾小球滤过率',
+    'face_arm_speech_emergency':'面口歪斜、手臂无力或言语不清','fall_risk':'跌倒风险','fall_risk_review':'跌倒风险复核',
+    'family_history':'家族史','frail_older_adults':'虚弱老年人','frailty':'虚弱','glucose':'血糖','grip':'握力',
+    'hba1c':'糖化血红蛋白','healthy_diet':'健康饮食','heart_disease':'心脏病','high_bp':'血压偏高',
+    'high_glucose':'血糖偏高','high_lipids':'血脂偏高','high_salt_diet':'高盐饮食','home_bp_remeasurement':'家庭血压复测',
+    'home_safety_improvement':'改善居家安全','hypertension':'高血压','hypoglycemia':'低血糖','kidney_function_recheck':'肾功能复查',
+    'lifestyle_program':'生活方式管理','low_to_moderate_activity':'低至中等强度活动','medication_review':'药物复核',
+    'mediterranean_diet':'地中海式饮食','mobility_limitation':'活动能力受限','obesity':'肥胖','older_adults':'老年人',
+    'orthostatic_hypotension':'体位性低血压','physical_inactivity':'身体活动不足','polypharmacy':'多重用药',
+    'regular_activity':'规律活动','salt_reduction':'减少盐摄入','sedentary_behavior':'久坐行为','sedentary_pattern':'久坐模式',
+    'simplify_care_plan':'简化照护方案','sleep':'睡眠','smoking':'吸烟','social_determinants':'社会因素',
+    'social_isolation':'社会隔离','standing_bp':'站立血压','steps':'步数','strength_balance_activity':'力量和平衡活动',
+    'stroke':'脑卒中','systolic_bp':'收缩压','tobacco':'烟草使用','unhealthy_diet':'不健康饮食','urine_albumin':'尿白蛋白',
+    'vision_impairment':'视力受损','weight':'体重',
+}
+
+def display_name(node, entities):
+    raw = entities.get(node, {}).get('name', node.split(':')[-1])
+    return CHINESE_DISPLAY_NAMES.get(raw, raw)
 EVIDENCE_LEVELS = {
     'authoritative_guidance': 4,
     'professional_guideline': 4,
@@ -31,15 +57,15 @@ DISEASE_ALIASES = {
     'hypertension': ['高血压', '血压'], 'diabetes': ['糖尿病', '血糖'],
     'heart_disease': ['心脏病', '心血管', '胸痛'], 'stroke': ['脑卒中', '中风', '单侧无力'],
     'chronic_kidney_disease': ['慢性肾脏病', '慢性肾病', '肾功能', '肾脏'],
-    'frailty': ['老年衰弱', '衰弱', '跌倒风险', '功能下降'],
+    'frailty': ['老年衰弱', '衰弱', '跌倒风险', '功能下降', '体位性低血压', '营养不良'],
 }
 ENTITY_TERMS = {
     'measurement': ['血压', '血糖', '血脂', '体重', '活动', '睡眠', '肌酐', 'eGFR', '尿白蛋白'],
-    'risk_factor': ['吸烟', '盐', '体重', '血压', '血糖', '血脂', '蛋白尿', '肾功能', '跌倒', '虚弱'],
-    'intervention': ['复测', '记录', '减少盐', '活动', '睡眠', '联系家属', '就医', '肾功能检查'],
+    'risk_factor': ['吸烟', '盐', '体重', '血压', '血糖', '血脂', '蛋白尿', '肾功能', '跌倒', '虚弱', '营养不良', '多重用药', '体位性低血压', '社会孤立'],
+    'intervention': ['复测', '记录', '减少盐', '活动', '睡眠', '联系家属', '就医', '肾功能检查', '药物复核', '力量和平衡训练', '居家安全'],
     # 同时覆盖指南术语和老人常用口语，避免“叫不醒/胸闷/突然没力气”等急症表达漏检。
     'danger_sign': ['胸痛', '胸闷', '呼吸困难', '气短', '意识改变', '意识模糊', '叫不醒', '昏迷', '昏沉', '单侧无力', '突然没力气', '面歪', '言语不清', '说话含糊', '失语', '晕厥', '严重低血糖'],
-    'older_adult_context': ['老年', '虚弱', '跌倒', '认知', '低血糖', '功能状态'],
+    'older_adult_context': ['老年', '虚弱', '跌倒', '认知', '低血糖', '功能状态', '视力', '听力', '抑郁', '照护支持'],
 }
 
 ENTITY_LABELS = {
@@ -174,9 +200,45 @@ def canonical_disease(stem):
     if 'diabetes' in name or 'ada_' in name or 'dpp' in name: return 'diabetes'
     if 'stroke' in name: return 'stroke'
     if 'kidney' in name or 'ckd' in name or 'kdigo' in name: return 'chronic_kidney_disease'
-    if 'frailty' in name or 'elderly_frailty' in name: return 'frailty'
+    if 'frailty' in name or 'elderly_frailty' in name or 'icope' in name or 'steadi' in name or 'vision_falls' in name: return 'frailty'
+    if 'sleep_brain' in name or 'stroke' in name: return 'stroke'
     if 'cvd' in name or 'cardiovascular' in name or 'lifes_essential' in name: return 'cardiovascular'
     return stem
+
+def discover_hidden_relationships(relationships):
+    """发现缺少直接边的两跳桥接路径；输出审核候选，绝不自动生成新的医学事实。"""
+    excluded = {'mentions', 'supportive_evidence'}
+    edges = [r for r in relationships if r.get('type') not in excluded and r.get('source') and r.get('target') and r.get('evidence')]
+    direct = {(r['source'], r['target']) for r in edges}
+    by_source = {}
+    for edge in edges: by_source.setdefault(edge['source'], []).append(edge)
+    strength_score = {'high': 3, 'moderate': 2, 'low': 1, None: 0}
+    candidates, seen = [], set()
+    for first in edges:
+        bridge = first['target']
+        for second in by_source.get(bridge, []):
+            source, target = first['source'], second['target']
+            if source == target or (source, target) in direct: continue
+            if source.startswith('evidence_source:') or target.startswith('evidence_source:'): continue
+            key = (source, bridge, target, first['type'], second['type'])
+            if key in seen: continue
+            seen.add(key)
+            evidence = [first.get('evidence'), second.get('evidence')]
+            distinct_sources = len({str(item).split('#', 1)[0] for item in evidence})
+            score = strength_score.get(first.get('strength'), 0) + strength_score.get(second.get('strength'), 0) + (1 if distinct_sources > 1 else 0)
+            candidates.append({
+                'source': source, 'bridge': bridge, 'target': target,
+                'path': [
+                    {'source': source, 'type': first['type'], 'target': bridge, 'strength': first.get('strength'), 'evidence': first.get('evidence'), 'causal_status': first.get('causal_status')},
+                    {'source': bridge, 'type': second['type'], 'target': target, 'strength': second.get('strength'), 'evidence': second.get('evidence'), 'causal_status': second.get('causal_status')},
+                ],
+                'score': score, 'evidence_source_count': distinct_sources,
+                'inference_status': 'candidate_for_clinician_review',
+                'allowed_expression': f'{source} 可通过 {bridge} 与 {target} 形成一条两跳证据链；这只是待审核的关联线索，不是新因果结论。',
+                'review_status': 'pending_medical_review',
+            })
+    candidates.sort(key=lambda row: (-row['score'], -row['evidence_source_count'], row['source'], row['bridge'], row['target']))
+    return candidates[:250]
 
 def tokenize(text):
     """中文按知识词表+二字片段切分，避免整句中文被当成一个 token。"""
@@ -277,6 +339,13 @@ def build():
     (OUTPUT/'chunks.json').write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding='utf-8')
     (OUTPUT/'entities.json').write_text(json.dumps(list(entities.values()), ensure_ascii=False, indent=2), encoding='utf-8')
     (OUTPUT/'relationships.json').write_text(json.dumps(relationships, ensure_ascii=False, indent=2), encoding='utf-8')
+    hidden_relationships = discover_hidden_relationships(relationships)
+    (OUTPUT/'hidden_relationship_candidates.json').write_text(json.dumps({
+        'schema_version': 'hidden-relationship-candidate.v1', 'index_version': INDEX_VERSION,
+        'generated_at': '2026-08-23', 'candidate_count': len(hidden_relationships),
+        'policy': '仅供医生或审计人员复核；两跳路径不得自动改写为因果或进入老人行动建议。',
+        'candidates': hidden_relationships,
+    }, ensure_ascii=False, indent=2), encoding='utf-8')
     evidence_conflicts = detect_evidence_conflicts(relationships)
     (OUTPUT/'evidence_conflicts.json').write_text(json.dumps({
         'schema_version': 'evidence-conflict.v1', 'index_version': INDEX_VERSION,
@@ -307,7 +376,7 @@ def build():
             })
     (OUTPUT/'relation_review_manifest.json').write_text(json.dumps({
         'schema_version': 'relation-review.v1', 'index_version': INDEX_VERSION,
-        'generated_at': '2026-08-21', 'policy': 'high_strength_or_safety_relation',
+        'generated_at': '2026-08-23', 'policy': 'high_strength_or_safety_relation',
         'statuses': {'pending_medical_review': sum(r['review_status'] == 'pending_medical_review' for r in review_rows),
                      'approved': sum(r['review_status'] == 'approved' for r in review_rows),
                      'rejected': sum(r['review_status'] == 'rejected' for r in review_rows)},
@@ -327,10 +396,10 @@ def build():
                                 'version': record.get('version', f"{record['publication_year']}.registry"),
                                 'population': record.get('population', 'older_adults'),
                                 'limitations': record.get('limitations', '来源摘要，不能替代原文或个体医学判断。'),
-                                'retrieved_at': record.get('retrieved_at', '2026-08-21'),
+                                'retrieved_at': record.get('retrieved_at', '2026-08-23'),
                                 'index_version': INDEX_VERSION})
-    (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-21', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
-    return {'index_version': INDEX_VERSION, 'chunks': len(chunks), 'entities': len(entities), 'relationships': len(relationships), 'communities': len(communities), 'sources': len(source_manifest), 'invalid_relations': len(invalid_relations)}
+    (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-23', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
+    return {'index_version': INDEX_VERSION, 'chunks': len(chunks), 'entities': len(entities), 'relationships': len(relationships), 'hidden_relationship_candidates': len(hidden_relationships), 'communities': len(communities), 'sources': len(source_manifest), 'invalid_relations': len(invalid_relations)}
 
 def query(question, disease=None, top_k=4, options=None):
     if not (OUTPUT/'chunks.json').exists(): build()
@@ -346,6 +415,7 @@ def query(question, disease=None, top_k=4, options=None):
     relationships = [dict(row, _relation_index=index) for index, row in enumerate(relationships)]
     evidence_conflicts = json.loads((OUTPUT/'evidence_conflicts.json').read_text(encoding='utf-8')) if (OUTPUT/'evidence_conflicts.json').exists() else {'conflicts': []}
     medical_pre_review = json.loads((OUTPUT/'medical_pre_review.json').read_text(encoding='utf-8')) if (OUTPUT/'medical_pre_review.json').exists() else {'relations': [], 'counts': {}}
+    hidden_manifest = json.loads((OUTPUT/'hidden_relationship_candidates.json').read_text(encoding='utf-8')) if (OUTPUT/'hidden_relationship_candidates.json').exists() else {'candidates': []}
     pre_review_by_index = {row.get('relation_index'): row for row in medical_pre_review.get('relations', [])}
     entities = {e['id']: e for e in json.loads((OUTPUT/'entities.json').read_text(encoding='utf-8'))} if (OUTPUT/'entities.json').exists() else {}
     qtokens = tokenize(question)
@@ -490,6 +560,22 @@ def query(question, disease=None, top_k=4, options=None):
     for edge in visible_edges:
         if edge.get('source') in graph_seeds and edge.get('target') in entities:
             graph_paths.append(explain_path(edge))
+    matched_hidden = [row for row in hidden_manifest.get('candidates', []) if {row.get('source'), row.get('bridge'), row.get('target')} & expanded_nodes]
+    def hidden_relevance(row):
+        nodes = (row.get('source'), row.get('bridge'), row.get('target'))
+        labels = [display_name(node, entities) for node in nodes]
+        direct_question_hits = sum(1 for label in labels if label and (label in question or label.replace('受损', '') in question))
+        seed_hits = sum(1 for node in nodes if node in graph_seeds)
+        return direct_question_hits * 20 + seed_hits * 5 + int(row.get('score', 0))
+    matched_hidden.sort(key=hidden_relevance, reverse=True)
+    research_preview_enabled = bool(options.get('enable_hidden_relationships', False))
+    hidden_limit = 8 if audience in {'doctor', 'clinician', 'audit'} else 3
+    visible_hidden = matched_hidden[:hidden_limit] if (audience in {'doctor', 'clinician', 'audit'} or research_preview_enabled) else []
+    visible_hidden = [dict(row,
+        node_labels=[display_name(node, entities) for node in (row.get('source'), row.get('bridge'), row.get('target'))],
+        allowed_expression=' → '.join(display_name(node, entities) for node in (row.get('source'), row.get('bridge'), row.get('target'))) + '（测试版间接关联，尚未证明直接因果）',
+        usage_status='research_preview_active', not_for_actions=True)
+        for row in visible_hidden]
     for edge in visible_edges:
         if edge.get('source') not in graph_seeds and edge.get('target') not in graph_seeds:
             graph_paths.append(explain_path(edge))
@@ -508,7 +594,9 @@ def query(question, disease=None, top_k=4, options=None):
     requested_backend = options.get('backend', 'local_hybrid')
     caps = capabilities(requested_backend)
     return {'query': question, 'disease': disease, 'results': results, 'recommendations': recommendations, 'weekly_plan': weekly_plan, 'graph_context': graph_context,
-            'graph_paths': graph_paths[:12], 'personalization': personalization, 'safety_flags': safety_flags,
+            'graph_paths': graph_paths[:12], 'relationship_candidates': visible_hidden,
+            'relationship_candidate_summary': {'matched': len(matched_hidden), 'visible': len(visible_hidden), 'research_preview_enabled': research_preview_enabled, 'policy': '测试版允许候选参与知识解释；必须标注间接关联，且不得生成诊断、用药或自动行动。'},
+            'personalization': personalization, 'safety_flags': safety_flags,
             'uncertainty': uncertainty, 'citations': citations,
             'evidence_conflicts': evidence_conflicts.get('conflicts', []),
             'medical_gate': {'audience': audience, 'blocked_edge_count': blocked_edge_count, 'policy': '老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系'},

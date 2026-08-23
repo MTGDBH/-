@@ -9,17 +9,13 @@
 <body>
   <div id="app-nav"></div>
 
-  <main class="main">
-    <header class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end">
+  <main class="main agent-main">
+    <header class="page-head agent-page-head" style="display:flex;justify-content:space-between;align-items:flex-end">
       <div>
         <h1>智能管家</h1>
-        <p class="subtitle">和小康聊聊 · 给你定制今日方案</p>
+        <p class="subtitle">直接说出您的问题，小康会自动选择合适的健康能力</p>
       </div>
-      <div class="tabs" data-tabs id="mode-tabs" style="margin:0">
-        <button class="tab active" data-tab="plan" style="padding:8px 18px;border:none;background:#F4A261;color:#fff;border-radius:18px;font-weight:700;font-family:var(--font-cn);cursor:pointer">方案</button>
-        <button class="tab" data-tab="qa" style="padding:8px 18px;border:none;background:transparent;color:#9C8B7A;border-radius:18px;font-weight:500;font-family:var(--font-cn);cursor:pointer">问答</button>
-        <button class="tab" data-tab="tip" style="padding:8px 18px;border:none;background:transparent;color:#9C8B7A;border-radius:18px;font-weight:500;font-family:var(--font-cn);cursor:pointer">贴士</button>
-      </div>
+      <button type="button" class="agent-daily-plan-button" id="agent-daily-plan">生成今日健康方案</button>
     </header>
 
     <section class="agent-context-bar" aria-label="智能体上下文">
@@ -44,13 +40,29 @@
         </div>
       </div>
 
+      <div class="agent-splitter" id="agent-splitter" role="separator" aria-label="调整聊天区和辅助区宽度" aria-orientation="vertical" aria-valuemin="50" aria-valuemax="78" aria-valuenow="69" tabindex="0" title="左右拖动调整宽度，双击恢复默认">
+        <span aria-hidden="true">⋮</span>
+      </div>
+
       <div class="plan-area">
+        <section class="agent-inbox agent-inbox-sidebar" id="agent-inbox" aria-live="polite" hidden>
+          <button type="button" class="agent-inbox-head" id="agent-inbox-toggle" aria-expanded="false" aria-controls="agent-inbox-list">
+            <div><span>站内主动提醒</span><h2>待处理健康事项</h2></div>
+            <strong id="agent-inbox-count">0 项</strong>
+            <i aria-hidden="true">⌄</i>
+          </button>
+          <div class="agent-inbox-list" id="agent-inbox-list"></div>
+        </section>
         <div class="plan-header">
           <span class="plan-title">今日方案</span>
           <span class="plan-badge" id="plan-count">— 项</span>
         </div>
         <div class="plan-sub">AI 实时生成 · <span id="plan-today">—</span></div>
         <div id="plan-list"></div>
+        <section class="agent-daily-tip" id="agent-daily-tip" aria-live="polite">
+          <div class="agent-daily-tip-head"><div><span>健康知识</span><h2>今日健康贴士</h2></div><strong id="daily-tip-status">读取中</strong></div>
+          <div id="daily-tip-content" class="agent-daily-tip-content"><span class="loading"></span> 正在准备今日贴士…</div>
+        </section>
       </div>
     </section>
     <section class="agent-memory-panel" id="agent-memory-panel" hidden>
@@ -70,19 +82,87 @@
       bindMsgActions();
       bindPlanActions();
       bindAgentContext();
-      renderQuickPrompts('plan');
+      bindAgentSplitter();
+      renderQuickPrompts();
       await initAgentContext();
       loadPlan();
+      loadInbox();
+      loadDailyTip();
     });
     Auth.init();
 
-    const PROMPTS = {
-      plan: ['为什么血压偏高？', '推荐适合我的运动', '一日三餐怎么吃？', '我今晚该注意什么？'],
-      qa: ['什么是窦性心律？', '血压多少算正常？', '糖尿病能吃水果吗？', '失眠怎么办？'],
-      tip: ['今日养生贴士', '冬季注意事项', '饭后不宜做的 3 件事', '喝水也有讲究？'],
-    };
+    const PROMPTS = ['看看我的总体健康', '看看最近血压', '生成今日健康方案', '我想问一个健康问题'];
+    const AGENT_SPLIT_KEY = 'xiaokang-agent-split-ratio-v1';
 
-    let activeTab = 'plan';
+    function bindAgentSplitter() {
+      const row = document.querySelector('.agent-row');
+      const splitter = document.getElementById('agent-splitter');
+      if (!row || !splitter || splitter.dataset.bound === '1') return;
+      splitter.dataset.bound = '1';
+      let dragging = false;
+      let ratio = Number(localStorage.getItem(AGENT_SPLIT_KEY));
+      if (!Number.isFinite(ratio)) ratio = 0.69;
+
+      const clampRatio = value => Math.max(0.50, Math.min(0.78, Number(value) || 0.69));
+      const isStacked = () => window.matchMedia('(max-width: 1180px)').matches;
+      function applyRatio(next, persist = false) {
+        ratio = clampRatio(next);
+        if (isStacked()) {
+          row.style.removeProperty('--agent-chat-width');
+        } else {
+          const available = Math.max(0, row.getBoundingClientRect().width - splitter.offsetWidth);
+          const minRatio = Math.max(0.50, Math.min(0.62, 520 / Math.max(1, available)));
+          const maxRatio = Math.min(0.78, Math.max(0.62, 1 - 320 / Math.max(1, available)));
+          ratio = Math.max(minRatio, Math.min(maxRatio, ratio));
+          row.style.setProperty('--agent-chat-width', `${Math.round(available * ratio)}px`);
+          splitter.setAttribute('aria-valuemin', String(Math.round(minRatio * 100)));
+          splitter.setAttribute('aria-valuemax', String(Math.round(maxRatio * 100)));
+        }
+        splitter.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+        splitter.setAttribute('aria-valuetext', `聊天区约占${Math.round(ratio * 100)}%`);
+        if (persist) localStorage.setItem(AGENT_SPLIT_KEY, ratio.toFixed(4));
+      }
+      function ratioFromPointer(event) {
+        const rect = row.getBoundingClientRect();
+        const available = Math.max(1, rect.width - splitter.offsetWidth);
+        return (event.clientX - rect.left) / available;
+      }
+      splitter.addEventListener('pointerdown', event => {
+        if (isStacked()) return;
+        dragging = true;
+        splitter.setPointerCapture(event.pointerId);
+        document.body.classList.add('agent-is-resizing');
+        applyRatio(ratioFromPointer(event));
+        event.preventDefault();
+      });
+      splitter.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        applyRatio(ratioFromPointer(event));
+      });
+      const finishDrag = event => {
+        if (!dragging) return;
+        dragging = false;
+        if (splitter.hasPointerCapture?.(event.pointerId)) splitter.releasePointerCapture(event.pointerId);
+        document.body.classList.remove('agent-is-resizing');
+        applyRatio(ratio, true);
+      };
+      splitter.addEventListener('pointerup', finishDrag);
+      splitter.addEventListener('pointercancel', finishDrag);
+      splitter.addEventListener('dblclick', () => applyRatio(0.69, true));
+      splitter.addEventListener('keydown', event => {
+        if (isStacked()) return;
+        if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+        applyRatio(event.key === 'Home' ? 0.69 : ratio + (event.key === 'ArrowLeft' ? -0.02 : 0.02), true);
+        event.preventDefault();
+      });
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => applyRatio(ratio), 80);
+      });
+      applyRatio(ratio);
+    }
+
     let lastUserMessage = '';
     let ttsUtterance = null;
     let me = null;
@@ -95,7 +175,7 @@
     function bindAgentContext() {
       document.getElementById('agent-subject').addEventListener('change', async e => {
         subjectId = Number(e.target.value); conversationId = null;
-        await loadConversations(); await Promise.all([loadChat(), loadMemories(), loadPlan()]);
+        await loadConversations(); await Promise.all([loadChat(), loadMemories(), loadPlan(), loadInbox(), loadDailyTip()]);
       });
       document.getElementById('agent-conversation').addEventListener('change', async e => { conversationId = Number(e.target.value); await Promise.all([loadChat(), loadPlan()]); });
       document.getElementById('agent-new-conversation').addEventListener('click', async () => {
@@ -105,6 +185,12 @@
       document.getElementById('agent-memory-button').addEventListener('click', async () => { document.getElementById('agent-memory-panel').hidden = false; await loadMemories(); });
       document.getElementById('agent-memory-close').addEventListener('click', () => { document.getElementById('agent-memory-panel').hidden = true; });
       document.getElementById('agent-memory-list').addEventListener('click', handleMemoryAction);
+      document.getElementById('agent-inbox').addEventListener('click', handleInboxAction);
+      document.getElementById('agent-inbox-toggle').addEventListener('click', toggleInboxPanel);
+      document.getElementById('agent-daily-plan').addEventListener('click', () => {
+        document.getElementById('chat-input').value = '请根据我当前的健康记录生成今日健康方案';
+        send();
+      });
     }
 
     async function initAgentContext() {
@@ -134,6 +220,71 @@
       const data = await API.get(`/api/agent/memories?subject_user_id=${subjectId}`);
       const host = document.getElementById('agent-memory-list');
       host.innerHTML = data.items?.length ? data.items.map(memory => `<article class="agent-memory-item status-${memory.status}"><div><span>${memory.status==='candidate'?'待你确认':'已经记住'}</span><strong>${escapeHTML(memory.content)}</strong><small>${escapeHTML(memory.category)}</small></div><div>${memory.status==='candidate'?`<button data-memory-action="confirm" data-id="${memory.id}">记住</button><button data-memory-action="reject" data-id="${memory.id}">不保存</button>`:`<button data-memory-action="delete" data-id="${memory.id}">删除</button>`}</div></article>`).join('') : '<div class="empty">还没有确认过的长期记忆。</div>';
+    }
+
+    function metricValue(row) {
+      if (!row) return '—';
+      return `${row.value}${row.value2 != null ? '/' + row.value2 : ''}${row.unit ? ' ' + row.unit : ''}`;
+    }
+
+    function setInboxExpanded(expanded, remember = false) {
+      const box = document.getElementById('agent-inbox');
+      const toggle = document.getElementById('agent-inbox-toggle');
+      box.classList.toggle('is-collapsed', !expanded);
+      toggle.setAttribute('aria-expanded', String(expanded));
+      if (remember) box.dataset.userExpanded = expanded ? '1' : '0';
+    }
+
+    function toggleInboxPanel(event) {
+      event.stopPropagation();
+      const box = document.getElementById('agent-inbox');
+      setInboxExpanded(box.classList.contains('is-collapsed'), true);
+    }
+
+    function conditionLabel(value) {
+      return ({ morning_rest: '早晨静坐后', evening_rest: '晚间静坐后', fasting: '空腹', postprandial_2h: '餐后2小时', random: '随机', resting: '静息', active: '活动后', morning_fasting: '晨起空腹', unknown: '测量条件未填写' }[value] || value || '测量条件未填写');
+    }
+
+    function renderFollowupComparison(item) {
+      const c = item.comparison;
+      if (!c) return '';
+      return `<div class="followup-comparison"><strong>复测对比</strong><div><span>上次 ${escapeHTML(metricValue(c.baseline))}</span><b>→</b><span>本次 ${escapeHTML(metricValue(c.result))}</span></div><p>${escapeHTML(c.comparison_note || '')}</p><p>${escapeHTML(c.action || '')}</p></div>`;
+    }
+
+    async function loadInbox() {
+      if (!subjectId) return;
+      const box = document.getElementById('agent-inbox'), host = document.getElementById('agent-inbox-list');
+      try {
+        const data = await API.get(`/api/agent/inbox?subject_user_id=${subjectId}`);
+        const active = [...(data.pending_result_confirmation || []), ...(data.overdue || []), ...(data.due || []), ...(data.scheduled || [])];
+        const completed = data.recently_completed?.find(item => item.comparison);
+        if (!active.length && !completed) { box.hidden = true; return; }
+        box.hidden = false;
+        document.getElementById('agent-inbox-count').textContent = `${active.length} 项待处理`;
+        const needsImmediateAttention = (data.pending_result_confirmation || []).length > 0 || (data.overdue || []).length > 0;
+        const remembered = box.dataset.userExpanded;
+        setInboxExpanded(needsImmediateAttention || remembered === '1');
+        const activeHtml = active.map(item => {
+          const candidate = item.status === 'pending_result_confirmation' && item.candidate;
+          const level = item.status === 'overdue' ? '已逾期' : item.status === 'due' ? '已到期' : candidate ? '待确认复测' : '已安排';
+          return `<article class="agent-inbox-item status-${escapeHTML(item.status)}"><div class="agent-inbox-item-head"><span>${level}</span><strong>${escapeHTML(item.label || item.metric_type || '复测')}</strong><time>${escapeHTML(new Date(item.due_at).toLocaleString('zh-CN'))}</time></div>
+            ${candidate ? `<div class="followup-pair"><div><small>基线记录</small><strong>${escapeHTML(metricValue(item.baseline))}</strong><p>${escapeHTML(conditionLabel(item.baseline?.measurement_condition))}</p></div><div><small>新测量</small><strong>${escapeHTML(metricValue(item.candidate))}</strong><p>${escapeHTML(conditionLabel(item.candidate?.measurement_condition))}</p></div></div>${renderFollowupComparison(item)}<div class="agent-inbox-actions"><button data-inbox-action="confirm-candidate" data-followup-id="${item.id}" data-metric-id="${item.candidate.id}">是本次复测</button><button data-inbox-action="reject-candidate" data-followup-id="${item.id}" data-metric-id="${item.candidate.id}">不是这次</button></div>` : `<p>请按相同条件完成${escapeHTML(item.label || '指标')}测量，新记录会先请您确认。</p><div class="agent-inbox-actions"><a class="btn" href="prediction.html?tab=trend&type=${encodeURIComponent(item.metric_type || '')}">去记录</a><button data-inbox-action="cancel" data-followup-id="${item.id}">取消复测</button></div>`}
+          </article>`;
+        }).join('');
+        host.innerHTML = activeHtml + (completed ? `<article class="agent-inbox-item completed"><div class="agent-inbox-item-head"><span>最近完成</span><strong>${escapeHTML(completed.label)}</strong></div>${renderFollowupComparison(completed)}</article>` : '');
+      } catch (error) { box.hidden = true; }
+    }
+
+    async function handleInboxAction(e) {
+      const btn = e.target.closest('[data-inbox-action]'); if (!btn) return;
+      const id = btn.dataset.followupId, metricId = Number(btn.dataset.metricId);
+      try {
+        if (btn.dataset.inboxAction === 'confirm-candidate') await API.post(`/api/actions/followups/${id}/candidate/confirm`, { metric_id: metricId });
+        else if (btn.dataset.inboxAction === 'reject-candidate') await API.post(`/api/actions/followups/${id}/candidate/reject`, { metric_id: metricId });
+        else if (btn.dataset.inboxAction === 'cancel' && window.confirm('确认取消这项复测吗？')) await API.post(`/api/actions/followups/${id}/cancel`, {});
+        else return;
+        await loadInbox(); toast('复测状态已更新', 'success');
+      } catch (error) { toast(error.message, 'error'); }
     }
 
     async function handleMemoryAction(e) {
@@ -179,12 +330,67 @@
       return 'score-low';
     }
 
+    const metricDisplayNames = {
+      systo: '高压（收缩压）', diasto: '低压（舒张压）', bp: '血压', pulse: '心率', hr: '心率',
+      glucose: '血糖', weight: '体重', sleep: '睡眠', steps: '步数', spo2: '血氧', temp: '体温',
+      resp: '呼吸频率', bmi: '体重指数', hba1c: '糖化血红蛋白', cholesterol: '胆固醇', uricacid: '尿酸'
+    };
+    const toolDisplayNames = {
+      health_trend: '健康趋势', htn_risk: '高血压风险筛查', disease_risk: '疾病风险筛查',
+      behavior: '睡眠与活动', device: '设备状态', health_summary: '健康摘要', alerts: '待处理预警',
+      knowledge: '健康知识依据', followup_status: '复测随访'
+    };
+    function displayMetric(value) {
+      const key = String(value || '').trim().toLowerCase();
+      return metricDisplayNames[key] || String(value || '健康指标');
+    }
+    function inferActionMetric(action = {}, context = '') {
+      if (action.metric_type) return String(action.metric_type).toLowerCase();
+      const text = `${action.title || ''} ${action.description || action.desc || ''} ${context || ''}`;
+      if (/血压|高压|低压/.test(text)) return 'bp';
+      if (/血糖/.test(text)) return 'glucose';
+      if (/心率|脉搏/.test(text)) return 'hr';
+      if (/体重/.test(text)) return 'weight';
+      if (/睡眠/.test(text)) return 'sleep';
+      if (/血氧/.test(text)) return 'spo2';
+      if (/体温/.test(text)) return 'temp';
+      if (/呼吸/.test(text)) return 'resp';
+      return '';
+    }
+    function normalizeVisiblePlan(action = {}, context = '') {
+      return { ...action, metric_type: inferActionMetric(action, context) };
+    }
+    function isValidVisiblePlan(action = {}) {
+      return action.action_type !== 'schedule_recheck' || !!inferActionMetric(action);
+    }
+    function renderActionMetric(action = {}) {
+      if (action.action_type !== 'schedule_recheck') return '';
+      const metricType = inferActionMetric(action);
+      return `<span class="agent-action-metric ${metricType ? '' : 'is-missing'}">复测项目：${escapeHTML(metricType ? displayMetric(metricType) : '尚未明确')}</span>`;
+    }
+    function displayUnit(value) {
+      const raw = String(value || '').trim();
+      return ({ mmHg:'毫米汞柱', bpm:'次/分', kg:'千克', 'mmol/L':'毫摩尔/升', h:'小时' })[raw] || raw;
+    }
+    function visibleChinese(value) {
+      return String(value ?? '')
+        .replace(/\bsysto\b/gi, metricDisplayNames.systo).replace(/\bdiasto\b/gi, metricDisplayNames.diasto)
+        .replace(/\bpulse\b/gi, metricDisplayNames.pulse).replace(/\bglucose\b/gi, metricDisplayNames.glucose)
+        .replace(/\bweight\b/gi, metricDisplayNames.weight).replace(/\bsleep\b/gi, metricDisplayNames.sleep)
+        .replace(/\bsteps\b/gi, metricDisplayNames.steps).replace(/\bspo2\b/gi, metricDisplayNames.spo2)
+        .replace(/\bresp\b/gi, metricDisplayNames.resp).replace(/\btemp\b/gi, metricDisplayNames.temp)
+        .replace(/\bBMI\b/g, metricDisplayNames.bmi).replace(/\bHbA1c\b/gi, metricDisplayNames.hba1c)
+        .replace(/mmHg/gi, '毫米汞柱').replace(/mmol\s*\/\s*L/gi, '毫摩尔/升')
+        .replace(/\bbpm\b/gi, '次/分').replace(/\bkg\b/gi, '千克');
+    }
+    function displayTool(item) { return item?.label || toolDisplayNames[item?.name] || '健康数据读取'; }
+
     function renderActions(m) {
       if (m.role !== 'assistant') return '';
       const conf = m.confidence || { type: 'common_sense' };
       const isData = conf.type === 'data' && conf.score != null;
       const msgId = m.id || ('msg-' + Math.random().toString(36).slice(2, 9));
-      const contentEscaped = encodeURIComponent(m.content || '');
+      const contentEscaped = encodeURIComponent(visibleChinese(m.content || ''));
 
       let confidenceHtml = '';
       if (isData) {
@@ -217,13 +423,13 @@
             </svg>
             复制
           </button>
-          <button class="msg-action-btn" data-action="like" title="赞">
+          <button class="msg-action-btn ${m.feedback?.rating==='like'?'active like':''}" data-action="like" title="赞">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
             </svg>
             赞
           </button>
-          <button class="msg-action-btn" data-action="dislike" title="踩">
+          <button class="msg-action-btn ${m.feedback?.rating==='dislike'?'active':''}" data-action="dislike" title="踩">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
             </svg>
@@ -252,10 +458,10 @@
       if (!evidence || ((!Array.isArray(evidence.items) || !evidence.items.length) && !evidence.graph)) return '';
       const trendName = { rising: '上升', falling: '下降', stable: '基本稳定', unknown: '暂不判断' };
       const rows = (evidence.items || []).slice(0, 4).map(item => {
-        const value = item.latest_value == null ? '—' : `${item.latest_value}${item.unit ? ' ' + item.unit : ''}`;
+        const value = item.latest_value == null ? '—' : `${item.latest_value}${item.unit ? ' ' + displayUnit(item.unit) : ''}`;
         const date = item.measured_at ? new Date(item.measured_at).toLocaleDateString('zh-CN') : '—';
         return `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f2e9df">
-          <span style="color:#6f6257">${escapeHTML(item.metric)} · ${escapeHTML(date)}</span>
+          <span style="color:#6f6257">${escapeHTML(displayMetric(item.metric))} · ${escapeHTML(date)}</span>
           <span style="color:#3d2e1f;font-weight:600">${escapeHTML(value)} · ${escapeHTML(trendName[item.trend] || '暂不判断')}</span>
         </div>`;
       }).join('');
@@ -263,7 +469,7 @@
       const graphCitations = graph?.citations?.slice?.(0, 3) || [];
       const graphReasons = graph?.personalization?.why_this_user?.slice?.(0, 2) || [];
       const graphHtml = graph ? `<div style="margin-top:8px;padding-top:7px;border-top:1px dashed #ead8c7">
-        <div style="font-weight:700;color:#7d5b40">知识依据 · ${escapeHTML(graph.graph_mode || '本地混合检索')} ${graph.index_version ? `· ${escapeHTML(graph.index_version)}` : ''}</div>
+        <div style="font-weight:700;color:#7d5b40">知识依据 · 本地健康知识检索</div>
         ${graphCitations.map(c => { const label = typeof c === 'string' ? c : (c.label || c.citation || '知识来源'); const url = typeof c === 'object' ? c.url : ''; return `<div style="margin-top:3px;color:#6f6257">${url ? `<a href="${escapeHTML(url)}" target="_blank" rel="noopener" style="color:#8a6b51;text-decoration:underline">${escapeHTML(label)}</a>` : escapeHTML(label)}</div>`; }).join('')}
         ${graphReasons.length ? `<div style="margin-top:5px;color:#8a6b51">为什么针对您：${graphReasons.map(escapeHTML).join('；')}</div>` : ''}
       </div>` : '';
@@ -274,7 +480,7 @@
         <div style="color:#9c8b7a;margin-bottom:4px">近${Number(evidence.period_days || 90)}天，共 ${Number(evidence.data_points || 0)} 条记录</div>` : ''}
         ${qualityHtml}
         ${rows}
-        ${evidence.missing_metrics && evidence.missing_metrics.length ? `<div style="color:#a87952;margin-top:6px">缺少：${escapeHTML(evidence.missing_metrics.join('、'))}</div>` : ''}
+        ${evidence.missing_metrics && evidence.missing_metrics.length ? `<div style="color:#a87952;margin-top:6px">缺少：${escapeHTML(evidence.missing_metrics.map(displayMetric).join('、'))}</div>` : ''}
         ${graphHtml}
       </div>`;
     }
@@ -288,7 +494,7 @@
     function renderToolTrace(m) {
       const trace = m.tool_trace || m.evidence?.tool_trace || [];
       if (!trace.length) return '';
-      return `<div class="agent-tool-trace"><strong>本次读取依据</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(item.label || item.name)} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(new Date(item.freshness).toLocaleDateString('zh-CN'))}`:''}</span>`).join('')}</div>`;
+      return `<div class="agent-tool-trace"><strong>本次读取依据</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(displayTool(item))} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(new Date(item.freshness).toLocaleDateString('zh-CN'))}`:''}</span>`).join('')}</div>`;
     }
 
     function renderMemoryCandidates(m) {
@@ -298,8 +504,10 @@
     }
 
     function renderPlanControl(p) {
-      const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || '')}"`;
-      if (p.requires_confirmation) return `<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认</button><button data-action="dismiss-plan">取消</button></div>`;
+      const metricType = inferActionMetric(p);
+      const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || p.description || '')}" data-metric-type="${metricType}" data-baseline-metric-id="${p.baseline_metric_id || ''}"`;
+      const schedule = p.action_type === 'schedule_recheck' ? `<div class="agent-schedule-picker" aria-label="选择复测时间"><strong>复测时间</strong><div>${(p.schedule_options || [{key:'later_today',label:'今天稍后'},{key:'tomorrow_morning',label:'明早'},{key:'custom',label:'自选时间'}]).map((item,index) => `<button type="button" data-schedule-key="${item.key}" class="${index===1?'selected':''}">${escapeHTML(item.label)}</button>`).join('')}</div><input type="datetime-local" aria-label="自选复测时间" hidden></div>` : '';
+      if (p.requires_confirmation || p.action_type) return `${schedule}<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认</button><button data-action="dismiss-plan">取消</button></div>`;
       return `<button class="plan-card-check" data-action="plan" ${attrs} style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>`;
     }
 
@@ -313,7 +521,7 @@
 
     function renderCardBasis(m, providerLabel) {
       const trace = m.tool_trace || m.evidence?.tool_trace || [];
-      const traceHtml = trace.length ? `<div class="agent-card-trace"><strong>读取内容</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(item.label || item.name)} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(displayDate(item.freshness))}`:''}</span>`).join('')}</div>` : '';
+      const traceHtml = trace.length ? `<div class="agent-card-trace"><strong>读取内容</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(displayTool(item))} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(displayDate(item.freshness))}`:''}</span>`).join('')}</div>` : '';
       return `<details class="agent-card-basis"><summary>查看依据</summary><div class="agent-card-basis-inner"><div class="agent-card-provider">回答来源：${escapeHTML(providerLabel)}</div>${traceHtml}${renderEvidenceBody(m.evidence) || '<p>本次没有读取个人健康数据。</p>'}</div></details>`;
     }
 
@@ -321,44 +529,54 @@
       const p = m.presentation;
       const toneLabels = { stable: '状态平稳', watch: '建议留意', warning: '重点关注', urgent: '立即求助', insufficient: '资料不足' };
       const facts = (p.facts || []).slice(0, 3);
-      const actions = (p.actions || []).slice(0, 2);
+      const actionContext = `${p.status?.text || ''} ${(p.facts || []).map(fact => `${fact.label || ''} ${fact.context || ''} ${fact.trend || ''}`).join(' ')}`;
+      const actions = (p.actions || []).map(action => normalizeVisiblePlan(action, actionContext)).filter(isValidVisiblePlan).slice(0, 2);
       const factHtml = facts.map(fact => `<article class="agent-fact">
-        <span>${escapeHTML(fact.label || '关键数据')}</span>
-        <strong>${escapeHTML(fact.value ?? '—')}<small>${fact.unit ? ` ${escapeHTML(fact.unit)}` : ''}</small></strong>
-        ${fact.trend ? `<em>${escapeHTML(fact.trend)}</em>` : ''}
+        <span>${escapeHTML(visibleChinese(fact.label || '关键数据'))}</span>
+        <strong>${escapeHTML(visibleChinese(fact.value ?? '—'))}<small>${fact.unit ? ` ${escapeHTML(displayUnit(fact.unit))}` : ''}</small></strong>
+        ${fact.trend ? `<em>${escapeHTML(visibleChinese(fact.trend))}</em>` : ''}
         ${fact.measured_at ? `<p>记录时间：${escapeHTML(displayDate(fact.measured_at))}</p>` : ''}
-        ${fact.context ? `<p>${escapeHTML(fact.context)}</p>` : ''}
+        ${fact.context ? `<p>${escapeHTML(visibleChinese(fact.context))}</p>` : ''}
       </article>`).join('');
       const actionHtml = actions.map(action => {
-        const normalized = { title: action.title, desc: action.description, action_type: action.action_type, requires_confirmation: action.requires_confirmation, color: p.mode === 'emergency' ? 'red' : 'orange' };
+        const normalized = { ...action, title: action.title, desc: action.description, color: p.mode === 'emergency' ? 'red' : 'orange' };
         const controls = action.action_type && action.requires_confirmation ? renderPlanControl(normalized) : '';
-        return `<article class="agent-card-action"><div><strong>${escapeHTML(action.title)}</strong><p>${escapeHTML(action.description || '')}</p></div>${controls}</article>`;
+        return `<article class="agent-card-action"><div><strong>${escapeHTML(action.title)}</strong><p>${escapeHTML(action.description || '')}</p>${renderActionMetric(normalized)}</div>${controls}</article>`;
       }).join('');
       const urgent = p.mode === 'emergency' || p.status?.tone === 'urgent';
       return `<article class="agent-health-card tone-${escapeHTML(p.status?.tone || 'stable')}" aria-label="${urgent ? '紧急健康提醒' : '健康分析结果'}">
-        <header class="agent-card-status"><span>${escapeHTML(toneLabels[p.status?.tone] || '健康提示')}</span><h3>${escapeHTML(p.status?.title || '当前结论')}</h3><p>${escapeHTML(p.status?.text || m.content || '')}</p></header>
+        <header class="agent-card-status"><span>${escapeHTML(toneLabels[p.status?.tone] || '健康提示')}</span><h3>${escapeHTML(visibleChinese(p.status?.title || '当前结论'))}</h3><p>${escapeHTML(visibleChinese(p.status?.text || m.content || ''))}</p></header>
         <section class="agent-card-section" aria-label="关键数据"><h4>关键数据</h4><div class="agent-facts">${factHtml}</div></section>
-        <section class="agent-card-section" aria-label="下一步行动"><h4>${urgent ? '立即行动' : '下一步行动'}</h4><div class="agent-card-actions">${actionHtml}</div></section>
+        <section class="agent-card-section" aria-label="下一步行动"><h4>${urgent ? '立即行动' : '下一步行动'}</h4><div class="agent-card-actions">${actionHtml || '<p class="agent-no-action">当前没有需要确认的复测行动。</p>'}</div></section>
         <aside class="agent-card-safety level-${escapeHTML(p.safety?.level || 'routine')}" ${urgent ? 'role="alert"' : ''}><strong>需要帮助时</strong><p>${escapeHTML(p.safety?.text || '')}</p></aside>
         ${renderCardBasis(m, providerLabel)}
       </article>`;
     }
 
+    function renderClarificationCard(m) {
+      const p = m.presentation || {};
+      return `<article class="agent-clarification-card"><span>需要您确认</span><h3>${escapeHTML(p.status?.title || '请选择一项')}</h3><p>${escapeHTML(p.status?.text || m.content || '')}</p><div>${(p.choices || []).map(choice => `<button data-clarification-value="${encodeURIComponent(choice.value || choice.label)}">${escapeHTML(choice.label)}</button>`).join('')}</div><small>${escapeHTML(p.safety?.text || '')}</small></article>`;
+    }
+
     function renderMsg(m) {
       const llmMeta = m.llm || {};
       const providerLabel = llmMeta.call_status === 'success'
-        ? `${llmMeta.provider || m.source || '模型'}${llmMeta.model ? ' · ' + llmMeta.model : ''}`
-        : (llmMeta.call_status === 'fallback' ? `本地工具结果${llmMeta.fallback_reason ? ' · ' + llmMeta.fallback_reason : ''}` : (m.source === 'mock' ? '本地 Mock 结果' : m.source === 'tool' ? '健康工具结果' : '本地 GraphRAG 结果'));
+        ? '健康智能分析'
+        : (llmMeta.call_status === 'fallback' ? '本地健康工具结果' : (m.source === 'mock' ? '本地演示结果' : m.source === 'tool' ? '健康工具结果' : '本地健康知识结果'));
       const sourceHtml = m.role === 'assistant' ? `<div style="margin:4px 0 5px;color:#a88970;font-size:11px">回答来源：${escapeHTML(providerLabel)}</div>` : '';
       const hasHealthCard = m.presentation?.mode === 'health_card' || m.presentation?.mode === 'emergency';
-      const planHtml = m.plan && m.plan.length ? `
-        <div class="msg-plan"><div style="font-size:14px;color:#806B59;margin:4px 0 7px;font-weight:700">今天可以做</div>${m.plan.slice(0, 1).map(p => `
+      const hasClarification = m.presentation?.mode === 'clarification';
+      const visiblePlans = (m.plan || []).map(p => normalizeVisiblePlan(p, m.content || '')).filter(isValidVisiblePlan).slice(0, 1);
+      const planHtml = visiblePlans.length ? `
+        <div class="msg-plan"><div style="font-size:14px;color:#806B59;margin:4px 0 7px;font-weight:700">今天可以做</div>${visiblePlans.map(p => `
           <div class="plan-card-mini" style="background:${planColorBg(p.color)}">
             <div class="plan-card-icon" style="background:${planColorFg(p.color)};color:#fff">${escapeHTML(p.icon)}</div>
             <div class="plan-card-text">
-              <div class="plan-card-t" style="color:${planColorFg(p.color)}">把上面的建议设为今日提醒</div>
+              <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title || '健康行动')}</div>
+              <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || p.description || '')}</div>
+              ${renderActionMetric({ ...p, metric_type: inferActionMetric(p) })}
             </div>
-            ${renderPlanControl(p)}
+            ${renderPlanControl({ ...p, metric_type: inferActionMetric(p) })}
           </div>
         `).join('')}</div>` : '';
       if (m.role === 'assistant') {
@@ -366,7 +584,7 @@
           <div class="msg msg-ai">
             <div class="msg-avatar">康</div>
             <div>
-              ${hasHealthCard ? renderHealthCard(m, providerLabel) : `<div class="msg-bubble">${escapeHTML(m.content).replace(/\n/g, '<br/>')}</div>${sourceHtml}${planHtml}${renderToolTrace(m)}${renderEvidence(m.evidence)}`}
+              ${hasHealthCard ? renderHealthCard(m, providerLabel) : hasClarification ? renderClarificationCard(m) : `<div class="msg-bubble">${escapeHTML(visibleChinese(m.content)).replace(/\n/g, '<br/>')}</div>${sourceHtml}${planHtml}${renderToolTrace(m)}${renderEvidence(m.evidence)}`}
               ${renderMemoryCandidates(m)}
               ${renderActions(m)}
             </div>
@@ -444,6 +662,11 @@
     function bindMsgActions() {
       document.getElementById('chat-history').addEventListener('click', (e) => {
         if (e.target.closest('[data-memory-action]')) { handleMemoryAction(e); return; }
+        if (e.target.closest('[data-schedule-key]')) { selectScheduleOption(e.target.closest('[data-schedule-key]')); return; }
+        const reason = e.target.closest('[data-feedback-reason]');
+        if (reason) { submitFeedback(reason.closest('.msg-actions'), 'dislike', reason.dataset.feedbackReason || null); return; }
+        const clarify = e.target.closest('[data-clarification-value]');
+        if (clarify) { document.getElementById('chat-input').value = decodeURIComponent(clarify.dataset.clarificationValue); send(); return; }
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         const action = btn.dataset.action;
@@ -455,17 +678,42 @@
           case 'regenerate': doRegenerate(btn); break;
           case 'confidence': doConfidence(btn); break;
           case 'plan':       doPlanAction(btn); break;
-          case 'dismiss-plan': btn.closest('.plan-card-mini')?.remove(); break;
+          case 'dismiss-plan': btn.closest('.plan-card-mini,.agent-card-action,.plan-card')?.remove(); break;
         }
       });
     }
 
     function bindPlanActions() {
       document.getElementById('plan-list').addEventListener('click', (e) => {
+        if (e.target.closest('[data-schedule-key]')) { selectScheduleOption(e.target.closest('[data-schedule-key]')); return; }
         const btn = e.target.closest('[data-action]');
         if (btn?.dataset.action === 'plan') doPlanAction(btn);
         if (btn?.dataset.action === 'dismiss-plan') btn.closest('.plan-card')?.remove();
       });
+    }
+
+    function selectScheduleOption(btn) {
+      const picker = btn.closest('.agent-schedule-picker');
+      picker.querySelectorAll('[data-schedule-key]').forEach(item => item.classList.toggle('selected', item === btn));
+      const custom = picker.querySelector('input[type="datetime-local"]');
+      custom.hidden = btn.dataset.scheduleKey !== 'custom';
+      if (!custom.hidden) custom.focus();
+    }
+
+    function selectedDueAt(btn) {
+      const scope = btn.closest('.agent-card-action,.plan-card-mini,.plan-card') || btn.parentElement;
+      const picker = scope?.querySelector('.agent-schedule-picker');
+      const key = picker?.querySelector('[data-schedule-key].selected')?.dataset.scheduleKey || 'tomorrow_morning';
+      const due = new Date();
+      if (key === 'later_today') due.setTime(due.getTime() + 2 * 3600000);
+      else if (key === 'tomorrow_morning') { due.setDate(due.getDate() + 1); due.setHours(8, 0, 0, 0); }
+      else {
+        const value = picker?.querySelector('input[type="datetime-local"]')?.value;
+        if (!value || Number.isNaN(Date.parse(value))) throw new Error('请选择复测日期和时间');
+        due.setTime(new Date(value).getTime());
+      }
+      if (due.getTime() <= Date.now()) throw new Error('复测时间必须晚于现在');
+      return { key, due_at: due.toISOString() };
     }
 
     async function doPlanAction(btn) {
@@ -474,7 +722,11 @@
       const sensitive = /用药|药物|就医|医生|家属|通知/.test(title + desc);
       const actionType = btn.dataset.actionType || (/复测|复查|测量|监测/.test(title) ? 'schedule_recheck' : /通知家属/.test(title) ? 'notify_caregiver' : /联系医生|就医/.test(title) ? 'contact_doctor' : 'create_todo');
       try {
-        const r = await API.post('/api/actions', { action_type: actionType, title, desc, kind: sensitive ? 'sensitive' : 'agent', subject_user_id: subjectId, idempotency_key: requestId() });
+        const schedule = actionType === 'schedule_recheck' ? selectedDueAt(btn) : {};
+        const metricType = btn.dataset.metricType || (/血压/.test(title + desc) ? 'bp' : /血糖/.test(title + desc) ? 'glucose' : /心率|脉搏/.test(title + desc) ? 'hr' : /体重/.test(title + desc) ? 'weight' : /睡眠/.test(title + desc) ? 'sleep' : null);
+        if (actionType === 'schedule_recheck' && !metricType) throw new Error('请先明确要复测的健康指标');
+        const r = await API.post('/api/actions', { action_type: actionType, title, desc, kind: sensitive ? 'sensitive' : 'agent', subject_user_id: subjectId,
+          metric_type: metricType, baseline_metric_id: btn.dataset.baselineMetricId ? Number(btn.dataset.baselineMetricId) : null, ...schedule, idempotency_key: requestId() });
         if (!r.requires_confirmation || !r.request?.id) throw new Error('服务端没有返回待确认行动');
         if (!window.confirm(`待确认预览已生成。确认写入“${title}”吗？系统只会创建站内记录，不会自动打电话或发短信。`)) {
           await API.post(`/api/actions/${r.request.id}/cancel`, {});
@@ -482,14 +734,10 @@
           return;
         }
         await API.post(`/api/actions/${r.request.id}/confirm`, {});
-        const actionId = r.request.id;
-        if (actionType === 'schedule_recheck' && actionId) {
-          const metricType = /血压/.test(title + desc) ? 'bp' : /血糖/.test(title + desc) ? 'glucose' : /肾功能|eGFR|肌酐/.test(title + desc) ? 'egfr' : null;
-          await API.post(`/api/actions/${actionId}/followup`, { metric_type: metricType, due_at: new Date(Date.now() + 86400000).toISOString() });
-        }
         btn.textContent = '✓';
         btn.disabled = true;
         toast('已确认并记录行动', 'success');
+        await loadInbox();
       } catch (err) { toast(err.message, 'error'); }
     }
 
@@ -511,28 +759,35 @@
       });
     }
 
-    function doLike(btn) {
+    async function submitFeedback(parent, rating, reason = null) {
+      const id = Number(parent?.dataset.msgId);
+      if (!id) { toast('这条旧消息暂不支持反馈', 'error'); return; }
+      await API.put(`/api/agent/messages/${id}/feedback`, { rating, reason });
+      parent.querySelector('[data-action="like"]')?.classList.toggle('active', rating === 'like');
+      parent.querySelector('[data-action="like"]')?.classList.toggle('like', rating === 'like');
+      parent.querySelector('[data-action="dislike"]')?.classList.toggle('active', rating === 'dislike');
+      parent.querySelector('.agent-feedback-reasons')?.remove();
+      toast('感谢反馈，已记录', 'success');
+    }
+
+    async function doLike(btn) {
       const parent = btn.closest('.msg-actions');
-      const dislikeBtn = parent?.querySelector('[data-action="dislike"]');
       const isOn = btn.classList.contains('active');
-      btn.classList.toggle('active');
-      btn.classList.toggle('like', !isOn);
-      if (!isOn && dislikeBtn?.classList.contains('active')) {
-        dislikeBtn.classList.remove('active');
-      }
-      if (!isOn) toast('感谢反馈', 'success');
+      try {
+        if (isOn) { await API.delete(`/api/agent/messages/${parent.dataset.msgId}/feedback`); btn.classList.remove('active','like'); toast('已取消反馈', 'success'); }
+        else await submitFeedback(parent, 'like');
+      } catch (error) { toast(error.message, 'error'); }
     }
 
     function doDislike(btn) {
       const parent = btn.closest('.msg-actions');
-      const likeBtn = parent?.querySelector('[data-action="like"]');
       const isOn = btn.classList.contains('active');
-      btn.classList.toggle('active');
-      if (!isOn && likeBtn?.classList.contains('active')) {
-        likeBtn.classList.remove('active');
-        likeBtn.classList.remove('like');
+      if (isOn) {
+        API.delete(`/api/agent/messages/${parent.dataset.msgId}/feedback`).then(() => { btn.classList.remove('active'); toast('已取消反馈', 'success'); }).catch(error => toast(error.message, 'error'));
+        return;
       }
-      if (!isOn) toast('已记录你的反馈', 'info');
+      parent.querySelector('.agent-feedback-reasons')?.remove();
+      parent.insertAdjacentHTML('beforeend', `<div class="agent-feedback-reasons"><strong>哪里需要改进？</strong>${['没看懂','数据不对','建议没用','没有回答问题'].map(reason => `<button data-feedback-reason="${reason}">${reason}</button>`).join('')}<button data-feedback-reason="">跳过原因</button></div>`);
     }
 
     function doTTS(btn) {
@@ -626,7 +881,12 @@
     async function loadPlan() {
       try {
         const messages = await API.get(`/api/chat/history?${agentQuery()}`);
-        const plan = [...messages].reverse().find(item => item.role === 'assistant' && item.plan?.length)?.plan || [];
+        let plan = [];
+        for (const message of [...messages].reverse()) {
+          if (message.role !== 'assistant' || !message.plan?.length) continue;
+          const usable = message.plan.map(item => normalizeVisiblePlan(item, message.content || '')).filter(isValidVisiblePlan);
+          if (usable.length) { plan = usable; break; }
+        }
         document.getElementById('plan-count').textContent = `${plan.length} 项`;
         document.getElementById('plan-today').textContent = new Date().toISOString().slice(0, 10);
         document.getElementById('plan-list').innerHTML = plan.map(p => `
@@ -635,8 +895,9 @@
             <div class="plan-card-text">
               <div class="plan-card-t" style="color:${planColorFg(p.color)}">${escapeHTML(p.title)}</div>
               <div class="plan-card-d" style="color:${planColorDesc(p.color)}">${escapeHTML(p.desc || '')}</div>
+              ${renderActionMetric({ ...p, metric_type: inferActionMetric(p) })}
             </div>
-              ${renderPlanControl(p)}
+              ${renderPlanControl({ ...p, metric_type: inferActionMetric(p) })}
           </div>
         `).join('') || '<div class="empty">暂无方案，先在左边和小康聊聊</div>';
       } catch (err) {
@@ -644,29 +905,37 @@
       }
     }
 
-    function renderQuickPrompts(mode) {
-      activeTab = mode;
-      const host = document.getElementById('quick-prompts');
-      host.innerHTML = (PROMPTS[mode] || []).map(p => `<button class="prompt" data-prompt>${escapeHTML(p)}</button>`).join('');
-      bindPrompts(host);
+    async function loadDailyTip() {
+      if (!subjectId) return;
+      const host = document.getElementById('daily-tip-content');
+      const badge = document.getElementById('daily-tip-status');
+      try {
+        const data = await API.get(`/api/agent/daily-tip?subject_user_id=${subjectId}`);
+        if (!data.tip) {
+          badge.textContent = '暂无内容';
+          badge.className = 'empty';
+          host.innerHTML = '<p>今天暂无可展示的健康贴士。</p>';
+          return;
+        }
+        const tip = data.tip;
+        badge.textContent = tip.status_label;
+        badge.className = tip.display_status === 'approved' ? 'approved' : 'preview';
+        host.innerHTML = `<h3>${escapeHTML(tip.title)}</h3><p>${escapeHTML(tip.text)}</p>
+          ${tip.why_for_you ? `<p class="agent-tip-why">为什么适合您：${escapeHTML(tip.why_for_you)}</p>` : ''}
+          <small>${escapeHTML(tip.safety_text)}</small>
+          <a href="${escapeHTML(tip.source_url)}">查看来源：${escapeHTML(tip.source_label)}</a>`;
+      } catch (error) {
+        badge.textContent = '暂不可用';
+        badge.className = 'empty';
+        host.innerHTML = '<p>贴士暂时无法读取，请稍后再试。</p>';
+      }
     }
 
-    // Tab 切换
-    document.getElementById('mode-tabs').addEventListener('click', (e) => {
-      const tab = e.target.closest('.tab');
-      if (!tab) return;
-      e.preventDefault();
-      const target = tab.dataset.tab;
-      if (activeTab === target) return;
-      activeTab = target;
-      renderQuickPrompts(target);
-      const tips = {
-        qa: '切换到问答模式，问我任何健康相关的问题。',
-        tip: '切换到贴士模式，我会给你一些日常建议。',
-        plan: '切换到方案模式，我可以给出今日的方案。',
-      };
-      appendAssistantMsg(tips[target] || '', []);
-    });
+    function renderQuickPrompts() {
+      const host = document.getElementById('quick-prompts');
+      host.innerHTML = PROMPTS.map(p => `<button class="prompt" data-prompt>${escapeHTML(p)}</button>`).join('');
+      bindPrompts(host);
+    }
 
     function planColorFg(c) {
       return { orange:'#F4A261', green:'#7FB069', purple:'#9C7BC9', red:'#E0784E', gray:'#9C8B7A' }[c] || '#F4A261';

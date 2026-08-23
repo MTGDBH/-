@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
+import { expandedKnowledgeArticles } from './lib/knowledgeExpansion.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_FILE = process.env.DB_PATH || './data/app.db';
@@ -251,6 +252,10 @@ db.exec(`
     tags TEXT,                          -- JSON 数组
     audience TEXT DEFAULT 'senior',     -- senior | caregiver
     view_count INTEGER DEFAULT 0,
+    review_status TEXT NOT NULL DEFAULT 'pending', -- pending | approved | rejected
+    review_version TEXT,
+    reviewed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    reviewed_at TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
   CREATE INDEX IF NOT EXISTS idx_knowledge_cat ON knowledge_articles(category);
@@ -413,6 +418,22 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_agent_memories_subject_status
     ON agent_memories(subject_user_id, status, updated_at DESC);
+
+  CREATE TABLE IF NOT EXISTS agent_message_feedback (
+    id INTEGER PRIMARY KEY,
+    message_id INTEGER NOT NULL REFERENCES chat_messages(id) ON DELETE CASCADE,
+    run_id INTEGER REFERENCES agent_runs(id) ON DELETE SET NULL,
+    actor_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating TEXT NOT NULL CHECK(rating IN ('like','dislike')),
+    reason TEXT,
+    intent TEXT NOT NULL DEFAULT '{}',
+    presentation_mode TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(message_id,actor_user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_agent_feedback_run ON agent_message_feedback(run_id, rating);
 `);
 
 // 兼容已有库：给 chat_messages 补置信度和证据列，确保刷新/新对话仍能显示可追溯依据
@@ -435,6 +456,24 @@ addColumnIfMissing('chat_messages', 'parent_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'supersedes_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'run_id', 'INTEGER');
 
+// 单入口智能管家：知识文章审核信息。旧文章默认待审核，只能作为研究预览。
+addColumnIfMissing('knowledge_articles', 'review_status', "TEXT NOT NULL DEFAULT 'pending'");
+addColumnIfMissing('knowledge_articles', 'review_version', 'TEXT');
+addColumnIfMissing('knowledge_articles', 'reviewed_by', 'INTEGER');
+addColumnIfMissing('knowledge_articles', 'reviewed_at', 'TEXT');
+addColumnIfMissing('knowledge_articles', 'source_label', 'TEXT');
+addColumnIfMissing('knowledge_articles', 'source_url', 'TEXT');
+db.prepare("UPDATE knowledge_articles SET review_status='pending' WHERE review_status IS NULL OR review_status NOT IN ('pending','approved','rejected')").run();
+
+// 扩展知识幂等写入；服务器重启不会重复创建，旧数据库也能获得新增内容。
+const insertExpandedArticle = db.prepare(`INSERT INTO knowledge_articles
+  (category,title,summary,body,tags,audience,view_count,review_status,review_version,source_label,source_url)
+  SELECT @category,@title,@summary,@body,@tags,@audience,@views,@review_status,@review_version,@source_label,@source_url
+  WHERE NOT EXISTS (SELECT 1 FROM knowledge_articles WHERE title=@title)`);
+db.transaction(() => {
+  for (const article of expandedKnowledgeArticles) insertExpandedArticle.run({ ...article, tags: JSON.stringify(article.tags) });
+})();
+
 // 旧对话按原 user_id 安全回填为本人历史会话，不删除、不改写原内容。
 for (const row of db.prepare('SELECT DISTINCT user_id FROM chat_messages WHERE conversation_id IS NULL').all()) {
   const legacyKey = `legacy:user:${row.user_id}`;
@@ -450,6 +489,21 @@ addColumnIfMissing('action_requests', 'subject_user_id', 'INTEGER');
 addColumnIfMissing('action_requests', 'idempotency_key', 'TEXT');
 db.prepare('UPDATE action_requests SET actor_user_id = COALESCE(actor_user_id,user_id), subject_user_id = COALESCE(subject_user_id,user_id)').run();
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_action_requests_actor_idempotency ON action_requests(actor_user_id,idempotency_key) WHERE idempotency_key IS NOT NULL');
+
+// 智能体 V3：结构化追问状态与可确认的复测随访闭环。
+addColumnIfMissing('agent_conversations', 'dialogue_state', "TEXT NOT NULL DEFAULT '{}'");
+addColumnIfMissing('followups', 'actor_user_id', 'INTEGER');
+addColumnIfMissing('followups', 'baseline_metric_id', 'INTEGER');
+addColumnIfMissing('followups', 'candidate_metric_id', 'INTEGER');
+addColumnIfMissing('followups', 'candidate_rejected_ids', "TEXT NOT NULL DEFAULT '[]'");
+addColumnIfMissing('followups', 'todo_id', 'INTEGER');
+addColumnIfMissing('followups', 'rule_version', 'TEXT');
+addColumnIfMissing('followups', 'suggested_due_at', 'TEXT');
+addColumnIfMissing('followups', 'comparison', 'TEXT');
+addColumnIfMissing('followups', 'confirmed_by', 'INTEGER');
+addColumnIfMissing('followups', 'updated_at', 'TEXT');
+db.prepare(`UPDATE followups SET actor_user_id=COALESCE(actor_user_id,user_id),
+  suggested_due_at=COALESCE(suggested_due_at,due_at),updated_at=COALESCE(updated_at,created_at)`).run();
 
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');

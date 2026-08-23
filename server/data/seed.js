@@ -1,6 +1,7 @@
 // 种子数据：写入与设计稿一致的 mock 数据
 // 运行：npm run seed
 import db from '../src/db.js';
+import { expandedKnowledgeArticles } from '../src/lib/knowledgeExpansion.js';
 
 console.log('🌱 开始填充种子数据...');
 
@@ -157,8 +158,8 @@ console.log('✓ 对话历史：3 条');
 
 // ============= 健康知识文章 =============
 const insertArt = db.prepare(`
-  INSERT INTO knowledge_articles (category, title, summary, body, tags, audience, view_count)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO knowledge_articles (category, title, summary, body, tags, audience, view_count, review_status, review_version, source_label, source_url)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 const articles = [
@@ -430,8 +431,11 @@ const articles = [
   },
 ];
 
+articles.push(...expandedKnowledgeArticles);
+
 for (const a of articles) {
-  insertArt.run(a.category, a.title, a.summary, a.body, JSON.stringify(a.tags), a.audience, a.views);
+  insertArt.run(a.category, a.title, a.summary, a.body, JSON.stringify(a.tags), a.audience, a.views,
+    a.review_status || 'pending', a.review_version || null, a.source_label || null, a.source_url || null);
 }
 console.log(`✓ 健康知识文章：${articles.length} 篇`);
 

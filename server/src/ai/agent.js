@@ -599,6 +599,10 @@ function buildLLMGraphContext(graph, includeWeeklyPlan = false) {
     safety_flags: (graph?.safety_flags || []).filter(item => item.level === 'urgent').slice(0, 2),
     weekly_plan: includeWeeklyPlan ? (graph?.weekly_plan || []).slice(0, 2) : [],
     uncertainty: graph?.uncertainty || null,
+    research_relationships: (graph?.relationship_candidates || []).slice(0, 3).map(item => ({
+      path: item.node_labels || [], explanation: item.allowed_expression || '',
+      status: '测试版研究预览', direct_causality_proven: false, not_for_actions: true,
+    })),
   };
 }
 
@@ -606,7 +610,7 @@ function buildLLMGraphContext(graph, includeWeeklyPlan = false) {
 function applyGraphGrounding(result, graph, options = {}) {
   const recLimit = options.audience === 'doctor' ? 2 : 1;
   const recs = Array.isArray(graph?.recommendations) ? graph.recommendations.slice(0, recLimit) : [];
-  const hasGraphEvidence = Boolean(graph?.results?.length || graph?.graph_context?.length || graph?.graph_paths?.length);
+  const hasGraphEvidence = Boolean(graph?.results?.length || graph?.graph_context?.length || graph?.graph_paths?.length || graph?.relationship_candidates?.length);
   if (!hasGraphEvidence) return result;
   const relations = (graph.graph_context || [])
     .filter(r => r.type && r.type !== 'mentions' && r.strength)
@@ -635,7 +639,10 @@ function applyGraphGrounding(result, graph, options = {}) {
   }) : null;
   const relationText = matchingRelation && !baseContent.includes(matchingRelation.target)
     ? `\n关系依据：${matchingRelation.source}与${matchingRelation.target}${matchingRelation.meaning}。` : '';
-  const grounded = `${baseContent}${relationText}${urgentText.length ? `\n安全提醒：${urgentText[0]}` : ''}`;
+  const research = (graph?.relationship_candidates || []).slice(0, 2);
+  const researchText = options.relationshipQuestion && research.length
+    ? `\n测试版关联发现：${research.map(item => (item.node_labels || []).join(' → ')).join('；')}。这是间接关联线索，尚未证明直接因果。` : '';
+  const grounded = `${baseContent}${relationText}${researchText}${urgentText.length ? `\n安全提醒：${urgentText[0]}` : ''}`;
   const plan = recs.map((r, i) => ({
     icon: r.priority === 'urgent' ? '急' : '测',
     title: r.priority === 'urgent' ? '立即关注' : r.priority === 'high' ? '尽快复测' : '继续记录',
@@ -654,6 +661,7 @@ function applyGraphGrounding(result, graph, options = {}) {
       citations: citationItems.slice(0, 6),
       paths: (graph.graph_paths || []).slice(0, 6),
       relations,
+      research_relationships: research.map(item => ({ labels: item.node_labels || [], explanation: item.allowed_expression, status: '测试版研究预览', not_for_actions: true })),
       weekly_plan: options.includeWeeklyPlan || options.audience === 'doctor' ? (graph.weekly_plan || []).slice(0, 7) : [],
       personalization: graph.personalization || null,
       uncertainty: graph.uncertainty || null,

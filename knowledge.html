@@ -31,6 +31,17 @@
       <div class="tags" id="popular-tags" style="margin-top:0"></div>
 
       <div id="article-list" class="article-grid"></div>
+
+      <section id="relationship-lab" hidden style="margin-top:32px;background:#fff;border:1px solid #eadfd3;border-radius:20px;padding:24px;">
+        <div style="display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <h2 style="margin:0 0 8px;font-size:24px;">图谱关联发现</h2>
+            <p style="margin:0;color:var(--c-text-muted);font-size:16px;">测试版已启用。帮助发现跨主题的间接关联，但不代表直接因果。</p>
+          </div>
+          <button id="refresh-relations" class="btn btn-ghost" type="button">按当前关键词发现关系</button>
+        </div>
+        <div id="relationship-list" style="margin-top:18px;"></div>
+      </section>
     </section>
 
     <!-- 详情模式 -->
@@ -58,8 +69,13 @@
       } else {
         bindFilter();
         bindSearch();
+        const initialQ = params.get('q') || '';
+        document.getElementById('search').value = initialQ;
         await loadPopularTags();
         await loadList();
+        document.getElementById('relationship-lab').hidden = false;
+        document.getElementById('refresh-relations').addEventListener('click', loadRelationshipCandidates);
+        await loadRelationshipCandidates();
       }
     }
 
@@ -98,7 +114,10 @@
         }
         list.innerHTML = items.map(a => `
           <a class="article-card ${a.category}" href="knowledge.html?id=${a.id}">
-            <span class="category-tag">${categoryName(a.category)}</span>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <span class="category-tag">${categoryName(a.category)}</span>
+              <span style="font-size:13px;font-weight:700;color:${a.review_status === 'approved' ? '#356b3f' : '#8a5a22'};">${reviewName(a.review_status)}</span>
+            </div>
             <div class="title">${escapeHTML(a.title)}</div>
             <div class="summary">${escapeHTML(a.summary || '')}</div>
             <div class="meta">
@@ -108,6 +127,31 @@
         `).join('');
       } catch (err) {
         list.innerHTML = `<div class="empty">读取失败：${escapeHTML(err.message)}</div>`;
+      }
+    }
+
+    async function loadRelationshipCandidates() {
+      const host = document.getElementById('relationship-list');
+      const q = document.getElementById('search').value.trim();
+      host.innerHTML = '<div class="loading-page"><span class="loading"></span> 正在寻找跨主题关联…</div>';
+      try {
+        const qs = new URLSearchParams();
+        if (q) qs.set('q', q);
+        const data = await API.get('/api/knowledge/graph/relationship-candidates?' + qs);
+        if (!data.items?.length) {
+          host.innerHTML = '<div class="empty">当前关键词下没有新的两跳关系候选。可换一个主题再试。</div>';
+          return;
+        }
+        host.innerHTML = data.items.slice(0, 6).map(item => {
+          const labels = item.node_labels || [];
+          return `<article style="padding:16px 0;border-top:1px solid #eee3d8;">
+            <div style="font-size:18px;font-weight:700;line-height:1.6;">${labels.map(escapeHTML).join(' → ')}</div>
+            <div style="margin-top:6px;font-size:14px;color:#8a5a22;font-weight:700;">测试版研究预览 · 间接关联</div>
+            <p style="margin:8px 0 0;color:var(--c-text-muted);font-size:15px;line-height:1.7;">${escapeHTML(item.allowed_expression || '这是关联线索，尚未证明直接因果。')}</p>
+          </article>`;
+        }).join('') + `<p style="font-size:14px;color:var(--c-text-muted);margin:14px 0 0;">${escapeHTML(data.disclaimer || '')}</p>`;
+      } catch (err) {
+        host.innerHTML = `<div class="empty">关系发现失败：${escapeHTML(err.message)}</div>`;
       }
     }
 
@@ -138,6 +182,10 @@
             <h1 style="font-size:30px;color:var(--c-text);font-family:var(--font-cn);margin:12px 0 6px;font-weight:700">${escapeHTML(a.title)}</h1>
             <div style="color:var(--c-text-muted);font-size:14px;font-family:var(--font-cn);margin-bottom:16px">${a.view_count} 次浏览</div>
           </header>
+          <div style="padding:14px 16px;border-radius:14px;background:${a.review_status === 'approved' ? '#edf6ea' : '#fff5e8'};margin-bottom:18px;font-size:16px;line-height:1.7;">
+            <strong>${reviewName(a.review_status)}</strong>：${a.review_status === 'approved' ? '内容已通过项目医学审核。' : '内容尚待项目医学审核，仅用于健康教育研究预览，不替代诊断或用药建议。'}
+            ${a.source_url ? `<br>来源：<a href="${safeURL(a.source_url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(a.source_label || '查看权威来源')}</a>` : ''}
+          </div>
           ${tags ? `<div class="tags">${tags}</div>` : ''}
           ${markdownToHTML(a.body)}
         `;
@@ -148,6 +196,11 @@
 
     function categoryName(c) {
       return { topic: '科普', qa: '问答', tip: '贴士' }[c] || c;
+    }
+    function reviewName(status) { return status === 'approved' ? '已审核' : status === 'rejected' ? '已退回' : '研究预览'; }
+    function safeURL(value) {
+      try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? escapeHTML(url.href) : '#'; }
+      catch { return '#'; }
     }
 
     // 简易 markdown → HTML（处理 ##、**、-、表格）

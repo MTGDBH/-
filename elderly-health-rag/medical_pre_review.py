@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 OUTPUT = ROOT / 'output'
-INDEX_VERSION = '2026-08-21.v6'
+INDEX_VERSION = '2026-08-23.v7'
 
 SAFE_EDUCATION_TYPES = {
     'measured_by', 'monitoring_signal', 'has_risk_factor', 'has_nonmodifiable_factor',

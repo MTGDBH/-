@@ -17,7 +17,8 @@ def main():
     doctor = query('doctor')
     failures = []
     if elderly.get('medical_gate', {}).get('audience') != 'elderly': failures.append('elderly audience not recorded')
-    if elderly.get('retrieval_trace', {}).get('pre_review_count') != 83: failures.append('pre-review count missing')
+    expected_pre_review = len(json.loads((ROOT / 'output' / 'medical_pre_review.json').read_text(encoding='utf-8')).get('relations', []))
+    if elderly.get('retrieval_trace', {}).get('pre_review_count') != expected_pre_review: failures.append('pre-review count missing')
     for path in elderly.get('graph_paths') or []:
         if path.get('ai_pre_review_status') == 'needs_clinician_confirmation' and path.get('relation') not in {'urgent_signal', 'emergency_action'}:
             failures.append(f"blocked relation leaked to elderly graph path: {path.get('relation')}")

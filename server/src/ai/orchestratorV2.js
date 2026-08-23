@@ -11,15 +11,17 @@ import { getDeviceStatus } from './tools/deviceStatus.js';
 import { getHealthSummary } from './tools/healthSummary.js';
 import { getAlertStatus } from './tools/alertStatus.js';
 import { queryKnowledgeGraph } from './tools/knowledgeGraph.js';
+import { getFollowupStatus } from './tools/followupStatus.js';
 import { canActFor } from '../lib/intake.js';
 import { buildAgentPresentation, presentationGroundingText } from './presentation.js';
+import { localizeVisibleText, metricName } from './elderlyLanguage.js';
 
 const MAX_TOOL_CALLS = 3;
 const MAX_CONTEXT_TOKENS = 12000;
 const MEMORY_CATEGORIES = new Set(['communication', 'schedule', 'diet', 'activity_limit', 'care_support', 'goal']);
 const TOOL_LABELS = {
   health_trend: '健康趋势', htn_risk: '高血压风险筛查', disease_risk: '疾病风险筛查',
-  behavior: '睡眠与活动', device: '设备状态', health_summary: '健康摘要', alerts: '待处理预警', knowledge: '知识依据',
+  behavior: '睡眠与活动', device: '设备状态', health_summary: '健康摘要', alerts: '待处理预警', knowledge: '知识依据', followup_status: '复测随访',
 };
 
 export const AGENT_TOOL_POLICIES = Object.freeze({
@@ -31,6 +33,7 @@ export const AGENT_TOOL_POLICIES = Object.freeze({
   health_summary: { display_name: '健康摘要', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
   alerts: { display_name: '待处理预警', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
   knowledge: { display_name: '知识依据', level: 'read', subject_bound: true, timeout_ms: 5000, cache: 'run+index_version', input_schema: { question: 'string:max500', disease: 'enum|null' } },
+  followup_status: { display_name: '复测随访', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
 });
 
 function stable(value) {
@@ -81,7 +84,9 @@ export function emergencyReply(message) {
 
 function metricNames(message) {
   const metrics = [];
-  if (/血压|高压|低压|收缩压|舒张压/.test(message)) metrics.push('systo', 'diasto');
+  const high = /高压|收缩压/.test(message), low = /低压|舒张压/.test(message);
+  if (/血压/.test(message) || (high && low)) metrics.push('systo', 'diasto');
+  else if (high) metrics.push('systo'); else if (low) metrics.push('diasto');
   if (/血糖/.test(message)) metrics.push('glucose');
   if (/心率|脉搏/.test(message)) metrics.push('pulse');
   if (/体重/.test(message)) metrics.push('weight');
@@ -90,40 +95,58 @@ function metricNames(message) {
 }
 
 function diseaseFromMessage(message) {
+  if (/高血压|血压/.test(message)) return 'hypertension';
   if (/糖尿病|血糖/.test(message)) return 'diabetes';
   if (/脑卒中|中风/.test(message)) return 'stroke';
   if (/心脏病|心血管/.test(message)) return 'heart_disease';
-  return 'hypertension';
+  if (/慢性肾|肾功能|肾脏|肌酐|尿白蛋白/.test(message)) return 'chronic_kidney_disease';
+  if (/衰弱|跌倒|握力|营养不良/.test(message)) return 'frailty';
+  return null;
 }
 
 export function classifyAgentIntent(message) {
   const routed = routeIntent(message);
+  const dailyPlanHit = /(?:生成|制定|看看|给我).{0,8}(?:今日|今天).{0,6}(?:健康)?方案|(?:今日|今天).{0,6}(?:健康)?方案/.test(message);
+  const dailyTipHit = /(?:今日|今天|日常).{0,8}(?:健康|养生)?贴士|养生建议|今天.{0,6}(?:注意什么|该注意什么)/.test(message);
   const trendHit = routed.trend || /(血压|血糖|心率|体重).{0,8}(偏高|偏低|异常|怎么样)/.test(message);
   const riskHit = routed.risk;
   const diseaseRiskHit = routed.diseaseRisk;
-  const graphRelationHit = /关系|相关|影响|为什么|怎么办|建议|注意|正常范围|是什么/.test(message);
+  const graphRelationHit = dailyTipHit || /关系|相关|影响|为什么|怎么办|建议|注意|正常范围|是什么|介绍|概念|科普|如何/.test(message);
+  const detectedMetrics = metricNames(message);
+  const knowledgeOnlyRelation = graphRelationHit && !detectedMetrics.length && !/(最近|近\d+天|趋势|这次测量)/.test(message);
+  const followupHit = /(复测|随访).{0,10}(安排|结果|任务|到期|完成|怎么样)|(安排|结果|任务|到期|完成).{0,10}(复测|随访)/.test(message);
   return {
-    ...routed, trendHit, riskHit, diseaseRiskHit, graphRelationHit,
-    behaviorHit: routed.behavior && !/关系|相关|影响/.test(message),
-    deviceHit: routed.device, alertsHit: routed.alerts, healthSummaryHit: routed.healthSummary,
+    ...routed, trendHit: dailyTipHit || knowledgeOnlyRelation ? false : trendHit, riskHit: dailyTipHit ? false : riskHit, diseaseRiskHit: dailyTipHit ? false : diseaseRiskHit, graphRelationHit, followupHit,
+    dailyPlanHit, dailyTipHit,
+    behaviorHit: dailyPlanHit || (routed.behavior && !/关系|相关|影响/.test(message)),
+    deviceHit: routed.device, alertsHit: dailyPlanHit || routed.alerts, healthSummaryHit: dailyPlanHit || routed.healthSummary,
     actionHit: routed.action, forecastRequested: /未来|预测|外推|以后会/.test(message),
-    trendMetrics: metricNames(message), disease: diseaseFromMessage(message),
+    trendMetrics: detectedMetrics, disease: diseaseFromMessage(message),
   };
 }
 
-export function planAgentTools(intent, message) {
+export function planAgentTools(intent, message, { limit = true } = {}) {
   const plan = [];
   const add = (name, args = {}) => { if (!plan.some(item => item.name === name)) plan.push({ name, args }); };
+  if (intent.dailyPlanHit) {
+    add('health_summary'); add('alerts'); add('behavior');
+    return limit ? plan.slice(0, MAX_TOOL_CALLS) : plan;
+  }
+  if (intent.dailyTipHit) {
+    add('knowledge', { question: String(message).slice(0, 500), disease: null });
+    return plan;
+  }
   // 风险模型优先于曲线，保证单轮最多一个 Python 模型任务。
   if (intent.diseaseRiskHit) add('disease_risk', { disease: intent.disease });
   else if (intent.riskHit) add('htn_risk');
-  else if (intent.trendHit) add('health_trend', { metrics: intent.trendMetrics.length ? intent.trendMetrics : ['systo', 'diasto'], days: 90 });
+  else if (intent.trendHit) add('health_trend', { metrics: intent.trendMetrics.length ? intent.trendMetrics : ['systo', 'diasto'], days: intent.days || 90 });
   if (intent.healthSummaryHit) { add('health_summary'); add('alerts'); }
   else if (intent.alertsHit) add('alerts');
   if (intent.behaviorHit) add('behavior');
   if (intent.deviceHit) add('device');
+  if (intent.followupHit) add('followup_status');
   if (intent.graphRelationHit) add('knowledge', { question: String(message).slice(0, 500), disease: intent.disease });
-  return plan.slice(0, MAX_TOOL_CALLS);
+  return limit ? plan.slice(0, MAX_TOOL_CALLS) : plan;
 }
 
 const REGISTRY = {
@@ -135,6 +158,7 @@ const REGISTRY = {
   health_summary: { retry: 1, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.latest) && Number.isFinite(Number(x.data_points)), run: ctx => getHealthSummary(ctx.subject) },
   alerts: { retry: 1, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.alerts) && Number.isFinite(Number(x.pending)), run: ctx => getAlertStatus(ctx.subject.id) },
   knowledge: { retry: 1, timeout_ms: 5000, validate: x => Array.isArray(x?.results) && Array.isArray(x?.citations) && typeof x?.index_version === 'string', run: (ctx, args) => queryKnowledgeGraph(args.question, args.disease, ctx.liveContext, { audience: ctx.audience, topK: 6, maxHops: 2, includeTrace: true }) },
+  followup_status: { retry: 1, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.items) && Number.isFinite(Number(x.total)), run: ctx => getFollowupStatus(ctx.subject.id) },
 };
 
 function timeout(promise, ms) {
@@ -163,6 +187,13 @@ function toolManifest(result) {
   };
 }
 
+function readableKnowledgeCitation(row = {}) {
+  const publisher = String(row.publisher || '').trim();
+  const year = String(row.publication_year || '').trim();
+  if (publisher) return `${publisher}${year ? `（${year}）` : ''}`;
+  return '健康知识来源';
+}
+
 function modelResultView(name, result) {
   if (name === 'health_trend') return {
     success: result.success,
@@ -180,10 +211,19 @@ function modelResultView(name, result) {
   if (name === 'knowledge') return {
     query: result.query, disease: result.disease, index_version: result.index_version,
     results: (result.results || []).slice(0, 6).map(row => ({
-      text: String(row.text || '').slice(0, 600), citation: row.citation, evidence_level: row.evidence_level,
+      text: String(row.text || '').slice(0, 600), citation: readableKnowledgeCitation(row), evidence_level: row.evidence_level,
       publisher: row.publisher, publication_year: row.publication_year, review_status: row.review_status,
     })),
-    citations: (result.citations || []).slice(0, 6), safety_flags: result.safety_flags || [], uncertainty: result.uncertainty || null,
+    citations: (result.citations || []).slice(0, 6).map(row => ({
+      label: readableKnowledgeCitation(row), url: row.source_url || row.url || null,
+      publisher: row.publisher || null, publication_year: row.publication_year || null,
+      evidence_level: row.evidence_level || null, review_status: row.review_status || null,
+    })),
+    research_relationships: (result.relationship_candidates || []).slice(0, 3).map(row => ({
+      labels: row.node_labels || [], explanation: row.allowed_expression,
+      status: '测试版研究预览', direct_causality_proven: false, not_for_actions: true,
+    })),
+    safety_flags: result.safety_flags || [], uncertainty: result.uncertainty || null,
   };
   return result;
 }
@@ -219,7 +259,8 @@ async function executeOne(runId, callIndex, item, ctx, dataVersion) {
 function subjectDataVersion(subjectId) {
   const metric = db.prepare('SELECT COUNT(*) AS n,MAX(recorded_at) AS at FROM metrics WHERE user_id = ?').get(subjectId);
   const alert = db.prepare('SELECT COUNT(*) AS n,MAX(created_at) AS at FROM alerts WHERE user_id = ?').get(subjectId);
-  return hash({ metric, alert });
+  const followup = db.prepare('SELECT COUNT(*) AS n,MAX(updated_at) AS at FROM followups WHERE user_id=?').get(subjectId);
+  return hash({ metric, alert, followup });
 }
 
 function relevantTypes(message, intent) {
@@ -363,7 +404,8 @@ export function createMemoryCandidate(subjectId, actorId, sourceMessageId, messa
 }
 
 function actionPreview(message) {
-  if (!/(帮我|安排|提醒|待办|复测|通知家属|联系医生)/.test(message)) return [];
+  // 查询复测状态不等于要求创建复测；只有明确行动表达才生成写入预览。
+  if (!/(帮我|请.{0,6}(?:安排|创建|设置|提醒|通知)|安排|提醒我|创建待办|设置提醒|通知家属|联系医生|我要复测|想复测|复测一下)/.test(message)) return [];
   const actionType = /通知家属/.test(message) ? 'notify_caregiver' : /联系医生|就医/.test(message) ? 'contact_doctor' : /复测|测血压|测血糖/.test(message) ? 'schedule_recheck' : 'create_todo';
   return [{ icon: '待', color: 'orange', action_type: actionType, title: String(message).replace(/^帮我/, '').slice(0, 80) || '健康待办', desc: '确认后才会写入，不会自动通知外部人员', requires_confirmation: true }];
 }
@@ -375,20 +417,35 @@ function deterministicReply(message, toolResults, intent) {
   const trend = ok.find(item => item.name === 'health_trend')?.result;
   if (trend) {
     const rows = trend.metrics || [];
-    const words = rows.map(row => `${row.metric}：${row.status === 'ok' ? ({ rising: '总体上升', falling: '总体下降', stable: '总体稳定' }[row.long_term_trend] || '已有趋势') : '数据不足'}`);
+    const words = rows.map(row => `${metricName(row.metric)}：${row.status === 'ok' ? ({ rising: '总体上升', falling: '总体下降', stable: '总体稳定' }[row.long_term_trend] || '已有趋势') : '数据不足'}`);
     return { content: `根据当前账户的真实记录，${words.join('；') || '暂时没有足够数据判断趋势'}。这不是诊断，异常读数请按同一条件复测。`, plan: [{ icon: '测', title: '继续规范记录', desc: '固定时间和测量条件，出现不适及时就医', color: 'orange', action_type: 'schedule_recheck' }], confidence: { type: 'data', score: 80, sources: ['健康趋势工具'], reasoning: '由后端趋势工具直接生成' } };
   }
   const alerts = ok.find(item => item.name === 'alerts')?.result;
   if (alerts && intent.alertsHit) return { content: alerts.pending ? `目前有 ${alerts.pending} 条待处理提醒${alerts.critical ? `，其中 ${alerts.critical} 条为严重提醒` : ''}。请优先查看严重项目。` : '目前没有待处理提醒。请继续按计划记录健康数据。', plan: [], confidence: { type: 'data', score: 90, sources: ['站内预警'], reasoning: '读取当前老人待处理预警' } };
   const summary = ok.find(item => item.name === 'health_summary')?.result;
+  if (intent.dailyPlanHit && summary) {
+    const alerts = ok.find(item => item.name === 'alerts')?.result;
+    const actions = [];
+    if (alerts?.pending) actions.push({ icon: '看', title: '先查看待处理提醒', desc: `目前有 ${alerts.pending} 项待处理，请优先查看严重项目`, color: alerts.critical ? 'red' : 'orange', action_type: null });
+    actions.push({ icon: '记', title: '继续规律记录', desc: '固定时间和测量条件，保留连续记录', color: 'green', action_type: null });
+    return { content: `已读取近${summary.window_days || 90}天的健康记录，并整理了今天最重要的事项。${summary.missing_common_metrics?.length ? `目前还缺少${summary.missing_common_metrics.map(metricName).join('、')}记录。` : '常用指标记录较完整。'}`, plan: actions.slice(0, 2), confidence: { type: 'data', score: 82, sources: ['健康摘要', '待处理预警', '睡眠与活动'], reasoning: '根据当前老人的实时健康信息生成' } };
+  }
   if (summary) return { content: `已读取近${summary.window_days || 90}天健康记录，共 ${summary.data_points || 0} 条。${summary.missing_common_metrics?.length ? `还缺少：${summary.missing_common_metrics.join('、')}。` : '常用指标记录较完整。'}请先处理待办预警，再继续规律测量。`, plan: [], confidence: { type: 'data', score: 82, sources: ['健康摘要工具'], reasoning: '读取当前老人实时健康摘要' } };
   const risk = ok.find(item => ['htn_risk', 'disease_risk'].includes(item.name))?.result;
   if (risk) return { content: risk.existing_diagnosis ? '相关疾病已记录为确诊状态，本次不计算新发概率，转为日常管理和复诊提醒。' : `风险工具已完成筛查，当前分层为${risk.risk_tier || risk.risk_level || '证据有限'}。精确概率只有在模型通过准入门槛时才展示，这不是诊断。`, plan: [], confidence: { type: 'data', score: 75, sources: ['疾病风险筛查工具'], reasoning: '使用通过后端门禁的模型结果' } };
+  const followups = ok.find(item => item.name === 'followup_status')?.result;
+  if (followups) return { content: followups.total ? `目前有 ${followups.total} 项复测随访，其中 ${followups.due} 项已到期，${followups.overdue} 项已逾期，${followups.pending_confirmation} 项有待确认的新测量。` : '目前没有待处理的复测随访。', plan: [], confidence: { type: 'data', score: 90, sources: ['复测随访工具'], reasoning: '读取当前老人的实时随访状态' } };
+  const knowledge = ok.find(item => item.name === 'knowledge')?.result;
+  if (knowledge) {
+    const links = (knowledge.research_relationships || []).slice(0, 2).map(row => (row.labels || []).join(' → ')).filter(Boolean);
+    const preview = links.length ? `测试版还发现了可能的间接关联：${links.join('；')}。这些关系用于拓展观察方向，尚未证明直接因果。` : '';
+    return { content: `${knowledge.results?.[0]?.text || '已读取相关健康知识。'}${preview}`, plan: [], confidence: { type: 'data', score: 68, sources: ['健康知识', ...(knowledge.citations || []).map(row => row.label).slice(0, 2)], reasoning: '基于可追溯知识来源，并包含明确标记的测试版间接关联' } };
+  }
   return { content: '我已读取与你问题相关的实时信息，并整理了最重要的结论。工具结果仅用于健康管理，不替代医生判断。', plan: actionPreview(message), confidence: { type: 'data', score: 70, sources: ok.map(item => item.label), reasoning: '基于后端已校验工具结果' } };
 }
 
 function normalizeOutputPhrases(value) {
-  return String(value || '')
+  return localizeVisibleText(value)
     .replace(/高压（高压）/g, '高压')
     .replace(/低压（低压）/g, '低压')
     .replace(/现在[：:]\s*现在[：:]/g, '现在：')
@@ -396,9 +453,9 @@ function normalizeOutputPhrases(value) {
     .trim();
 }
 
-export async function runAgentV2({ actor, subject, conversation, message, clientRequestId, userMessageId }) {
+export async function runAgentV2({ actor, subject, conversation, message, clientRequestId, userMessageId, intentOverride = null }) {
   const started = Date.now();
-  const intent = classifyAgentIntent(message);
+  const intent = intentOverride || classifyAgentIntent(message);
   const runInsert = db.prepare(`INSERT INTO agent_runs (conversation_id,actor_user_id,subject_user_id,client_request_id,intent)
     VALUES (?,?,?,?,?)`).run(conversation.id, actor.id, subject.id, clientRequestId || null, JSON.stringify(intent));
   const runId = Number(runInsert.lastInsertRowid);
@@ -441,7 +498,14 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   }
   const previews = actionPreview(message);
   if (previews.length) response.plan = previews;
+  response.plan = (response.plan || []).slice(0, 2);
   response.content = normalizeOutputPhrases(response.content);
+  const activeKnowledge = toolResults.find(item => item.name === 'knowledge' && item.status === 'success')?.result || null;
+  const activeResearchRelations = (activeKnowledge?.research_relationships || []).slice(0, 2);
+  if (intent.graphRelationHit && activeResearchRelations.length && !/测试版关联发现|间接关联线索/.test(response.content)) {
+    const paths = activeResearchRelations.map(row => (row.labels || []).join(' → ')).filter(Boolean);
+    if (paths.length) response.content = `${response.content}\n测试版关联发现：${paths.join('；')}。这是间接关联线索，尚未证明直接因果。`;
+  }
   let presentation = buildAgentPresentation({ response, toolResults, liveContext, intent, subject, actor, message });
   if (presentation.mode !== 'plain' && !groundedNumbersMatch(presentationGroundingText(presentation), toolResults, liveContext)) {
     const fallback = deterministicReply(message, toolResults, intent);
@@ -451,8 +515,15 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   }
   const memoryCandidate = emergency ? null : createMemoryCandidate(subject.id, actor.id, userMessageId, message);
   const trace = toolResults.map(item => ({ name: item.name, label: item.label, status: item.status, latency_ms: item.latency_ms, freshness: item.manifest?.freshness || null, error_code: item.error_code || null }));
+  const knowledgeEvidence = activeKnowledge;
+  const mergedEvidence = knowledgeEvidence ? {
+    ...knowledgeEvidence,
+    ...(response.evidence || {}),
+    research_relationships: knowledgeEvidence.research_relationships || [],
+  } : response.evidence;
   response = {
     ...response,
+    evidence: mergedEvidence,
     run_id: runId,
     conversation_id: conversation.id,
     tool_trace: trace,
