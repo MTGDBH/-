@@ -25,10 +25,14 @@
         </div>
       </div>
       <div class="greeting-right">
-        <span class="pill pill-warm">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" fill="#F4A261"/><path d="M10 2 L10 3.5 M10 16.5 L10 18 M2 10 L3.5 10 M16.5 10 L18 10 M4.2 4.2 L5.3 5.3 M14.7 14.7 L15.8 15.8 M15.8 4.2 L14.7 5.3 M5.3 14.7 L4.2 15.8" stroke="#F4A261" stroke-width="1.8" stroke-linecap="round"/></svg>
-          晴 26°/19° 适宜散步
-        </span>
+        <div class="weather-widget">
+          <button class="pill pill-warm weather-button" id="weather-button" type="button" aria-label="获取当前位置天气">
+            <span class="weather-icon" id="weather-icon" aria-hidden="true">☀</span>
+            <span id="weather-text">获取当前位置天气</span>
+            <span class="weather-refresh" aria-hidden="true">↻</span>
+          </button>
+          <span class="weather-location" id="weather-location">点击定位；位置仅用于本次天气查询</span>
+        </div>
         <span class="pill pill-green">
           <span class="pill-dot"></span>
           数据实时同步
@@ -149,6 +153,7 @@
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/weather.js"></script>
   <script>
     document.addEventListener('auth:ready', (e) => {
       const u = e.detail;
@@ -156,6 +161,7 @@
       loadSummary();
       loadTodos();
       loadAlerts();
+      WeatherWidget.init();
     });
     Auth.init();
 

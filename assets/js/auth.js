@@ -43,6 +43,9 @@
             `).join('')}
           </nav>
           <div class="topbar-right">
+            <button type="button" class="icon-theme" data-theme-toggle aria-label="切换到深色模式" aria-pressed="false" title="切换到深色模式">
+              <span data-theme-icon aria-hidden="true">月</span>
+            </button>
             <a href="alerts.html" class="icon-bell" title="预警中心" aria-label="预警中心">
               🔔
               <span class="bell-badge" data-alert-badge hidden></span>
@@ -59,6 +62,7 @@
       </header>
     `;
 
+    window.Theme?.syncButton?.();
     loadAlertCount();
   }
 

@@ -6,11 +6,11 @@
   <title>智能管家 · 小康·健康管家</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
+<body class="agent-page">
   <div id="app-nav"></div>
 
   <main class="main agent-main">
-    <header class="page-head agent-page-head" style="display:flex;justify-content:space-between;align-items:flex-end">
+    <header class="page-head agent-page-head">
       <div>
         <h1>智能管家</h1>
         <p class="subtitle">直接说出您的问题，小康会自动选择合适的健康能力</p>
@@ -19,24 +19,43 @@
     </header>
 
     <section class="agent-context-bar" aria-label="智能体上下文">
-      <label id="agent-subject-wrap" hidden>选择老人
-        <select id="agent-subject"></select>
-      </label>
-      <label>当前对话
-        <select id="agent-conversation"></select>
-      </label>
-      <button type="button" class="btn btn-secondary" id="agent-new-conversation">＋ 新对话</button>
-      <button type="button" class="btn btn-ghost" id="agent-memory-button">已记住的信息</button>
+      <div class="agent-context-fields">
+        <label id="agent-subject-wrap" hidden>选择老人
+          <select id="agent-subject"></select>
+        </label>
+        <label>当前对话
+          <select id="agent-conversation"></select>
+        </label>
+      </div>
+      <div class="agent-context-actions">
+        <button type="button" class="btn btn-secondary" id="agent-new-conversation">＋ 新对话</button>
+        <button type="button" class="btn btn-ghost" id="agent-memory-button">已记住的信息</button>
+      </div>
       <span class="agent-context-note" id="agent-context-note">健康数据每次实时读取，不使用过期预测</span>
+    </section>
+
+    <section class="agent-layout-toolbar" aria-label="工作区布局">
+      <div class="agent-layout-copy"><strong>工作区大小</strong><span>拖动中间边界调整宽度，拖动下方边界统一调整高度</span></div>
+      <div class="agent-layout-presets" role="group" aria-label="选择工作区比例">
+        <button type="button" data-agent-layout-ratio="0.72">对话优先</button>
+        <button type="button" data-agent-layout-ratio="0.64" class="active">均衡布局</button>
+        <button type="button" data-agent-layout-ratio="0.56">辅助区优先</button>
+        <button type="button" id="agent-height-decrease" aria-label="降低左右工作区高度">高度－</button>
+        <button type="button" id="agent-height-increase" aria-label="增加左右工作区高度">高度＋</button>
+        <button type="button" id="agent-layout-reset">恢复自适应</button>
+      </div>
     </section>
 
     <section class="agent-row">
       <div class="chat-area">
+        <header class="agent-chat-head"><div><span>健康对话</span><h2>和小康聊一聊</h2></div><small>按问题实时读取相关健康数据</small></header>
         <div class="chat-history" id="chat-history"></div>
-        <div class="quick-prompts" id="quick-prompts"></div>
-        <div class="chat-input-bar">
-          <input class="input chat-input" id="chat-input" placeholder="你想问点什么…" />
-          <button class="btn-icon" id="btn-send" style="background:var(--c-primary);color:#fff;border:none">→</button>
+        <div class="agent-chat-composer">
+          <div class="quick-prompts" id="quick-prompts"></div>
+          <div class="chat-input-bar">
+            <input class="input chat-input" id="chat-input" placeholder="你想问点什么…" />
+            <button class="btn-icon" id="btn-send" style="background:var(--c-primary);color:#fff;border:none">→</button>
+          </div>
         </div>
       </div>
 
@@ -44,7 +63,12 @@
         <span aria-hidden="true">⋮</span>
       </div>
 
-      <div class="plan-area">
+      <aside class="plan-area" aria-label="今日健康辅助区">
+        <div class="plan-header">
+          <div><span class="agent-side-eyebrow">今日辅助</span><span class="plan-title">今日健康安排</span></div>
+          <span class="plan-badge" id="plan-count">— 项</span>
+        </div>
+        <div class="plan-sub">AI 实时生成 · <span id="plan-today">—</span></div>
         <section class="agent-inbox agent-inbox-sidebar" id="agent-inbox" aria-live="polite" hidden>
           <button type="button" class="agent-inbox-head" id="agent-inbox-toggle" aria-expanded="false" aria-controls="agent-inbox-list">
             <div><span>站内主动提醒</span><h2>待处理健康事项</h2></div>
@@ -53,18 +77,14 @@
           </button>
           <div class="agent-inbox-list" id="agent-inbox-list"></div>
         </section>
-        <div class="plan-header">
-          <span class="plan-title">今日方案</span>
-          <span class="plan-badge" id="plan-count">— 项</span>
-        </div>
-        <div class="plan-sub">AI 实时生成 · <span id="plan-today">—</span></div>
         <div id="plan-list"></div>
         <section class="agent-daily-tip" id="agent-daily-tip" aria-live="polite">
           <div class="agent-daily-tip-head"><div><span>健康知识</span><h2>今日健康贴士</h2></div><strong id="daily-tip-status">读取中</strong></div>
           <div id="daily-tip-content" class="agent-daily-tip-content"><span class="loading"></span> 正在准备今日贴士…</div>
         </section>
-      </div>
+      </aside>
     </section>
+    <div class="agent-workspace-height-resizer" id="agent-workspace-height-resizer" role="separator" aria-label="统一调整左右工作区高度" aria-orientation="horizontal" aria-valuemin="560" aria-valuemax="1100" tabindex="0" title="上下拖动调整工作区高度，双击恢复默认"><span aria-hidden="true">上下调整</span></div>
     <section class="agent-memory-panel" id="agent-memory-panel" hidden>
       <div class="agent-memory-head"><div><h2>已记住的信息</h2><p>只保存你确认过的偏好和照护信息，不保存健康数值或疾病概率。</p></div><button type="button" id="agent-memory-close">关闭</button></div>
       <div id="agent-memory-list" class="agent-memory-list"></div>
@@ -83,6 +103,7 @@
       bindPlanActions();
       bindAgentContext();
       bindAgentSplitter();
+      bindAgentWorkspaceHeight();
       renderQuickPrompts();
       await initAgentContext();
       loadPlan();
@@ -92,7 +113,8 @@
     Auth.init();
 
     const PROMPTS = ['看看我的总体健康', '看看最近血压', '生成今日健康方案', '我想问一个健康问题'];
-    const AGENT_SPLIT_KEY = 'xiaokang-agent-split-ratio-v1';
+    const AGENT_SPLIT_KEY = 'xiaokang-agent-split-ratio-v2';
+    const AGENT_WORKSPACE_HEIGHT_KEY = 'xiaokang-agent-workspace-height-v3';
 
     function bindAgentSplitter() {
       const row = document.querySelector('.agent-row');
@@ -101,18 +123,18 @@
       splitter.dataset.bound = '1';
       let dragging = false;
       let ratio = Number(localStorage.getItem(AGENT_SPLIT_KEY));
-      if (!Number.isFinite(ratio)) ratio = 0.69;
+      if (!Number.isFinite(ratio)) ratio = 0.64;
 
-      const clampRatio = value => Math.max(0.50, Math.min(0.78, Number(value) || 0.69));
-      const isStacked = () => window.matchMedia('(max-width: 1180px)').matches;
+      const clampRatio = value => Math.max(0.54, Math.min(0.74, Number(value) || 0.64));
+      const isStacked = () => window.matchMedia('(max-width: 1260px)').matches;
       function applyRatio(next, persist = false) {
         ratio = clampRatio(next);
         if (isStacked()) {
           row.style.removeProperty('--agent-chat-width');
         } else {
           const available = Math.max(0, row.getBoundingClientRect().width - splitter.offsetWidth);
-          const minRatio = Math.max(0.50, Math.min(0.62, 520 / Math.max(1, available)));
-          const maxRatio = Math.min(0.78, Math.max(0.62, 1 - 320 / Math.max(1, available)));
+          const minRatio = Math.max(0.54, Math.min(0.62, 620 / Math.max(1, available)));
+          const maxRatio = Math.min(0.74, Math.max(0.64, 1 - 390 / Math.max(1, available)));
           ratio = Math.max(minRatio, Math.min(maxRatio, ratio));
           row.style.setProperty('--agent-chat-width', `${Math.round(available * ratio)}px`);
           splitter.setAttribute('aria-valuemin', String(Math.round(minRatio * 100)));
@@ -120,6 +142,7 @@
         }
         splitter.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
         splitter.setAttribute('aria-valuetext', `聊天区约占${Math.round(ratio * 100)}%`);
+        document.querySelectorAll('[data-agent-layout-ratio]').forEach(button => button.classList.toggle('active', Math.abs(Number(button.dataset.agentLayoutRatio) - ratio) < 0.025));
         if (persist) localStorage.setItem(AGENT_SPLIT_KEY, ratio.toFixed(4));
       }
       function ratioFromPointer(event) {
@@ -132,7 +155,6 @@
         dragging = true;
         splitter.setPointerCapture(event.pointerId);
         document.body.classList.add('agent-is-resizing');
-        applyRatio(ratioFromPointer(event));
         event.preventDefault();
       });
       splitter.addEventListener('pointermove', event => {
@@ -148,11 +170,11 @@
       };
       splitter.addEventListener('pointerup', finishDrag);
       splitter.addEventListener('pointercancel', finishDrag);
-      splitter.addEventListener('dblclick', () => applyRatio(0.69, true));
+      splitter.addEventListener('dblclick', () => applyRatio(0.64, true));
       splitter.addEventListener('keydown', event => {
         if (isStacked()) return;
         if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
-        applyRatio(event.key === 'Home' ? 0.69 : ratio + (event.key === 'ArrowLeft' ? -0.02 : 0.02), true);
+        applyRatio(event.key === 'Home' ? 0.64 : ratio + (event.key === 'ArrowLeft' ? -0.02 : 0.02), true);
         event.preventDefault();
       });
       let resizeTimer;
@@ -160,7 +182,73 @@
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => applyRatio(ratio), 80);
       });
+      document.querySelectorAll('[data-agent-layout-ratio]').forEach(button => button.addEventListener('click', () => applyRatio(Number(button.dataset.agentLayoutRatio), true)));
+      document.getElementById('agent-layout-reset')?.addEventListener('click', () => {
+        localStorage.removeItem(AGENT_SPLIT_KEY);
+        applyRatio(0.64);
+      });
       applyRatio(ratio);
+    }
+
+    function bindAgentWorkspaceHeight() {
+      const row = document.querySelector('.agent-row');
+      const handle = document.getElementById('agent-workspace-height-resizer');
+      if (!row || !handle || handle.dataset.bound === '1') return;
+      handle.dataset.bound = '1';
+      const isStacked = () => window.matchMedia('(max-width: 1260px)').matches;
+      const defaultHeight = () => Math.max(620, Math.min(900, Math.round(window.innerHeight - 300)));
+      const clamp = value => Math.max(560, Math.min(1100, Math.round(Number(value) || defaultHeight())));
+      let height = clamp(Number(localStorage.getItem(AGENT_WORKSPACE_HEIGHT_KEY)) || defaultHeight());
+      let dragging = false;
+      let startY = 0;
+      let startHeight = height;
+
+      function applyHeight(next, persist = false) {
+        height = clamp(next);
+        if (isStacked()) row.style.removeProperty('--agent-workspace-height');
+        else row.style.setProperty('--agent-workspace-height', `${height}px`);
+        handle.setAttribute('aria-valuenow', String(height));
+        handle.setAttribute('aria-valuetext', `工作区高度约${height}像素`);
+        if (persist) localStorage.setItem(AGENT_WORKSPACE_HEIGHT_KEY, String(height));
+      }
+      handle.addEventListener('pointerdown', event => {
+        if (isStacked()) return;
+        dragging = true;
+        startY = event.clientY;
+        startHeight = row.getBoundingClientRect().height;
+        handle.setPointerCapture(event.pointerId);
+        document.body.classList.add('agent-is-resizing-height');
+        event.preventDefault();
+      });
+      handle.addEventListener('pointermove', event => {
+        if (dragging) applyHeight(startHeight + event.clientY - startY);
+      });
+      const finish = event => {
+        if (!dragging) return;
+        dragging = false;
+        if (handle.hasPointerCapture?.(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+        document.body.classList.remove('agent-is-resizing-height');
+        applyHeight(height, true);
+      };
+      handle.addEventListener('pointerup', finish);
+      handle.addEventListener('pointercancel', finish);
+      handle.addEventListener('dblclick', () => {
+        localStorage.removeItem(AGENT_WORKSPACE_HEIGHT_KEY);
+        applyHeight(defaultHeight());
+      });
+      handle.addEventListener('keydown', event => {
+        if (isStacked() || !['ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
+        applyHeight(event.key === 'Home' ? defaultHeight() : height + (event.key === 'ArrowUp' ? -30 : 30), true);
+        event.preventDefault();
+      });
+      document.getElementById('agent-layout-reset')?.addEventListener('click', () => {
+        localStorage.removeItem(AGENT_WORKSPACE_HEIGHT_KEY);
+        applyHeight(defaultHeight());
+      });
+      document.getElementById('agent-height-decrease')?.addEventListener('click', () => applyHeight(height - 80, true));
+      document.getElementById('agent-height-increase')?.addEventListener('click', () => applyHeight(height + 80, true));
+      window.addEventListener('resize', () => applyHeight(height));
+      applyHeight(height);
     }
 
     let lastUserMessage = '';
@@ -506,8 +594,8 @@
     function renderPlanControl(p) {
       const metricType = inferActionMetric(p);
       const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || p.description || '')}" data-metric-type="${metricType}" data-baseline-metric-id="${p.baseline_metric_id || ''}"`;
-      const schedule = p.action_type === 'schedule_recheck' ? `<div class="agent-schedule-picker" aria-label="选择复测时间"><strong>复测时间</strong><div>${(p.schedule_options || [{key:'later_today',label:'今天稍后'},{key:'tomorrow_morning',label:'明早'},{key:'custom',label:'自选时间'}]).map((item,index) => `<button type="button" data-schedule-key="${item.key}" class="${index===1?'selected':''}">${escapeHTML(item.label)}</button>`).join('')}</div><input type="datetime-local" aria-label="自选复测时间" hidden></div>` : '';
-      if (p.requires_confirmation || p.action_type) return `${schedule}<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认</button><button data-action="dismiss-plan">取消</button></div>`;
+      const schedule = p.action_type === 'schedule_recheck' ? `<div class="agent-schedule-picker" aria-label="选择复测时间"><div class="agent-schedule-head"><strong>选择复测时间</strong><span>选择后再确认，不会自动保存</span></div><div class="agent-schedule-options">${(p.schedule_options || [{key:'later_today',label:'今天稍后'},{key:'tomorrow_morning',label:'明早'},{key:'custom',label:'自选时间'}]).map((item,index) => `<button type="button" data-schedule-key="${item.key}" class="${index===1?'selected':''}">${escapeHTML(item.label)}</button>`).join('')}</div><input type="datetime-local" aria-label="自选复测时间" hidden></div>` : '';
+      if (p.requires_confirmation || p.action_type) return `${schedule}<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认安排</button><button data-action="dismiss-plan">暂不安排</button></div>`;
       return `<button class="plan-card-check" data-action="plan" ${attrs} style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>`;
     }
 

@@ -26,6 +26,44 @@
   window.$$ = $$;
   window.el = el;
 
+  // ====== 全站明暗主题 ======
+  const THEME_KEY = 'xiaokang-theme-v1';
+  const systemTheme = () => window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  function currentTheme() {
+    const value = document.documentElement.dataset.theme;
+    return value === 'dark' ? 'dark' : 'light';
+  }
+  function syncThemeButton() {
+    const theme = currentTheme();
+    document.querySelectorAll('[data-theme-toggle]').forEach(button => {
+      const dark = theme === 'dark';
+      button.setAttribute('aria-pressed', String(dark));
+      button.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
+      button.setAttribute('title', dark ? '切换到浅色模式' : '切换到深色模式');
+      const icon = button.querySelector('[data-theme-icon]');
+      if (icon) icon.textContent = dark ? '☀' : '月';
+    });
+  }
+  function applyTheme(theme, persist = false) {
+    const next = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = next;
+    document.documentElement.style.colorScheme = next;
+    if (persist) localStorage.setItem(THEME_KEY, next);
+    syncThemeButton();
+    window.dispatchEvent(new CustomEvent('theme:change', { detail: { theme: next } }));
+  }
+  function toggleTheme() {
+    applyTheme(currentTheme() === 'dark' ? 'light' : 'dark', true);
+    toast(currentTheme() === 'dark' ? '已切换到深色模式' : '已切换到浅色模式');
+  }
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-theme-toggle]')) toggleTheme();
+  });
+  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', event => {
+    if (!localStorage.getItem(THEME_KEY)) applyTheme(event.matches ? 'dark' : 'light');
+  });
+  window.Theme = { apply: applyTheme, toggle: toggleTheme, current: currentTheme, syncButton: syncThemeButton, system: systemTheme };
+
   // ====== 时间格式化 ======
   function pad2(n) { return String(n).padStart(2, '0'); }
   function fmtDate(d) {
@@ -120,5 +158,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     bindTabs();
     bindPrompts();
+    syncThemeButton();
   });
 })();

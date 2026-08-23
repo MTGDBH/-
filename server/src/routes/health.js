@@ -5,6 +5,7 @@ import { evaluateHealth } from '../lib/scoring.js';
 import { triggerTrendAlerts } from '../lib/trendAlerts.js';
 import { discoverFromMeasurement } from '../lib/discovery.js';
 import { matchMeasurementToFollowup } from '../lib/followups.js';
+import { parseHealthDescription } from '../lib/healthTextParser.js';
 
 const router = express.Router();
 
@@ -123,6 +124,18 @@ router.get('/metrics/:type/history', (req, res) => {
 
 // 录入 / 更新指标
 // source: manual（用户录入，默认）| device（真实设备）| synthetic（演示/测试）
+router.post('/metrics/parse-description', (req, res) => {
+  try {
+    const text = String(req.body?.text ?? '');
+    if (!text.trim()) return res.status(400).json({ error: '请先输入或说出健康数据', code: 'EMPTY_DESCRIPTION' });
+    res.json(parseHealthDescription(text));
+  } catch (error) {
+    if (error?.message === 'TEXT_TOO_LONG') return res.status(400).json({ error: '描述过长，请控制在2000字以内', code: 'DESCRIPTION_TOO_LONG' });
+    console.error('[health-text-parser] failed:', error);
+    return res.status(500).json({ error: '暂时无法识别这段描述，请稍后重试', code: 'PARSER_FAILED' });
+  }
+});
+
 router.post('/metrics', (req, res) => {
   const { type, value, value2, unit, recorded_at, source, note, device_id, measurement_condition, measurement_context } = req.body;
   if (!type || value == null) {

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { queryKnowledgeGraph } from '../ai/tools/knowledgeGraph.js';
 import { buildHealthContext } from '../ai/contextBuilder.js';
+import { searchOnlineKnowledge } from '../lib/onlineKnowledgeSearch.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -116,6 +117,18 @@ router.get('/meta/popular-tags', (_req, res) => {
     try { for (const t of (r.tags ? JSON.parse(r.tags) : [])) counts[t] = (counts[t] || 0) + 1; } catch {}
   }
   res.json(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([tag, count]) => ({ tag, count })));
+});
+
+// 显式联网检索：只发送用户键入的主题，不发送身份、健康档案或测量数据。
+router.get('/online-search', async (req, res) => {
+  try {
+    res.json(await searchOnlineKnowledge(req.query.q));
+  } catch (error) {
+    res.status(error.status || 503).json({
+      error: error.message || '联网研究检索暂时不可用',
+      code: error.code || 'ONLINE_KNOWLEDGE_UNAVAILABLE',
+    });
+  }
 });
 
 // 文章级医学审核；每日贴士只有 approved 才允许个性化。

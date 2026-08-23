@@ -15,6 +15,44 @@
       <p class="subtitle">记录、查看与预测你的健康指标</p>
     </header>
 
+    <section class="bulk-health-entry" aria-labelledby="bulk-entry-title">
+      <div class="bulk-entry-head">
+        <div>
+          <span class="section-kicker">一句话记录</span>
+          <h2 id="bulk-entry-title">把今天的健康数据一起告诉我</h2>
+          <p>可以打字，也可以按下语音按钮慢慢说。识别后先核对卡片，确认才会保存。</p>
+        </div>
+        <span class="bulk-entry-badge">不会自动保存</span>
+      </div>
+      <label class="sr-only" for="health-description">健康数据描述</label>
+      <textarea id="health-description" class="bulk-health-textarea" maxlength="2000" rows="4" placeholder="例如：早上静坐后血压128/85，空腹血糖5.8，静息心率72，血氧97，体重56.2公斤，昨晚睡了7个半小时，今天走了4820步。"></textarea>
+      <div class="bulk-entry-controls">
+        <button type="button" class="btn btn-secondary bulk-voice-btn" id="bulk-voice-btn" aria-pressed="false">
+          <span aria-hidden="true">🎙</span><span id="bulk-voice-label">开始语音输入</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="bulk-parse-btn">识别并填入今日数据</button>
+        <button type="button" class="btn btn-ghost" id="bulk-clear-btn">清空</button>
+      </div>
+      <p class="bulk-entry-privacy" id="bulk-speech-help">语音是否可用取决于浏览器；语音转文字可能由浏览器的语音服务处理。</p>
+      <div class="bulk-entry-status" id="bulk-entry-status" role="status" aria-live="polite"></div>
+
+      <div class="bulk-preview" id="bulk-preview" hidden>
+        <div class="bulk-preview-head">
+          <div>
+            <h3>已填入下方“今日数据”</h3>
+            <p>带“待确认”标记的卡片是本次识别结果；点击卡片可以修改。</p>
+          </div>
+          <strong id="bulk-preview-count">0项</strong>
+        </div>
+        <div class="bulk-warning-list" id="bulk-warning-list"></div>
+        <div class="bulk-draft-summary" id="bulk-draft-summary"></div>
+        <div class="bulk-preview-actions">
+          <button type="button" class="btn btn-primary" id="bulk-save-btn">确认并保存到今日数据</button>
+          <button type="button" class="btn btn-ghost" id="bulk-cancel-btn">取消本次填充</button>
+        </div>
+      </div>
+    </section>
+
     <section class="entry-section">
       <div class="entry-header">
         <span class="entry-title">今日数据</span>
@@ -131,6 +169,7 @@
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/health-bulk-entry.js"></script>
   <script>
     document.addEventListener('auth:ready', () => {
       loadAll();
@@ -139,6 +178,7 @@
 
     // 内置指标定义：从 /api/health/metric-defs 拉取（后端 metric_defs 表为单一数据源）
     let METRIC_DEFS = [];
+    let latestMetrics = {};
 
     // 格式化逻辑（渲染层，非指标定义；defs 未覆盖的 type 走通用格式）
     const FMT = {
@@ -203,6 +243,7 @@
         API.get('/api/health/metrics'),
         API.get('/api/devices'),
       ]);
+      latestMetrics = metrics;
       renderMetrics(metrics);
       renderDevices(devices);
       renderPred(metrics);
@@ -211,18 +252,22 @@
     function renderMetrics(metrics) {
       const allDefs = [...METRIC_DEFS, ...customDefs];
       const recorded = allDefs.filter(d => metrics[d.type]).length;
-      document.getElementById('entry-tip').textContent = `已记录 ${recorded}/${allDefs.length}`;
+      const draftCount = allDefs.filter(d => window.HealthBulkEntry?.getDraft?.(d.type)).length;
+      document.getElementById('entry-tip').textContent = `已记录 ${recorded}/${allDefs.length}${draftCount ? ` · 待确认 ${draftCount}项` : ''}`;
       const grid = document.getElementById('metric-grid');
       const cards = allDefs.map(d => {
         const m = metrics[d.type];
-        const mainText = d.fmt(m);
-        const unitText = m ? `${d.unit} · ${fmtTime(m.recorded_at)}` : '点击录入';
+        const draft = window.HealthBulkEntry?.getDraft?.(d.type);
+        const shown = draft ? { value: draft.value, value2: draft.value2 } : m;
+        const mainText = d.fmt(shown);
+        const unitText = draft ? '识别填充 · 点击可修改' : (m ? `${d.unit} · ${fmtTime(m.recorded_at)}` : '点击录入');
         return `
-          <button class="entry-card" data-type="${d.type}" style="text-align:left;cursor:pointer">
+          <button class="entry-card ${draft ? 'entry-card-draft' : ''}" data-type="${d.type}" style="text-align:left;cursor:pointer">
+            ${draft ? '<span class="entry-draft-badge">待确认</span>' : ''}
             <div class="entry-icon" style="background:${d.bg};color:${d.color}">${d.icon}</div>
             <div class="entry-lbl">${d.name}</div>
             <div class="entry-val">${mainText}</div>
-            <div class="entry-unit" style="color:${m ? '#5A8045' : '#9C8B7A'}">${unitText}</div>
+            <div class="entry-unit" style="color:${draft ? '#874018' : (m ? '#5A8045' : '#9C8B7A')}">${unitText}</div>
           </button>
         `;
       }).join('');
@@ -238,6 +283,8 @@
       });
       document.getElementById('btn-add-metric')?.addEventListener('click', openCustomMetricModal);
     }
+
+    window.refreshTodayCards = () => renderMetrics(latestMetrics);
 
     function renderDevices(devices) {
       const list = document.getElementById('device-list');
@@ -308,8 +355,9 @@
       document.getElementById('lbl-value').textContent = type === 'bp' ? '收缩压（高压）' : '数值';
       document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : '请输入数值';
       document.getElementById('rec-row2').hidden = type !== 'bp';
-      document.getElementById('rec-value').value = '';
-      document.getElementById('rec-value2').value = '';
+      const draft = window.HealthBulkEntry?.getDraft?.(type);
+      document.getElementById('rec-value').value = draft?.value ?? '';
+      document.getElementById('rec-value2').value = draft?.value2 ?? '';
       const modal = document.getElementById('record-modal');
       modal.classList.add('show');
       modal.dataset.type = type;
@@ -331,8 +379,15 @@
       if (!v1) return;
       const value = parseFloat(v1);
       const value2 = v2 ? parseFloat(v2) : null;
+      const draft = window.HealthBulkEntry?.getDraft?.(type);
       try {
-        await API.post('/api/health/metrics', { type, value, value2, unit: def.unit || null, source: 'manual' });
+        await API.post('/api/health/metrics', {
+          type, value, value2, unit: def.unit || null, source: 'manual',
+          note: draft ? '由健康数据描述核对后录入' : null,
+          measurement_condition: draft?.measurement_condition,
+          measurement_context: draft ? { entry_mode: 'text_review', parser_version: 'health_text_v1', user_confirmed: true } : undefined,
+        });
+        window.HealthBulkEntry?.removeDraft?.(type);
         toast('录入成功', 'success');
         closeRecord();
         loadAll();

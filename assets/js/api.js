@@ -1,6 +1,16 @@
 // API 客户端：fetch 封装 + Cookie + 401 处理
 // 所有页面通过 window.API 调后端
 (function () {
+  // 在页面绘制前尽早应用主题，减少深色模式刷新时的白色闪烁。
+  try {
+    const savedTheme = localStorage.getItem('xiaokang-theme-v1');
+    const theme = savedTheme === 'dark' || savedTheme === 'light'
+      ? savedTheme
+      : (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  } catch {}
+
   // 如果通过 file:// 协议打开，自动跳转到后端服务地址（同源才能正常读写 cookie）
   if (location.protocol === 'file:') {
     var page = location.pathname.split('/').pop() || 'index.html';

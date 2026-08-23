@@ -1,5 +1,5 @@
 // 经过权威来源整理的扩展知识。默认“待审核”，只能作为研究预览。
-export const KNOWLEDGE_EXPANSION_VERSION = 'knowledge-expansion.2026-08-23.v1';
+export const KNOWLEDGE_EXPANSION_VERSION = 'knowledge-expansion.2026-08-23.v2';
 
 export const expandedKnowledgeArticles = [
   {
@@ -57,5 +57,89 @@ export const expandedKnowledgeArticles = [
     body: `## 不只看化验单\n\n老年健康评估通常还要了解日常生活能力、活动和跌倒、情绪与认知、营养、用药、疼痛以及家属或照护支持。\n\n## 用于发现问题，不替代诊断\n\n综合评估帮助发现需要进一步核实的变化，并据此安排复测或咨询。筛查结果不是诊断，急症信号也不能等待长期风险评估。`,
     tags: ['综合评估', '功能', '情绪', '认知', '照护支持'], audience: 'senior', views: 0,
     source_label: 'ADA 老年糖尿病照护标准（2026）', source_url: 'https://diabetesjournals.org/care/article/49/Supplement_1/S277/163921/13-Older-Adults-Standards-of-Care-in-Diabetes-2026',
+  },
+  {
+    category: 'qa', title: '突然说不清话或一侧无力，应该先做什么？',
+    summary: '脑卒中突发信号要优先呼叫急救，不等待风险预测或自行观察。',
+    body: `## 立即行动\n\n突然出现脸歪、一侧手臂无力、说话含糊或听不懂话，或突然看不清、走不稳、剧烈头痛，应立即联系当地急救服务。不要等待智能体计算风险，也不要自己开车前往。\n\n## 记住时间\n\n尽量记下症状最早出现或最后一次正常的时间，并把正在使用的药物清单带上。即使症状短暂缓解，也需要紧急评估。`,
+    tags: ['脑卒中', '急症', '言语', '肢体无力'], audience: 'senior', views: 0,
+    source_label: 'CDC 脑卒中症状与快速识别（2024）', source_url: 'https://www.cdc.gov/stroke/signs-symptoms/',
+  },
+  {
+    category: 'tip', title: '家庭量血压，怎样让前后结果更可比？',
+    summary: '固定时间、先安静坐好，并记录姿势和复测情况。',
+    body: `## 测量前\n\n尽量在相近时间测量，先安静坐好，背部和手臂有支撑，双脚落地。记录刚运动、饮用含咖啡因饮品、吸烟或情绪紧张等情况。\n\n## 测量时\n\n袖带大小要合适，手臂与心脏大致同高。一次读数异常时先按规范复测，不要仅凭单次数字自行改药。持续异常或伴明显不适时应咨询医生。`,
+    tags: ['血压', '家庭测量', '复测', '数据质量'], audience: 'senior', views: 0,
+    source_label: '美国心脏协会家庭血压监测说明', source_url: 'https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings/monitoring-your-blood-pressure-at-home',
+  },
+  {
+    category: 'topic', title: '走路变慢、起身费力，是不是衰老就不用管？',
+    summary: '功能下降可能与肌力、营养、疾病或用药有关，值得及早评估。',
+    body: `## 不要简单归为年龄\n\n走路明显变慢、从椅子起身更费力、近期活动减少或反复跌倒，可能提示功能和肌力变化，也可能受到营养、疼痛、慢病或药物影响。\n\n## 可以怎么做\n\n记录变化开始的时间、是否影响洗澡穿衣和外出，以及近期体重和食欲变化。活动要结合能力和疾病情况循序进行，明显虚弱或突然变化时先咨询专业人员。`,
+    tags: ['衰弱', '肌力', '功能', '营养'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年跌倒与功能风险资料', source_url: 'https://www.nia.nih.gov/health/falls-and-falls-prevention/falls-and-fractures-older-adults-causes-and-prevention',
+  },
+  {
+    category: 'tip', title: '老年人活动锻炼，重点不只是走多少步',
+    summary: '耐力、肌力和平衡活动应结合身体能力安排。',
+    body: `## 三方面一起看\n\n日常步数只能反映部分活动。老年活动还包括耐力、主要肌群力量和平衡能力；行动不便时应在自身能力和健康状况允许的范围内活动。\n\n## 安全边界\n\n从可完成的小量开始，逐步增加。活动中出现胸痛、明显气短、晕厥或新发肢体无力时应停止并及时求助，不要为了完成目标硬撑。`,
+    tags: ['活动', '步数', '平衡', '肌力'], audience: 'senior', views: 0,
+    source_label: 'WHO 身体活动与久坐行为指南（2020）', source_url: 'https://www.who.int/publications/i/item/9789240015128',
+  },
+  {
+    category: 'qa', title: '睡够时间还是困，要留意打鼾和憋醒吗？',
+    summary: '睡眠时长之外，还要看夜间呼吸和白天功能。',
+    body: `## 需要一起记录\n\n记录入睡和起床时间、夜间醒来次数、明显打鼾或憋醒，以及白天是否困倦、注意力下降或晨起头痛。睡眠时间看似够，并不等于睡眠质量一定好。\n\n## 何时咨询\n\n反复憋醒、家属观察到呼吸暂停，或白天困倦已经影响活动时，应咨询医生评估。不要自行长期使用助眠药或叠加保健品。`,
+    tags: ['睡眠', '打鼾', '呼吸暂停', '白天困倦'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年人与睡眠（2025复核）', source_url: 'https://www.nia.nih.gov/health/sleep/sleep-and-older-adults',
+  },
+  {
+    category: 'topic', title: '便秘时，哪些情况不能只靠自己调整饮食？',
+    summary: '持续变化或伴警示症状时需要专业评估。',
+    body: `## 先记录变化\n\n记录排便频率、粪便形状、饮水与活动、近期药物变化，以及是否伴腹痛或腹胀。突然改变的排便习惯比偶尔一次更值得关注。\n\n## 不要拖延的情况\n\n若出现便血、持续剧烈腹痛、呕吐、明显腹胀、无法排气，或不明原因体重下降，应及时就医。不要长期自行加量使用泻药，尤其是同时服用多种药物时。`,
+    tags: ['便秘', '消化', '用药安全', '警示症状'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年便秘健康资料', source_url: 'https://www.nia.nih.gov/health/constipation',
+  },
+  {
+    category: 'tip', title: '药盒之外，还需要一张完整用药清单',
+    summary: '处方药、非处方药、保健品和临时用药都应写清。',
+    body: `## 清单写什么\n\n写下药品名称、每次用量、服用时间、用途和开药人员，也要包括非处方药、维生素、中草药或保健品。复诊或新增药物时带上这张清单。\n\n## 出现变化怎么办\n\n记录新发头晕、困倦、混乱、胃肠不适或跌倒，并联系医生或药师复核。不要自行停用处方药，也不要把他人的药拿来使用。`,
+    tags: ['用药清单', '多重用药', '药物复核', '家属协助'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年安全用药指南', source_url: 'https://www.nia.nih.gov/health/medicines-and-medication-management/taking-medicines-safely-you-age',
+  },
+  {
+    category: 'qa', title: '一个人住和感到孤独，是一回事吗？',
+    summary: '独居不等于孤独，社交联系和主观感受都值得询问。',
+    body: `## 两个概念不同\n\n独居描述生活安排，孤独是主观感受，社会隔离则指缺少稳定联系。有人独居但有充分支持，也有人和家人同住仍感到孤独。\n\n## 观察影响\n\n留意是否减少进食、活动、就医或服药管理，是否持续情绪低落、兴趣下降。可以从固定联系一个可信任的人开始；持续影响生活时应寻求专业支持。`,
+    tags: ['孤独', '社会支持', '情绪', '独居'], audience: 'senior', views: 0,
+    source_label: 'NIA 孤独与社会隔离资料', source_url: 'https://www.nia.nih.gov/health/loneliness-and-social-isolation/loneliness-and-social-isolation-tips-staying-connected',
+  },
+  {
+    category: 'topic', title: '听不清会怎样影响健康填写和认知筛查？',
+    summary: '交流障碍可能造成答非所问，不能直接解释为记忆下降。',
+    body: `## 先保证听清\n\n填写健康资料或接受筛查时，应减少背景噪声、面对面说话、一次只问一件事，并确认老人听清了问题。必要时使用合适的助听设备。\n\n## 避免错误解释\n\n没有听清导致的错误回答，不能直接当成认知下降。若听力变化影响日常交流，应进行规范听力检查，再结合情绪、认知和功能情况综合评估。`,
+    tags: ['听力', '认知筛查', '沟通', '数据质量'], audience: 'caregiver', views: 0,
+    source_label: 'NIA 老年认知健康资料', source_url: 'https://www.nia.nih.gov/health/brain-health/cognitive-health-and-older-adults',
+  },
+  {
+    category: 'tip', title: '家里防跌倒，先检查哪些容易忽略的地方？',
+    summary: '照明、地毯、电线、扶手、鞋子和夜间动线都值得检查。',
+    body: `## 房间逐步检查\n\n保持通道清楚，固定容易滑动的地毯和电线，楼梯与卫生间增加足够照明和可靠扶手。夜间从床到卫生间的路线尤其需要看清。\n\n## 人的因素也要看\n\n视力听力变化、鞋子不合脚、睡眠不足、头晕和部分药物副作用也可能增加跌倒风险。不要只改环境而忽略近期身体或用药变化。`,
+    tags: ['跌倒', '居家安全', '照明', '视力'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年跌倒原因与预防', source_url: 'https://www.nia.nih.gov/health/falls-and-falls-prevention/falls-and-fractures-older-adults-causes-and-prevention',
+  },
+  {
+    category: 'qa', title: '记性变差，为什么还要复核睡眠和药物？',
+    summary: '记忆变化可能同时受到睡眠、情绪、听力、慢病和药物影响。',
+    body: `## 先看发生方式\n\n记录记忆变化是突然还是逐渐出现，是否影响用药、做饭、缴费和外出，并留意睡眠、情绪、听力和近期药物变化。\n\n## 不自行下结论\n\n普通记忆担忧不能替代规范认知评估，也不能仅凭一次问答判断痴呆。突然混乱、伴发热或新发神经症状时，应及时就医。不要自行停用可能相关的药物。`,
+    tags: ['记忆', '认知', '睡眠', '用药'], audience: 'senior', views: 0,
+    source_label: 'NIA 认知健康与老年人', source_url: 'https://www.nia.nih.gov/health/brain-health/cognitive-health-and-older-adults',
+  },
+  {
+    category: 'topic', title: '疼痛、睡眠和活动减少为什么容易互相影响？',
+    summary: '疼痛会影响睡眠和活动，活动减少又可能加重功能下降。',
+    body: `## 记录一个小闭环\n\n同时记录疼痛部位和程度、夜间是否被痛醒、白天活动变化，以及药物或热敷后是否改善。这样比只报一个疼痛数字更容易发现模式。\n\n## 保持安全活动\n\n在能力允许时维持轻量活动，避免长期完全不动。突然剧烈疼痛、跌倒后不能负重、胸痛或伴明显气短时应及时求助，不要只依赖止痛药掩盖症状。`,
+    tags: ['疼痛', '睡眠', '活动', '功能'], audience: 'senior', views: 0,
+    source_label: 'NIA 老年健康主题资料库', source_url: 'https://www.nia.nih.gov/health',
   },
 ].map(article => ({ ...article, review_status: 'pending', review_version: KNOWLEDGE_EXPANSION_VERSION }));

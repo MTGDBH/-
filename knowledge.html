@@ -17,8 +17,19 @@
         <p class="subtitle">实用的健康科普、问答和每日贴士</p>
       </header>
 
-      <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;">
-        <input class="search-input" id="search" type="search" placeholder="搜文章、关键词…" />
+      <section class="knowledge-search-panel" aria-labelledby="knowledge-search-title">
+        <div>
+          <h2 id="knowledge-search-title">查找健康知识</h2>
+          <p>先查本地中文知识；需要更多资料时，再联网查找公开研究文献。</p>
+        </div>
+        <div class="knowledge-search-row">
+          <label class="sr-only" for="search">健康知识关键词</label>
+          <input class="search-input" id="search" type="search" maxlength="120" placeholder="例如：血压、睡眠、跌倒、记忆…" />
+          <button class="btn btn-secondary" id="search-local" type="button">搜索本地知识</button>
+          <button class="btn btn-primary" id="search-online" type="button">联网查研究</button>
+        </div>
+        <p class="knowledge-privacy-note">联网时只发送您输入的主题，不发送姓名、健康档案或测量数据。</p>
+      </section>
       </div>
 
       <div class="filter-bar" id="filter-bar">
@@ -31,6 +42,21 @@
       <div class="tags" id="popular-tags" style="margin-top:0"></div>
 
       <div id="article-list" class="article-grid"></div>
+
+      <section id="online-research" class="online-research" hidden aria-live="polite">
+        <div class="online-research-head">
+          <div>
+            <span class="research-preview-badge">外部资料 · 尚未审核</span>
+            <h2>联网研究资料</h2>
+            <p id="online-search-summary">结果来自 Europe PMC 生物医学文献库。</p>
+          </div>
+          <button id="close-online-results" class="btn btn-ghost" type="button">收起联网结果</button>
+        </div>
+        <div class="online-research-notice" id="online-research-notice">
+          联网结果用于查找原始资料，不会自动进入您的健康结论，也不替代医生建议。
+        </div>
+        <div id="online-result-list" class="online-result-list"></div>
+      </section>
 
       <section id="relationship-lab" hidden style="margin-top:32px;background:#fff;border:1px solid #eadfd3;border-radius:20px;padding:24px;">
         <div style="display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
@@ -69,6 +95,7 @@
       } else {
         bindFilter();
         bindSearch();
+        bindOnlineSearch();
         const initialQ = params.get('q') || '';
         document.getElementById('search').value = initialQ;
         await loadPopularTags();
@@ -97,6 +124,63 @@
         clearTimeout(searchTimer);
         searchTimer = setTimeout(loadList, 250);
       });
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') { event.preventDefault(); loadList(); }
+      });
+      document.getElementById('search-local').addEventListener('click', loadList);
+    }
+
+    function bindOnlineSearch() {
+      document.getElementById('search-online').addEventListener('click', loadOnlineResearch);
+      document.getElementById('close-online-results').addEventListener('click', () => {
+        document.getElementById('online-research').hidden = true;
+        document.getElementById('search-online').focus();
+      });
+    }
+
+    async function loadOnlineResearch() {
+      const q = document.getElementById('search').value.trim();
+      const section = document.getElementById('online-research');
+      const list = document.getElementById('online-result-list');
+      const button = document.getElementById('search-online');
+      section.hidden = false;
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!q) {
+        list.innerHTML = '<div class="empty">请先输入一个健康主题，例如“老年人睡眠”或“血压复测”。</div>';
+        document.getElementById('search').focus();
+        return;
+      }
+      button.disabled = true;
+      button.textContent = '正在联网查询…';
+      list.innerHTML = '<div class="loading-page"><span class="loading"></span> 正在查询公开研究文献…</div>';
+      try {
+        const data = await API.get('/api/knowledge/online-search?q=' + encodeURIComponent(q));
+        document.getElementById('online-search-summary').textContent =
+          `“${q}”找到 ${data.total_available || 0} 条相关记录，本页显示前 ${data.items?.length || 0} 条。${data.cached ? '（使用十分钟内缓存）' : ''}`;
+        document.getElementById('online-research-notice').textContent = data.disclaimer || '外部资料尚未经过本项目医学审核。';
+        if (!data.items?.length) {
+          list.innerHTML = '<div class="empty">暂未找到相关研究。可以换用更简短的主题再试。</div>';
+          return;
+        }
+        list.innerHTML = data.items.map((item, index) => `
+          <article class="online-result-card">
+            <div class="online-result-number">研究资料 ${index + 1}</div>
+            <h3>${escapeHTML(item.title_original)}</h3>
+            <div class="online-original-label">原始研究题目（可能为英文）</div>
+            <p class="online-result-meta">${escapeHTML(item.authors)} · ${escapeHTML(item.journal)} · ${escapeHTML(item.publication_year)}</p>
+            ${item.abstract ? `<details><summary>查看原始摘要</summary><p>${escapeHTML(item.abstract)}</p></details>` : '<p class="online-no-abstract">该记录暂无可展示摘要。</p>'}
+            <div class="online-result-footer">
+              <span>${item.pmid ? `文献编号：${escapeHTML(item.pmid)}` : '文献编号暂缺'}</span>
+              <a class="btn btn-ghost" href="${safeURL(item.source_url)}" target="_blank" rel="noopener noreferrer">到来源页查看</a>
+            </div>
+          </article>
+        `).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="empty">${escapeHTML(err.message || '联网研究检索暂时不可用，请稍后重试。')}</div>`;
+      } finally {
+        button.disabled = false;
+        button.textContent = '联网查研究';
+      }
     }
 
     async function loadList() {
