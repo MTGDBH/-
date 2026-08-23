@@ -94,8 +94,6 @@ function buildComment(type, latest, stats, trend) {
     case 'spo2':
       if (v < 92) return `本次血氧 ${v}% 偏低。请检查探头位置、静坐后复测；若仍低或伴呼吸困难、胸痛、意识异常，请立即就医。氧疗仅按医生既定方案使用。`;
       return `本次血氧为 ${v}%。请结合连续读数和是否有呼吸不适判断。`;
-    case 'ecg':
-      return v === 100 || v === 1 ? '心电结果：窦性心律。继续保持。' : '心电结果存在异常标记，请联系医生复诊。';
     case 'weight':
       return `最近体重 ${v} kg。`;
     case 'steps':

@@ -10,6 +10,10 @@ import pandas as pd
 ROOT = Path(__file__).parent
 
 
+def emit(payload):
+    sys.stdout.buffer.write((json.dumps(payload, ensure_ascii=False) + "\n").encode("utf-8"))
+
+
 def main():
     try:
         req = json.loads(sys.stdin.buffer.read().decode('utf-8'))
@@ -17,7 +21,7 @@ def main():
         meta_path = ROOT / 'models' / f'{disease}_model_metadata.json'
         model_path = ROOT / 'models' / f'{disease}_calibrated.joblib'
         if not meta_path.exists() or not model_path.exists():
-            print(json.dumps({'success': False, 'error': 'model_unavailable', 'disease': disease}, ensure_ascii=False))
+            emit({'success': False, 'error': 'model_unavailable', 'disease': disease})
             return
         meta = json.loads(meta_path.read_text(encoding='utf-8'))
         values = req.get('features') or {}
@@ -27,15 +31,15 @@ def main():
         model = joblib.load(model_path)
         probability = float(model.predict_proba(X)[0, 1])
         level = 'low' if probability < 0.05 else ('moderate' if probability < 0.15 else 'higher')
-        print(json.dumps({
+        emit({
             'success': True, 'disease': disease, 'risk_probability': round(probability, 4),
             'risk_percent': round(probability * 100, 2), 'risk_level': level,
             'model': meta['model'], 'model_version': 'w1w2-v1',
             'missing_features': missing, 'confidence': 'medium' if len(missing) < 5 else 'low',
             'horizon_years': 2, 'disclaimer': meta['disclaimer'],
-        }, ensure_ascii=False))
+        })
     except Exception as exc:
-        print(json.dumps({'success': False, 'error': 'prediction_failed', 'detail': type(exc).__name__}, ensure_ascii=False))
+        emit({'success': False, 'error': 'prediction_failed', 'detail': type(exc).__name__})
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const MODELS_DIR = path.resolve(__dirname, '..', '..', '..', 'ml', 'models');
 const EXPECTED_SCHEMA = 'health-model-bundle.v1';
 const EXPECTED_CONTRACT = 'health-prediction.v1';
-const POPULATION_TARGETS = new Set(['bp', 'hr', 'weight', 'waist', 'grip', 'glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
+const POPULATION_TARGETS = new Set(['bp', 'hr', 'weight', 'waist', 'grip', 'glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine', 'adl_limitation', 'depressive_symptoms', 'fall']);
 let cached = null;
 
 function digest(file) {
@@ -44,7 +44,10 @@ export function inspectModelBundle(modelsDir = MODELS_DIR) {
       if (stat.size !== Number(entry.size) || digest(file) !== entry.sha256) throw new Error('artifact checksum mismatch');
     }
     const numericTargets = ['systo', 'diasto', 'hr', 'weight', 'waist', 'grip'];
-    const riskStems = ['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine'].flatMap(t => ['noninvasive', 'micro_anchor'].map(tier => `risk_${t}_${tier}`));
+    const riskStems = [
+      ...['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine'].flatMap(t => ['noninvasive', 'micro_anchor'].map(tier => `risk_${t}_${tier}`)),
+      ...['adl_limitation', 'depressive_symptoms', 'fall'].map(t => `risk_${t}_noninvasive`),
+    ];
     const required = [
       ...numericTargets.map(t => `population/numeric_${t}.metadata.json`),
       ...riskStems.flatMap(stem => [`population/${stem}.metadata.json`, `population/${stem}.joblib`]),
@@ -81,11 +84,12 @@ export function populationCapabilities() {
   const modes = {
     bp: 'value', hr: 'value', weight: 'value', waist: 'value', grip: 'value',
     glucose: 'risk', hba1c: 'risk', cholesterol: 'risk', uricacid: 'risk', creatinine: 'risk',
-    egfr: 'derived',
+    egfr: 'derived', steps: 'range',
+    adl_limitation: 'risk', depressive_symptoms: 'risk', fall: 'risk',
   };
   return Object.entries(modes).map(([metric, prediction_mode]) => ({
     metric,
     prediction_mode,
-    available: metric === 'egfr' || (bundle.status === 'ready' && bundle.targets.includes(metric)),
+    available: ['egfr', 'steps'].includes(metric) || (bundle.status === 'ready' && bundle.targets.includes(metric)),
   }));
 }

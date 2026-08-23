@@ -11,6 +11,7 @@ REPORT_PATH = ROOT / "ml" / "reports" / "charls-multitarget-evaluation.json"
 
 NUMERIC_TARGETS = {"systo", "diasto", "hr", "weight", "waist", "grip"}
 RISK_TARGETS = {"glucose", "hba1c", "cholesterol", "uricacid", "creatinine"}
+OUTCOME_TARGETS = {"adl_limitation", "depressive_symptoms", "fall"}
 SUBGROUPS = {"age", "gender", "missingness", "disease_status", "device"}
 
 
@@ -58,6 +59,11 @@ def main() -> None:
     bp = report["blood_pressure_joint_constraint"]
     assert bp["minimum_pulse_pressure"] > 0
     assert bp["violations_after"] == 0
+    assert set(report["outcome_risks"]) == OUTCOME_TARGETS
+    for result in report["outcome_risks"].values():
+        assert result["test"]["n"] > 0
+        assert result["test"]["auroc"] is not None
+        assert result["external"]["n"] > 0
     print("CHARLS report acceptance: PASS")
 
 

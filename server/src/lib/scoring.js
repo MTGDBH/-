@@ -40,7 +40,6 @@ const SCORE_RANGES = {
   uricacid: [[150, 360, 100], [360, 420, 80], [120, 150, 70], [420, 480, 60], [480, Infinity, 40], [0, 120, 50]],
   cholesterol: [[3.1, 5.2, 100], [5.2, 5.7, 85], [5.7, 6.2, 70], [6.2, 7.8, 50], [7.8, Infinity, 30], [0, 3.1, 70]],
   hba1c: [[4, 6, 100], [6, 6.5, 85], [6.5, 7, 70], [7, 8, 50], [8, Infinity, 30], [0, 4, 60]],
-  // ecg 为 categorical，走特例分支，不在 SCORE_RANGES 中
 };
 
 /**
@@ -54,10 +53,6 @@ const SCORE_RANGES = {
 export function scoreMetric(value, value2, type, ctx = {}) {
   if (!KNOWN_TYPES.has(type)) return null;
 
-  // ecg 定性特例：100/1=窦性 → 100，其他 → 50
-  if (type === 'ecg') {
-    return value === 100 || value === 1 ? 100 : 50;
-  }
 
   const ranges = SCORE_RANGES[type];
   if (!ranges) return null;
@@ -100,7 +95,7 @@ export function aggregateMetrics(metrics, ctx = {}) {
     sleep: ['sleep'],
     nutrition: ['weight', 'bodyfat', 'waist'],
     activity: ['hr', 'steps', 'grip'],
-    chronic: ['bp', 'glucose', 'spo2', 'ecg', 'temp', 'resp', 'uricacid', 'cholesterol', 'hba1c'],
+    chronic: ['bp', 'glucose', 'spo2', 'temp', 'resp', 'uricacid', 'cholesterol', 'hba1c'],
   };
 
   // 取每种类型最近一条

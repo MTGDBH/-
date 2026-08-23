@@ -147,7 +147,6 @@
       hr:      v => v ? Math.round(v.value) : '--',
       sleep:   v => v ? v.value.toFixed(1) + 'h' : '--',
       spo2:    v => v ? Math.round(v.value) : '--',
-      ecg:     v => v ? (v.value === 100 ? '窦性' : '异常') : '--',
       weight:  v => v ? v.value.toFixed(1) : '--',
       steps:   v => v ? Math.round(v.value).toLocaleString() : '--',
       temp:    v => v ? v.value.toFixed(1) : '--',
@@ -264,7 +263,7 @@
         const bpHistory = await API.get('/api/health/metrics/bp/history?days=7');
         const points = bpHistory.points;
         document.getElementById('pred-desc').textContent =
-          `基于血压、血氧、心电等 ${METRIC_DEFS.length + customDefs.length} 项数据综合评估；近 7 天共 ${points.length} 条血压记录。点击查看完整预测 →`;
+          `基于血压、血氧、睡眠和活动等 ${METRIC_DEFS.length + customDefs.length} 项数据综合评估；近 7 天共 ${points.length} 条血压记录。点击查看完整预测 →`;
         document.getElementById('pred-suggest').textContent = '建议：维持规律作息，每日散步 30 分钟';
         const sbpValues = points.map(p => p.value);
         const avg = sbpValues.length ? Math.round(sbpValues.reduce((a,b)=>a+b,0) / sbpValues.length) : 0;
@@ -307,7 +306,7 @@
       if (!def) return;
       document.getElementById('record-title').textContent = `录入${def.name}`;
       document.getElementById('lbl-value').textContent = type === 'bp' ? '收缩压（高压）' : '数值';
-      document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : (type === 'ecg' ? '100=窦性心律，其他=异常' : '请输入数值');
+      document.getElementById('rec-hint').textContent = def.unit ? `单位：${def.unit}` : '请输入数值';
       document.getElementById('rec-row2').hidden = type !== 'bp';
       document.getElementById('rec-value').value = '';
       document.getElementById('rec-value2').value = '';
@@ -330,7 +329,7 @@
       const v1 = document.getElementById('rec-value').value.trim();
       const v2 = type === 'bp' ? document.getElementById('rec-value2').value.trim() : null;
       if (!v1) return;
-      const value = type === 'ecg' ? (v1 === '窦性' ? 100 : 50) : parseFloat(v1);
+      const value = parseFloat(v1);
       const value2 = v2 ? parseFloat(v2) : null;
       try {
         await API.post('/api/health/metrics', { type, value, value2, unit: def.unit || null, source: 'manual' });

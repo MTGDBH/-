@@ -10,7 +10,8 @@ const contractPath = path.resolve(here, '..', '..', 'ml', 'prediction_contract.j
 const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
 const rows = db.prepare('SELECT type, prediction_mode FROM metric_defs ORDER BY sort').all();
 
-assert.equal(rows.length, 19, 'database must expose exactly 19 core metrics');
+assert.equal(rows.length, 18, 'database must expose exactly 18 home-oriented core metrics');
+assert.ok(!rows.some(row => row.type === 'ecg'), 'ECG must not remain in the active home metric catalog');
 assert.deepEqual(new Set(contract.allowed_prediction_modes), new Set(['value', 'range', 'risk', 'anomaly', 'derived', 'not_supported']));
 for (const row of rows) {
   assert.ok(contract.metrics[row.type], `missing contract metric: ${row.type}`);

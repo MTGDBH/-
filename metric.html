@@ -92,9 +92,6 @@
         document.getElementById('row-value2').hidden = false;
         document.getElementById('label-value2').textContent = '舒张压';
         document.getElementById('hint-value2').textContent = '低压（mmHg）';
-      } else if (type === 'ecg') {
-        document.getElementById('label-value').textContent = '结果';
-        document.getElementById('hint-value').textContent = '100 = 窦性心律，其他值视为异常';
       } else {
         document.getElementById('row-value2').hidden = true;
       }
@@ -198,7 +195,7 @@
       const valueRaw = document.getElementById('value').value.trim();
       const value2Raw = type === 'bp' ? document.getElementById('value2').value.trim() : null;
       if (!valueRaw) return;
-      const value = type === 'ecg' ? (valueRaw === '窦性' ? 100 : 50) : parseFloat(valueRaw);
+      const value = parseFloat(valueRaw);
       const value2 = value2Raw ? parseFloat(value2Raw) : null;
       try {
         await API.post('/api/health/metrics', {

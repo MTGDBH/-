@@ -24,6 +24,7 @@ CONTRACT = "health-prediction.v1"
 MAX_BYTES = 100 * 1024 * 1024
 NUMERIC_TARGETS = ("systo", "diasto", "hr", "weight", "waist", "grip")
 RISK_TARGETS = ("glucose", "hba1c", "cholesterol", "uricacid", "creatinine")
+OUTCOME_TARGETS = ("adl_limitation", "depressive_symptoms", "fall")
 RISK_TIERS = ("noninvasive", "micro_anchor")
 HTN_REQUIRED = (
     "htn_xgb/candidate_model.json",
@@ -62,6 +63,9 @@ def _required_paths(source: Path) -> list[str]:
         for tier in RISK_TIERS:
             stem = f"risk_{target}_{tier}"
             required.extend((f"population/{stem}.metadata.json", f"population/{stem}.joblib"))
+    for target in OUTCOME_TARGETS:
+        stem = f"risk_{target}_noninvasive"
+        required.extend((f"population/{stem}.metadata.json", f"population/{stem}.joblib"))
     return sorted(set(required))
 
 
@@ -142,7 +146,7 @@ def validate_bundle(directory: Path) -> dict:
         for required in _required_paths(directory):
             if required not in listed:
                 raise ValueError(f"required artifact is not signed: {required}")
-        targets = ["bp", "hr", "weight", "waist", "grip", *RISK_TARGETS]
+        targets = ["bp", "hr", "weight", "waist", "grip", *RISK_TARGETS, *OUTCOME_TARGETS]
         return {"status": "ready", "reason_code": None, "bundle_version": manifest.get("bundle_version"), "targets": targets}
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
         return {"status": "invalid", "reason_code": "MODEL_BUNDLE_INVALID", "bundle_version": None, "targets": [], "detail": str(exc)}

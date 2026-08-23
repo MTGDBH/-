@@ -12,7 +12,8 @@ from common.feature_builder import build_window_features
 from common.prediction_contract import ALLOWED_MODES, METRICS, build_prediction_output
 
 
-assert len(METRICS) == 19
+assert len(METRICS) == 18
+assert "ecg" not in METRICS
 assert {v["prediction_mode"] for v in METRICS.values()} <= ALLOWED_MODES
 
 payload = build_prediction_output(

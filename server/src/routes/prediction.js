@@ -17,6 +17,19 @@ const POPULATION_SCRIPT = path.resolve(__dirname, '..', '..', '..', 'ml', 'popul
 const CURVE_METRICS = new Set(['systo', 'diasto', 'pulse', 'weight', 'bmi', 'mwaist', 'waist', 'glucose', 'hbalc', 'hba1c', 'cholesterol', 'uricacid', 'sleep', 'spo2', 'steps', 'temp', 'resp', 'grip', 'bodyfat', 'health_score']);
 const POPULATION_NUMERIC_TARGETS = new Map([['hr', 'hr'], ['weight', 'weight'], ['waist', 'waist'], ['grip', 'grip']]);
 const POPULATION_RISK_TARGETS = new Set(['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine']);
+const POPULATION_OUTCOME_TARGETS = new Map([
+  ['adl_limitation', { name: '日常活动受限风险', prediction_mode: 'risk', unit: '', icon: '动', color: '#5A8045', target_kind: 'future_status_risk' }],
+  ['depressive_symptoms', { name: '情绪困扰风险', prediction_mode: 'risk', unit: '', icon: '情', color: '#9C7BC9', target_kind: 'future_status_risk' }],
+  ['fall', { name: '跌倒风险', prediction_mode: 'risk', unit: '', icon: '稳', color: '#E0784E', target_kind: 'future_status_risk' }],
+]);
+const PREDICTION_INPUT_DEFS = Object.freeze({
+  cesd10: { label: 'CESD-10 情绪量表总分', min: 0, max: 30, step: 1, help: '0–30分；建议完成标准10题量表后填写' },
+  total_cognition: { label: '认知筛查总分', min: 0, max: 21, step: 1, help: '0–21分；填写同一套筛查的总分' },
+  adlab_c: { label: 'ADL 受限项目数', min: 0, max: 6, step: 1, help: '穿衣、洗澡、进食等6项中需要帮助的数量' },
+  iadl: { label: 'IADL 受限项目数', min: 0, max: 5, step: 1, help: '购物、做饭、用药等5项中需要帮助的数量' },
+  fall_down: { label: '近期是否跌倒', min: 0, max: 1, step: 1, help: '未跌倒填0，跌倒过填1' },
+  srh: { label: '自评健康', min: 1, max: 5, step: 1, help: '1很好，2好，3一般，4差，5很差' },
+});
 const POPULATION_CACHE_TTL_MS = 5 * 60 * 1000;
 const populationCache = new Map();
 
@@ -31,6 +44,11 @@ const ALL_METRICS = new Map(
       return [r.type, { ...r, dual, invasive }];
     })
 );
+
+function predictionMeta(type) {
+  if (type === 'steps') return ALL_METRICS.get('steps');
+  return ALL_METRICS.get(type) || POPULATION_OUTCOME_TARGETS.get(type) || null;
+}
 
 // 同龄人平均参考值（按年龄段）
 const PEER_AVERAGES = {
@@ -160,7 +178,7 @@ function unavailablePopulationResult(type, meta, status, reasonCode, reason, bun
     abstained: true,
     reason_code: reasonCode,
     reason,
-    horizon_days: POPULATION_RISK_TARGETS.has(type) ? 1460 : (type === 'egfr' ? 0 : 730),
+    horizon_days: type === 'steps' ? 7 : (POPULATION_RISK_TARGETS.has(type) ? 1460 : (type === 'egfr' ? 0 : 730)),
     model_version: bundleVersion,
     disclaimer: '研究用途，不能替代规范测量、化验或临床诊断',
   };
@@ -217,6 +235,12 @@ function buildPopulationFeatures(userId, user) {
   const metrics = latestMetricMap(userId);
   const core = buildHtnPredictionInput(metrics, { height: user.height });
   const assessment = db.prepare('SELECT adl, iadl FROM assessments WHERE user_id = ? ORDER BY created_at DESC LIMIT 1').get(userId) || {};
+  const manualInputs = Object.fromEntries(db.prepare(`
+    SELECT p.field, p.value FROM prediction_inputs p
+    JOIN (SELECT field, MAX(recorded_at) AS recorded_at FROM prediction_inputs WHERE user_id = ? GROUP BY field) latest
+      ON latest.field = p.field AND latest.recorded_at = p.recorded_at
+    WHERE p.user_id = ?
+  `).all(userId, userId).map(row => [row.field, row.value]));
   const genderText = String(user.gender || '').toLowerCase();
   const gender = ['male', 'm', '男', '1'].includes(genderText) ? 1 : (['female', 'f', '女', '0'].includes(genderText) ? 0 : null);
   const chronicFlags = [user.chronic_diabetes, user.chronic_heart, user.chronic_stroke, user.dyslipidemia, user.lung_disease, user.chronic_kidney];
@@ -233,11 +257,12 @@ function buildPopulationFeatures(userId, user) {
     drinkl: user.drinking_status == null ? null : Number(user.drinking_status !== 0),
     exercise: user.exercise_level == null ? null : Number(user.exercise_level > 0),
     totmet: null,
-    srh: user.self_rated_health ?? null,
-    cesd10: null,
-    total_cognition: null,
-    adlab_c: Number.isFinite(Number(assessment.adl)) && Number(assessment.adl) >= 0 && Number(assessment.adl) <= 6 ? Number(assessment.adl) : null,
-    iadl: Number.isFinite(Number(assessment.iadl)) && Number(assessment.iadl) >= 0 && Number(assessment.iadl) <= 5 ? Number(assessment.iadl) : null,
+    srh: manualInputs.srh ?? user.self_rated_health ?? null,
+    cesd10: manualInputs.cesd10 ?? null,
+    total_cognition: manualInputs.total_cognition ?? null,
+    adlab_c: manualInputs.adlab_c ?? (Number.isFinite(Number(assessment.adl)) && Number(assessment.adl) >= 0 && Number(assessment.adl) <= 6 ? Number(assessment.adl) : null),
+    iadl: manualInputs.iadl ?? (Number.isFinite(Number(assessment.iadl)) && Number(assessment.iadl) >= 0 && Number(assessment.iadl) <= 5 ? Number(assessment.iadl) : null),
+    fall_down: manualInputs.fall_down ?? null,
     chronic: chronicFlags.every(value => value == null) ? null : Number(chronicFlags.some(Number)),
     diabe: user.chronic_diabetes ?? null,
     hearte: user.chronic_heart ?? null,
@@ -248,15 +273,81 @@ function buildPopulationFeatures(userId, user) {
   };
 }
 
+function quantile(values, q) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = (sorted.length - 1) * q;
+  const lower = Math.floor(index);
+  const weight = index - lower;
+  return sorted[lower + 1] == null ? sorted[lower] : sorted[lower] * (1 - weight) + sorted[lower + 1] * weight;
+}
+
+/**
+ * 步数不是疾病数值预测。依据最近四周记录形成可执行的7日活动范围，
+ * 并检测相对个人基线的明显下降；不设置与个体无关的统一万步目标。
+ */
+function buildStepActivityPlan(userId, meta = ALL_METRICS.get('steps')) {
+  const since = new Date(Date.now() - 28 * 86400000).toISOString();
+  const rows = db.prepare(`SELECT value, recorded_at FROM metrics
+    WHERE user_id = ? AND type = 'steps' AND recorded_at >= ? ORDER BY recorded_at ASC`).all(userId, since);
+  const perDay = new Map();
+  for (const row of rows) {
+    const value = Number(row.value);
+    if (!Number.isFinite(value) || value < 0) continue;
+    const day = String(row.recorded_at).slice(0, 10);
+    perDay.set(day, Math.max(value, perDay.get(day) ?? 0));
+  }
+  const today = new Date();
+  const dayKey = offset => new Date(today.getTime() + offset * 86400000).toISOString().slice(0, 10);
+  const valuesFor = (start, end) => {
+    const values = [];
+    for (let offset = start; offset <= end; offset += 1) if (perDay.has(dayKey(offset))) values.push(perDay.get(dayKey(offset)));
+    return values;
+  };
+  const recent14 = valuesFor(-13, 0);
+  if (recent14.length < 4) {
+    return unavailablePopulationResult('steps', meta, 'insufficient_data', 'STEPS_HISTORY_INSUFFICIENT', `最近14天只有${recent14.length}天步数，至少记录4天后生成个人活动计划`);
+  }
+  const current7 = valuesFor(-6, 0);
+  const previous7 = valuesFor(-13, -7);
+  const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+  const currentAverage = average(current7);
+  const previousAverage = average(previous7);
+  const baseline = quantile(recent14, 0.5);
+  const lower = Math.max(300, Math.round((quantile(recent14, 0.25) * 0.9) / 100) * 100);
+  const upperCandidate = Math.min(quantile(recent14, 0.75) * 1.1, baseline * 1.1);
+  const upper = Math.max(lower + 300, Math.round(upperCandidate / 100) * 100);
+  const changePercent = previousAverage > 0 && currentAverage != null ? +(((currentAverage - previousAverage) / previousAverage) * 100).toFixed(1) : null;
+  const declineAlert = current7.length >= 3 && previous7.length >= 3 && changePercent != null && changePercent <= -20;
+  return {
+    schema_version: PREDICTION_SCHEMA_VERSION,
+    metric: 'steps', prediction_mode: 'range', target_kind: 'behavior_plan',
+    value_kind: 'estimated', display_label: '个体活动目标', status: 'available', abstained: false,
+    reason_code: null, horizon_days: 7, point: Math.round(baseline), lower, upper,
+    model: 'personal_rolling_activity_plan.v1', model_version: 'activity-plan.v1',
+    activity_plan: {
+      recorded_days_14: recent14.length, current_7d_recorded_days: current7.length,
+      current_7d_average: currentAverage == null ? null : Math.round(currentAverage),
+      previous_7d_average: previousAverage == null ? null : Math.round(previousAverage),
+      change_percent: changePercent, decline_alert: declineAlert,
+      recommendation: declineAlert
+        ? '近期活动量较个人基线明显下降；先核对设备佩戴和身体不适，必要时联系家属或医生。'
+        : `未来7天以每日${lower}–${upper}步为温和目标，可分2–3次完成。`,
+    },
+    disclaimer: '这是基于个人步数基线的活动计划，不是疾病预测；不适、胸痛或明显气短时应停止活动并求助。',
+  };
+}
+
 async function runPopulationPrediction(userId, user, type) {
   const features = buildPopulationFeatures(userId, user);
-  const meta = ALL_METRICS.get(type);
+  const meta = predictionMeta(type);
+  if (type === 'steps') return buildStepActivityPlan(userId, meta);
   if (type === 'egfr') {
     const point = calculateEgfr2021(features.bl_crea == null ? null : features.bl_crea * 88.4, features.age, features.gender);
     if (point == null) return unavailablePopulationResult(type, meta, 'insufficient_data', 'FEATURES_INSUFFICIENT', '需要规范肌酐、年龄和性别后才能推导eGFR');
     return { schema_version: PREDICTION_SCHEMA_VERSION, metric: 'egfr', prediction_mode: 'derived', value_kind: 'estimated', display_label: '估计值', status: 'available', horizon_days: 0, point, lower: null, upper: null, model: 'CKD-EPI-2021', model_version: 'CKD-EPI-2021', abstained: false, reason_code: null, disclaimer: '公式估算结果不能替代肾功能评估或临床诊断' };
   }
-  if (type !== 'bp' && !POPULATION_NUMERIC_TARGETS.has(type) && !POPULATION_RISK_TARGETS.has(type)) {
+  if (type !== 'bp' && !POPULATION_NUMERIC_TARGETS.has(type) && !POPULATION_RISK_TARGETS.has(type) && !POPULATION_OUTCOME_TARGETS.has(type)) {
     return unavailablePopulationResult(type, meta, 'not_supported', 'MODEL_NOT_SUPPORTED', '该指标当前没有CHARLS长期人群模型');
   }
   const bundle = getModelBundleStatus();
@@ -278,18 +369,23 @@ async function runPopulationPrediction(userId, user, type) {
     const result = await runPythonTool(POPULATION_SCRIPT, { task: 'risk', target: type, tier, features }, 30000);
     return normalizePopulationResult(type, meta, result, bundle.bundle_version);
   }
+  if (POPULATION_OUTCOME_TARGETS.has(type)) {
+    const result = await runPythonTool(POPULATION_SCRIPT, { task: 'risk', target: type, tier: 'noninvasive', features }, 30000);
+    return normalizePopulationResult(type, meta, result, bundle.bundle_version);
+  }
   return unavailablePopulationResult(type, meta, 'not_supported', 'MODEL_NOT_SUPPORTED', '该指标当前没有CHARLS长期人群模型');
 }
 
 function populationDataSignature(userId, user, type, bundleVersion) {
   const metric = db.prepare('SELECT MAX(recorded_at) AS updated_at FROM metrics WHERE user_id = ?').get(userId)?.updated_at || 'none';
   const assessment = db.prepare('SELECT MAX(created_at) AS updated_at FROM assessments WHERE user_id = ?').get(userId)?.updated_at || 'none';
+  const predictionInput = db.prepare('SELECT MAX(recorded_at) AS updated_at FROM prediction_inputs WHERE user_id = ?').get(userId)?.updated_at || 'none';
   const profile = [
     user.age, user.gender, user.height, user.education_level, user.smoking_status, user.drinking_status,
     user.exercise_level, user.self_rated_health, user.chronic_diabetes, user.chronic_heart,
     user.chronic_stroke, user.dyslipidemia, user.lung_disease, user.chronic_kidney,
   ];
-  return `${userId}|${type}|${bundleVersion || 'none'}|${metric}|${assessment}|${JSON.stringify(profile)}`;
+  return `${userId}|${type}|${bundleVersion || 'none'}|${metric}|${assessment}|${predictionInput}|${JSON.stringify(profile)}`;
 }
 
 async function cachedPopulationPrediction(userId, user, type) {
@@ -305,7 +401,7 @@ async function cachedPopulationPrediction(userId, user, type) {
   return { ...value, cache: { hit: false, ttl_seconds: POPULATION_CACHE_TTL_MS / 1000 } };
 }
 
-export { buildPopulationFeatures, calculateEgfr2021, projectBloodPressure, runPopulationPrediction, cachedPopulationPrediction, populationDataSignature };
+export { buildPopulationFeatures, buildStepActivityPlan, calculateEgfr2021, projectBloodPressure, runPopulationPrediction, cachedPopulationPrediction, populationDataSignature, PREDICTION_INPUT_DEFS };
 
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
@@ -461,9 +557,41 @@ router.get('/capabilities', (_req, res) => {
   });
 });
 
+router.get('/inputs', (req, res) => {
+  const latest = Object.fromEntries(db.prepare(`
+    SELECT p.field, p.value, p.recorded_at FROM prediction_inputs p
+    JOIN (SELECT field, MAX(recorded_at) AS recorded_at FROM prediction_inputs WHERE user_id = ? GROUP BY field) x
+      ON x.field = p.field AND x.recorded_at = p.recorded_at
+    WHERE p.user_id = ?
+  `).all(req.user.id, req.user.id).map(row => [row.field, { value: row.value, recorded_at: row.recorded_at }]));
+  res.json({ schema_version: 'prediction-inputs.v1', fields: PREDICTION_INPUT_DEFS, latest });
+});
+
+router.post('/inputs', (req, res) => {
+  const values = req.body?.values;
+  if (!values || typeof values !== 'object' || Array.isArray(values)) return res.status(400).json({ error: 'values must be an object' });
+  const entries = Object.entries(values).filter(([, value]) => value !== '' && value != null);
+  if (!entries.length) return res.status(400).json({ error: '请至少填写一项预测资料' });
+  const parsedAt = req.body.recorded_at && !Number.isNaN(Date.parse(req.body.recorded_at)) ? new Date(req.body.recorded_at) : new Date();
+  if (parsedAt.getTime() > Date.now() + 5 * 60 * 1000) return res.status(400).json({ error: '记录时间不能晚于当前时间' });
+  const normalized = [];
+  for (const [field, raw] of entries) {
+    const def = PREDICTION_INPUT_DEFS[field];
+    const value = Number(raw);
+    if (!def || !Number.isFinite(value) || value < def.min || value > def.max || (def.step === 1 && !Number.isInteger(value))) {
+      return res.status(400).json({ error: `预测资料 ${field} 超出允许范围` });
+    }
+    normalized.push({ field, value });
+  }
+  const insert = db.prepare(`INSERT INTO prediction_inputs (user_id, field, value, recorded_at, source) VALUES (?, ?, ?, ?, 'manual')`);
+  db.transaction(() => normalized.forEach(item => insert.run(req.user.id, item.field, item.value, parsedAt.toISOString())))();
+  populationCache.clear();
+  res.json({ ok: true, saved: normalized, recorded_at: parsedAt.toISOString() });
+});
+
 router.get('/population/:type', async (req, res) => {
   const type = String(req.params.type || '');
-  if (!ALL_METRICS.has(type)) return res.status(400).json({ error: '未知指标类型' });
+  if (!predictionMeta(type)) return res.status(400).json({ error: '未知预测类型' });
   try {
     const result = await cachedPopulationPrediction(req.user.id, req.user, type);
     res.json(result);
@@ -525,9 +653,6 @@ router.get('/:type', async (req, res) => {
     const group = hasResting ? 'resting' : 'unknown';
     curve = await analyzeCurve('pulse', meta.unit, sourcePoints, futureDays, group);
     series = [toCurveSeries('hr.resting', hasResting ? '静息心率' : '心率（未标记状态）', meta.unit, group, curve, meta.color)];
-  } else if (type === 'ecg') {
-    curve = { status: 'not_applicable', actual: sourcePoints.map((p, i) => ({ ...p, day: i, predicted: false })), predicted: [], fitted: [], stats: statsFromValues(sourcePoints.map(p => p.value)), predTrend: 'stable', analysis: { forecastAvailable: false, forecastReason: '心电图不以连续数值曲线外推' } };
-    series = [toCurveSeries('ecg.observed', meta.name, meta.unit, 'all', curve, meta.color)];
   } else {
     const curveMetric = type === 'hr' ? 'pulse' : type;
     curve = await analyzeCurve(curveMetric, meta.unit, sourcePoints, futureDays);

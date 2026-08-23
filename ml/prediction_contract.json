@@ -29,7 +29,6 @@
     "uricacid": {"prediction_mode": "risk", "horizons_days": [30, 90], "target_kind": "abnormal_risk"},
     "cholesterol": {"prediction_mode": "risk", "horizons_days": [30, 90], "target_kind": "abnormal_risk"},
     "hba1c": {"prediction_mode": "risk", "horizons_days": [30, 90], "target_kind": "abnormal_risk"},
-    "ecg": {"prediction_mode": "anomaly", "horizons_days": [0], "target_kind": "waveform_classification"},
     "egfr": {"prediction_mode": "derived", "horizons_days": [0], "target_kind": "formula_derived"},
     "creatinine": {"prediction_mode": "risk", "horizons_days": [30, 90], "target_kind": "abnormal_risk"},
     "urine_albumin": {"prediction_mode": "risk", "horizons_days": [30, 90], "target_kind": "abnormal_risk"}

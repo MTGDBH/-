@@ -11,6 +11,7 @@ try {
   const names = [
     ...['systo', 'diasto', 'hr', 'weight', 'waist', 'grip'].map(t => `population/numeric_${t}.metadata.json`),
     ...['glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine'].flatMap(t => ['noninvasive', 'micro_anchor'].flatMap(tier => [`population/risk_${t}_${tier}.metadata.json`, `population/risk_${t}_${tier}.joblib`])),
+    ...['adl_limitation', 'depressive_symptoms', 'fall'].flatMap(t => [`population/risk_${t}_noninvasive.metadata.json`, `population/risk_${t}_noninvasive.joblib`]),
     'htn_xgb/candidate_model.json', 'htn_xgb/calibrator_isotonic.pkl', 'htn_xgb/calibrator_platt.pkl', 'htn_xgb/threshold.json', 'htn_xgb/candidate_metadata.json',
   ];
   const files = names.map(relative => {

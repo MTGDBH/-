@@ -24,7 +24,7 @@ const daysAgoISO = (n, h = 8, m = 0) => {
 };
 
 // 清空表
-const tables = ['sessions', 'chat_messages', 'knowledge_articles', 'alerts', 'todos', 'devices', 'assessments', 'metrics', 'users'];
+const tables = ['sessions', 'chat_messages', 'knowledge_articles', 'alerts', 'todos', 'devices', 'assessments', 'prediction_inputs', 'metrics', 'users'];
 for (const t of tables) db.exec(`DELETE FROM ${t};`);
 const seqExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'").get();
 if (seqExists) db.exec('DELETE FROM sqlite_sequence');
@@ -38,6 +38,14 @@ const insertUser = db.prepare(`
 insertUser.run(1, '张奶奶', 72, 'female', '#7FB069', 1.60, '晓东（儿子）', '13800138001');
 insertUser.run(2, '李爷爷', 75, 'male', '#9C7BC9', 1.72, '晓敏（女儿）', '13800138002');
 console.log('✓ 用户：张奶奶 / 李爷爷（密码 123456）');
+
+const insertPredictionInput = db.prepare(`
+  INSERT INTO prediction_inputs (user_id, field, value, recorded_at, source)
+  VALUES (1, ?, ?, ?, 'synthetic')
+`);
+for (const [field, value] of Object.entries({ cesd10: 6, total_cognition: 15, adlab_c: 0, iadl: 0, fall_down: 0, srh: 2 })) {
+  insertPredictionInput.run(field, value, nowISO);
+}
 
 // ============= 健康指标（张奶奶，user_id=1） =============
 // 注意：本脚本生成的全部指标均为 synthetic（项目演示数据），
@@ -66,10 +74,6 @@ for (let i = 1; i <= 6; i++) {
 insertMetric.run('spo2', 97, null, '%', timeAt(11, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {
   insertMetric.run('spo2', 96 + Math.round(Math.sin(i)), null, '%', daysAgoISO(i, 11, 30), 'synthetic');
-}
-insertMetric.run('ecg', 100, null, 'normal', timeAt(8, 0), 'synthetic');
-for (let i = 1; i <= 6; i++) {
-  insertMetric.run('ecg', 100, null, 'normal', daysAgoISO(i, 8, 0), 'synthetic');
 }
 insertMetric.run('weight', 56.2, null, 'kg', timeAt(7, 30), 'synthetic');
 for (let i = 1; i <= 6; i++) {

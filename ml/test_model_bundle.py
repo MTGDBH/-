@@ -9,6 +9,7 @@ from pathlib import Path
 from model_bundle import (
     HTN_REQUIRED,
     NUMERIC_TARGETS,
+    OUTCOME_TARGETS,
     RISK_TARGETS,
     RISK_TIERS,
     _safe_extract,
@@ -37,6 +38,10 @@ def make_source(root: Path) -> Path:
             stem = f"risk_{target}_{tier}"
             (population / f"{stem}.metadata.json").write_text(json.dumps({"selected_model": "logistic", "artifact": rf"D:\private\{stem}.joblib"}), encoding="utf-8")
             (population / f"{stem}.joblib").write_bytes(b"signed-joblib")
+    for target in OUTCOME_TARGETS:
+        stem = f"risk_{target}_noninvasive"
+        (population / f"{stem}.metadata.json").write_text(json.dumps({"selected_model": "logistic", "artifact": rf"D:\private\{stem}.joblib"}), encoding="utf-8")
+        (population / f"{stem}.joblib").write_bytes(b"signed-joblib")
     return source
 
 

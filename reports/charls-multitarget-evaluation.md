@@ -1,7 +1,7 @@
 # CHARLS 多指标预测与化验风险评估
 
-运行 ID：`charls-multitarget-20260822T072552Z`  
-树模型后端：`lightgbm`（可用：lightgbm, xgboost）  
+运行 ID：`charls-multitarget-20260822T092456Z`
+树模型后端：`lightgbm`（可用：lightgbm, xgboost）
 地理外部留出：`四川省`
 
 ## 数值预测（Wave1 → Wave2）
@@ -29,6 +29,14 @@
 | uricacid/micro_anchor | logistic | False | 0.713895 | 0.344096 | 0.206091 | 0.638298 | 0.680067 |
 | creatinine/noninvasive | logistic | False | 0.604465 | 0.123449 | 0.230383 | 0.456522 | 0.663175 |
 | creatinine/micro_anchor | boosting | True | 0.699567 | 0.212682 | 0.060172 | 0.608696 | 0.662369 |
+
+## 家庭问卷长期风险（Wave1 → Wave2）
+
+| 目标 | 选择模型 | AUROC | PR-AUC | Brier | 拒绝率 |
+|---|---|---:|---:|---:|---:|
+| adl_limitation | logistic | 0.793148 | 0.489304 | 0.183595 | 0.087105 |
+| depressive_symptoms | logistic | 0.750486 | 0.560272 | 0.200541 | 0.075943 |
+| fall | logistic | 0.649532 | 0.274081 | 0.227781 | 0.087821 |
 
 ## 边界
 

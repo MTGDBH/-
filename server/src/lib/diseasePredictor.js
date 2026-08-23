@@ -15,7 +15,14 @@ function latestMetrics(userId) {
   return Object.fromEntries(rows.map(r => [r.type, r]));
 }
 
-function buildFeatures(user, metrics) {
+function latestPredictionInputs(userId) {
+  const rows = db.prepare(`SELECT p.field, p.value FROM prediction_inputs p JOIN (
+    SELECT field, MAX(recorded_at) recorded_at FROM prediction_inputs WHERE user_id = ? GROUP BY field
+  ) x ON x.field=p.field AND x.recorded_at=p.recorded_at WHERE p.user_id = ?`).all(userId, userId);
+  return Object.fromEntries(rows.map(row => [row.field, row.value]));
+}
+
+function buildFeatures(user, metrics, inputs = {}) {
   const v = (type, field = 'value') => metrics[type]?.[field] ?? null;
   const height = Number(user?.height) || null;
   const weight = v('weight');
@@ -31,8 +38,8 @@ function buildFeatures(user, metrics) {
     smokev: user?.smoking_status ?? null, smoken: user?.cigarettes_per_day ?? null,
     drinkev: user?.drinking_status ?? null, drinkl: user?.drinking_frequency ?? null,
     exercise: user?.exercise_level ?? null, totmet: user?.exercise_level ?? null,
-    srh: user?.self_rated_health ?? null, cesd10: null, total_cognition: null,
-    adlab_c: null, iadl: null,
+    srh: inputs.srh ?? user?.self_rated_health ?? null, cesd10: inputs.cesd10 ?? null, total_cognition: inputs.total_cognition ?? null,
+    adlab_c: inputs.adlab_c ?? null, iadl: inputs.iadl ?? null,
     chronic: [user?.chronic_diabetes, user?.chronic_heart, user?.chronic_stroke].some(v => v != null) ? 1 : null,
     diabe: user?.chronic_diabetes ?? null, hearte: user?.chronic_heart ?? null, stroke: user?.chronic_stroke ?? null,
     dyslipe: user?.dyslipidemia ?? null, lunge: user?.lung_disease ?? null,
@@ -43,7 +50,7 @@ export async function predictDisease(userId, user, disease) {
   if (!DISEASES.has(disease)) return { success: false, error: 'unsupported_disease' };
   const metrics = latestMetrics(userId);
   if (!Object.keys(metrics).length) return { success: false, error: 'no_data', disease };
-  const features = buildFeatures(user, metrics);
+  const features = buildFeatures(user, metrics, latestPredictionInputs(userId));
   const result = await runPythonTool(SCRIPT, { disease, features });
   const missing = Array.isArray(result?.missing_features)
     ? result.missing_features

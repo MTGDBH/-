@@ -43,6 +43,44 @@
       <div class="pred-focus-intro-text">每次只看一个指标，更容易发现变化。</div>
       <div class="pred-metric-selector" id="metric-selector"></div>
     </div>
+
+    <section class="pred-research-hub" aria-labelledby="prediction-hub-title">
+      <div class="pred-input-head">
+        <div><span class="pred-input-kicker">固定功能区</span><h2 id="prediction-hub-title">预测资料与长期估计</h2></div>
+        <p>这里集中补充资料和查看人群估计；下方每个指标只展示个人曲线。</p>
+      </div>
+      <div class="pred-hub-tabs" role="tablist" aria-label="预测资料与长期估计">
+        <button type="button" class="active" role="tab" aria-selected="true" data-pred-hub-tab="inputs">补充预测资料</button>
+        <button type="button" role="tab" aria-selected="false" data-pred-hub-tab="population">CHARLS 长期估计</button>
+      </div>
+      <div class="pred-hub-pane" data-pred-hub-pane="inputs">
+      <div class="pred-input-grid">
+        <form id="prediction-metric-form" class="pred-input-form">
+          <h3>家庭测量</h3>
+          <label>指标<select id="prediction-metric-type"></select></label>
+          <label><span id="prediction-value-label">数值</span><input id="prediction-metric-value" type="number" step="any" required /></label>
+          <label id="prediction-value2-row" hidden>舒张压（mmHg）<input id="prediction-metric-value2" type="number" step="any" /></label>
+          <label>记录时间<input id="prediction-metric-time" type="datetime-local" /></label>
+          <button class="btn btn-primary" type="submit">保存测量</button><div class="pred-input-message" id="prediction-metric-message" aria-live="polite"></div>
+        </form>
+        <form id="prediction-assessment-form" class="pred-input-form">
+          <h3>家庭问卷 / 功能资料</h3>
+          <div id="prediction-assessment-fields" class="pred-assessment-fields"></div>
+          <button class="btn btn-primary" type="submit">保存已填写资料</button><div class="pred-input-message" id="prediction-assessment-message" aria-live="polite"></div>
+        </form>
+      </div>
+      </div>
+      <div class="pred-hub-pane" data-pred-hub-pane="population" hidden>
+        <div class="pred-fixed-population">
+          <div class="pred-fixed-population-head">
+            <label>选择长期估计类型<select id="fixed-population-type"></select></label>
+            <span>CHARLS波次长期估计 / 个人活动方案 · 研究预览 · 非诊断</span>
+          </div>
+          <div id="population-estimate-fixed" class="pred-research-body" aria-live="polite"></div>
+          <div class="pred-research-disclaimer">研究用途 · 非临床诊断 · 不能替代直接测量、量表评估或规范化验</div>
+        </div>
+      </div>
+    </section>
     <div class="pred-elder-summary" id="metric-summary"></div>
 
     <!-- 各指标预测图 -->
@@ -76,8 +114,31 @@
     let metricResults = [];
     let selectedMetricType = null;
     const populationPredictionCache = new Map();
-    const RESEARCH_METRICS = new Set(['bp', 'hr', 'weight', 'waist', 'grip', 'glucose', 'hba1c', 'cholesterol', 'uricacid', 'creatinine', 'egfr']);
+    const FIXED_ESTIMATE_TARGETS = [
+      { type: 'adl_limitation', name: '日常活动受限风险', unit: '', prediction_mode: 'risk' },
+      { type: 'depressive_symptoms', name: '情绪困扰风险', unit: '', prediction_mode: 'risk' },
+      { type: 'fall', name: '跌倒风险', unit: '', prediction_mode: 'risk' },
+      { type: 'bp', name: '血压长期估计', unit: 'mmHg', prediction_mode: 'value' },
+      { type: 'hr', name: '心率长期估计', unit: 'bpm', prediction_mode: 'value' },
+      { type: 'weight', name: '体重长期估计', unit: 'kg', prediction_mode: 'value' },
+      { type: 'waist', name: '腰围长期估计', unit: 'cm', prediction_mode: 'value' },
+      { type: 'grip', name: '握力长期估计', unit: 'kg', prediction_mode: 'value' },
+      { type: 'glucose', name: '血糖异常风险', unit: '', prediction_mode: 'risk' },
+      { type: 'hba1c', name: '糖化血红蛋白异常风险', unit: '', prediction_mode: 'risk' },
+      { type: 'cholesterol', name: '胆固醇异常风险', unit: '', prediction_mode: 'risk' },
+      { type: 'uricacid', name: '尿酸异常风险', unit: '', prediction_mode: 'risk' },
+      { type: 'creatinine', name: '肌酐异常风险', unit: '', prediction_mode: 'risk' },
+      { type: 'egfr', name: 'eGFR公式估算', unit: 'mL/min/1.73m²', prediction_mode: 'derived' },
+      { type: 'steps', name: '个人步数活动计划', unit: '步/日', prediction_mode: 'range' },
+    ];
+    const HOME_METRICS = [
+      { type: 'bp', name: '血压', unit: 'mmHg', dual: true }, { type: 'hr', name: '静息心率', unit: 'bpm', condition: 'resting' },
+      { type: 'weight', name: '体重', unit: 'kg' }, { type: 'waist', name: '腰围', unit: 'cm' },
+      { type: 'grip', name: '握力', unit: 'kg' }, { type: 'sleep', name: '睡眠', unit: 'h' },
+      { type: 'steps', name: '步数', unit: '步' },
+    ];
     let populationCapabilitiesData = null;
+    let selectedPopulationType = 'adl_limitation';
     // 默认突出个人趋势与短期范围；原始明细和同龄人参考按需打开，避免第一屏图层过载。
     const chartVisibility = { raw: false, fitted: true, peer: false, forecast: true };
     let zoomTimer = null;
@@ -85,7 +146,92 @@
     async function main() {
       bindRange();
       bindChartControls();
+      bindPredictionInputs();
+      bindPredictionHub();
       await loadAll();
+    }
+
+    function bindPredictionHub() {
+      document.querySelectorAll('[data-pred-hub-tab]').forEach(button => button.addEventListener('click', () => {
+        document.querySelectorAll('[data-pred-hub-tab]').forEach(item => {
+          const active = item === button;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', String(active));
+        });
+        document.querySelectorAll('[data-pred-hub-pane]').forEach(pane => { pane.hidden = pane.dataset.predHubPane !== button.dataset.predHubTab; });
+        if (button.dataset.predHubTab === 'population') loadFixedPopulationEstimate();
+      }));
+      const select = document.getElementById('fixed-population-type');
+      select.innerHTML = FIXED_ESTIMATE_TARGETS.map(item => `<option value="${item.type}">${item.name}</option>`).join('');
+      select.value = selectedPopulationType;
+      select.addEventListener('change', () => { selectedPopulationType = select.value; loadFixedPopulationEstimate(); });
+    }
+
+    function localDateTimeValue(date = new Date()) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 16);
+    }
+
+    function bindPredictionInputs() {
+      const select = document.getElementById('prediction-metric-type');
+      select.innerHTML = HOME_METRICS.map(item => `<option value="${item.type}">${item.name}（${item.unit}）</option>`).join('');
+      document.getElementById('prediction-metric-time').value = localDateTimeValue();
+      const updateMetricForm = () => {
+        const metric = HOME_METRICS.find(item => item.type === select.value);
+        document.getElementById('prediction-value-label').textContent = `${metric.name}（${metric.unit}）`;
+        document.getElementById('prediction-value2-row').hidden = !metric.dual;
+      };
+      select.addEventListener('change', updateMetricForm);
+      updateMetricForm();
+      document.getElementById('prediction-metric-form').addEventListener('submit', savePredictionMetric);
+      document.getElementById('prediction-assessment-form').addEventListener('submit', savePredictionInputs);
+      loadPredictionInputs();
+    }
+
+    async function loadPredictionInputs() {
+      const host = document.getElementById('prediction-assessment-fields');
+      try {
+        const data = await API.get('/api/prediction/inputs');
+        host.innerHTML = Object.entries(data.fields || {}).map(([field, def]) => {
+          const latest = data.latest?.[field];
+          return `<label>${escapeText(def.label)}<input name="${field}" type="number" min="${def.min}" max="${def.max}" step="${def.step}" value="${latest?.value ?? ''}" placeholder="${def.min}–${def.max}"/><small>${escapeText(def.help)}${latest ? ` · 最近保存 ${escapeText(String(latest.recorded_at).slice(0, 10))}` : ''}</small></label>`;
+        }).join('');
+      } catch (error) {
+        host.innerHTML = `<div class="pred-input-message is-error">资料加载失败：${escapeText(error.message)}</div>`;
+      }
+    }
+
+    async function savePredictionMetric(event) {
+      event.preventDefault();
+      const message = document.getElementById('prediction-metric-message');
+      const metric = HOME_METRICS.find(item => item.type === document.getElementById('prediction-metric-type').value);
+      const value = Number(document.getElementById('prediction-metric-value').value);
+      const value2 = metric.dual ? Number(document.getElementById('prediction-metric-value2').value) : null;
+      if (!Number.isFinite(value) || (metric.dual && !Number.isFinite(value2))) { message.textContent = '请填写完整且有效的数值'; message.className = 'pred-input-message is-error'; return; }
+      message.textContent = '正在保存…'; message.className = 'pred-input-message';
+      try {
+        await API.post('/api/health/metrics', { type: metric.type, value, value2, unit: metric.unit, source: 'manual', measurement_condition: metric.condition || 'unknown', recorded_at: new Date(document.getElementById('prediction-metric-time').value).toISOString() });
+        message.textContent = '已保存，预测结果正在刷新'; message.className = 'pred-input-message is-success';
+        populationPredictionCache.clear();
+        document.getElementById('prediction-metric-value').value = '';
+        document.getElementById('prediction-metric-value2').value = '';
+        await loadAll();
+      } catch (error) { message.textContent = `保存失败：${error.message}`; message.className = 'pred-input-message is-error'; }
+    }
+
+    async function savePredictionInputs(event) {
+      event.preventDefault();
+      const message = document.getElementById('prediction-assessment-message');
+      const values = {};
+      new FormData(event.currentTarget).forEach((value, key) => { if (value !== '') values[key] = Number(value); });
+      message.textContent = '正在保存…'; message.className = 'pred-input-message';
+      try {
+        await API.post('/api/prediction/inputs', { values });
+        message.textContent = '资料已保存，长期风险正在刷新'; message.className = 'pred-input-message is-success';
+        populationPredictionCache.clear();
+        await loadPredictionInputs();
+        await loadFixedPopulationEstimate();
+      } catch (error) { message.textContent = `保存失败：${error.message}`; message.className = 'pred-input-message is-error'; }
     }
 
     function bindRange() {
@@ -502,7 +648,6 @@
       host.innerHTML = renderMetricCard(data, m);
       renderMetricChart(`metric-svg-${m.type}`, data, m);
       renderMetricSummary(data, m);
-      if (RESEARCH_METRICS.has(m.type)) loadPopulationEstimate(m);
     }
 
     function populationLoadingHtml() {
@@ -524,7 +669,7 @@
     }
 
     function renderPopulationResult(result, m) {
-      const host = document.getElementById(`population-estimate-${m.type}`);
+      const host = document.getElementById('population-estimate-fixed');
       if (!host) return;
       const version = result.model_version || populationCapabilitiesData?.bundle?.version || '未安装';
       const completeness = populationCompleteness(result);
@@ -533,10 +678,16 @@
       if (result.status !== 'available') {
         const statusLabel = result.status === 'insufficient_data' ? '资料不足' : result.status === 'not_supported' ? '暂不支持' : result.reason_code === 'MODEL_BUNDLE_MISSING' ? '模型未安装' : '模型不可用';
         host.innerHTML = `<div class="pred-research-state"><span class="pred-research-status is-muted">${statusLabel}</span><strong>${escapeText(result.reason || '当前不输出长期人群模型结果')}</strong><p>个人历史和 Curve V2 短期趋势仍可正常查看，不会使用缺失资料硬凑结果。</p>${meta}<button type="button" class="pred-research-retry" data-retry-population="${escapeText(m.type)}">重新检查</button></div>`;
+      } else if (result.target_kind === 'behavior_plan' && result.activity_plan) {
+        const plan = result.activity_plan;
+        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status">个体活动目标</span><div class="pred-research-value">${escapeText(result.lower)}–${escapeText(result.upper)} <em>步/日</em></div><p>${escapeText(plan.recommendation)}</p><div class="pred-research-meta"><span>近7日均值 ${escapeText(plan.current_7d_average ?? '—')} 步</span><span>记录 ${escapeText(plan.recorded_days_14)} / 14天</span><span>${plan.decline_alert ? '活动下降提醒' : '未见明显下降'}</span></div></div>`;
       } else if (result.prediction_mode === 'risk') {
         const level = ({ low: '低风险', medium: '中风险', high: '高风险' })[result.risk_level] || '风险待定';
         const probability = Number.isFinite(Number(result.risk_probability)) ? `${Math.round(Number(result.risk_probability) * 100)}%` : '—';
-        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status is-risk">估计值 · ${level}</span><div class="pred-research-value">异常风险概率 ${probability}</div><p>这是长期筛查风险，不是化验结果；建议结合规范复测或实验室检查。</p>${meta}</div>`;
+        const householdOutcome = ['adl_limitation', 'depressive_symptoms', 'fall'].includes(m.type);
+        const riskTitle = householdOutcome ? '长期风险概率' : '异常风险概率';
+        const riskNote = householdOutcome ? '这是CHARLS人群尺度的筛查估计，不能替代量表、功能评估或临床判断。' : '这是长期筛查风险，不是化验结果；建议结合规范复测或实验室检查。';
+        host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status is-risk">估计值 · ${level}</span><div class="pred-research-value">${riskTitle} ${probability}</div><p>${riskNote}</p>${meta}</div>`;
       } else if (result.components?.systolic && result.components?.diastolic) {
         const s = result.components.systolic;
         const d = result.components.diastolic;
@@ -545,29 +696,29 @@
         const interval = result.lower != null && result.upper != null ? `<span class="pred-research-interval">参考区间 ${escapeText(result.lower)}～${escapeText(result.upper)}${m.unit ? ` ${escapeText(m.unit)}` : ''}</span>` : '';
         host.innerHTML = `<div class="pred-research-result"><span class="pred-research-status">${escapeText(result.display_label || '预测值')}</span><div class="pred-research-value">${escapeText(result.point)}${m.unit ? ` <em>${escapeText(m.unit)}</em>` : ''}</div>${interval}<p>${result.prediction_mode === 'derived' ? '依据当前资料公式估算。' : 'CHARLS人群长期结果，不等同于短期曲线。'}</p>${meta}</div>`;
       }
-      host.querySelector('[data-retry-population]')?.addEventListener('click', () => retryPopulationEstimate(m.type));
+      host.querySelector('[data-retry-population]')?.addEventListener('click', retryFixedPopulationEstimate);
     }
 
-    async function retryPopulationEstimate(type) {
-      const m = metricList.find(item => item.type === type);
-      if (!m) return;
-      populationPredictionCache.delete(type);
-      const host = document.getElementById(`population-estimate-${type}`);
+    async function retryFixedPopulationEstimate() {
+      populationPredictionCache.delete(selectedPopulationType);
+      const host = document.getElementById('population-estimate-fixed');
       if (host) host.innerHTML = populationLoadingHtml();
-      await loadPopulationEstimate(m);
+      await loadFixedPopulationEstimate();
     }
 
-    async function loadPopulationEstimate(m) {
-      const host = document.getElementById(`population-estimate-${m.type}`);
+    async function loadFixedPopulationEstimate() {
+      const host = document.getElementById('population-estimate-fixed');
       if (!host) return;
-      if (!RESEARCH_METRICS.has(m.type)) return;
+      const m = FIXED_ESTIMATE_TARGETS.find(item => item.type === selectedPopulationType);
+      if (!m) return;
+      host.innerHTML = populationLoadingHtml();
       try {
         let result = populationPredictionCache.get(m.type);
         if (!result) {
           result = await API.get(`/api/prediction/population/${m.type}`);
           populationPredictionCache.set(m.type, result);
         }
-        if (selectedMetricType !== m.type || !document.getElementById(`population-estimate-${m.type}`)) return;
+        if (selectedPopulationType !== m.type) return;
         renderPopulationResult(result, m);
       } catch {
         renderPopulationResult({ status: 'unavailable', reason_code: 'NETWORK_ERROR', reason: '模型服务连接失败，请稍后重试', horizon_days: m.prediction_mode === 'risk' ? 1460 : 730 }, m);
@@ -653,14 +804,6 @@
             predicted: chartVisibility.forecast ? (data.predicted || []) : [],
             peer: chartVisibility.peer ? (data.peer || []) : [],
           }, '直接测量值', outputLabel, m.color)}</div>
-          <section class="pred-research-card" aria-label="长期人群研究预览">
-            <div class="pred-research-head">
-              <div><strong>${m.type === 'egfr' ? '肾功能公式估算' : 'CHARLS 长期人群估计'}</strong><span>研究预览</span></div>
-              <small>与 Curve V2 短期曲线分开展示</small>
-            </div>
-            <div id="population-estimate-${m.type}" class="pred-research-body" aria-live="polite">${RESEARCH_METRICS.has(m.type) ? populationLoadingHtml() : `<div class="pred-research-state"><span class="pred-research-status is-muted">${predictionModeLabel(predictionMode)}</span><strong>当前没有长期人群模型</strong><p>本指标只展示已支持的个人历史、短期范围或异常识别能力。</p></div>`}</div>
-            <div class="pred-research-disclaimer">研究用途 · 非临床诊断 · 不能替代直接测量或规范化验</div>
-          </section>
           <details class="pred-model-details">
             <summary>查看数据和模型详情</summary>
             <div class="pred-quality-row">${quality}<span>输出：${outputLabel}</span><span>模式：${predictionModeLabel(predictionMode)}</span><span>${confidenceText}</span><span>${dateRange}</span><span>${modelText}</span>${backtestText ? `<span>${backtestText}</span>` : ''}${conditionText ? `<span>${conditionText}</span>` : ''}<span>有效点 ${data.analysis?.dataPoints ?? stats?.count ?? 0}</span></div>

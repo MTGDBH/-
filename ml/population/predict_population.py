@@ -62,17 +62,17 @@ def predict_numeric(target: str, metadata: dict, payload: dict, models_dir: Path
 def predict_risk(target: str, tier: str, metadata: dict, payload: dict, models_dir: Path) -> dict:
     frame, completeness = feature_frame(payload, metadata["features"])
     if completeness < float(metadata["minimum_completeness"]):
-        return build_prediction_output(target, value_kind="estimated", status="insufficient_data", abstained=True, reason=f"特征完整度不足（{completeness:.0%}）", prediction_mode="risk", target_kind="abnormal_risk")
+        return build_prediction_output(target, value_kind="estimated", status="insufficient_data", abstained=True, reason=f"特征完整度不足（{completeness:.0%}）", prediction_mode="risk", target_kind=metadata.get("target_kind", "abnormal_risk"))
     model = joblib.load(models_dir / f"risk_{target}_{tier}.joblib")
     probability = float(model.predict_proba(frame)[0, 1])
     threshold = float(metadata["threshold"])
     level = str(risk_levels(np.asarray([probability]), threshold)[0])
     return build_prediction_output(
-        target, value_kind="estimated", status="available", horizon_days=1460,
+        target, value_kind="estimated", status="available", horizon_days=int(metadata.get("horizon_days", 1460)),
         model=f"charls_{metadata['selected_model']}_{tier}", risk_probability=round(probability, 6), risk_level=level,
-        prediction_mode="risk", target_kind="abnormal_risk",
+        prediction_mode="risk", target_kind=metadata.get("target_kind", "abnormal_risk"),
         metadata={
-            "population_horizon": "Wave1_to_Wave3", "feature_tier": tier,
+            "population_horizon": metadata.get("population_horizon", "Wave1_to_Wave3"), "feature_tier": tier,
             "feature_completeness": round(completeness, 3), "risk_threshold": threshold,
             "does_not_replace_laboratory_test": True,
         },
