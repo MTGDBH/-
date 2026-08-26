@@ -12,13 +12,12 @@
       "factor": "bp",
       "changed_fields": [
         "priority",
-        "action",
         "personalized_for",
         "recommendation_fingerprint"
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -26,18 +25,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp_high",
@@ -46,7 +45,7 @@
         "recommendation_fingerprint": [
           [
             "high",
-            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp_high",
@@ -54,7 +53,7 @@
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -70,7 +69,7 @@
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -78,14 +77,14 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "urgent",
@@ -100,7 +99,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -109,13 +108,12 @@
       "factor": "bp",
       "changed_fields": [
         "priority",
-        "action",
         "personalized_for",
         "recommendation_fingerprint"
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -123,18 +121,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp_high",
@@ -143,7 +141,7 @@
         "recommendation_fingerprint": [
           [
             "high",
-            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp_high",
@@ -151,7 +149,7 @@
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -160,13 +158,12 @@
       "factor": "bp",
       "changed_fields": [
         "priority",
-        "action",
         "personalized_for",
         "recommendation_fingerprint"
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -174,18 +171,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp_high",
@@ -194,7 +191,7 @@
         "recommendation_fingerprint": [
           [
             "high",
-            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp_high",
@@ -202,7 +199,7 @@
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -211,13 +208,12 @@
       "factor": "bp",
       "changed_fields": [
         "priority",
-        "action",
         "personalized_for",
         "recommendation_fingerprint"
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -225,18 +221,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp_high",
@@ -245,7 +241,7 @@
         "recommendation_fingerprint": [
           [
             "high",
-            "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp_high",
@@ -253,7 +249,7 @@
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -278,7 +274,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
@@ -293,7 +289,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -318,7 +314,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
@@ -333,7 +329,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -358,7 +354,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
@@ -373,7 +369,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -398,7 +394,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
@@ -413,7 +409,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -439,22 +435,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "kdigo_ckd_2024.md#评估与复测",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "kdigo_ckd_2024.md#评估与复测",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -480,22 +476,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "kdigo_ckd_2024.md#评估与复测",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "kdigo_ckd_2024.md#评估与复测",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -521,28 +517,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "kdigo_ckd_2024.md#评估与复测",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "kdigo_ckd_2024.md#评估与复测",
-            []
-          ],
-          [
-            "high",
-            "继续固定时间监测血压；肾脏疾病与血压需要一起管理。",
-            "kdigo_ckd_2024.md#血压与共病",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -568,22 +558,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "elderly_frailty.md#安全行动",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "elderly_frailty.md#安全行动",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -609,22 +599,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "elderly_frailty.md#安全行动",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "elderly_frailty.md#安全行动",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -650,22 +640,22 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "elderly_frailty.md#安全行动",
         "personalized_for": [],
         "recommendation_fingerprint": [
           [
             "high",
-            "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "elderly_frailty.md#安全行动",
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -689,7 +679,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "normal",
@@ -704,7 +694,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -728,7 +718,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "normal",
@@ -743,7 +733,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -767,7 +757,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "normal",
@@ -782,7 +772,7 @@
             []
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -791,14 +781,13 @@
       "factor": "smoking_status",
       "changed_fields": [
         "priority",
-        "action",
         "evidence",
         "personalized_for",
         "recommendation_fingerprint"
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -806,18 +795,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "high",
-        "action": "把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#危险因素",
         "personalized_for": [
           "tobacco_exposure"
@@ -825,22 +814,14 @@
         "recommendation_fingerprint": [
           [
             "high",
-            "把减少烟草暴露列为近期重点；如果需要，和医生讨论戒烟支持。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#危险因素",
             [
               "tobacco_exposure"
             ]
-          ],
-          [
-            "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
-            "who_hypertension_2025.md#识别与复测",
-            [
-              "recent_bp"
-            ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     },
@@ -852,7 +833,7 @@
       ],
       "baseline": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -860,18 +841,18 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed_signature": {
         "priority": "normal",
-        "action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+        "action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
         "evidence": "who_hypertension_2025.md#识别与复测",
         "personalized_for": [
           "recent_bp"
@@ -879,7 +860,7 @@
         "recommendation_fingerprint": [
           [
             "normal",
-            "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
+            "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
             "who_hypertension_2025.md#识别与复测",
             [
               "recent_bp"
@@ -894,7 +875,7 @@
             ]
           ]
         ],
-        "pre_review_count": 83
+        "pre_review_count": 90
       },
       "changed": true
     }

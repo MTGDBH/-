@@ -591,6 +591,7 @@ function buildLLMGraphContext(graph, includeWeeklyPlan = false) {
     recommendations: (graph?.recommendations || []).slice(0, 2).map(item => ({
       action: item.action, reason: item.reason, evidence: item.evidence,
       requires_confirmation: !!item.requires_confirmation, medical_boundary: item.medical_boundary || '',
+      action_type: item.action_type || '', gate_status: item.gate_status || 'allowed',
     })),
     personalization: {
       why_this_user: (graph?.personalization?.why_this_user || []).slice(0, 2),
@@ -645,10 +646,12 @@ function applyGraphGrounding(result, graph, options = {}) {
   const grounded = `${baseContent}${relationText}${researchText}${urgentText.length ? `\n安全提醒：${urgentText[0]}` : ''}`;
   const plan = recs.map((r, i) => ({
     icon: r.priority === 'urgent' ? '急' : '测',
-    title: r.priority === 'urgent' ? '立即关注' : r.priority === 'high' ? '尽快复测' : '继续记录',
+    title: r.gate_status === 'blocked_pending_clinician_review' ? '需要医生确认' : r.priority === 'urgent' ? '立即关注' : r.priority === 'high' ? '尽快复测' : '继续记录',
     desc: r.action,
     color: r.priority === 'urgent' ? 'red' : i === 0 ? 'orange' : 'green',
-    action_type: r.priority === 'urgent' ? 'contact_doctor' : /复测|复查|记录/.test(r.action) ? 'schedule_recheck' : 'create_todo',
+    action_type: r.action_type || (r.priority === 'urgent' ? 'contact_doctor' : /复测|复查|记录/.test(r.action) ? 'schedule_recheck' : 'create_todo'),
+    requires_confirmation: !!r.requires_confirmation,
+    gate_status: r.gate_status || 'allowed',
   }));
   const cleanedContent = compactResponseContent(grounded.replace(/(?:[a-z0-9_-]+\.md)(?:#[^\s）)；;]*)?/gi, '已引用的知识来源').replace(/undefined|null/g, ''), options.audience || 'elderly');
   return {

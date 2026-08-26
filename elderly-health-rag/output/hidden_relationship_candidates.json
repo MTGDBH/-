@@ -1,7 +1,7 @@
 {
   "schema_version": "hidden-relationship-candidate.v1",
-  "index_version": "2026-08-23.v7",
-  "generated_at": "2026-08-23",
+  "index_version": "2026-08-26.v9",
+  "generated_at": "2026-08-26",
   "candidate_count": 221,
   "policy": "仅供医生或审计人员复核；两跳路径不得自动改写为因果或进入老人行动建议。",
   "candidates": [

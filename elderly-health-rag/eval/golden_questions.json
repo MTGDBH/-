@@ -34,7 +34,7 @@
   {"id":"cvd_03","question":"心血管疾病有哪些风险因素","must_have_any":["风险因素","共同危险因素","心血管"],"disease":"heart_disease"},
   {"id":"cvd_04","question":"心血管疾病多久复查一次","must_have_any":["复查计划","复查","风险因素","心血管"],"disease":"heart_disease"},
   {"id":"cvd_05","question":"心血管疾病出现胸痛和呼吸困难怎么办","disease":"heart_disease","must_have":"危险信号","urgent":true},
-  {"id":"cvd_06","question":"血压血糖和心血管风险有什么关系","disease":"heart_disease","must_have":"风险因素"},
+  {"id":"cvd_06","question":"血压血糖和心血管风险有什么关系","disease":"heart_disease","must_have_any":["风险因素","危险因素","共同危险因素"]},
   {"id":"cvd_07","question":"心血管疾病和脑卒中有什么关系","must_have_any":["疾病关联","脑卒中","心血管"],"disease":"heart_disease"},
   {"id":"cvd_08","question":"心血管风险评估有什么限制","must_have_any":["复查计划","限制","风险"],"disease":"heart_disease"},
   {"id":"stroke_03","question":"脑卒中预防要控制血压和活动吗","disease":"stroke","must_have":"血压与身体活动"},

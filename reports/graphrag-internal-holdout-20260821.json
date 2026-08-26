@@ -2,10 +2,10 @@
   "schema_version": "graphrag-internal-holdout.v1",
   "run_id": "graphrag-internal-paraphrase-holdout-20260821",
   "data_class": "test_internal_paraphrase",
-  "index_version": "2026-08-21.v6",
+  "index_version": "2026-08-26.v9",
   "summary": {
     "n_cases": 24,
-    "must_have_recall": 1.0,
+    "must_have_recall": 0.9166666666666666,
     "citation_case_rate": 1.0,
     "path_case_rate": 1.0,
     "urgent_recall": 1.0
@@ -20,10 +20,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 50,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "h02",
@@ -34,10 +34,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 78,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "h03",
@@ -48,10 +48,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 78,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "h04",
@@ -62,10 +62,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 78,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "d01",
@@ -76,10 +76,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 72,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "d02",
@@ -90,10 +90,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 61,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "d03",
@@ -104,10 +104,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 61,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "c01",
@@ -118,10 +118,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 13,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 12,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "c02",
@@ -132,24 +132,24 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 26,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "c03",
-      "must_have_hit": true,
+      "must_have_hit": false,
       "urgent_expected": false,
       "urgent_hit": null,
       "citations": 6,
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 71,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "s01",
@@ -160,24 +160,24 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 14,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 27,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "s02",
-      "must_have_hit": true,
+      "must_have_hit": false,
       "urgent_expected": false,
       "urgent_hit": null,
       "citations": 6,
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 14,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 18,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "s03",
@@ -188,10 +188,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 14,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 18,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "k01",
@@ -202,10 +202,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 62,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "k02",
@@ -216,10 +216,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 40,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "k03",
@@ -230,10 +230,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 62,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "k04",
@@ -244,10 +244,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 41,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "f01",
@@ -258,10 +258,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 64,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "f02",
@@ -272,10 +272,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 64,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "f03",
@@ -286,10 +286,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 61,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "b01",
@@ -300,10 +300,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 78,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "b02",
@@ -314,10 +314,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 61,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "a01",
@@ -328,10 +328,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 16,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 78,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "a02",
@@ -342,10 +342,10 @@
       "paths": 12,
       "medical_gate": {
         "audience": "elderly",
-        "blocked_edge_count": 15,
-        "policy": "老人端过滤待临床确认关系；明确 legacy 待复核来源默认只标记并降权，严格模式才排除；urgent_signal/emergency_action仅作为安全提示保留；医生/审计视图保留完整关系"
+        "blocked_edge_count": 61,
+        "policy": "未获临床批准的高风险/冲突/失效来源关系不可生成普通行动、诊断暗示或用药建议；急症边仅作安全提示；医生/审计可见不等于批准"
       },
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     }
   ],
   "limitations": [

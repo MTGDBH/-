@@ -12,8 +12,8 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from curve_utils import parse_points, dedup_time, clean_series, time_ordered_split, model_metrics
-from health_curve import analyze
+from curve_utils import FoldLocalPipeline, parse_points, dedup_time, clean_series, time_ordered_split, model_metrics
+from health_curve import _backtest, _rows, analyze
 
 PASS, FAIL = 0, 0
 
@@ -95,7 +95,7 @@ ok('重复时间合并为均值', len(vs) == 2 and abs(vs[0] - 130) < 1e-6, str(
 print('=== 11. 极端异常值（MAD 清洗后仍可拟合）===')
 vals = [128, 129, 127, 128, 999, 126, 128, 127, 129, 128]
 r = analyze('systo', 'mmHg', pts(vals))
-ok('极端值被标记', r['abnormal_spike'] is True, str(r['abnormal_spike']))
+ok('医学范围外值标记为 measurement_error', bool(r['measurement_error_indices']) and r['abnormal_spike'] is False, str(r))
 ok('清洗后趋势稳定', r['long_term_trend'] == 'stable', r['long_term_trend'])
 
 print('=== 12. 多指标（逐指标分析，无数据指标 insufficient）===')
@@ -119,7 +119,7 @@ for i in range(30):
 r = analyze('glucose', 'mmol/L', glu, forecast_days=7, condition_group='fasting')
 ok('空腹血糖可按条件预测', r['forecast']['available'] is True, str(r['forecast']))
 r = analyze('glucose', 'mmol/L', [dict(p, condition='unknown') for p in glu], forecast_days=7, condition_group='unknown')
-ok('未标记血糖不混合预测', r['forecast']['available'] is False and 'unknown' in r['forecast']['reason'], str(r['forecast']))
+ok('未标记血糖不混合预测', r['forecast']['available'] is False and r['forecast']['reason_code'] == 'MEASUREMENT_CONDITION_NOT_READY', str(r['forecast']))
 
 print('=== 15. conservative forecast gate ===')
 r = analyze('systo', 'mmHg', pts([120, 122, 124, 126, 128, 130, 132, 134, 136, 138]), forecast_days=30)
@@ -141,6 +141,62 @@ try:
     ok('CLI 无 traceback', 'Traceback' not in proc.stdout + proc.stderr)
 except json.JSONDecodeError:
     ok('CLI 返回合法 JSON', False, proc.stdout[:120])
+
+print('=== 17. fold-local：末尾未来极端点不改变更早 origin ===')
+start = datetime(2026, 1, 1, 8, tzinfo=timezone.utc)
+base_points = [{'t': (start + timedelta(days=i)).isoformat(), 'v': 120 + i * 0.4, 'condition': 'morning_rest'} for i in range(42)]
+future_points = base_points + [{'t': (start + timedelta(days=60)).isoformat(), 'v': 999, 'condition': 'morning_rest'}]
+base_bt = _backtest(_rows(base_points, 'systo'), 'systo')
+future_bt = _backtest(_rows(future_points, 'systo'), 'systo')
+base_audit = {row['origin_day']: row for row in base_bt['selection_fold_audit'] + base_bt['calibration_fold_audit']}
+future_audit = {row['origin_day']: row for row in future_bt['selection_fold_audit'] + future_bt['calibration_fold_audit']}
+shared = sorted(set(base_audit) & set(future_audit))
+ok('存在可比较的共同历史折', bool(shared))
+ok('共同 origin 的清洗结果与预测完全一致', all(base_audit[day]['train_clean_values'] == future_audit[day]['train_clean_values'] and base_audit[day]['predicted'] == future_audit[day]['predicted'] for day in shared))
+
+print('=== 18. 连续水平迁移保留为 change_point ===')
+shift_points = [{'t': (start + timedelta(days=i)).isoformat(), 'v': 120 + (30 if i >= 10 else 0), 'condition': 'morning_rest'} for i in range(15)]
+shift_result = analyze('systo', 'mmHg', shift_points)
+ok('连续迁移被标记 change_point', shift_result['change_point'] is True, str(shift_result.get('change_point_indices')))
+ok('连续迁移点没有全部删除', shift_result['data_points'] >= 14, str(shift_result['data_points']))
+
+print('=== 19. 模型选择集与校准集不重叠 ===')
+bt = _backtest(_rows(base_points, 'systo'), 'systo')
+ok('selection/calibration origin 不重叠', set(bt['selection_origin_indices']).isdisjoint(bt['calibration_origin_indices']))
+ok('选择目标严格早于校准 origin', bt['selection_target_before_calibration'] is True, str(bt))
+
+print('=== 20. 不同测量条件不混合 ===')
+mixed_glucose = []
+for i in range(30):
+    mixed_glucose.append({'t': (start + timedelta(days=i)).isoformat(), 'v': 5.2 + i * 0.01, 'condition': 'fasting' if i % 2 == 0 else 'random'})
+mixed_result = analyze('glucose', 'mmol/L', mixed_glucose)
+ok('混合条件结构化拒绝', mixed_result['forecast']['reason_code'] == 'MIXED_MEASUREMENT_CONDITIONS', str(mixed_result['forecast']))
+fasting_result = analyze('glucose', 'mmol/L', mixed_glucose, condition_group='fasting')
+ok('显式组只保留 fasting', fasting_result['measurement_groups'] == ['glucose:fasting'], str(fasting_result.get('measurement_groups')))
+bp_mixed = []
+for i in range(30):
+    bp_mixed.append({'t': (start + timedelta(days=i)).isoformat(), 'v': 125 + i * 0.05, 'posture': 'seated' if i % 2 == 0 else 'standing', 'measurement_period': 'morning', 'device_source': 'home_cuff_a', 'repeat_status': 'confirmed'})
+bp_mixed_result = analyze('systo', 'mmHg', bp_mixed)
+ok('血压姿势不同不混合', bp_mixed_result['forecast']['reason_code'] == 'MIXED_MEASUREMENT_CONDITIONS', str(bp_mixed_result['forecast']))
+pulse_result = analyze('pulse', 'bpm', [dict(point, v=68 + i * 0.02, condition='resting') for i, point in enumerate(base_points[:30])], condition_group='resting')
+ok('pulse 仅 resting 组可进入预测策略', pulse_result.get('selected_measurement_group') == 'pulse:resting', str(pulse_result.get('selected_measurement_group')))
+weight_result = analyze('weight', 'kg', [dict(point, v=70 + i * 0.01, condition='morning_similar_clothing') for i, point in enumerate(base_points[:30])], condition_group='morning_similar_clothing')
+ok('weight 使用晨起相近衣着组', weight_result.get('selected_measurement_group') == 'weight:morning_similar_clothing', str(weight_result.get('selected_measurement_group')))
+
+print('=== 21. 医学边界保留原始预测并标记 ===')
+boundary_points = [{'t': (start + timedelta(days=i)).isoformat(), 'v': 100 + 4 * i, 'condition': 'morning_rest'} for i in range(35)]
+boundary_result = analyze('systo', 'mmHg', boundary_points, forecast_days=7)
+ok('boundary_hit=true', boundary_result['forecast']['available'] and boundary_result['forecast']['boundary_hit'] is True, str(boundary_result['forecast']))
+ok('保留越界原始预测并限制展示值', max(boundary_result['forecast']['unclipped_prediction']) > 260 and max(boundary_result['forecast']['curve']['predicted']) <= 260 and bool(boundary_result['forecast']['safety_message']))
+
+print('=== 22. 时区与夏令时不改变本地日期分组 ===')
+dst_points = [
+    {'t': '2026-11-01T01:30:00-04:00', 'v': 70, 'condition': 'morning_similar_clothing', 'timezone': 'America/New_York'},
+    {'t': '2026-11-01T01:30:00-05:00', 'v': 72, 'condition': 'morning_similar_clothing', 'timezone': 'America/New_York'},
+]
+dst_rows = _rows(dst_points, 'weight')
+dst_daily = FoldLocalPipeline('weight')._daily(dst_rows)
+ok('DST 重复小时仍属于同一测量日', len(dst_daily) == 1 and dst_daily[0]['local_day'] == '2026-11-01', str(dst_daily))
 
 print(f'\n结果: {PASS} 通过 / {FAIL} 失败')
 sys.exit(0 if FAIL == 0 else 1)

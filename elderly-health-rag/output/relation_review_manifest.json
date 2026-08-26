@@ -1,7 +1,7 @@
 {
   "schema_version": "relation-review.v1",
-  "index_version": "2026-08-23.v7",
-  "generated_at": "2026-08-23",
+  "index_version": "2026-08-26.v9",
+  "generated_at": "2026-08-26",
   "policy": "high_strength_or_safety_relation",
   "statuses": {
     "pending_medical_review": 90,
@@ -18,9 +18,17 @@
       "evidence": "registry:hypertension_curated_01#高血压老年人证据摘要：定义与老年特点",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -33,7 +41,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -45,9 +53,17 @@
       "evidence": "registry:hypertension_curated_02#高血压老年人证据摘要：家庭测量与复测",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -60,7 +76,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -72,9 +88,17 @@
       "evidence": "registry:hypertension_curated_06#高血压老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -88,7 +112,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -100,9 +124,17 @@
       "evidence": "registry:hypertension_curated_07#高血压老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -115,7 +147,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -127,9 +159,17 @@
       "evidence": "registry:diabetes_curated_01#2型糖尿病老年人证据摘要：定义与老年特点",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -142,7 +182,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -154,9 +194,17 @@
       "evidence": "registry:diabetes_curated_02#2型糖尿病老年人证据摘要：空腹与餐后血糖",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -169,7 +217,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -181,9 +229,17 @@
       "evidence": "registry:diabetes_curated_06#2型糖尿病老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -197,7 +253,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -209,9 +265,17 @@
       "evidence": "registry:diabetes_curated_07#2型糖尿病老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -224,7 +288,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -236,9 +300,17 @@
       "evidence": "registry:cardiovascular_curated_01#心血管疾病老年人证据摘要：共同危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -251,7 +323,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -263,9 +335,17 @@
       "evidence": "registry:cardiovascular_curated_02#心血管疾病老年人证据摘要：血脂与血压",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -278,7 +358,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -290,9 +370,17 @@
       "evidence": "registry:cardiovascular_curated_06#心血管疾病老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -306,7 +394,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -318,9 +406,17 @@
       "evidence": "registry:cardiovascular_curated_07#心血管疾病老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -333,7 +429,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -345,9 +441,17 @@
       "evidence": "registry:stroke_curated_01#脑卒中老年人证据摘要：一级预防",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -360,7 +464,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -372,9 +476,17 @@
       "evidence": "registry:stroke_curated_02#脑卒中老年人证据摘要：血压与卒中",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -387,7 +499,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -399,9 +511,17 @@
       "evidence": "registry:stroke_curated_06#脑卒中老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -415,7 +535,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -427,9 +547,17 @@
       "evidence": "registry:stroke_curated_07#脑卒中老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -442,7 +570,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -454,9 +582,17 @@
       "evidence": "registry:chronic_kidney_disease_curated_01#慢性肾脏病老年人证据摘要：定义与持续时间",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -469,7 +605,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -481,9 +617,17 @@
       "evidence": "registry:chronic_kidney_disease_curated_02#慢性肾脏病老年人证据摘要：eGFR与肌酐",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -496,7 +640,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -508,9 +652,17 @@
       "evidence": "registry:chronic_kidney_disease_curated_06#慢性肾脏病老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -524,7 +676,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -536,9 +688,17 @@
       "evidence": "registry:chronic_kidney_disease_curated_07#慢性肾脏病老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -551,7 +711,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -563,9 +723,17 @@
       "evidence": "registry:frailty_curated_01#老年衰弱与跌倒风险老年人证据摘要：衰弱识别",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -578,7 +746,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -590,9 +758,17 @@
       "evidence": "registry:frailty_curated_02#老年衰弱与跌倒风险老年人证据摘要：握力与功能",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -605,7 +781,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -617,9 +793,17 @@
       "evidence": "registry:frailty_curated_06#老年衰弱与跌倒风险老年人证据摘要：系统综述与预测因素",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -633,7 +817,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -645,9 +829,17 @@
       "evidence": "registry:frailty_curated_07#老年衰弱与跌倒风险老年人证据摘要：关键随机试验",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -660,7 +852,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -672,9 +864,17 @@
       "evidence": "registry:who_hypertension_2025_guidance#高血压：WHO事实表与管理原则",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -687,7 +887,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -699,9 +899,17 @@
       "evidence": "registry:ada_older_adults_2025_guidance#ADA老年糖尿病标准：功能、低血糖与个体化管理",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -714,7 +922,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -726,9 +934,17 @@
       "evidence": "registry:who_cvd_2025_guidance#WHO心血管疾病事实表与共同危险因素框架",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -741,7 +957,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -753,9 +969,17 @@
       "evidence": "registry:aha_asa_stroke_2024_guidance#AHA/ASA卒中一级预防指南要点",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -768,7 +992,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -780,9 +1004,17 @@
       "evidence": "registry:kdigo_ckd_2024_guidance#KDIGO慢性肾脏病评估与管理指南",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -795,7 +1027,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -807,9 +1039,17 @@
       "evidence": "registry:who_ageing_2024_frailty_guidance#WHO老龄化与健康：功能和衰弱安全框架",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -822,7 +1062,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -834,9 +1074,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -849,7 +1097,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -861,9 +1109,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -876,7 +1132,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -888,9 +1144,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -903,7 +1167,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -915,9 +1179,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -930,7 +1202,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -942,9 +1214,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -957,7 +1237,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -969,9 +1249,17 @@
       "evidence": "who_hypertension_2025.md#危险因素",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -984,7 +1272,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -996,9 +1284,17 @@
       "evidence": "who_hypertension_2025.md#识别与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1011,7 +1307,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1023,9 +1319,17 @@
       "evidence": "who_hypertension_2025.md#并发症",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1038,7 +1342,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1050,9 +1354,17 @@
       "evidence": "who_hypertension_2025.md#并发症",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1065,7 +1377,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1077,9 +1389,17 @@
       "evidence": "who_hypertension_2025.md#并发症",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1092,7 +1412,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1104,9 +1424,17 @@
       "evidence": "who_hypertension_2025.md#识别与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1119,7 +1447,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1131,9 +1459,17 @@
       "evidence": "who_hypertension_2025.md#生活方式干预",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1146,7 +1482,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1158,9 +1494,17 @@
       "evidence": "who_hypertension_2025.md#生活方式干预",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1173,7 +1517,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1185,9 +1529,17 @@
       "evidence": "who_diabetes_2024.md#2型糖尿病",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1200,7 +1552,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1212,9 +1564,17 @@
       "evidence": "who_diabetes_2024.md#预防",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1228,7 +1588,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1240,9 +1600,17 @@
       "evidence": "who_diabetes_2024.md#诊断与治疗",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1256,7 +1624,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1268,9 +1636,17 @@
       "evidence": "ada_older_adults_2025.md#综合评估",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1284,7 +1660,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1296,9 +1672,17 @@
       "evidence": "who_diabetes_2024.md#长期影响",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1312,7 +1696,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1324,9 +1708,17 @@
       "evidence": "who_diabetes_2024.md#长期影响",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1340,7 +1732,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1352,9 +1744,17 @@
       "evidence": "who_diabetes_2024.md#长期影响",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1368,7 +1768,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1380,9 +1780,17 @@
       "evidence": "ada_older_adults_2025.md#生活方式",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1396,7 +1804,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1408,9 +1816,17 @@
       "evidence": "ada_older_adults_2025.md#生活方式",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1424,7 +1840,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1436,9 +1852,17 @@
       "evidence": "ada_older_adults_2025.md#老年人综合评估",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1451,7 +1875,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1463,9 +1887,17 @@
       "evidence": "who_cvd_2025.md#风险因素",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1479,7 +1911,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1491,9 +1923,17 @@
       "evidence": "who_cvd_2025.md#风险因素",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1507,7 +1947,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1519,9 +1959,17 @@
       "evidence": "who_cvd_2025.md#风险因素",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1535,7 +1983,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1547,9 +1995,17 @@
       "evidence": "who_cvd_2025.md#风险因素",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1563,7 +2019,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1575,9 +2031,17 @@
       "evidence": "aha_stroke_prevention_2024.md#血压管理",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1591,7 +2055,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1603,9 +2067,17 @@
       "evidence": "aha_stroke_prevention_2024.md#身体活动",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1619,7 +2091,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1631,9 +2103,17 @@
       "evidence": "aha_stroke_prevention_2024.md#饮食模式",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1646,7 +2126,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1658,9 +2138,17 @@
       "evidence": "cardiovascular.md#危险信号",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1674,7 +2162,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1686,9 +2174,17 @@
       "evidence": "aha_stroke_prevention_2024.md#饮食模式",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1701,7 +2197,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1713,9 +2209,17 @@
       "evidence": "dpp_2002.md#试验结论",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1729,7 +2233,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1741,9 +2245,17 @@
       "evidence": "aha_stroke_prevention_2024.md#血压管理",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -1757,7 +2269,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1769,9 +2281,17 @@
       "evidence": "predimed_2018.md#试验要点",
       "evidence_level": "randomized_trial",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1784,7 +2304,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1796,9 +2316,17 @@
       "evidence": "predimed_2018.md#试验要点",
       "evidence_level": "randomized_trial",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1811,7 +2339,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1823,9 +2351,17 @@
       "evidence": "kdigo_ckd_2024.md#评估与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1838,7 +2374,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1850,9 +2386,17 @@
       "evidence": "kdigo_ckd_2024.md#评估与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1865,7 +2409,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1877,9 +2421,17 @@
       "evidence": "kdigo_ckd_2024.md#评估与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1892,7 +2444,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1904,9 +2456,17 @@
       "evidence": "kdigo_ckd_2024.md#血压与共病",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1919,7 +2479,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1931,9 +2491,17 @@
       "evidence": "kdigo_ckd_2024.md#血压与共病",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1946,7 +2514,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1958,9 +2526,17 @@
       "evidence": "kdigo_ckd_2024.md#老年人安全边界",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -1973,7 +2549,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -1985,9 +2561,17 @@
       "evidence": "kdigo_ckd_2024.md#血压与共病",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2000,7 +2584,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2012,9 +2596,17 @@
       "evidence": "kdigo_ckd_2024.md#血压与共病",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2027,7 +2619,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2039,9 +2631,17 @@
       "evidence": "kdigo_ckd_2024.md#评估与复测",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2054,7 +2654,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2066,9 +2666,17 @@
       "evidence": "kdigo_ckd_2024.md#老年人安全边界",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2081,7 +2689,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2093,9 +2701,17 @@
       "evidence": "who_physical_activity_2020.md#安全提醒",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2108,7 +2724,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2120,9 +2736,17 @@
       "evidence": "older_adult_safety.md#功能和虚弱",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2135,7 +2759,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2147,9 +2771,17 @@
       "evidence": "older_adult_safety.md#低血糖与用药",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2163,7 +2795,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2175,9 +2807,17 @@
       "evidence": "older_adult_safety.md#低血糖与用药",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2190,7 +2830,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2202,9 +2842,17 @@
       "evidence": "older_adult_safety.md#低血糖与用药",
       "evidence_level": "professional_guideline",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2217,7 +2865,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2229,9 +2877,17 @@
       "evidence": "elderly_frailty.md#安全行动",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2244,7 +2900,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2256,9 +2912,17 @@
       "evidence": "elderly_frailty.md#安全行动",
       "evidence_level": "authoritative_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2271,7 +2935,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2283,9 +2947,17 @@
       "evidence": "cdc_steadi_2025.md#协同处理",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -2299,7 +2971,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2311,9 +2983,17 @@
       "evidence": "cdc_steadi_2025.md#协同处理",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -2326,7 +3006,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2338,9 +3018,17 @@
       "evidence": "cdc_steadi_2025.md#药物与跌倒",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -2353,7 +3041,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2365,9 +3053,17 @@
       "evidence": "cdc_vision_falls_2024.md#预防行动",
       "evidence_level": "public_guidance",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -2381,7 +3077,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2393,9 +3089,17 @@
       "evidence": "aha_sleep_brain_2024.md#老年人解释边界",
       "evidence_level": "professional_statement",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "needs_clinician_confirmation",
       "ai_review_opinion": {
         "evidence_assessment": "方向与来源摘要一致，但当前证据等级或摘要化程度不足以单独支持个体医疗决定。",
@@ -2408,7 +3112,7 @@
         "clinical_confirmation_required": true,
         "decision_label": "AI预审：保留并要求临床确认"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2420,9 +3124,17 @@
       "evidence": "ada_older_adults_2026.md#认知与低血糖",
       "evidence_level": "clinical_standard",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2435,7 +3147,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     },
     {
@@ -2447,9 +3159,17 @@
       "evidence": "ada_older_adults_2026.md#照护支持",
       "evidence_level": "clinical_standard",
       "review_status": "pending_medical_review",
-      "reviewer_role": "geriatric_or_primary_care_clinician",
+      "required_reviewer_role": "geriatric_or_primary_care_clinician",
+      "reviewer_role": null,
       "review_reason": "高风险关系进入老人端建议或安全过滤前必须完成医学审核",
       "last_verified": "2026-08-20",
+      "reviewer_name_or_id": null,
+      "reviewed_at": null,
+      "decision_rationale": null,
+      "population_scope": null,
+      "allowed_audience": null,
+      "conditions_or_exceptions": null,
+      "source_version_checked": null,
       "ai_pre_review_status": "eligible_for_demo_education",
       "ai_review_opinion": {
         "evidence_assessment": "来源元数据完整，证据片段可定位；该判断仅支持健康教育/风险解释，不等于个体诊断。",
@@ -2462,7 +3182,7 @@
         "clinical_confirmation_required": false,
         "decision_label": "AI预审：允许演示/健康教育"
       },
-      "ai_reviewed_at": "2026-08-23",
+      "ai_reviewed_at": "2026-08-26",
       "ai_reviewer": "AI evidence-governance pre-review (not a licensed clinician)"
     }
   ],

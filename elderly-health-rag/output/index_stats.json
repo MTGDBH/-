@@ -1,0 +1,12 @@
+{
+  "schema_version": "graphrag-index-stats.v1",
+  "generated_at": "2026-08-26",
+  "index_version": "2026-08-26.v9",
+  "chunks": 129,
+  "entities": 192,
+  "relationships": 557,
+  "hidden_relationship_candidates": 221,
+  "communities": 6,
+  "sources": 83,
+  "invalid_relations": 0
+}

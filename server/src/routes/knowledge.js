@@ -21,6 +21,16 @@ function requireDoctor(req, res) {
   return true;
 }
 
+function roleAudience(req) {
+  return ['doctor', 'clinician', 'audit'].includes(req.user?.role) ? req.user.role : req.user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+}
+
+function hasResearchPreviewAccess(req) {
+  if (['doctor', 'clinician', 'audit'].includes(req.user?.role)) return true;
+  const permissions = Array.isArray(req.user?.permissions) ? req.user.permissions : [];
+  return req.user?.research_preview_authorized === true || permissions.includes('knowledge_graph_research_preview');
+}
+
 // 列表（支持分类过滤 + 分页 + 关键词）
 router.get('/', (req, res) => {
   const { category, q, audience } = req.query;
@@ -73,10 +83,13 @@ router.get('/graph/query', async (req, res) => {
   const question = String(req.query.q || '').trim();
   if (!question) return res.status(400).json({ error: 'q is required' });
   const disease = req.query.disease ? String(req.query.disease) : null;
-  const roleAudience = req.user?.role === 'doctor' ? 'doctor' : req.user?.role === 'caregiver' ? 'caregiver' : 'elderly';
-  const requestedAudience = ['elderly', 'caregiver', 'doctor'].includes(req.query.audience) ? req.query.audience : roleAudience;
+  const userAudience = roleAudience(req);
+  const requestedAudience = ['elderly', 'caregiver', 'doctor', 'clinician', 'audit'].includes(req.query.audience) ? req.query.audience : userAudience;
   // 查询者不能通过 URL 参数把自己提升到医生视图。
-  const audience = requestedAudience === 'doctor' && req.user?.role !== 'doctor' ? roleAudience : requestedAudience;
+  const elevatedAudience = ['doctor', 'clinician', 'audit'].includes(requestedAudience);
+  const audience = elevatedAudience && requestedAudience !== req.user?.role ? userAudience : requestedAudience;
+  const researchPreview = req.query.research_preview === 'true';
+  const researchPreviewAuthorized = researchPreview && hasResearchPreviewAccess(req);
   try {
     res.json(await queryKnowledgeGraph(question, disease, buildHealthContext(req.user, 90), {
       audience,
@@ -84,19 +97,29 @@ router.get('/graph/query', async (req, res) => {
       maxHops: req.query.max_hops,
       includeTrace: req.query.trace !== '0',
       explainLevel: req.query.explain_level,
+      sourceGate: req.query.source_gate,
+      researchPreview,
+      researchPreviewAuthorized,
     }));
   }
   catch { res.status(503).json({ error: 'knowledge graph unavailable' }); }
 });
 
-// 测试版关系发现：所有登录角色可只读查看；仍禁止自动生成医疗行动。
+// 测试版关系发现：医生/临床/审计，或显式预览且具备授权者可只读查看。
 router.get('/graph/relationship-candidates', async (req, res) => {
   const question = String(req.query.q || '老年人 功能 情绪 认知 跌倒 多重用药 睡眠 营养').trim();
-  const audience = req.user?.role === 'doctor' ? 'doctor' : req.user?.role === 'caregiver' ? 'caregiver' : 'elderly';
+  const audience = roleAudience(req);
+  const privileged = ['doctor', 'clinician', 'audit'].includes(req.user?.role);
+  const researchPreview = req.query.research_preview === 'true';
+  if (!privileged && !(researchPreview && hasResearchPreviewAccess(req))) {
+    return res.status(403).json({ error: 'research preview authorization required' });
+  }
   try {
     const result = await queryKnowledgeGraph(question, null, {}, {
       audience, topK: 8, maxHops: 2, includeTrace: false,
-      explainLevel: audience === 'doctor' ? 'audit' : 'standard', enableHiddenRelationships: true,
+      explainLevel: privileged ? 'audit' : 'standard',
+      researchPreview: true,
+      researchPreviewAuthorized: true,
     });
     res.json({
       index_version: result.index_version,

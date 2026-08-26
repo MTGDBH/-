@@ -10,7 +10,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_02",
@@ -19,7 +19,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_03",
@@ -28,7 +28,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_04",
@@ -37,7 +37,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_01",
@@ -46,7 +46,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_02",
@@ -55,7 +55,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_03",
@@ -64,7 +64,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_01",
@@ -73,7 +73,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_02",
@@ -82,7 +82,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_01",
@@ -91,7 +91,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_02",
@@ -100,7 +100,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_01",
@@ -109,7 +109,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_02",
@@ -118,7 +118,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_03",
@@ -127,7 +127,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_01",
@@ -136,7 +136,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_02",
@@ -145,7 +145,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "behavior_01",
@@ -154,7 +154,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "behavior_02",
@@ -163,7 +163,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "care_01",
@@ -172,7 +172,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "safety_01",
@@ -181,7 +181,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_05",
@@ -190,7 +190,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_06",
@@ -199,7 +199,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_07",
@@ -208,7 +208,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_08",
@@ -217,7 +217,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_09",
@@ -226,7 +226,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "htn_10",
@@ -235,7 +235,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_04",
@@ -244,7 +244,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_05",
@@ -253,7 +253,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_06",
@@ -262,7 +262,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_07",
@@ -271,7 +271,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_08",
@@ -280,7 +280,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "dm_09",
@@ -289,7 +289,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_03",
@@ -298,7 +298,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_04",
@@ -307,7 +307,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_05",
@@ -316,7 +316,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_06",
@@ -325,7 +325,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_07",
@@ -334,7 +334,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "cvd_08",
@@ -343,7 +343,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_03",
@@ -352,7 +352,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_04",
@@ -361,7 +361,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_05",
@@ -370,7 +370,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_06",
@@ -379,7 +379,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_07",
@@ -388,7 +388,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "stroke_08",
@@ -397,7 +397,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_04",
@@ -406,7 +406,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_05",
@@ -415,7 +415,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_06",
@@ -424,7 +424,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_07",
@@ -433,7 +433,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_08",
@@ -442,7 +442,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "ckd_09",
@@ -451,7 +451,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_03",
@@ -460,7 +460,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_04",
@@ -469,7 +469,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_05",
@@ -478,7 +478,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_06",
@@ -487,7 +487,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_07",
@@ -496,7 +496,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "frailty_08",
@@ -505,7 +505,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "behavior_03",
@@ -514,7 +514,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "behavior_04",
@@ -523,7 +523,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "care_02",
@@ -532,7 +532,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "care_03",
@@ -541,7 +541,7 @@
       "citations": 6,
       "urgent_detected": false,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     },
     {
       "id": "safety_02",
@@ -550,7 +550,7 @@
       "citations": 6,
       "urgent_detected": true,
       "graph_mode": "local_hybrid",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v9"
     }
   ]
 }

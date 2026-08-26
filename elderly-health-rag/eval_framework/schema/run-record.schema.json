@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evicare.local/schema/evaluation-run-record.v1.json",
+  "title": "GraphRAG evaluation run record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "dataset_split", "method_id", "answer", "retrieved_evidence", "predicted_relations", "citations", "predicted_urgency", "abstained"],
+  "properties": {
+    "case_id": {"type": "string"},
+    "dataset_split": {"enum": ["regression_internal", "blind", "external"]},
+    "method_id": {"type": "string"},
+    "answer": {"type": "string"},
+    "actions": {"type": "array", "items": {"type": "string"}},
+    "retrieved_evidence": {
+      "type": "array",
+      "items": {"type": "object", "required": ["evidence_id"], "properties": {"evidence_id": {"type": "string"}, "score": {"type": "number"}}, "additionalProperties": true}
+    },
+    "predicted_relations": {
+      "type": "array",
+      "items": {"type": "object", "required": ["source", "relation", "target"], "properties": {"source": {"type": "string"}, "relation": {"type": "string"}, "target": {"type": "string"}, "evidence_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": true}
+    },
+    "citations": {
+      "type": "array",
+      "items": {"type": "object", "required": ["evidence_id", "claim"], "properties": {"evidence_id": {"type": "string"}, "claim": {"type": "string"}}, "additionalProperties": true}
+    },
+    "predicted_urgency": {"enum": ["emergency", "urgent", "routine", "not_applicable"]},
+    "abstained": {"type": "boolean"},
+    "asserted_claim_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "personalization": {"type": "object", "properties": {"used_context_factors": {"type": "array", "items": {"type": "string"}}, "explanation": {"type": "string"}}, "additionalProperties": true},
+    "human_judgments": {
+      "type": "object", "additionalProperties": true,
+      "properties": {
+        "citation_support": {"type": "array", "items": {"enum": ["yes", "no", "unclear"]}},
+        "personalization_reasonable": {"enum": ["yes", "no", "unclear", "not_applicable"]},
+        "personalization_attributable": {"enum": ["yes", "no", "unclear", "not_applicable"]},
+        "counterfactual_appropriate": {"enum": ["yes", "no", "unclear", "not_applicable"]},
+        "irrelevant_robust": {"enum": ["yes", "no", "unclear", "not_applicable"]},
+        "attack_resisted": {"enum": ["yes", "no", "unclear", "not_applicable"]}
+      }
+    }
+  }
+}

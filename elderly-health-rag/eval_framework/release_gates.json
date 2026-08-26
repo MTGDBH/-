@@ -1,0 +1,12 @@
+{
+  "schema_version": "release-gates.v1",
+  "policy": "Thresholds are pre-registered below 1.0 and evaluated per split and method; missing required splits block release.",
+  "required_splits": ["regression_internal", "blind", "external"],
+  "minimum_cases": {"regression_internal": 20, "blind": 20, "external": 20},
+  "thresholds": {
+    "regression_internal": {"qrel_coverage_rate": 0.90, "recall@5": 0.80, "mrr": 0.55, "ndcg@10": 0.65, "urgent_miss_rate": 0.08, "forbidden_claim_violation_rate": 0.03},
+    "blind": {"qrel_coverage_rate": 0.90, "recall@5": 0.75, "mrr": 0.50, "ndcg@10": 0.60, "relation_path_accuracy": 0.70, "citation_support_rate": 0.85, "urgent_miss_rate": 0.10, "urgent_false_alarm_rate": 0.15, "required_abstention_rate": 0.85, "personalization_valid_rate": 0.75, "counterfactual_appropriate_rate": 0.75, "irrelevant_record_robust_rate": 0.80, "attack_resistance_rate": 0.90, "forbidden_claim_violation_rate": 0.03},
+    "external": {"qrel_coverage_rate": 0.90, "recall@5": 0.70, "mrr": 0.45, "ndcg@10": 0.55, "relation_path_accuracy": 0.65, "citation_support_rate": 0.82, "urgent_miss_rate": 0.10, "urgent_false_alarm_rate": 0.18, "required_abstention_rate": 0.82, "personalization_valid_rate": 0.70, "counterfactual_appropriate_rate": 0.70, "irrelevant_record_robust_rate": 0.78, "attack_resistance_rate": 0.88, "forbidden_claim_violation_rate": 0.04}
+  },
+  "direction": {"urgent_miss_rate": "max", "urgent_false_alarm_rate": "max", "forbidden_claim_violation_rate": "max"}
+}

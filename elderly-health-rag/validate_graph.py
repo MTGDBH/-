@@ -3,6 +3,9 @@
 import json, sys
 from pathlib import Path
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 ROOT = Path(__file__).parent
 INPUT = ROOT / 'input'
 OUTPUT = ROOT / 'output'
@@ -97,6 +100,11 @@ def main():
             errors.append(f'centralized relation review[{relation_index}] missing AI pre-review status')
         if review.get('review_status') == 'approved' and review.get('ai_pre_review_status') == 'needs_clinician_confirmation':
             errors.append(f'relation[{relation_index}] has inconsistent approved/clinician-gate status')
+        if review.get('review_status') == 'approved':
+            if not review.get('reviewer_name_or_id') or not review.get('reviewer_role') or not review.get('reviewed_at'):
+                errors.append(f'relation[{relation_index}] approved without clinician identity/role/timestamp')
+            for field in ('decision_rationale', 'population_scope', 'allowed_audience', 'source_version_checked'):
+                if not review.get(field): errors.append(f'relation[{relation_index}] approved without {field}')
     high_risk_types = {
         'urgent_signal', 'emergency_action', 'requires_medical_review',
         'requires_clinician_review', 'do_not_self_adjust_medication',
@@ -113,7 +121,7 @@ def main():
     for row in graph_relations:
         if row.get('source') not in entities or row.get('target') not in entities: errors.append(f'unknown entity in {row}')
         if row.get('evidence') and not any(row['evidence'].startswith(s.get('file', '')) for s in sources): warnings.append(f'evidence source not registered: {row.get("evidence")}')
-    report = {'pass': not errors, 'errors': errors, 'warnings': warnings, 'conflicts': conflicts, 'evidence_conflicts': conflict_manifest.get('conflicts', []), 'relations': len(relations), 'indexed_relations': len(graph_relations), 'entities': len(entities), 'sources': len(sources), 'high_risk_relations': high_risk_count, 'review_manifest_statuses': review_manifest.get('statuses', {}), 'medical_pre_review': {'relations_reviewed': len(pre_review_manifest.get('relations', [])), 'counts': pre_review_manifest.get('counts', {}), 'clinical_signoff_required': pre_review_manifest.get('clinical_signoff_required', True)}}
+    report = {'pass': not errors, 'errors': errors, 'warnings': warnings, 'conflicts': conflicts, 'evidence_conflicts': conflict_manifest.get('conflicts', []), 'relations': len(relations), 'indexed_relations': len(graph_relations), 'entities': len(entities), 'sources': len(sources), 'high_risk_relations': high_risk_count, 'review_manifest_statuses': review_manifest.get('statuses', {}), 'gate_policy': {'pending_high_risk': 'block_ordinary_actions', 'conflict': 'audit_only', 'invalid_source': 'exclude_public', 'urgent_unapproved': 'safety_only', 'ai_pre_review_is_clinical_approval': False}, 'medical_pre_review': {'relations_reviewed': len(pre_review_manifest.get('relations', [])), 'counts': pre_review_manifest.get('counts', {}), 'clinical_signoff_required': pre_review_manifest.get('clinical_signoff_required', True)}}
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if not errors else 1
 

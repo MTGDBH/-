@@ -1,0 +1,30 @@
+{
+  "schema_version": "retrieval-eval-config.v1",
+  "vector_model": "hashing_char_ngram_v1",
+  "vector_index": "output/dense_index.json",
+  "reranker_model": "local_linear_v1",
+  "rrf_k": 60,
+  "candidate_k": 10,
+  "top_k": 10,
+  "graph": {
+    "max_hops": 2,
+    "max_nodes": 40,
+    "max_edges": 60
+  },
+  "methods": {
+    "bm25": {"lexical": true, "vector": false, "reranker": false, "graph": false},
+    "dense_rag": {"lexical": false, "vector": true, "reranker": false, "graph": false},
+    "bm25_dense": {"lexical": true, "vector": true, "reranker": false, "graph": false},
+    "bm25_dense_reranker": {"lexical": true, "vector": true, "reranker": true, "graph": false},
+    "full_graphrag": {"lexical": true, "vector": true, "reranker": true, "graph": true},
+    "graph_ablation": {"lexical": true, "vector": true, "reranker": true, "graph": false}
+  },
+  "labels": {
+    "bm25": "Lexical BM25 baseline",
+    "dense_rag": "Dense vector RAG (configured offline vector model)",
+    "bm25_dense": "BM25 + dense via RRF",
+    "bm25_dense_reranker": "BM25 + dense via RRF + reranker",
+    "full_graphrag": "BM25 + dense + bounded graph + reranker",
+    "graph_ablation": "Full pipeline without graph expansion"
+  }
+}

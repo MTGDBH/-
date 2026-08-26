@@ -2,6 +2,6 @@
   "passed": true,
   "default_policy": "flag_legacy_pending",
   "strict_excluded_chunks": 12,
-  "default_flagged_results": 1,
+  "default_flagged_results": 2,
   "doctor_complete_graph": true
 }

@@ -8,6 +8,10 @@ curve_utils.py — 数据清洗 / 模型评估 / 趋势与异常识别
     不直接判为持续强上升）
   - 短期/长期趋势分离（recent vs long_term），不使用 latest-first 判断
 """
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
 import numpy as np
 
 # 医学合理范围（超界 → 异常点，与 build_dataset.py 口径一致；单位随指标）
@@ -21,6 +25,169 @@ MEDICAL_BOUNDS = {
     'pulse_pressure': (5, 160),
     'health_score': (0, 100),
 }
+
+GLUCOSE_CONDITIONS = {
+    'fasting': 'fasting', '空腹': 'fasting',
+    'postprandial_2h': 'postprandial_2h', 'postprandial2h': 'postprandial_2h', '餐后2小时': 'postprandial_2h',
+    'random': 'random', '随机': 'random',
+}
+
+
+def local_day(value, timezone_name=None):
+    """Return the intended measurement date without DST-driven day drift."""
+    if isinstance(value, (int, float)):
+        dt = datetime.fromtimestamp(float(value), tz=timezone.utc)
+    else:
+        text = str(value or '').strip()
+        if text.endswith('Z'):
+            text = text[:-1] + '+00:00'
+        dt = datetime.fromisoformat(text)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+    if timezone_name:
+        dt = dt.astimezone(ZoneInfo(str(timezone_name)))
+    return dt.date().isoformat()
+
+
+def canonical_measurement_group(metric, row):
+    """Build a strict, machine-readable measurement-condition group."""
+    def text(name, fallback='unknown'):
+        value = row.get(name)
+        if value is None or (isinstance(value, float) and np.isnan(value)):
+            return fallback
+        normalized = str(value).strip().lower()
+        return normalized if normalized and normalized != 'nan' else fallback
+    condition = text('condition')
+    if metric == 'glucose':
+        return f"glucose:{GLUCOSE_CONDITIONS.get(condition, 'unknown')}"
+    if metric == 'pulse':
+        resting = condition == 'resting' or row.get('resting') is True
+        return 'pulse:resting' if resting else 'pulse:non_resting_or_unknown'
+    if metric == 'weight':
+        morning = condition == 'morning_similar_clothing' or text('measurement_period', '') == 'morning'
+        similar = condition == 'morning_similar_clothing' or text('clothing_condition', '') in {'similar', 'same', 'light_similar'}
+        return 'weight:morning_similar_clothing' if morning and similar else 'weight:other_or_unknown'
+    if metric in {'systo', 'diasto'}:
+        posture = text('posture')
+        period = text('measurement_period')
+        device = text('device_source', text('source'))
+        repeat = text('repeat_status')
+        if condition != 'unknown' and all(value == 'unknown' for value in (posture, period, device, repeat)):
+            return f'bp:legacy:{condition}'
+        return f'bp:{posture}:{period}:{device}:{repeat}'
+    return condition
+
+
+def condition_is_forecast_ready(metric, group):
+    if metric == 'glucose':
+        return group in {'glucose:fasting', 'glucose:postprandial_2h', 'glucose:random'}
+    if metric == 'pulse':
+        return group == 'pulse:resting'
+    if metric == 'weight':
+        return group == 'weight:morning_similar_clothing'
+    # Legacy BP remains readable under curve.v2. Explicit groups are never mixed;
+    # incomplete metadata is surfaced separately for clients to improve collection.
+    return True
+
+
+@dataclass
+class FoldLocalPipeline:
+    """Preprocessing parameters fitted only on observations before an origin."""
+    metric: str
+    aggregate: str = 'median'
+    median_: float | None = None
+    mad_: float | None = None
+    fitted_count_: int = 0
+
+    def _dedup(self, rows):
+        grouped = {}
+        for row in rows:
+            key = (float(row['t']), row.get('measurement_group', 'unknown'))
+            grouped.setdefault(key, []).append(row)
+        out = []
+        for (_, _), values in sorted(grouped.items(), key=lambda item: item[0][0]):
+            item = dict(values[0])
+            item['v'] = float(np.mean([value['v'] for value in values]))
+            item['raw_indexes'] = [index for value in values for index in value.get('raw_indexes', [value.get('raw_index')])]
+            out.append(item)
+        return out
+
+    def _daily(self, rows):
+        groups = {}
+        for row in self._dedup(rows):
+            key = (row['local_day'], row.get('measurement_group', 'unknown'))
+            groups.setdefault(key, []).append(row)
+        out = []
+        for (day, measurement_group), values in sorted(groups.items()):
+            vals = np.asarray([value['v'] for value in values], dtype=float)
+            value = float(np.sum(vals)) if self.aggregate == 'sum' else float(np.median(vals))
+            noon_utc = datetime.fromisoformat(day).replace(tzinfo=timezone.utc).timestamp() + 43200.0
+            out.append({
+                't': noon_utc, 'local_day': day, 'measurement_group': measurement_group, 'v': value,
+                'raw_indexes': [index for row in values for index in row.get('raw_indexes', [row.get('raw_index')])],
+                'id': values[-1].get('id'),
+            })
+        return out
+
+    def fit(self, rows):
+        daily = self._daily(rows)
+        values = np.asarray([row['v'] for row in daily], dtype=float)
+        bounds = MEDICAL_BOUNDS.get(self.metric)
+        if bounds:
+            values = values[(values >= bounds[0]) & (values <= bounds[1])]
+        self.fitted_count_ = int(len(values))
+        if len(values):
+            self.median_ = float(np.median(values))
+            raw_mad = 1.4826 * float(np.median(np.abs(values - self.median_)))
+            self.mad_ = max(raw_mad, abs(self.median_) * 0.01, 1e-6)
+        else:
+            self.median_, self.mad_ = None, None
+        return self
+
+    def transform(self, rows):
+        daily = self._daily(rows)
+        if not daily:
+            return [], {'removed_indices': [], 'measurement_errors': [], 'spikes': [], 'change_points': []}
+        values = np.asarray([row['v'] for row in daily], dtype=float)
+        hard_invalid = np.zeros(len(values), dtype=bool)
+        bounds = MEDICAL_BOUNDS.get(self.metric)
+        if bounds:
+            hard_invalid = (values < bounds[0]) | (values > bounds[1])
+        statistical = np.zeros(len(values), dtype=bool)
+        if self.median_ is not None and self.mad_ is not None and self.mad_ > 1e-9:
+            statistical = np.abs(values - self.median_) > 4.0 * self.mad_
+        statistical &= ~hard_invalid
+
+        change_point = np.zeros(len(values), dtype=bool)
+        candidate_indexes = np.flatnonzero(statistical)
+        runs = []
+        current = []
+        for index in candidate_indexes:
+            if current:
+                day_gap = (datetime.fromisoformat(daily[index]['local_day']) - datetime.fromisoformat(daily[current[-1]]['local_day'])).days
+                same_direction = np.sign(values[index] - self.median_) == np.sign(values[current[-1]] - self.median_)
+                if index != current[-1] + 1 or day_gap > 2 or not same_direction:
+                    runs.append(current); current = []
+            current.append(int(index))
+        if current:
+            runs.append(current)
+        for run in runs:
+            if len(run) >= 3:
+                change_point[run] = True
+        spikes = statistical & ~change_point
+        removed = hard_invalid | spikes
+        for index, row in enumerate(daily):
+            row['quality_flag'] = 'measurement_error' if hard_invalid[index] else ('spike' if spikes[index] else ('change_point' if change_point[index] else 'ok'))
+        return [row for index, row in enumerate(daily) if not removed[index]], {
+            'removed_indices': np.flatnonzero(removed).astype(int).tolist(),
+            'measurement_errors': np.flatnonzero(hard_invalid).astype(int).tolist(),
+            'spikes': np.flatnonzero(spikes).astype(int).tolist(),
+            'change_points': np.flatnonzero(change_point).astype(int).tolist(),
+            'fit_parameters': {'median': self.median_, 'mad': self.mad_, 'n': self.fitted_count_},
+        }
+
+    def fit_transform(self, rows):
+        return self.fit(rows).transform(rows)
 
 
 def parse_points(points):

@@ -1,0 +1,24 @@
+{
+  "schema_version": "dataset-registry.v1",
+  "policy": "Never average across dataset_split. regression_internal is development regression only, never external validation.",
+  "datasets": [
+    {
+      "dataset_split": "regression_internal",
+      "source": "../eval/golden_questions.json",
+      "loader": "legacy_golden_adapter",
+      "release_role": "regression_only"
+    },
+    {
+      "dataset_split": "blind",
+      "source": "cases/blind.json",
+      "loader": "unified_case",
+      "release_role": "blind_validation"
+    },
+    {
+      "dataset_split": "external",
+      "source": "cases/external.json",
+      "loader": "unified_case",
+      "release_role": "external_validation"
+    }
+  ]
+}

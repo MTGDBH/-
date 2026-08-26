@@ -10,8 +10,8 @@
       "factor": "bp",
       "baseline_priority": "normal",
       "changed_priority": "high",
-      "baseline_action": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
-      "changed_action": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。",
+      "baseline_action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
+      "changed_action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
       "changed": true
     },
     {
@@ -20,7 +20,7 @@
       "baseline_priority": "normal",
       "changed_priority": "high",
       "baseline_action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "changed_action": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。",
+      "changed_action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
       "changed": true
     },
     {
@@ -29,7 +29,7 @@
       "baseline_priority": "normal",
       "changed_priority": "high",
       "baseline_action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "changed_action": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。",
+      "changed_action": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
       "changed": true
     },
     {

@@ -4,15 +4,9 @@
 
 ## 审核对象
 
-`output/relation_review_manifest.json` 收录所有高强度关系和安全关系。当前索引版本 `2026-08-21.v6` 共 83 条，状态为：
+`output/relation_review_manifest.json` 收录所有高强度关系和安全关系。版本和数量以 `output/index_stats.json`、`output/relation_review_manifest.json` 为准，不在协议中手写。审核队列已建立不表示已经获得临床批准。
 
-- `pending_medical_review`: 83
-- `approved`: 0
-- `rejected`: 0
-
-这表示审核队列已建立，不表示已经获得临床批准。
-
-当前 AI 预审核结果：66 条可用于演示/健康教育，17 条必须由临床人员确认，0 条因字段错误被直接放行。每条关系还记录了证据评价、允许表达、禁止表达和安全护栏。详细理由见 `output/medical_pre_review.json` 和 `reports/medical-pre-review-20260821.md`。
+AI 预审核数量和逐条意见以 `output/medical_pre_review.json` 为准。`ai_pre_review_status` 只用于分流，不能写入或推导 `review_status=approved`。
 
 ## 逐条审核字段
 
@@ -44,6 +38,19 @@ source_version_checked
 - 老人端（默认 `audience=elderly`）过滤 `needs_clinician_confirmation` 关系；急症或紧急行动边只作为安全提示保留，不作为普通健康建议依据。
 - 医生/审计端（`audience=doctor` 或 `audit`）保留完整关系、审核理由和路径，便于复核。
 - `output/medical_pre_review.json` 中的 AI 预审状态不能替换 `review_status`，也不能自动写成 `approved`。
+
+## P0 门控矩阵
+
+| 状态 | 老人/照护者展示 | 医生/临床/审计展示 | 普通行动、诊断暗示、用药建议 |
+|---|---|---|---|
+| 医生批准（`approved` + 审核人 + 审核时间）且无冲突、来源有效 | 可展示 | 可展示 | 可按适用范围生成 |
+| `requires_clinician_confirmation` / `pending_medical_review` 的高风险关系 | 默认隐藏 | 带 pending/research 标记展示 | 禁止；只能提示交由医生确认 |
+| AI 预审为 `needs_clinician_confirmation` | 默认隐藏 | 带 AI 预审标记展示 | 禁止；AI 预审不构成批准 |
+| 冲突关系 | 默认隐藏 | 带 conflict 标记展示 | 禁止，直至医生解决冲突 |
+| 来源 `invalid/revoked/expired/unavailable` | 排除 | 仅审计展示 | 禁止 |
+| legacy pending 来源（flag 模式） | 标记并可配置降权 | 完整展示 | 高风险关系仍按医生批准门控 |
+| legacy pending 来源（exclude 模式） | 直接排除 | 完整审计展示 | 禁止由被排除证据生成 |
+| 未批准的 `urgent_signal/emergency_action` | 仅作急症安全提示 | 带 pending 标记展示 | 不得转成普通行动、诊断或用药建议 |
 
 ## 运行方式
 

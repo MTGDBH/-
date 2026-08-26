@@ -10,18 +10,18 @@
   "summary": {
     "keyword": {
       "n_cases": 61,
-      "must_have_recall": 0.8360655737704918,
+      "must_have_recall": 0.8032786885245902,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6505464480874317,
+      "authority_rate": 0.6598360655737705,
       "urgent_recall": 1.0,
       "path_explanation_rate": 0.0,
       "personalization_change_rate": 0.0
     },
     "ordinary_rag": {
       "n_cases": 61,
-      "must_have_recall": 0.819672131147541,
+      "must_have_recall": 0.8032786885245902,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8442622950819673,
+      "authority_rate": 0.866120218579235,
       "urgent_recall": 1.0,
       "path_explanation_rate": 0.0,
       "personalization_change_rate": 0.0
@@ -30,10 +30,10 @@
       "n_cases": 61,
       "must_have_recall": 1.0,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8387978142076502,
+      "authority_rate": 0.5819672131147541,
       "urgent_recall": 1.0,
       "path_explanation_rate": 1.0,
-      "personalization_change_rate": 1.0
+      "personalization_change_rate": 0.6666666666666666
     }
   },
   "rows": [
@@ -43,7 +43,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -71,13 +71,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_02",
@@ -85,7 +85,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 1.0,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -119,7 +119,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_03",
@@ -155,13 +155,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_04",
@@ -169,7 +169,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": true,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -197,13 +197,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": true,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "问题包含危险信号：立即呼叫急救并通知家属，不要等待模型预测。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_01",
@@ -245,7 +245,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_02",
@@ -266,28 +266,28 @@
       "method": "ordinary_rag",
       "results": 6,
       "must_have_hit": false,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "dm_02",
+      "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
       "citation_valid_rate": 1.0,
       "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "dm_02",
-      "method": "graphrag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
-      "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_03",
@@ -323,13 +323,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_01",
@@ -365,13 +365,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_02",
@@ -407,21 +407,21 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": true,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": "出现胸痛、呼吸困难、单侧无力或言语不清时立即呼叫急救并通知家属。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_01",
       "method": "keyword",
-      "results": 5,
+      "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6,
+      "authority_rate": 0.5,
       "urgent_hit": true,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -451,11 +451,11 @@
       "citation_valid_rate": 1.0,
       "authority_rate": 0.8333333333333334,
       "urgent_hit": true,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": "出现胸痛、呼吸困难、单侧无力或言语不清时立即呼叫急救并通知家属。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_02",
@@ -491,13 +491,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_01",
@@ -533,13 +533,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_02",
@@ -575,13 +575,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_03",
@@ -617,13 +617,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_01",
@@ -645,7 +645,7 @@
       "results": 6,
       "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -656,25 +656,25 @@
     {
       "case": "frailty_01",
       "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.3333333333333333,
+      "urgent_hit": null,
+      "graph_paths": 12,
+      "path_explanations": 12,
+      "evidence_conflicts": 0,
+      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+      "index_version": "2026-08-26.v8"
+    },
+    {
+      "case": "frailty_02",
+      "method": "keyword",
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
       "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
-      "evidence_conflicts": 0,
-      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
-    },
-    {
-      "case": "frailty_02",
-      "method": "keyword",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
-      "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
       "evidence_conflicts": 0,
@@ -701,21 +701,21 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "behavior_01",
       "method": "keyword",
       "results": 6,
-      "must_have_hit": true,
+      "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -727,9 +727,9 @@
       "case": "behavior_01",
       "method": "ordinary_rag",
       "results": 6,
-      "must_have_hit": true,
+      "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 1.0,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -743,13 +743,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "behavior_02",
@@ -785,13 +785,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "care_01",
@@ -799,7 +799,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -833,7 +833,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "safety_01",
@@ -841,7 +841,7 @@
       "results": 6,
       "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -869,13 +869,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_05",
@@ -917,7 +917,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_06",
@@ -953,13 +953,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_07",
@@ -995,13 +995,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_08",
@@ -1037,13 +1037,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_09",
@@ -1079,13 +1079,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": true,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "问题包含危险信号：立即呼叫急救并通知家属，不要等待模型预测。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "htn_10",
@@ -1121,13 +1121,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_04",
@@ -1169,7 +1169,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_05",
@@ -1205,13 +1205,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_06",
@@ -1247,13 +1247,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_07",
@@ -1261,7 +1261,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -1295,7 +1295,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "疑似严重低血糖或意识改变：立即呼叫急救并通知家属，不要自行调整药物或等待预测。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_08",
@@ -1303,7 +1303,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -1337,7 +1337,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "dm_09",
@@ -1369,59 +1369,59 @@
     },
     {
       "case": "dm_09",
+      "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
+      "urgent_hit": null,
+      "graph_paths": 12,
+      "path_explanations": 12,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": "2026-08-26.v8"
+    },
+    {
+      "case": "cvd_03",
+      "method": "keyword",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.5,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "cvd_03",
+      "method": "ordinary_rag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 1.0,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "cvd_03",
       "method": "graphrag",
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
       "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
-    },
-    {
-      "case": "cvd_03",
-      "method": "keyword",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "cvd_03",
-      "method": "ordinary_rag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "cvd_03",
-      "method": "graphrag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
-      "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_04",
@@ -1459,11 +1459,11 @@
       "citation_valid_rate": 1.0,
       "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_05",
@@ -1471,7 +1471,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": true,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -1499,13 +1499,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": true,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": "出现胸痛、呼吸困难、单侧无力或言语不清时立即呼叫急救并通知家属。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_06",
@@ -1547,7 +1547,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_07",
@@ -1589,7 +1589,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "cvd_08",
@@ -1627,11 +1627,11 @@
       "citation_valid_rate": 1.0,
       "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 8,
+      "path_explanations": 8,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_03",
@@ -1667,13 +1667,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_04",
@@ -1709,13 +1709,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_05",
@@ -1751,13 +1751,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_06",
@@ -1793,13 +1793,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": true,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": "出现胸痛、呼吸困难、单侧无力或言语不清时立即呼叫急救并通知家属。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_07",
@@ -1807,7 +1807,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -1835,13 +1835,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "stroke_08",
@@ -1877,13 +1877,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_04",
@@ -1891,7 +1891,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -1919,13 +1919,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_05",
@@ -1967,7 +1967,7 @@
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_06",
@@ -1975,7 +1975,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2003,13 +2003,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_07",
@@ -2028,30 +2028,30 @@
     {
       "case": "ckd_07",
       "method": "ordinary_rag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "ckd_07",
-      "method": "graphrag",
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
       "authority_rate": 1.0,
       "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "ckd_07",
+      "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.5,
+      "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_08",
@@ -2073,7 +2073,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": true,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2087,13 +2087,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": true,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "出现呼吸困难、明显水肿或意识改变：立即联系急救或医务人员，不要等待趋势外推。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "ckd_09",
@@ -2129,19 +2129,61 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_03",
       "method": "keyword",
       "results": 6,
+      "must_have_hit": false,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "frailty_03",
+      "method": "ordinary_rag",
+      "results": 6,
       "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.8333333333333334,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "frailty_03",
+      "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.3333333333333333,
+      "urgent_hit": null,
+      "graph_paths": 12,
+      "path_explanations": 12,
+      "evidence_conflicts": 0,
+      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+      "index_version": "2026-08-26.v8"
+    },
+    {
+      "case": "frailty_04",
+      "method": "keyword",
+      "results": 6,
+      "must_have_hit": false,
       "citation_valid_rate": 1.0,
       "authority_rate": 0.5,
       "urgent_hit": null,
@@ -2152,54 +2194,12 @@
       "index_version": null
     },
     {
-      "case": "frailty_03",
-      "method": "ordinary_rag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "frailty_03",
-      "method": "graphrag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
-      "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
-      "evidence_conflicts": 0,
-      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
-    },
-    {
-      "case": "frailty_04",
-      "method": "keyword",
-      "results": 6,
-      "must_have_hit": false,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.3333333333333333,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
       "case": "frailty_04",
       "method": "ordinary_rag",
       "results": 6,
       "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.3333333333333333,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2213,13 +2213,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_05",
@@ -2241,7 +2241,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2255,13 +2255,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_06",
@@ -2297,13 +2297,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_07",
@@ -2339,13 +2339,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "frailty_08",
@@ -2378,80 +2378,24 @@
     {
       "case": "frailty_08",
       "method": "graphrag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
-      "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
-      "evidence_conflicts": 0,
-      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
-    },
-    {
-      "case": "behavior_03",
-      "method": "keyword",
-      "results": 6,
-      "must_have_hit": false,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "behavior_03",
-      "method": "ordinary_rag",
-      "results": 6,
-      "must_have_hit": false,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.5,
-      "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
-      "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
-    },
-    {
-      "case": "behavior_03",
-      "method": "graphrag",
-      "results": 6,
-      "must_have_hit": true,
-      "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
-      "urgent_hit": null,
-      "graph_paths": 12,
-      "path_explanations": 12,
-      "evidence_conflicts": 0,
-      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
-    },
-    {
-      "case": "behavior_04",
-      "method": "keyword",
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
       "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
-      "graph_paths": 0,
-      "path_explanations": 0,
+      "graph_paths": 12,
+      "path_explanations": 12,
       "evidence_conflicts": 0,
-      "action": null,
-      "index_version": null
+      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+      "index_version": "2026-08-26.v8"
     },
     {
-      "case": "behavior_04",
-      "method": "ordinary_rag",
+      "case": "behavior_03",
+      "method": "keyword",
       "results": 6,
-      "must_have_hit": true,
+      "must_have_hit": false,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2460,18 +2404,74 @@
       "index_version": null
     },
     {
-      "case": "behavior_04",
+      "case": "behavior_03",
+      "method": "ordinary_rag",
+      "results": 6,
+      "must_have_hit": false,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.5,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "behavior_03",
       "method": "graphrag",
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.3333333333333333,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
+    },
+    {
+      "case": "behavior_04",
+      "method": "keyword",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.5,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "behavior_04",
+      "method": "ordinary_rag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.8333333333333334,
+      "urgent_hit": null,
+      "graph_paths": 0,
+      "path_explanations": 0,
+      "evidence_conflicts": 0,
+      "action": null,
+      "index_version": null
+    },
+    {
+      "case": "behavior_04",
+      "method": "graphrag",
+      "results": 6,
+      "must_have_hit": true,
+      "citation_valid_rate": 1.0,
+      "authority_rate": 0.6666666666666666,
+      "urgent_hit": null,
+      "graph_paths": 12,
+      "path_explanations": 12,
+      "evidence_conflicts": 0,
+      "action": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "care_02",
@@ -2507,13 +2507,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": null,
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "care_03",
@@ -2521,7 +2521,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 0.6666666666666666,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2535,7 +2535,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.8333333333333334,
+      "authority_rate": 1.0,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2549,13 +2549,13 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 1.0,
+      "authority_rate": 0.5,
       "urgent_hit": null,
       "graph_paths": 12,
       "path_explanations": 12,
       "evidence_conflicts": 0,
       "action": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     },
     {
       "case": "safety_02",
@@ -2563,7 +2563,7 @@
       "results": 6,
       "must_have_hit": true,
       "citation_valid_rate": 1.0,
-      "authority_rate": 0.6666666666666666,
+      "authority_rate": 0.8333333333333334,
       "urgent_hit": null,
       "graph_paths": 0,
       "path_explanations": 0,
@@ -2593,11 +2593,11 @@
       "citation_valid_rate": 1.0,
       "authority_rate": 0.8333333333333334,
       "urgent_hit": true,
-      "graph_paths": 12,
-      "path_explanations": 12,
+      "graph_paths": 9,
+      "path_explanations": 9,
       "evidence_conflicts": 0,
       "action": "出现胸痛、呼吸困难、单侧无力或言语不清时立即呼叫急救并通知家属。",
-      "index_version": "2026-08-21.v6"
+      "index_version": "2026-08-26.v8"
     }
   ],
   "personalization": [
@@ -2618,9 +2618,9 @@
     {
       "factor": "bp",
       "method": "graphrag",
-      "action_changed": true,
-      "action_before": "继续固定时间测量并记录，观察连续趋势，不因单次波动自行调整用药。",
-      "action_after": "今天固定时间复测两次并记录；若连续多次偏高，联系医务人员评估。"
+      "action_changed": false,
+      "action_before": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。",
+      "action_after": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。"
     },
     {
       "factor": "egfr",
@@ -2641,7 +2641,7 @@
       "method": "graphrag",
       "action_changed": true,
       "action_before": "如果有糖尿病或血压偏高，和医生确认是否需要补充肾功能与尿白蛋白检查。",
-      "action_after": "按医生安排复查肾功能，并同时记录血压和血糖；不要自行调整药物。"
+      "action_after": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。"
     },
     {
       "factor": "fall_risk",
@@ -2662,7 +2662,7 @@
       "method": "graphrag",
       "action_changed": true,
       "action_before": "补充握力、体重变化、跌倒史和日常活动情况，便于做老年功能评估。",
-      "action_after": "先安排跌倒风险和功能状态评估，再决定活动强度；出现反复跌倒请联系家属和医生。"
+      "action_after": "请把相关记录和证据交给医生确认；确认前不要据此自行改变治疗或用药。"
     }
   ],
   "limitations": [

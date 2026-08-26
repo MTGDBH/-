@@ -8,6 +8,7 @@ import json, os, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
+EXPECTED_PRE_REVIEW = len(json.loads((ROOT / 'output' / 'medical_pre_review.json').read_text(encoding='utf-8')).get('relations', []))
 CASES = [
     ('bp_01', '血压最近怎么样', 'hypertension', {'latest': {'bp': {'value': 128, 'value2': 80}}}, {'latest': {'bp': {'value': 152, 'value2': 94}}}, 'bp'),
     ('bp_02', '血压需要复测吗', 'hypertension', {'latest': {'bp': {'value': 135, 'value2': 84}}}, {'latest': {'bp': {'value': 181, 'value2': 121}}}, 'bp'),
@@ -61,7 +62,7 @@ def main():
         rows.append(row)
         if not changed_fields:
             failures.append(f'{case_id}: changing {factor} did not change action/priority/evidence')
-        if sa['pre_review_count'] != 83 or sb['pre_review_count'] != 83:
+        if sa['pre_review_count'] != EXPECTED_PRE_REVIEW or sb['pre_review_count'] != EXPECTED_PRE_REVIEW:
             failures.append(f'{case_id}: pre-review context missing')
     report = {
         'schema_version': 'personalization-pairs.v1',
@@ -77,7 +78,7 @@ def main():
     (ROOT.parent / 'reports' / 'graphrag-personalization-pairs-20260821.md').write_text(
         '# GraphRAG 20组配对老人个性化评测\n\n'
         f"样本：{len(CASES)} 组；建议发生变化：{report['changed_count']} 组；变化率：{report['change_rate']:.1%}。\n\n"
-        '> 该结果证明上下文会改变系统行动，不代表临床疗效。每次查询同时携带 83 条高风险关系的预审核覆盖信息。\n', encoding='utf-8')
+        f'> 该结果证明上下文会改变系统行动，不代表临床疗效。每次查询同时携带 {EXPECTED_PRE_REVIEW} 条高风险关系的预审核覆盖信息；该数量从预审核产物读取。\n', encoding='utf-8')
     print(json.dumps({k: report[k] for k in ('schema_version', 'cases', 'changed_count', 'change_rate', 'failures', 'passed')}, ensure_ascii=False, indent=2))
     raise SystemExit(0 if report['passed'] else 1)
 

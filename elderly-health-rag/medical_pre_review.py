@@ -13,10 +13,14 @@
 import json
 from datetime import date
 from pathlib import Path
+import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 ROOT = Path(__file__).parent
 OUTPUT = ROOT / 'output'
-INDEX_VERSION = '2026-08-23.v7'
+INDEX_VERSION = '2026-08-26.v9'
 
 SAFE_EDUCATION_TYPES = {
     'measured_by', 'monitoring_signal', 'has_risk_factor', 'has_nonmodifiable_factor',

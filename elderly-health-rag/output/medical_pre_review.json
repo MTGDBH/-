@@ -1,7 +1,7 @@
 {
   "schema_version": "medical-pre-review.v1",
-  "index_version": "2026-08-23.v7",
-  "generated_at": "2026-08-23",
+  "index_version": "2026-08-26.v9",
+  "generated_at": "2026-08-26",
   "reviewer": "AI evidence-governance pre-review (not a licensed clinician)",
   "scope": "high-strength or safety relations",
   "counts": {

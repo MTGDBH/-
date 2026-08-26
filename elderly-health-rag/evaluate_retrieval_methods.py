@@ -1,122 +1,131 @@
 # -*- coding: utf-8 -*-
-"""关键词检索、普通 RAG 与 GraphRAG 的同题对照评测。
+"""Offline six-way retrieval evaluation with explicit ranking metrics.
 
-这不是临床疗效评估，而是验证：加入证据等级、关系路径和用户上下文后，
-检索是否更容易命中正确证据、保留权威来源并产生可解释的个性化行动。
+Relevance is a reproducible engineering qrel derived from the pre-existing
+golden question disease scope and must-have evidence concepts. It is not an
+external clinical relevance judgment.
 """
 from __future__ import annotations
 
+import argparse
+from collections import defaultdict
+from datetime import date
 import json
-import os
-import re
-import subprocess
-import sys
-from collections import Counter
+import math
 from pathlib import Path
+import statistics
+import sys
+
+from retrieval_backends import HybridRetrievalPipeline, JsonGraphStore, filter_documents
+
+if hasattr(sys.stdout, 'reconfigure'): sys.stdout.reconfigure(encoding='utf-8')
 
 ROOT = Path(__file__).parent
 REPORTS = ROOT.parent / 'reports'
-CHUNKS = json.loads((ROOT / 'output' / 'chunks.json').read_text(encoding='utf-8'))
-AUTHORITY = {'authoritative_guidance', 'professional_guideline', 'professional_statement', 'clinical_standard'}
+DEFAULT_CONFIG = ROOT / 'eval' / 'retrieval_methods_config.json'
+URGENT_TERMS = ('急救', '危险信号', '单侧无力', '言语不清', '胸痛', '呼吸困难', '意识改变', '叫不醒')
 
 
-def tokens(text):
-    return set(re.findall(r'[\u4e00-\u9fff]{2}|[a-zA-Z]{3,}', str(text or '').lower()))
+def load_json(path):
+    return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
-def lexical(method, question, top_k=6):
-    q = tokens(question)
-    scored = []
-    for chunk in CHUNKS:
-        overlap = len(q & set(chunk.get('tokens') or tokens(chunk.get('text'))))
-        authority = 0.6 if method == 'ordinary_rag' and chunk.get('evidence_level') in AUTHORITY else 0
-        diversity_penalty = 0.2 if method == 'ordinary_rag' and str(chunk.get('source', '')).startswith('registry:') else 0
-        scored.append((overlap + authority - diversity_penalty, chunk))
-    scored.sort(key=lambda item: (-item[0], item[1].get('id', '')))
-    return [chunk for score, chunk in scored[:top_k] if score > 0]
+def relevance_ids(documents, case):
+    terms = case.get('must_have_any') or ([case.get('must_have')] if case.get('must_have') else [])
+    scoped = filter_documents(documents, {'disease': case.get('disease'), 'audience': 'elderly'})
+    return {row['id'] for row in scoped if any(term and term in f"{row.get('section', '')} {row.get('text', '')}" for term in terms)}
 
 
-def graph_query(case):
-    payload = json.dumps({'question': case['question'], 'disease': case['disease'], 'context': case.get('context', {}), 'options': {'top_k': 6, 'max_hops': 2, 'include_trace': True}}, ensure_ascii=False).encode('utf-8')
-    out = subprocess.run([sys.executable, str(ROOT / 'graphrag_index.py')], input=payload, capture_output=True, check=True,
-                         env={**os.environ, 'PYTHONIOENCODING': 'utf-8', 'PYTHONUTF8': '1'})
-    return json.loads(out.stdout.decode('utf-8'))
+def dcg(relevances):
+    return sum(value / math.log2(index + 2) for index, value in enumerate(relevances))
 
 
-CASES = json.loads((ROOT / 'eval' / 'golden_questions.json').read_text(encoding='utf-8'))
+def query_metrics(results, relevant, case):
+    ranked = [row['id'] for row in results]
+    relevant_count = max(1, len(relevant))
+    metrics = {f'recall@{k}': len(set(ranked[:k]) & relevant) / relevant_count for k in (1, 3, 5, 10)}
+    first = next((index for index, chunk_id in enumerate(ranked, 1) if chunk_id in relevant), None)
+    metrics['mrr'] = 1 / first if first else 0.0
+    gains = [1 if chunk_id in relevant else 0 for chunk_id in ranked[:10]]
+    ideal = [1] * min(len(relevant), 10)
+    metrics['ndcg@10'] = dcg(gains) / max(dcg(ideal), 1e-9)
+    metrics['evidence_coverage'] = 1.0 if set(ranked[:10]) & relevant else 0.0
+    metrics['irrelevant_evidence_rate'] = sum(chunk_id not in relevant for chunk_id in ranked[:10]) / max(1, len(ranked[:10]))
+    urgent_hit = any(any(term in f"{row.get('section', '')} {row.get('text', '')}" for term in URGENT_TERMS) for row in results[:10])
+    metrics['urgent_expected'] = bool(case.get('urgent'))
+    metrics['urgent_hit'] = urgent_hit if case.get('urgent') else None
+    metrics['citation_valid_rate'] = sum(bool(row.get('source_url', '').startswith('http')) for row in results[:10]) / max(1, len(results[:10]))
+    return metrics
 
-PERSONALIZATION_CASES = [
-    ('bp', {'question': '血压偏高怎么办', 'disease': 'hypertension', 'context': {'latest': {'bp': {'value': 124, 'value2': 78}}}}, {'latest': {'bp': {'value': 155, 'value2': 96}}}),
-    ('egfr', {'question': '肾功能怎么复测', 'disease': 'chronic_kidney_disease', 'context': {}}, {'latest': {'egfr': {'value': 54}}}),
-    ('fall_risk', {'question': '老人衰弱需要做什么', 'disease': 'frailty', 'context': {}}, {'profile': {'fall_risk': True}}),
-]
+
+def aggregate(rows):
+    numeric = ('recall@1', 'recall@3', 'recall@5', 'recall@10', 'mrr', 'ndcg@10', 'evidence_coverage', 'irrelevant_evidence_rate', 'citation_valid_rate')
+    summary = {key: sum(row[key] for row in rows) / max(1, len(rows)) for key in numeric}
+    urgent = [row for row in rows if row['urgent_expected']]
+    summary['urgent_recall_rate'] = sum(row['urgent_hit'] is True for row in urgent) / max(1, len(urgent))
+    latencies = sorted(row['latency_ms'] for row in rows)
+    summary['average_latency_ms'] = statistics.fmean(latencies) if latencies else 0.0
+    summary['p95_latency_ms'] = latencies[min(len(latencies) - 1, math.ceil(len(latencies) * 0.95) - 1)] if latencies else 0.0
+    return {key: round(value, 6) for key, value in summary.items()}
 
 
-def score_results(results, case):
-    must = case.get('must_have_any') or ([case.get('must_have')] if case.get('must_have') else [])
-    hit = any(term in f"{r.get('section', '')} {r.get('text', '')}" for term in must for r in results)
-    citations = sum(bool(r.get('source_url', '').startswith('http')) for r in results)
-    authority = sum(r.get('evidence_level') in AUTHORITY for r in results)
-    urgent = any(x in case['question'] for x in ('单侧无力', '胸痛', '呼吸困难'))
-    urgent_hit = any(any(k in f"{r.get('section', '')} {r.get('text', '')}" for k in ('急症', '危险信号', '单侧无力', '呼吸困难')) for r in results)
-    return {'must_have_hit': hit, 'citation_valid_rate': citations / max(1, len(results)), 'authority_rate': authority / max(1, len(results)), 'urgent_hit': urgent_hit if urgent else None}
-
-
-def main():
-    rows = []
-    methods = ('keyword', 'ordinary_rag', 'graphrag')
-    for case in CASES:
-        for method in methods:
-            if method == 'graphrag':
-                result = graph_query(case)
-                results = result.get('results') or []
-                row = score_results(results, case)
-                # 安全建议可能在结构化 recommendation 中，而不在前6个正文分块中。
-                # 对 GraphRAG 评测同时检查急症行动，避免低估安全召回。
-                if case.get('urgent') and any(x.get('priority') == 'urgent' for x in result.get('recommendations') or []):
-                    row['urgent_hit'] = True
-                row.update({'graph_paths': len(result.get('graph_paths') or []), 'path_explanations': sum(bool(p.get('explanation')) for p in result.get('graph_paths') or []), 'evidence_conflicts': len(result.get('evidence_conflicts') or []), 'action': (result.get('recommendations') or [{}])[0].get('action'), 'index_version': result.get('index_version')})
-            else:
-                results = lexical(method, case['question'])
-                row = score_results(results, case)
-                row.update({'graph_paths': 0, 'path_explanations': 0, 'evidence_conflicts': 0, 'action': None, 'index_version': None})
-            rows.append({'case': case['id'], 'method': method, 'results': len(results), **row})
-
-    personalization = []
-    for factor, base, changed_context in PERSONALIZATION_CASES:
-        changed = {**base, 'context': {**base.get('context', {}), **changed_context}}
-        for method in methods:
-            if method == 'graphrag':
-                a, b = graph_query(base), graph_query(changed)
-                action_a = (a.get('recommendations') or [{}])[0].get('action')
-                action_b = (b.get('recommendations') or [{}])[0].get('action')
-            else:
-                action_a = action_b = None
-            personalization.append({'factor': factor, 'method': method, 'action_changed': action_a != action_b, 'action_before': action_a, 'action_after': action_b})
-
-    summary = {}
-    for method in methods:
-        subset = [r for r in rows if r['method'] == method]
-        summary[method] = {
-            'n_cases': len(subset),
-            'must_have_recall': sum(r['must_have_hit'] for r in subset) / len(subset),
-            'citation_valid_rate': sum(r['citation_valid_rate'] for r in subset) / len(subset),
-            'authority_rate': sum(r['authority_rate'] for r in subset) / len(subset),
-            'urgent_recall': sum(r['urgent_hit'] is True for r in subset if r['urgent_hit'] is not None) / max(1, sum(r['urgent_hit'] is not None for r in subset)),
-            'path_explanation_rate': sum(r['path_explanations'] > 0 for r in subset) / len(subset),
-            'personalization_change_rate': sum(p['action_changed'] for p in personalization if p['method'] == method) / max(1, len([p for p in personalization if p['method'] == method]))
-        }
-    report = {'schema_version': 'retrieval-method-comparison.v1', 'generated_at': '2026-08-21', 'index_version': '2026-08-21.v6', 'methods': {'keyword': '词项重叠，不使用证据等级/图关系', 'ordinary_rag': '词项召回+权威来源加权，不使用图关系和用户行动规则', 'graphrag': '词项+证据等级+图扩展+用户上下文+安全规则'}, 'summary': summary, 'rows': rows, 'personalization': personalization, 'limitations': ['黄金问题是人工契约评测，不是临床疗效', '关键词和普通RAG为可复现基线，不代表生产向量RAG', 'GraphRAG建议仍需医学审核']}
+def main(config_path=DEFAULT_CONFIG):
+    config = load_json(config_path)
+    chunks = load_json(ROOT / 'output' / 'chunks.json')
+    entities = load_json(ROOT / 'output' / 'entities.json')
+    relationships = load_json(ROOT / 'output' / 'relationships.json')
+    stats = load_json(ROOT / 'output' / 'index_stats.json')
+    cases = load_json(ROOT / 'eval' / 'golden_questions.json')
+    vector_index = ROOT / config['vector_index']
+    if not vector_index.exists():
+        raise SystemExit(f"dense index missing: run `python graphrag_index.py build-retrieval-index --vector-model {config['vector_model']}`")
+    graph_store = JsonGraphStore(entities, relationships)
+    pipeline = HybridRetrievalPipeline(chunks, graph_store, config['vector_model'], vector_index,
+                                       config['reranker_model'], config.get('rrf_k', 60))
+    rows, stage_statuses = [], {}
+    for method, flags in config['methods'].items():
+        for case in cases:
+            relevant = relevance_ids(chunks, case)
+            result = pipeline.search(case['question'], top_k=config.get('top_k', 10), candidate_k=config.get('candidate_k', 40),
+                filters={'audience': 'elderly', 'disease': case.get('disease')}, disease=case.get('disease'),
+                use_lexical=flags['lexical'], use_vector=flags['vector'], use_graph=flags['graph'], use_reranker=flags['reranker'],
+                max_hops=config['graph']['max_hops'], max_graph_nodes=config['graph']['max_nodes'], max_graph_edges=config['graph']['max_edges'])
+            metrics = query_metrics(result['results'], relevant, case)
+            rows.append({'case': case['id'], 'method': method, 'relevant_count': len(relevant), 'result_count': len(result['results']),
+                         'latency_ms': result['latency_ms'], 'ranked_chunk_ids': [row['id'] for row in result['results']], **metrics})
+            stage_statuses[method] = result['capabilities']
+    summary = {method: aggregate([row for row in rows if row['method'] == method]) for method in config['methods']}
+    report = {
+        'schema_version': 'retrieval-method-comparison.v2', 'generated_at': str(date.today()),
+        'index_version': stats['index_version'], 'qrel_policy': 'golden disease scope + pre-registered must-have evidence concepts',
+        'models': {'vector_model': config['vector_model'], 'vector_implementation': pipeline.vector.status.implementation,
+                   'reranker_model': config['reranker_model'], 'reranker_implementation': pipeline.reranker.status.implementation},
+        'method_labels': config['labels'], 'stage_statuses': stage_statuses, 'summary': summary, 'rows': rows,
+        'limitations': ['工程 qrel 来自既有黄金集，不是外部临床标注',
+                        'hashing_char_ngram_v1 是可复现稠密向量基线，不是学习型语义 embedding',
+                        '安装本地 SentenceTransformers 模型后必须重新构建索引和复跑评测，不能沿用本报告'],
+    }
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / 'graphrag-method-comparison-20260821.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
-    lines = ['# GraphRAG 三路检索对照评估（2026-08-21）', '', f'同一批 {len(CASES)} 条核心疾病问题，比较关键词检索、普通 RAG 和 GraphRAG。', '', '| 方法 | 必需证据召回 | 引用有效率 | 权威来源率 | 急症召回 | 路径解释率 | 个性化行动变化率 |', '|---|---:|---:|---:|---:|---:|---:|']
-    for method in methods:
-        s = summary[method]
-        lines.append(f"| {method} | {s['must_have_recall']:.1%} | {s['citation_valid_rate']:.1%} | {s['authority_rate']:.1%} | {s['urgent_recall']:.1%} | {s['path_explanation_rate']:.1%} | {s['personalization_change_rate']:.1%} |")
-    lines += ['', '## 结论', '', '- GraphRAG 的改进必须以同题对照结果为依据，而不是只展示检索数量。', '- 关键词检索只能证明词项命中；普通 RAG 增加了来源权重；GraphRAG 额外提供关系路径、审核状态、冲突标记和上下文条件化行动。', '- 本报告证明的是检索与建议可解释性的改进，不等同于临床疗效或诊断准确率。']
-    (REPORTS / 'graphrag-method-comparison-20260821.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
-    print(json.dumps({'pass': True, 'summary': summary}, ensure_ascii=False, indent=2))
+    json_path = REPORTS / 'graphrag-method-comparison-20260826.json'
+    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    headers = ['method', 'R@1', 'R@3', 'R@5', 'R@10', 'MRR', 'nDCG@10', 'coverage', 'irrelevant', 'urgent', 'citation', 'avg ms', 'P95 ms']
+    lines = ['# 六路离线混合检索与图消融评测', '',
+             f"索引：`{stats['index_version']}`；向量：`{config['vector_model']}`；重排：`{config['reranker_model']}`。", '',
+             '> `dense_rag` 是真实余弦向量召回，但当前配置使用确定性 hashing 稠密基线，不冒充学习型语义模型。', '',
+             '| ' + ' | '.join(headers) + ' |', '|' + '|'.join(['---'] + ['---:'] * (len(headers) - 1)) + '|']
+    for method in config['methods']:
+        row = summary[method]
+        values = [method, row['recall@1'], row['recall@3'], row['recall@5'], row['recall@10'], row['mrr'], row['ndcg@10'],
+                  row['evidence_coverage'], row['irrelevant_evidence_rate'], row['urgent_recall_rate'], row['citation_valid_rate'],
+                  row['average_latency_ms'], row['p95_latency_ms']]
+        lines.append('| ' + ' | '.join(str(value) for value in values) + ' |')
+    lines += ['', '## 方法边界', '', '- BM25 是 lexical baseline。', '- dense RAG 仅使用配置的向量模型与余弦相似度。',
+              '- BM25+dense 使用 RRF 融合排名，不相加原始分数。', '- full GraphRAG 在融合候选上执行有界图扩展，再执行重排。',
+              '- graph_ablation 与完整管线配置相同，仅关闭图扩展。']
+    (REPORTS / 'graphrag-method-comparison-20260826.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    print(json.dumps({'pass': True, 'report': str(json_path), 'summary': summary}, ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(); parser.add_argument('--config', default=str(DEFAULT_CONFIG)); args = parser.parse_args()
+    main(Path(args.config))

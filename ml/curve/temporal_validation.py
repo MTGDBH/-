@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -17,6 +16,7 @@ import numpy as np
 import pandas as pd
 
 from health_curve import analyze
+from curve_utils import canonical_measurement_group, local_day
 
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent.parent
@@ -60,15 +60,77 @@ def metrics(actual, predicted, lower=None, upper=None, scale=None):
         lo = np.asarray(lower, dtype=float); hi = np.asarray(upper, dtype=float)
         coverage = float(np.mean((actual >= lo) & (actual <= hi)))
         width = float(np.mean(hi - lo))
-    return {"n": int(len(actual)), "mae": mae, "rmse": rmse, "mase": mae / scale if mae is not None else None, "coverage_80": coverage, "interval_width": width}
+    return {
+        "n": int(len(actual)), "mae": mae, "rmse": rmse,
+        "mase": mae / scale if mae is not None else None,
+        "coverage_80": coverage, "interval_width": width,
+        "sum_abs_error": float(np.sum(np.abs(err))),
+        "sum_sq_error": float(np.sum(err ** 2)),
+        "scale_denominator": float(scale * len(actual)),
+        "covered_points": int(np.sum((actual >= np.asarray(lower)) & (actual <= np.asarray(upper)))) if lower is not None and upper is not None else None,
+        "interval_width_sum": float(np.sum(np.asarray(upper) - np.asarray(lower))) if lower is not None and upper is not None else None,
+    }
+
+
+def _micro(metric_rows):
+    n = sum(int(row.get("n") or 0) for row in metric_rows)
+    if not n:
+        return {"n": 0, "mae": None, "rmse": None, "mase": None, "coverage_80": None, "interval_width": None}
+    abs_sum = sum(float(row.get("sum_abs_error") or 0) for row in metric_rows)
+    sq_sum = sum(float(row.get("sum_sq_error") or 0) for row in metric_rows)
+    scale_sum = sum(float(row.get("scale_denominator") or 0) for row in metric_rows)
+    coverage_rows = [row for row in metric_rows if row.get("covered_points") is not None]
+    covered = sum(int(row["covered_points"]) for row in coverage_rows)
+    covered_n = sum(int(row["n"]) for row in coverage_rows)
+    width_sum = sum(float(row.get("interval_width_sum") or 0) for row in coverage_rows)
+    return {
+        "n": n, "mae": abs_sum / n, "rmse": float(np.sqrt(sq_sum / n)),
+        "mase": abs_sum / scale_sum if scale_sum > 0 else None,
+        "coverage_80": covered / covered_n if covered_n else None,
+        "interval_width": width_sum / covered_n if covered_n else None,
+    }
+
+
+def _macro(metric_rows):
+    fields = ("mae", "rmse", "mase", "coverage_80", "interval_width")
+    out = {"windows": len(metric_rows)}
+    for field in fields:
+        values = [float(row[field]) for row in metric_rows if row.get(field) is not None]
+        out[field] = float(np.mean(values)) if values else None
+    return out
+
+
+def aggregate_scopes(forecasted, key):
+    rows = [row[key] for row in forecasted]
+    by_participant = []
+    for participant_id in sorted({row["participant_id"] for row in forecasted}):
+        by_participant.append(_micro([row[key] for row in forecasted if row["participant_id"] == participant_id]))
+    macro_participant = _macro(by_participant)
+    macro_participant["participants"] = len(by_participant)
+    return {"micro": _micro(rows), "macro_by_window": _macro(rows), "macro_by_participant": macro_participant}
 
 
 def run(df, min_history=28, horizon=7):
-    df = df.copy(); df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True); df = df.sort_values(["participant_id", "metric", "timestamp"])
+    df = df.copy()
+    df["timestamp_original"] = df["timestamp"].astype(str)
+    df["timestamp_utc"] = pd.to_datetime(df["timestamp"], utc=True)
+    def group_for_row(row):
+        payload = row.to_dict()
+        payload['condition'] = payload.get('condition', 'unknown')
+        return canonical_measurement_group(str(row['metric']), payload)
+    df["measurement_group"] = df.apply(group_for_row, axis=1)
+    df = df.sort_values(["participant_id", "metric", "measurement_group", "timestamp_utc"])
     rows = []; refusals = 0; attempts = 0
-    for (pid, metric_name), group in df.groupby(["participant_id", "metric"]):
+    for (pid, metric_name, measurement_group), group in df.groupby(["participant_id", "metric", "measurement_group"]):
         group = group.reset_index(drop=True)
-        points = [{"t": row.timestamp.isoformat(), "v": float(row.value), "condition": row.get("condition", "unknown"), "id": int(i)} for i, row in group.iterrows()]
+        passthrough = ("condition", "timezone", "posture", "measurement_period", "device_source", "repeat_status", "resting", "clothing_condition")
+        points = []
+        for i, row in group.iterrows():
+            point = {"t": row["timestamp_original"], "v": float(row.value), "id": int(i)}
+            for field in passthrough:
+                if field in group.columns and pd.notna(row.get(field)):
+                    point[field] = row.get(field)
+            points.append(point)
         if len(points) < min_history + horizon:
             continue
         for end in range(min_history, len(points), horizon):
@@ -79,10 +141,10 @@ def run(df, min_history=28, horizon=7):
             if not future:
                 continue
             attempts += 1
-            result = analyze(metric_name, "mmHg", hist, forecast_days=horizon, condition_group=None)
+            result = analyze(metric_name, "mmHg", hist, forecast_days=horizon, condition_group=measurement_group)
             if not result.get("forecast", {}).get("available"):
                 refusals += 1
-                rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "refused", "reason": result.get("forecast", {}).get("reason")})
+                rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "refused", "reason": result.get("forecast", {}).get("reason"), "reason_code": result.get("forecast", {}).get("reason_code"), "message": result.get("forecast", {}).get("message")})
                 continue
             forecast_curve = result["forecast"]["curve"]
             predicted_by_day = {
@@ -94,12 +156,12 @@ def run(df, min_history=28, horizon=7):
             }
             aligned = []
             for point in future:
-                day = pd.Timestamp(point["t"]).strftime("%Y-%m-%d")
+                day = local_day(point["t"], point.get("timezone"))
                 if day in predicted_by_day:
                     aligned.append((day, float(point["v"]), *predicted_by_day[day]))
             if not aligned:
                 refusals += 1
-                rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "refused", "reason": "预测日期与真实记录没有交集"})
+                rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "refused", "reason": "预测日期与真实记录没有交集", "reason_code": "NO_DATE_OVERLAP", "message": "预测日期与真实记录没有交集"})
                 continue
             actual = [row[1] for row in aligned]
             pred = [row[2] for row in aligned]
@@ -107,25 +169,17 @@ def run(df, min_history=28, horizon=7):
             upper = [row[4] for row in aligned]
             baseline = [float(hist[-1]["v"])] * len(actual)
             scale = float(np.mean(np.abs(np.diff([float(p["v"]) for p in hist])))) if len(hist) > 1 else 1.0
-            rows.append({"participant_id": pid, "metric": metric_name, "origin": hist[-1]["t"], "status": "forecasted", "aligned_dates": [row[0] for row in aligned], "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
+            rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "forecasted", "aligned_dates": [row[0] for row in aligned], "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
     forecasted = [r for r in rows if r["status"] == "forecasted"]
-    def aggregate(key):
-        vals = [r[key][field] for r in forecasted for field in ()]
-        return vals
-    def avg(path):
-        vals = []
-        for row in forecasted:
-            value = row
-            for part in path:
-                value = value.get(part) if isinstance(value, dict) else None
-            if value is not None and math.isfinite(float(value)):
-                vals.append(float(value))
-        return float(np.mean(vals)) if vals else None
+    curve_scopes = aggregate_scopes(forecasted, "curve_v2") if forecasted else {"micro": _micro([]), "macro_by_window": _macro([]), "macro_by_participant": {**_macro([]), "participants": 0}}
+    baseline_scopes = aggregate_scopes(forecasted, "last_value_baseline") if forecasted else {"micro": _micro([]), "macro_by_window": _macro([]), "macro_by_participant": {**_macro([]), "participants": 0}}
     return {
         "attempts": attempts, "forecasted_windows": len(forecasted), "refused_windows": refusals,
         "refusal_rate": refusals / attempts if attempts else None,
-        "curve_v2": {field: avg(["curve_v2", field]) for field in ("mae", "rmse", "mase", "coverage_80", "interval_width")},
-        "last_value_baseline": {field: avg(["last_value_baseline", field]) for field in ("mae", "rmse", "mase")},
+        "curve_v2": curve_scopes["micro"],
+        "last_value_baseline": baseline_scopes["micro"],
+        "metrics": {"curve_v2": curve_scopes, "last_value_baseline": baseline_scopes},
+        "aggregation_policy": "micro is prediction-point weighted; macro_by_window and macro_by_participant are unweighted means of their units",
         "windows": rows,
     }
 

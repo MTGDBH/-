@@ -17,8 +17,7 @@ assert all(len(row.get('path', [])) == 2 for row in manifest['candidates'])
 assert all(row.get('inference_status') == 'candidate_for_clinician_review' for row in manifest['candidates'])
 elderly_disabled, elderly, doctor = query('elderly'), query('elderly', True), query('doctor', True)
 assert elderly_disabled.get('relationship_candidates') == []
-assert 0 < len(elderly.get('relationship_candidates')) <= 3
-assert all(row.get('usage_status') == 'research_preview_active' and row.get('not_for_actions') is True for row in elderly['relationship_candidates'])
+assert elderly.get('relationship_candidates') == [], 'legacy enable flag must not bypass authorization'
 assert doctor.get('relationship_candidates')
-assert all(len(row.get('node_labels', [])) == 3 for row in doctor['relationship_candidates'])
-print(json.dumps({'passed': True, 'candidate_count': manifest['candidate_count'], 'doctor_visible': len(doctor['relationship_candidates']), 'elderly_research_preview_visible': len(elderly['relationship_candidates']), 'disabled_visible': 0}, ensure_ascii=False))
+assert all(len(row.get('node_labels', [])) == 3 and row.get('review_status') == 'pending_medical_review' and row.get('usage_status') == 'research_preview_active' for row in doctor['relationship_candidates'])
+print(json.dumps({'passed': True, 'candidate_count': manifest['candidate_count'], 'doctor_visible': len(doctor['relationship_candidates']), 'elderly_research_preview_visible': 0, 'disabled_visible': 0}, ensure_ascii=False))

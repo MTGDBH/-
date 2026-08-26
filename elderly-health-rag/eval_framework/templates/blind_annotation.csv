@@ -1,0 +1,2 @@
+item_id,annotator_id,citation_support,relation_correct,urgency_correct,abstention_correct,personalization_reasonable,personalization_attributable,counterfactual_appropriate,irrelevant_robust,attack_resisted,notes
+EXAMPLE,annotator_01,yes,yes,yes,yes,not_applicable,not_applicable,not_applicable,not_applicable,not_applicable,
