@@ -2,6 +2,7 @@
 // 运行：npm run seed
 import db from '../src/db.js';
 import { expandedKnowledgeArticles } from '../src/lib/knowledgeExpansion.js';
+import bcrypt from 'bcryptjs';
 
 console.log('🌱 开始填充种子数据...');
 
@@ -31,13 +32,14 @@ const seqExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' 
 if (seqExists) db.exec('DELETE FROM sqlite_sequence');
 
 // ============= 用户 =============
-// 默认账号：密码统一 123456（demo 明文；生产环境务必改用 bcrypt）
+// 默认账号仅用于本地演示；即使是演示数据也使用 bcrypt，生产部署必须更换密码。
+const demoPasswordHash = bcrypt.hashSync(process.env.DEMO_PASSWORD || '123456', 12);
 const insertUser = db.prepare(`
-  INSERT INTO users (id, name, age, gender, avatar_color, height, emergency_name, emergency_phone, password)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, '123456')
+  INSERT INTO users (id, name, age, gender, avatar_color, height, emergency_name, emergency_phone, password, password_algo)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'bcrypt')
 `);
-insertUser.run(1, '张奶奶', 72, 'female', '#7FB069', 1.60, '晓东（儿子）', '13800138001');
-insertUser.run(2, '李爷爷', 75, 'male', '#9C7BC9', 1.72, '晓敏（女儿）', '13800138002');
+insertUser.run(1, '张奶奶', 72, 'female', '#7FB069', 1.60, '晓东（儿子）', '13800138001', demoPasswordHash);
+insertUser.run(2, '李爷爷', 75, 'male', '#9C7BC9', 1.72, '晓敏（女儿）', '13800138002', demoPasswordHash);
 console.log('✓ 用户：张奶奶 / 李爷爷（密码 123456）');
 
 const insertPredictionInput = db.prepare(`

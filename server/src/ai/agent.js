@@ -11,6 +11,7 @@ import { getDeviceStatus } from './tools/deviceStatus.js';
 import { getHealthSummary as getHealthSummaryTool } from './tools/healthSummary.js';
 import { getAlertStatus } from './tools/alertStatus.js';
 import { routeIntent } from './intentRouter.js';
+import { getLLMConfig } from '../services/llmConfigService.js';
 
 export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健康数据智能分析助手与健康管家。
 你的特点：温柔耐心、口语化、避免冷冰冰的医学术语、不下诊断结论、遇到严重情况一定建议就医。
@@ -55,36 +56,6 @@ export const SYSTEM_PROMPT = `你是"小康"，一位专为老年人服务的健
    - 如果回复属于通用健康常识（如"什么是窦性心律""血压正常范围"），type="common_sense"，不需要 score 和 sources
    - 如果是日常问候/闲聊（如"你好""谢谢"），type="common_sense"
 返回 JSON 格式：{"content":"<简短结论、关键数据、复测与安全边界>","plan":[{"icon":"<测|行|眠|复>","title":"<行动标题>","desc":"<一句可执行说明>","color":"<色系>"}],"confidence":{"type":"data"|"common_sense","score":85,"sources":["血压 145/92 (8月18日)"],"reasoning":"基于近7天血压数据和可审核知识依据"}}`;
-
-/**
- * 从数据库读取 LLM 配置，回退到环境变量
- */
-function getLLMConfig() {
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('llm_config');
-  if (row) {
-    try {
-      const cfg = JSON.parse(row.value);
-      if (cfg.api_key) {
-        const baseUrl = cfg.base_url || 'https://api.deepseek.com/v1';
-        return { ...cfg, base_url: baseUrl, model: cfg.model || 'deepseek-chat', provider: providerFromBaseUrl(baseUrl) };
-      }
-    } catch {}
-  }
-  // DeepSeek 是默认 provider；OPENAI_* 仅作为兼容旧配置的回退。
-  const key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-  if (key) {
-    const baseUrl = process.env.DEEPSEEK_API_KEY
-      ? (process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1')
-      : (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1');
-    return {
-      api_key: key,
-      base_url: baseUrl,
-      model: process.env.DEEPSEEK_API_KEY ? (process.env.DEEPSEEK_MODEL || 'deepseek-chat') : (process.env.OPENAI_MODEL || 'gpt-4o-mini'),
-      provider: providerFromBaseUrl(baseUrl),
-    };
-  }
-  return null; // 无配置 → Mock 模式
-}
 
 function providerFromBaseUrl(baseUrl = '') {
   return /deepseek/i.test(String(baseUrl)) ? 'deepseek' : /openai/i.test(String(baseUrl)) ? 'openai' : 'custom';

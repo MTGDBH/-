@@ -8,78 +8,113 @@
   "days": 90,
   "evaluation": {
     "attempts": 34,
-    "forecasted_windows": 24,
-    "refused_windows": 10,
-    "refusal_rate": 0.29411764705882354,
+    "forecasted_windows": 3,
+    "refused_windows": 31,
+    "refusal_rate": 0.9117647058823529,
     "curve_v2": {
-      "n": 138,
-      "mae": 4.454347826086956,
-      "rmse": 6.102652310052679,
-      "mase": 0.8056442977256693,
-      "coverage_80": 0.8043478260869565,
-      "interval_width": 15.639565217391302
+      "n": 13,
+      "mae": 3.3369230769230787,
+      "rmse": 3.97770517529121,
+      "mase": 1.0206978160129876,
+      "coverage_80": 0.46153846153846156,
+      "interval_width": 6.45846153846154
     },
     "last_value_baseline": {
-      "n": 138,
-      "mae": 6.994999999999998,
-      "rmse": 9.039116564182006,
-      "mase": 1.265164302973102,
+      "n": 13,
+      "mae": 7.161538461538459,
+      "rmse": 8.270086038060489,
+      "mase": 2.1905709237162068,
+      "coverage_80": null,
+      "interval_width": null
+    },
+    "rolling_median_baseline": {
+      "n": 13,
+      "mae": 3.504230769230772,
+      "rmse": 4.040092582716773,
+      "mase": 1.0718738821685492,
       "coverage_80": null,
       "interval_width": null
     },
     "metrics": {
       "curve_v2": {
         "micro": {
-          "n": 138,
-          "mae": 4.454347826086956,
-          "rmse": 6.102652310052679,
-          "mase": 0.8056442977256693,
-          "coverage_80": 0.8043478260869565,
-          "interval_width": 15.639565217391302
+          "n": 13,
+          "mae": 3.3369230769230787,
+          "rmse": 3.97770517529121,
+          "mase": 1.0206978160129876,
+          "coverage_80": 0.46153846153846156,
+          "interval_width": 6.45846153846154
         },
         "macro_by_window": {
-          "windows": 24,
-          "mae": 4.422686507936507,
-          "rmse": 5.385840220703969,
-          "mase": 0.8065489223404919,
-          "coverage_80": 0.808531746031746,
-          "interval_width": 15.353210317460315
+          "windows": 3,
+          "mae": 3.509555555555556,
+          "rmse": 3.994331184887025,
+          "mase": 1.0465410477999952,
+          "coverage_80": 0.3666666666666667,
+          "interval_width": 6.527111111111114
         },
         "macro_by_participant": {
-          "windows": 4,
-          "mae": 4.672040738366652,
-          "rmse": 6.076102062809339,
-          "mase": 0.7832919160589817,
-          "coverage_80": 0.8060340944527217,
-          "interval_width": 16.795421468417587,
-          "participants": 4
+          "windows": 1,
+          "mae": 3.3369230769230787,
+          "rmse": 3.97770517529121,
+          "mase": 1.0206978160129876,
+          "coverage_80": 0.46153846153846156,
+          "interval_width": 6.45846153846154,
+          "participants": 1
         }
       },
       "last_value_baseline": {
         "micro": {
-          "n": 138,
-          "mae": 6.994999999999998,
-          "rmse": 9.039116564182006,
-          "mase": 1.265164302973102,
+          "n": 13,
+          "mae": 7.161538461538459,
+          "rmse": 8.270086038060489,
+          "mase": 2.1905709237162068,
           "coverage_80": null,
           "interval_width": null
         },
         "macro_by_window": {
-          "windows": 24,
-          "mae": 7.242785714285712,
-          "rmse": 8.17821299103162,
-          "mase": 1.3121401042919816,
+          "windows": 3,
+          "mae": 6.929555555555552,
+          "rmse": 7.304106433636169,
+          "mase": 2.069269500886357,
           "coverage_80": null,
           "interval_width": null
         },
         "macro_by_participant": {
-          "windows": 4,
-          "mae": 7.527826366030281,
-          "rmse": 9.32636832516391,
-          "mase": 1.2635101089370329,
+          "windows": 1,
+          "mae": 7.161538461538459,
+          "rmse": 8.270086038060489,
+          "mase": 2.1905709237162068,
           "coverage_80": null,
           "interval_width": null,
-          "participants": 4
+          "participants": 1
+        }
+      },
+      "rolling_median_baseline": {
+        "micro": {
+          "n": 13,
+          "mae": 3.504230769230772,
+          "rmse": 4.040092582716773,
+          "mase": 1.0718738821685492,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "macro_by_window": {
+          "windows": 3,
+          "mae": 3.796777777777782,
+          "rmse": 4.192190366254768,
+          "mase": 1.13089109182756,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "macro_by_participant": {
+          "windows": 1,
+          "mae": 3.504230769230772,
+          "rmse": 4.040092582716773,
+          "mase": 1.0718738821685492,
+          "coverage_80": null,
+          "interval_width": null,
+          "participants": 1
         }
       }
     },
@@ -91,346 +126,89 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-01-30T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-06T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-07",
-          "2026-02-08",
-          "2026-02-09",
-          "2026-02-10",
-          "2026-02-11",
-          "2026-02-12",
-          "2026-02-13"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 2.7642857142857156,
-          "rmse": 3.157216224099056,
-          "mase": 0.5044316996871743,
-          "coverage_80": 1.0,
-          "interval_width": 11.334285714285713,
-          "sum_abs_error": 19.35000000000001,
-          "sum_sq_error": 69.77610000000008,
-          "scale_denominator": 38.36000000000001,
-          "covered_points": 7,
-          "interval_width_sum": 79.33999999999999
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 5.377142857142859,
-          "rmse": 6.235513497012785,
-          "mase": 0.9812304483837332,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 37.640000000000015,
-          "sum_sq_error": 272.17140000000023,
-          "scale_denominator": 38.36000000000001,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-13T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-14",
-          "2026-02-15",
-          "2026-02-16",
-          "2026-02-17",
-          "2026-02-18",
-          "2026-02-19",
-          "2026-02-20"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 3.6285714285714334,
-          "rmse": 4.253089633263265,
-          "mase": 0.7064505844125019,
-          "coverage_80": 0.7142857142857143,
-          "interval_width": 10.45142857142857,
-          "sum_abs_error": 25.400000000000034,
-          "sum_sq_error": 126.6214000000002,
-          "scale_denominator": 35.95439024390244,
-          "covered_points": 5,
-          "interval_width_sum": 73.16
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 5.221428571428569,
-          "rmse": 6.1622108741216275,
-          "mase": 1.0165657031605078,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 36.54999999999998,
-          "sum_sq_error": 265.80989999999986,
-          "scale_denominator": 35.95439024390244,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "huber"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-20T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-21",
-          "2026-02-22",
-          "2026-02-23",
-          "2026-02-24",
-          "2026-02-25",
-          "2026-02-26",
-          "2026-02-27"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 2.489999999999997,
-          "rmse": 3.435198060415977,
-          "mase": 0.4933542475026824,
-          "coverage_80": 0.8571428571428571,
-          "interval_width": 11.462857142857143,
-          "sum_abs_error": 17.42999999999998,
-          "sum_sq_error": 82.60409999999983,
-          "scale_denominator": 35.32958333333334,
-          "covered_points": 6,
-          "interval_width_sum": 80.24
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 4.018571428571428,
-          "rmse": 4.492353821455168,
-          "mase": 0.7962165795898147,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 28.129999999999995,
-          "sum_sq_error": 141.26869999999997,
-          "scale_denominator": 35.32958333333334,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "huber"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-27T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-28",
-          "2026-03-01",
-          "2026-03-02",
-          "2026-03-03",
-          "2026-03-04",
-          "2026-03-05",
-          "2026-03-06"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 5.614285714285724,
-          "rmse": 6.423510388742736,
-          "mase": 1.164350355526828,
-          "coverage_80": 0.5714285714285714,
-          "interval_width": 10.10142857142857,
-          "sum_abs_error": 39.30000000000007,
-          "sum_sq_error": 288.830400000001,
-          "scale_denominator": 33.75272727272728,
-          "covered_points": 4,
-          "interval_width_sum": 70.71
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 6.15714285714286,
-          "rmse": 7.013977880937877,
-          "mase": 1.2769338504632628,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 43.10000000000002,
-          "sum_sq_error": 344.3712000000005,
-          "scale_denominator": 33.75272727272728,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-06T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-07",
-          "2026-03-08",
-          "2026-03-10",
-          "2026-03-11",
-          "2026-03-12",
-          "2026-03-13"
-        ],
-        "curve_v2": {
-          "n": 6,
-          "mae": 4.621666666666667,
-          "rmse": 6.1180375393857584,
-          "mase": 0.9488189845474613,
-          "coverage_80": 0.8333333333333334,
-          "interval_width": 13.773333333333328,
-          "sum_abs_error": 27.730000000000004,
-          "sum_sq_error": 224.5823000000001,
-          "scale_denominator": 29.22580645161291,
-          "covered_points": 5,
-          "interval_width_sum": 82.63999999999997
-        },
-        "last_value_baseline": {
-          "n": 6,
-          "mae": 7.911666666666669,
-          "rmse": 8.81393120765833,
-          "mase": 1.6242494481236205,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 47.47000000000001,
-          "sum_sq_error": 466.1123000000006,
-          "scale_denominator": 29.22580645161291,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-14T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-15",
-          "2026-03-17",
-          "2026-03-18",
-          "2026-03-19",
-          "2026-03-20",
-          "2026-03-21"
-        ],
-        "curve_v2": {
-          "n": 6,
-          "mae": 3.848333333333327,
-          "rmse": 4.475822084638006,
-          "mase": 0.7437121891104626,
-          "coverage_80": 1.0,
-          "interval_width": 20.02,
-          "sum_abs_error": 23.08999999999996,
-          "sum_sq_error": 120.19789999999983,
-          "scale_denominator": 31.046956521739133,
-          "covered_points": 6,
-          "interval_width_sum": 120.12
-        },
-        "last_value_baseline": {
-          "n": 6,
-          "mae": 9.625000000000002,
-          "rmse": 10.510394061753031,
-          "mase": 1.8600857046829489,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 57.750000000000014,
-          "sum_sq_error": 662.8103000000003,
-          "scale_denominator": 31.046956521739133,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-22T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-23",
-          "2026-03-24",
-          "2026-03-25",
-          "2026-03-26",
-          "2026-03-27",
-          "2026-03-28",
-          "2026-03-29"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 4.677142857142862,
-          "rmse": 6.390723187335134,
-          "mase": 0.8908843537414975,
-          "coverage_80": 0.8571428571428571,
-          "interval_width": 16.154285714285713,
-          "sum_abs_error": 32.74000000000004,
-          "sum_sq_error": 285.8894000000005,
-          "scale_denominator": 36.75,
-          "covered_points": 6,
-          "interval_width_sum": 113.08
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 4.677142857142862,
-          "rmse": 6.390723187335134,
-          "mase": 0.8908843537414975,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 32.74000000000004,
-          "sum_sq_error": 285.8894000000005,
-          "scale_denominator": 36.75,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_a",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-29T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-30",
-          "2026-03-31"
-        ],
-        "curve_v2": {
-          "n": 2,
-          "mae": 7.169999999999995,
-          "rmse": 8.005154589388008,
-          "mase": 1.3756588072122042,
-          "coverage_80": 0.5,
-          "interval_width": 15.689999999999998,
-          "sum_abs_error": 14.33999999999999,
-          "sum_sq_error": 128.16499999999976,
-          "scale_denominator": 10.42409638554217,
-          "covered_points": 1,
-          "interval_width_sum": 31.379999999999995
-        },
-        "last_value_baseline": {
-          "n": 2,
-          "mae": 7.169999999999995,
-          "rmse": 7.811459530715105,
-          "mase": 1.3756588072122042,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 14.33999999999999,
-          "sum_sq_error": 122.03779999999969,
-          "scale_denominator": 10.42409638554217,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
@@ -438,92 +216,29 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-01-28T08:00:00+00:00",
         "status": "refused",
-        "reason": "预测门槛未满足：当前28个有效日、跨度27.0天",
-        "reason_code": "FORECAST_GATE_NOT_MET",
-        "message": "预测门槛未满足：当前28个有效日、跨度27.0天"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；预测门槛未满足：当前28个有效日、跨度27.0天；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-04T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-05",
-          "2026-02-06",
-          "2026-02-07",
-          "2026-02-08",
-          "2026-02-09",
-          "2026-02-10",
-          "2026-02-11"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 7.574285714285708,
-          "rmse": 9.307941309901528,
-          "mase": 0.9946918280637853,
-          "coverage_80": 0.8571428571428571,
-          "interval_width": 26.677142857142858,
-          "sum_abs_error": 53.01999999999995,
-          "sum_sq_error": 606.4643999999996,
-          "scale_denominator": 53.3029411764706,
-          "covered_points": 6,
-          "interval_width_sum": 186.74
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 15.134285714285706,
-          "rmse": 17.245719965917825,
-          "mase": 1.9875075870440861,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 105.93999999999994,
-          "sum_sq_error": 2081.9039999999973,
-          "scale_denominator": 53.3029411764706,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-11T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-12",
-          "2026-02-15",
-          "2026-02-16",
-          "2026-02-17"
-        ],
-        "curve_v2": {
-          "n": 4,
-          "mae": 1.0450000000000017,
-          "rmse": 1.2943531202882748,
-          "mase": 0.11464772149527729,
-          "coverage_80": 1.0,
-          "interval_width": 23.44,
-          "sum_abs_error": 4.180000000000007,
-          "sum_sq_error": 6.701399999999971,
-          "scale_denominator": 36.459512195121945,
-          "covered_points": 4,
-          "interval_width_sum": 93.76
-        },
-        "last_value_baseline": {
-          "n": 4,
-          "mae": 1.9599999999999937,
-          "rmse": 2.307238609246989,
-          "mase": 0.2150330470150645,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 7.839999999999975,
-          "sum_sq_error": 21.29339999999992,
-          "scale_denominator": 36.459512195121945,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
@@ -531,9 +246,9 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-21T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
@@ -541,9 +256,9 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-01T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
@@ -551,9 +266,9 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-08T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_b",
@@ -561,90 +276,29 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-15T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_b",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-22T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-23",
-          "2026-03-24",
-          "2026-03-25",
-          "2026-03-26",
-          "2026-03-27",
-          "2026-03-28",
-          "2026-03-29"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 4.948571428571425,
-          "rmse": 7.3014049528644955,
-          "mase": 0.6668051284908839,
-          "coverage_80": 0.5714285714285714,
-          "interval_width": 10.562857142857142,
-          "sum_abs_error": 34.63999999999997,
-          "sum_sq_error": 373.1735999999993,
-          "scale_denominator": 51.94921052631578,
-          "covered_points": 4,
-          "interval_width_sum": 73.94
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 6.225714285714294,
-          "rmse": 8.492786855410223,
-          "mase": 0.8388962904051034,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 43.580000000000055,
-          "sum_sq_error": 504.8920000000006,
-          "scale_denominator": 51.94921052631578,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_b",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-29T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-30",
-          "2026-03-31"
-        ],
-        "curve_v2": {
-          "n": 2,
-          "mae": 3.9399999999999835,
-          "rmse": 4.742699653151132,
-          "mase": 0.5419083286381842,
-          "coverage_80": 1.0,
-          "interval_width": 13.340000000000003,
-          "sum_abs_error": 7.879999999999967,
-          "sum_sq_error": 44.98639999999975,
-          "scale_denominator": 14.541204819277109,
-          "covered_points": 2,
-          "interval_width_sum": 26.680000000000007
-        },
-        "last_value_baseline": {
-          "n": 2,
-          "mae": 18.539999999999992,
-          "rmse": 18.72701791530087,
-          "mase": 2.5499950286680133,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 37.079999999999984,
-          "sum_sq_error": 701.4023999999995,
-          "scale_denominator": 14.541204819277109,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_c",
@@ -652,178 +306,49 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-01T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_c",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-09T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-12",
-          "2026-02-13",
-          "2026-02-14",
-          "2026-02-15",
-          "2026-02-16"
-        ],
-        "curve_v2": {
-          "n": 5,
-          "mae": 1.2859999999999985,
-          "rmse": 1.8295409260248847,
-          "mase": 0.35637786290651197,
-          "coverage_80": 0.8,
-          "interval_width": 6.55,
-          "sum_abs_error": 6.429999999999993,
-          "sum_sq_error": 16.736099999999965,
-          "scale_denominator": 18.042647058823526,
-          "covered_points": 4,
-          "interval_width_sum": 32.75
-        },
-        "last_value_baseline": {
-          "n": 5,
-          "mae": 2.9059999999999944,
-          "rmse": 3.2259665218349607,
-          "mase": 0.8053142065367986,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 14.529999999999973,
-          "sum_sq_error": 52.03429999999977,
-          "scale_denominator": 18.042647058823526,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "linear"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_c",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-18T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-19",
-          "2026-02-20",
-          "2026-02-21",
-          "2026-02-22",
-          "2026-02-23",
-          "2026-02-24",
-          "2026-02-25"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 2.2542857142857144,
-          "rmse": 2.8504936915759473,
-          "mase": 0.6669965669749174,
-          "coverage_80": 0.42857142857142855,
-          "interval_width": 4.772857142857144,
-          "sum_abs_error": 15.780000000000001,
-          "sum_sq_error": 56.8771999999999,
-          "scale_denominator": 23.658292682926827,
-          "covered_points": 3,
-          "interval_width_sum": 33.41000000000001
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 3.3785714285714294,
-          "rmse": 3.937727771189878,
-          "mase": 0.9996494809224841,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 23.650000000000006,
-          "sum_sq_error": 108.53990000000003,
-          "scale_denominator": 23.658292682926827,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_c",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-25T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-26",
-          "2026-02-27",
-          "2026-03-01",
-          "2026-03-02",
-          "2026-03-03",
-          "2026-03-04"
-        ],
-        "curve_v2": {
-          "n": 6,
-          "mae": 3.0449999999999946,
-          "rmse": 3.7482551496218393,
-          "mase": 0.8923076923076907,
-          "coverage_80": 0.8333333333333334,
-          "interval_width": 7.609999999999995,
-          "sum_abs_error": 18.269999999999968,
-          "sum_sq_error": 84.29649999999981,
-          "scale_denominator": 20.475,
-          "covered_points": 5,
-          "interval_width_sum": 45.65999999999997
-        },
-        "last_value_baseline": {
-          "n": 6,
-          "mae": 1.9866666666666646,
-          "rmse": 2.7579400525271236,
-          "mase": 0.5821733821733815,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 11.919999999999987,
-          "sum_sq_error": 45.637399999999886,
-          "scale_denominator": 20.475,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "state_space_local_linear"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_c",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-05T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-06",
-          "2026-03-07",
-          "2026-03-08",
-          "2026-03-09",
-          "2026-03-10",
-          "2026-03-11",
-          "2026-03-12"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 1.3957142857142852,
-          "rmse": 1.8673013376834176,
-          "mase": 0.4159764046509468,
-          "coverage_80": 1.0,
-          "interval_width": 7.1514285714285775,
-          "sum_abs_error": 9.769999999999996,
-          "sum_sq_error": 24.407699999999963,
-          "scale_denominator": 23.486909090909077,
-          "covered_points": 7,
-          "interval_width_sum": 50.060000000000045
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 2.3700000000000006,
-          "rmse": 2.680823434266846,
-          "mase": 0.7063509266283738,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 16.590000000000003,
-          "sum_sq_error": 50.30770000000001,
-          "scale_denominator": 23.486909090909077,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "huber"
+        "status": "refused",
+        "reason": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差",
+        "reason_code": "HORIZON_BUCKET_NOT_READY",
+        "message": "至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差"
       },
       {
         "participant_id": "demo_c",
@@ -840,16 +365,16 @@
         ],
         "curve_v2": {
           "n": 5,
-          "mae": 2.8200000000000016,
-          "rmse": 3.4554362966201535,
-          "mase": 0.9063293763931374,
+          "mae": 2.432000000000002,
+          "rmse": 3.2778041430201443,
+          "mase": 0.7816287387901102,
           "coverage_80": 0.6,
-          "interval_width": 6.052000000000004,
-          "sum_abs_error": 14.100000000000009,
-          "sum_sq_error": 59.70020000000001,
+          "interval_width": 6.228,
+          "sum_abs_error": 12.16000000000001,
+          "sum_sq_error": 53.72000000000011,
           "scale_denominator": 15.557258064516127,
           "covered_points": 3,
-          "interval_width_sum": 30.26000000000002
+          "interval_width_sum": 31.14
         },
         "last_value_baseline": {
           "n": 5,
@@ -864,7 +389,20 @@
           "covered_points": null,
           "interval_width_sum": null
         },
-        "model": "median"
+        "rolling_median_baseline": {
+          "n": 5,
+          "mae": 2.7670000000000017,
+          "rmse": 3.4057282627949053,
+          "mase": 0.8892955264112806,
+          "coverage_80": null,
+          "interval_width": null,
+          "sum_abs_error": 13.835000000000008,
+          "sum_sq_error": 57.994925000000016,
+          "scale_denominator": 15.557258064516127,
+          "covered_points": null,
+          "interval_width_sum": null
+        },
+        "model": "ets_damped_trend"
       },
       {
         "participant_id": "demo_c",
@@ -882,16 +420,16 @@
         ],
         "curve_v2": {
           "n": 6,
-          "mae": 3.353333333333334,
-          "rmse": 3.87939428261681,
-          "mase": 1.0141573526188914,
-          "coverage_80": 0.6666666666666666,
-          "interval_width": 6.459999999999998,
-          "sum_abs_error": 20.120000000000005,
-          "sum_sq_error": 90.29819999999995,
+          "mae": 3.75666666666667,
+          "rmse": 4.364256332221259,
+          "mase": 1.1361385053692759,
+          "coverage_80": 0.5,
+          "interval_width": 6.528333333333336,
+          "sum_abs_error": 22.54000000000002,
+          "sum_sq_error": 114.2804000000001,
           "scale_denominator": 19.839130434782604,
-          "covered_points": 4,
-          "interval_width_sum": 38.75999999999999
+          "covered_points": 3,
+          "interval_width_sum": 39.170000000000016
         },
         "last_value_baseline": {
           "n": 6,
@@ -906,7 +444,20 @@
           "covered_points": null,
           "interval_width_sum": null
         },
-        "model": "median"
+        "rolling_median_baseline": {
+          "n": 6,
+          "mae": 3.6183333333333345,
+          "rmse": 4.164843934651092,
+          "mase": 1.094301994301995,
+          "coverage_80": null,
+          "interval_width": null,
+          "sum_abs_error": 21.710000000000008,
+          "sum_sq_error": 104.07554999999995,
+          "scale_denominator": 19.839130434782604,
+          "covered_points": null,
+          "interval_width_sum": null
+        },
+        "model": "kalman_local_level"
       },
       {
         "participant_id": "demo_c",
@@ -920,16 +471,16 @@
         ],
         "curve_v2": {
           "n": 2,
-          "mae": 3.8299999999999983,
-          "rmse": 3.8313052606128872,
-          "mase": 1.0782737543989627,
-          "coverage_80": 1.0,
-          "interval_width": 10.009999999999991,
-          "sum_abs_error": 7.659999999999997,
-          "sum_sq_error": 29.35779999999997,
+          "mae": 4.339999999999996,
+          "rmse": 4.340933079419673,
+          "mase": 1.2218558992405995,
+          "coverage_80": 0.0,
+          "interval_width": 6.825000000000003,
+          "sum_abs_error": 8.679999999999993,
+          "sum_sq_error": 37.68739999999994,
           "scale_denominator": 7.103947368421051,
-          "covered_points": 2,
-          "interval_width_sum": 20.019999999999982
+          "covered_points": 0,
+          "interval_width_sum": 13.650000000000006
         },
         "last_value_baseline": {
           "n": 2,
@@ -944,91 +495,40 @@
           "covered_points": null,
           "interval_width_sum": null
         },
-        "model": "median"
+        "rolling_median_baseline": {
+          "n": 2,
+          "mae": 5.00500000000001,
+          "rmse": 5.005998901318307,
+          "mase": 1.4090757547694048,
+          "coverage_80": null,
+          "interval_width": null,
+          "sum_abs_error": 10.01000000000002,
+          "sum_sq_error": 50.12005000000019,
+          "scale_denominator": 7.103947368421051,
+          "covered_points": null,
+          "interval_width_sum": null
+        },
+        "model": "kalman_local_level"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-01-30T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-01-31",
-          "2026-02-01",
-          "2026-02-02",
-          "2026-02-03",
-          "2026-02-04",
-          "2026-02-05",
-          "2026-02-06"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 6.845714285714284,
-          "rmse": 7.699853430887035,
-          "mase": 1.1391943649570766,
-          "coverage_80": 1.0,
-          "interval_width": 38.114285714285714,
-          "sum_abs_error": 47.91999999999999,
-          "sum_sq_error": 415.01419999999996,
-          "scale_denominator": 42.06481481481482,
-          "covered_points": 7,
-          "interval_width_sum": 266.8
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 6.468571428571424,
-          "rmse": 7.679903273200405,
-          "mase": 1.0764340744001755,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 45.27999999999997,
-          "sum_sq_error": 412.86640000000006,
-          "scale_denominator": 42.06481481481482,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "linear"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-06T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-02-07",
-          "2026-02-08",
-          "2026-02-09",
-          "2026-02-10",
-          "2026-02-11"
-        ],
-        "curve_v2": {
-          "n": 5,
-          "mae": 6.445999999999993,
-          "rmse": 8.217898758198466,
-          "mase": 0.8923615635179143,
-          "coverage_80": 0.8,
-          "interval_width": 19.846000000000004,
-          "sum_abs_error": 32.22999999999996,
-          "sum_sq_error": 337.6692999999994,
-          "scale_denominator": 36.11764705882353,
-          "covered_points": 4,
-          "interval_width_sum": 99.23000000000002
-        },
-        "last_value_baseline": {
-          "n": 5,
-          "mae": 10.433999999999997,
-          "rmse": 11.54473992777663,
-          "mase": 1.444446254071661,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 52.16999999999999,
-          "sum_sq_error": 666.4050999999998,
-          "scale_denominator": 36.11764705882353,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "state_space_local_linear"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
@@ -1036,9 +536,9 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-15T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
@@ -1046,9 +546,9 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-02-24T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
@@ -1056,136 +556,39 @@
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-03T08:00:00+00:00",
         "status": "refused",
-        "reason": "滚动模型选择集未稳定优于简单基线或验证起点不足",
-        "reason_code": "MODEL_VALIDATION_FAILED",
-        "message": "滚动模型选择集未稳定优于简单基线或验证起点不足"
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-11T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-12",
-          "2026-03-13",
-          "2026-03-14",
-          "2026-03-15",
-          "2026-03-16",
-          "2026-03-17",
-          "2026-03-18"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 4.584285714285711,
-          "rmse": 5.737096079775155,
-          "mase": 0.5951373890986099,
-          "coverage_80": 1.0,
-          "interval_width": 32.1,
-          "sum_abs_error": 32.089999999999975,
-          "sum_sq_error": 230.39990000000014,
-          "scale_denominator": 53.92032258064515,
-          "covered_points": 7,
-          "interval_width_sum": 224.7
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 12.914285714285702,
-          "rmse": 14.109498320533673,
-          "mase": 1.6765478334220731,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 90.39999999999992,
-          "sum_sq_error": 1393.5455999999979,
-          "scale_denominator": 53.92032258064515,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-18T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-19",
-          "2026-03-20",
-          "2026-03-21",
-          "2026-03-22",
-          "2026-03-23",
-          "2026-03-24",
-          "2026-03-25"
-        ],
-        "curve_v2": {
-          "n": 7,
-          "mae": 10.709999999999999,
-          "rmse": 12.025724213416122,
-          "mase": 1.3502713369511592,
-          "coverage_80": 0.7142857142857143,
-          "interval_width": 25.40285714285714,
-          "sum_abs_error": 74.97,
-          "sum_sq_error": 1012.3262999999998,
-          "scale_denominator": 55.522173913043474,
-          "covered_points": 5,
-          "interval_width_sum": 177.82
-        },
-        "last_value_baseline": {
-          "n": 7,
-          "mae": 11.349999999999985,
-          "rmse": 12.599065158064011,
-          "mase": 1.4309598202050084,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 79.4499999999999,
-          "sum_sq_error": 1111.1550999999977,
-          "scale_denominator": 55.522173913043474,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "median"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       },
       {
         "participant_id": "demo_d",
         "metric": "systo",
         "measurement_group": "bp:legacy:morning_rest",
         "origin": "2026-03-25T08:00:00+00:00",
-        "status": "forecasted",
-        "aligned_dates": [
-          "2026-03-26",
-          "2026-03-27",
-          "2026-03-28",
-          "2026-03-30",
-          "2026-03-31"
-        ],
-        "curve_v2": {
-          "n": 5,
-          "mae": 7.251999999999998,
-          "rmse": 9.21271512638918,
-          "mase": 0.9040762429670456,
-          "coverage_80": 0.8,
-          "interval_width": 21.399999999999988,
-          "sum_abs_error": 36.25999999999999,
-          "sum_sq_error": 424.37059999999985,
-          "scale_denominator": 40.10723684210525,
-          "covered_points": 4,
-          "interval_width_sum": 106.99999999999994
-        },
-        "last_value_baseline": {
-          "n": 5,
-          "mae": 9.212,
-          "rmse": 11.625800617591892,
-          "mase": 1.1484211734986798,
-          "coverage_80": null,
-          "interval_width": null,
-          "sum_abs_error": 46.06,
-          "sum_sq_error": 675.7962,
-          "scale_denominator": 40.10723684210525,
-          "covered_points": null,
-          "interval_width_sum": null
-        },
-        "model": "huber"
+        "status": "refused",
+        "reason": "滚动回测没有得到稳定模型；独立校准残差不足（0/4）；至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差；没有候选模型在该预测窗口稳定优于 last_value/rolling_median",
+        "reason_code": "NO_STABLE_MODEL",
+        "message": "滚动回测没有得到稳定模型"
       }
     ]
   },

@@ -3,8 +3,9 @@
 // 不会清理张奶奶、李爷爷或其他已有演示数据。
 // 运行：Node 22 server/data/load_test_dataset.js
 import db from '../src/db.js';
+import bcrypt from 'bcryptjs';
 
-const PASSWORD = '123456';
+const PASSWORD = bcrypt.hashSync(process.env.DEMO_PASSWORD || '123456', 12);
 const PREFIX = '系统测试老人';
 const NOTE_PREFIX = 'loadtest-40-20260820';
 const DAY_MS = 24 * 3600 * 1000;
@@ -81,11 +82,11 @@ function profileValues(profile, id, elapsed, day) {
 }
 
 const insertUser = db.prepare(`
-  INSERT INTO users (name, age, gender, avatar_color, height, emergency_name, emergency_phone, password)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO users (name, age, gender, avatar_color, height, emergency_name, emergency_phone, password, password_algo)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'bcrypt')
 `);
 const updateUser = db.prepare(`
-  UPDATE users SET age = ?, gender = ?, avatar_color = ?, height = ?, emergency_name = ?, emergency_phone = ?, password = ?
+  UPDATE users SET age = ?, gender = ?, avatar_color = ?, height = ?, emergency_name = ?, emergency_phone = ?, password = ?, password_algo='bcrypt'
   WHERE id = ?
 `);
 const insertMetric = db.prepare(`

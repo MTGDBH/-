@@ -77,9 +77,9 @@ function toolFacts(toolResults) {
   const risk = toolResults.find(item => ['htn_risk', 'disease_risk'].includes(item.name) && item.status === 'success')?.result;
   if (risk) {
     const tier = risk.existing_diagnosis ? 'management' : risk.risk_tier || risk.risk_level;
-    facts.push({ label: '筛查分层', value: RISK_NAMES[tier] || '证据有限', unit: '', measured_at: risk.evidence_freshness?.slice?.(0, 10) || null, context: '用于筛查，不是诊断', trend: null });
+    facts.push({ label: '模型估计的 · 筛查分层', value: RISK_NAMES[tier] || '证据有限', unit: '', measured_at: risk.evidence_freshness?.slice?.(0, 10) || null, context: '用于筛查，不是诊断', trend: null });
     const percent = risk.research_details?.risk_percent;
-    if (Number.isFinite(Number(percent))) facts.push({ label: '模型筛查值', value: String(percent), unit: '%', measured_at: null, context: '仅在模型通过准入后展示', trend: null });
+    if (Number.isFinite(Number(percent))) facts.push({ label: '模型估计的 · 筛查值', value: String(percent), unit: '%', measured_at: null, context: '仅在模型通过准入后展示', trend: null });
   }
   const alerts = toolResults.find(item => item.name === 'alerts' && item.status === 'success')?.result;
   if (alerts) {
@@ -92,6 +92,26 @@ function toolFacts(toolResults) {
   const followups = toolResults.find(item => item.name === 'followup_status' && item.status === 'success')?.result;
   if (followups) facts.push({ label: '待处理复测', value: String(followups.total || 0), unit: '项', measured_at: null, context: followups.pending_confirmation ? `其中 ${followups.pending_confirmation} 项需确认新测量` : '暂无待确认测量', trend: null });
   return facts;
+}
+
+function linkedCurveFacts(response, toolResults) {
+  const events = response?.prediction_snapshot?.events || [];
+  const rows = toolResults.find(item => item.name === 'health_trend' && item.status === 'success')?.result?.metrics || [];
+  const out = [];
+  for (const event of events) {
+    const row = rows.find(item => item.metric === event.metric) || {};
+    const name = ({ systo: '高压（收缩压）', diasto: '低压（舒张压）', pulse: '心率', glucose: '血糖', weight: '体重', sleep: '睡眠' })[event.metric] || event.metric;
+    out.push({ label: `已经测到的 · ${name}`, value: event.latest_value == null ? '暂无有效数值' : String(event.latest_value), unit: unitName(row.unit || ''), measured_at: null, context: '来自本次预测快照，模型不能修改', trend: TREND_NAMES[event.trend] || '暂不判断' });
+    if (!event.forecast_available) {
+      out.push({ label: `模型估计的 · ${name}`, value: '不提供未来数值', unit: '', measured_at: null, context: '当前预测不可用', trend: null });
+    } else {
+      const uncertain = /只能说.*不确定/.test(response.content || '');
+      const lower = Math.min(...(event.forecast_interval?.lower || []));
+      const upper = Math.max(...(event.forecast_interval?.upper || []));
+      out.push({ label: `模型估计的 · ${name}`, value: uncertain ? '不确定' : `${lower}–${upper}`, unit: uncertain ? '' : unitName(row.unit || ''), measured_at: null, context: uncertain ? '区间较宽或数据覆盖未达标' : `未来 ${event.forecast_interval.horizon_days} 天估计范围，不是实测值`, trend: null });
+    }
+  }
+  return out;
 }
 
 function toneFor(response, toolResults) {
@@ -117,7 +137,7 @@ function defaultAction(intent, tone) {
   return { title: '继续规范记录', description: '固定时间和测量条件，保留连续记录。', action_type: null, requires_confirmation: false };
 }
 
-function presentationActions(plan, intent, tone, liveContext) {
+function presentationActions(plan, intent, tone, liveContext, strictEvidence = false) {
   const scheduleFields = item => {
     const metricType = item.metric_type || (intent.trendMetrics?.some(metric => ['systo','diasto'].includes(metric)) ? 'bp'
       : intent.trendMetrics?.includes('glucose') ? 'glucose' : intent.trendMetrics?.includes('pulse') ? 'hr'
@@ -132,10 +152,11 @@ function presentationActions(plan, intent, tone, liveContext) {
     requires_confirmation: !!item.action_type,
     ...(item.action_type === 'schedule_recheck' ? scheduleFields(item) : {}),
   })).filter(item => item.title);
-  if (intent.trendHit && !actions.some(item => item.action_type === 'schedule_recheck')) {
+  if (!strictEvidence && intent.trendHit && !actions.some(item => item.action_type === 'schedule_recheck')) {
     actions.unshift({ title: '安排一次规范复测', description: '选择时间后先生成待确认预览，确认后才创建站内待办。', action_type: 'schedule_recheck', requires_confirmation: true, ...scheduleFields({}) });
   }
-  return actions.length ? actions.slice(0, 2) : [defaultAction(intent, tone)];
+  if (actions.length) return actions.slice(0, 2);
+  return strictEvidence ? [] : [defaultAction(intent, tone)];
 }
 
 function safetyFor(tone, intent, response) {
@@ -154,7 +175,10 @@ export function buildAgentPresentation({ response, toolResults = [], liveContext
   const tone = toneFor(response, toolResults);
   const facts = emergency
     ? [{ label: '发现的情况', value: '您描述了需要立即处理的急症信号', unit: '', measured_at: null, context: null, trend: null }]
-    : [...toolFacts(toolResults), ...liveFacts(liveContext, toolResults)].filter((item, index, rows) => rows.findIndex(old => old.label === item.label) === index).slice(0, 3);
+    : (response?.prediction_snapshot?.events?.length
+      ? linkedCurveFacts(response, toolResults)
+      : [...toolFacts(toolResults), ...liveFacts(liveContext, toolResults)]
+    ).filter((item, index, rows) => rows.findIndex(old => old.label === item.label) === index).slice(0, 3);
   if (!facts.length) facts.push({ label: '关键数据', value: '暂无足够的规范记录', unit: '', measured_at: null, context: '请先补充记录', trend: null });
   const caregiver = actor?.id && subject?.id && Number(actor.id) !== Number(subject.id);
   return {
@@ -162,7 +186,7 @@ export function buildAgentPresentation({ response, toolResults = [], liveContext
     subject_name: caregiver ? cleanText(subject.name, 40) : null,
     status: { title: caregiver ? `${cleanText(subject.name, 30)}的当前结论` : '当前结论', text: statusText(response?.content), tone },
     facts,
-    actions: presentationActions(emergency ? [] : response?.plan, intent, tone, liveContext),
+    actions: presentationActions(emergency ? [] : response?.plan, intent, tone, liveContext, !!response?.linkage_version),
     safety: safetyFor(tone, intent, response),
   };
 }

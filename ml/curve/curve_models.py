@@ -1,16 +1,62 @@
 # -*- coding: utf-8 -*-
-"""
-curve_models.py — 曲线拟合候选模型（纯 numpy，启动快、可解释）
+"""Small, auditable curve models for genuine time extrapolation.
 
-候选方法（Phase 2.5）:
-  1. Linear Regression            np.linalg.lstsq
-  2. Polynomial Regression deg=2  np.polyfit
-  3. HuberRegressor               IRLS M-估计（对异常值稳健）
-  4. EWMA                         指数加权平滑（近期趋势参考，非预测模型）
-
-禁止深度学习时间序列模型（LSTM/Transformer）。
+The module intentionally contains only low-capacity models.  Every candidate
+is fitted again at every rolling origin; none may inspect future observations.
 """
 import numpy as np
+
+
+MODEL_SPECS = {
+    'last_value': {
+        'min_points': 1, 'metrics': 'all forecastable numeric metrics',
+        'missing': 'use the most recent observed value; never fill a target',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.0, 'baseline': True,
+    },
+    'rolling_median': {
+        'min_points': 5, 'metrics': 'all forecastable numeric metrics',
+        'missing': 'median of up to 14 most recent observed days',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.0, 'baseline': True,
+    },
+    'seasonal_naive': {
+        'min_points': 28, 'metrics': 'daily home measurements with a verified weekly cycle',
+        'missing': 'same weekday observation, falling back to weekday median only',
+        'measurement_conditions': 'one condition group; >=80% day coverage; reliable 7-day cycle',
+        'max_horizon_days': 14, 'complexity_penalty': 0.015, 'baseline': False,
+    },
+    'ets_damped_trend': {
+        'min_points': 14, 'metrics': 'blood pressure, resting pulse, weight, condition-specific glucose',
+        'missing': 'state is propagated across calendar gaps; targets are never imputed',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.035, 'baseline': False,
+    },
+    'kalman_local_level': {
+        'min_points': 10, 'metrics': 'noisy level-like physiological measurements',
+        'missing': 'predict-only state transition across gaps',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 7,
+        'complexity_penalty': 0.025, 'baseline': False,
+    },
+    'kalman_local_linear': {
+        'min_points': 14, 'metrics': 'slowly changing physiological measurements',
+        'missing': 'predict-only state transition across gaps',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.045, 'baseline': False,
+    },
+    'robust_quantile_trend': {
+        'min_points': 12, 'metrics': 'monotone or slowly drifting physiological measurements',
+        'missing': 'fit on observed calendar-day coordinates only',
+        'measurement_conditions': 'one compatible condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.025, 'baseline': False,
+    },
+    'population_prior_residual': {
+        'min_points': 7, 'metrics': 'metrics with a versioned external population prior',
+        'missing': 'population path plus median observed personal residual',
+        'measurement_conditions': 'prior must match metric/unit/condition group', 'max_horizon_days': 14,
+        'complexity_penalty': 0.05, 'baseline': False,
+    },
+}
 
 
 def linear_fit(x, y):
@@ -134,10 +180,97 @@ def damped_predict(coef, x):
     return float(out[0]) if scalar else out
 
 
+def quantile_trend_fit(x, y, max_pairs=4096):
+    """Median (0.5-quantile) trend using a deterministic Theil-Sen slope."""
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+    slopes = []
+    stride = max(1, int(np.ceil((len(x) * max(len(x) - 1, 1) / 2) / max_pairs)))
+    pair_index = 0
+    for i in range(len(x) - 1):
+        for j in range(i + 1, len(x)):
+            pair_index += 1
+            if pair_index % stride:
+                continue
+            dx = x[j] - x[i]
+            if abs(dx) > 1e-9:
+                slopes.append((y[j] - y[i]) / dx)
+    slope = float(np.median(slopes)) if slopes else 0.0
+    intercept = float(np.median(y - slope * x))
+    return np.array([slope, intercept], dtype=float)
+
+
+def quantile_trend_predict(coef, x):
+    return linear_predict(coef, np.asarray(x, dtype=float))
+
+
+def ets_damped_fit(x, y):
+    """Holt ETS(A,A,N) with damped trend and a tiny deterministic grid search."""
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+    best = None
+    initial_slope = float(np.median(np.diff(y) / np.maximum(np.diff(x), 1e-6))) if len(y) > 1 else 0.0
+    for alpha in (0.2, 0.4, 0.6, 0.8):
+        for beta in (0.05, 0.15, 0.3):
+            for phi in (0.80, 0.90, 0.96):
+                level, trend, sse = float(y[0]), initial_slope, 0.0
+                for i in range(1, len(y)):
+                    gap = max(float(x[i] - x[i - 1]), 1.0)
+                    damp_sum = (1.0 - phi ** gap) / max(1.0 - phi, 1e-9)
+                    forecast = level + trend * damp_sum
+                    error = float(y[i] - forecast)
+                    sse += min(error * error, 9.0 * max(np.var(y), 1e-6))
+                    old_level = level
+                    level = alpha * float(y[i]) + (1.0 - alpha) * forecast
+                    trend = beta * ((level - old_level) / gap) + (1.0 - beta) * (phi ** gap) * trend
+                candidate = (sse, level, trend, float(x[-1]), phi, alpha, beta)
+                if best is None or candidate[0] < best[0]:
+                    best = candidate
+    return np.asarray(best[1:], dtype=float)
+
+
+def ets_damped_predict(coef, target):
+    level, trend, last_x, phi, _, _ = [float(value) for value in coef]
+    h = np.maximum(np.asarray(target, dtype=float) - last_x, 0.0)
+    damp_sum = (1.0 - phi ** h) / max(1.0 - phi, 1e-9)
+    return level + trend * damp_sum
+
+
+def kalman_fit(x, y, linear=False):
+    """Robust local-level/local-linear Kalman filter with fixed low-capacity noise ratios."""
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+    obs_scale = max(1.4826 * float(np.median(np.abs(y - np.median(y)))), abs(float(np.median(y))) * 0.005, 1e-3)
+    level = float(y[0])
+    slope = float(np.median(np.diff(y) / np.maximum(np.diff(x), 1e-6))) if linear and len(y) > 1 else 0.0
+    covariance = np.diag([obs_scale ** 2, (obs_scale * 0.10) ** 2])
+    observation_var = obs_scale ** 2
+    for i in range(1, len(y)):
+        gap = max(float(x[i] - x[i - 1]), 1.0)
+        transition = np.array([[1.0, gap], [0.0, 1.0]]) if linear else np.eye(2)
+        process = np.diag([(obs_scale * 0.08 * np.sqrt(gap)) ** 2, (obs_scale * 0.015 * np.sqrt(gap)) ** 2 if linear else 1e-12])
+        state = transition @ np.array([level, slope])
+        covariance = transition @ covariance @ transition.T + process
+        innovation = float(y[i] - state[0])
+        innovation = float(np.clip(innovation, -3.0 * obs_scale, 3.0 * obs_scale))
+        gain = covariance[:, 0] / max(covariance[0, 0] + observation_var, 1e-12)
+        state = state + gain * innovation
+        covariance = covariance - np.outer(gain, covariance[0, :])
+        level, slope = float(state[0]), float(state[1]) if linear else 0.0
+    return np.array([level, slope, float(x[-1]), 1.0 if linear else 0.0], dtype=float)
+
+
+def kalman_predict(coef, target):
+    level, slope, last_x, linear = [float(value) for value in coef]
+    h = np.maximum(np.asarray(target, dtype=float) - last_x, 0.0)
+    return level + (slope * h if linear else np.zeros_like(h))
+
+
 # 模型注册表：fit/predict 函数对
 MODELS = {
     'linear': (linear_fit, linear_predict),
     'poly2': (poly2_fit, poly2_predict),
     'huber': (huber_fit, huber_predict),
     'damped': (damped_fit, damped_predict),
+    'ets_damped_trend': (ets_damped_fit, ets_damped_predict),
+    'robust_quantile_trend': (quantile_trend_fit, quantile_trend_predict),
+    'kalman_local_level': (lambda x, y: kalman_fit(x, y, False), kalman_predict),
+    'kalman_local_linear': (lambda x, y: kalman_fit(x, y, True), kalman_predict),
 }

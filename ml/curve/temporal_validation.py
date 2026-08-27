@@ -110,7 +110,8 @@ def aggregate_scopes(forecasted, key):
     return {"micro": _micro(rows), "macro_by_window": _macro(rows), "macro_by_participant": macro_participant}
 
 
-def run(df, min_history=28, horizon=7):
+def run(df, min_history=28, horizon=7, selection_options=None,
+        interval_method="horizon_specific_split_conformal"):
     df = df.copy()
     df["timestamp_original"] = df["timestamp"].astype(str)
     df["timestamp_utc"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -141,7 +142,10 @@ def run(df, min_history=28, horizon=7):
             if not future:
                 continue
             attempts += 1
-            result = analyze(metric_name, "mmHg", hist, forecast_days=horizon, condition_group=measurement_group)
+            result = analyze(metric_name, "mmHg", hist, forecast_days=horizon,
+                             condition_group=measurement_group,
+                             selection_options=selection_options,
+                             interval_method=interval_method)
             if not result.get("forecast", {}).get("available"):
                 refusals += 1
                 rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "refused", "reason": result.get("forecast", {}).get("reason"), "reason_code": result.get("forecast", {}).get("reason_code"), "message": result.get("forecast", {}).get("message")})
@@ -168,17 +172,21 @@ def run(df, min_history=28, horizon=7):
             lower = [row[3] for row in aligned]
             upper = [row[4] for row in aligned]
             baseline = [float(hist[-1]["v"])] * len(actual)
+            median_value = float(np.median([float(point["v"]) for point in hist[-14:]]))
+            median_baseline = [median_value] * len(actual)
             scale = float(np.mean(np.abs(np.diff([float(p["v"]) for p in hist])))) if len(hist) > 1 else 1.0
-            rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "forecasted", "aligned_dates": [row[0] for row in aligned], "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
+            rows.append({"participant_id": pid, "metric": metric_name, "measurement_group": measurement_group, "origin": hist[-1]["t"], "status": "forecasted", "aligned_dates": [row[0] for row in aligned], "curve_v2": metrics(actual, pred, lower, upper, scale), "last_value_baseline": metrics(actual, baseline, scale=scale), "rolling_median_baseline": metrics(actual, median_baseline, scale=scale), "model": result.get("forecast", {}).get("model")})
     forecasted = [r for r in rows if r["status"] == "forecasted"]
     curve_scopes = aggregate_scopes(forecasted, "curve_v2") if forecasted else {"micro": _micro([]), "macro_by_window": _macro([]), "macro_by_participant": {**_macro([]), "participants": 0}}
     baseline_scopes = aggregate_scopes(forecasted, "last_value_baseline") if forecasted else {"micro": _micro([]), "macro_by_window": _macro([]), "macro_by_participant": {**_macro([]), "participants": 0}}
+    median_scopes = aggregate_scopes(forecasted, "rolling_median_baseline") if forecasted else {"micro": _micro([]), "macro_by_window": _macro([]), "macro_by_participant": {**_macro([]), "participants": 0}}
     return {
         "attempts": attempts, "forecasted_windows": len(forecasted), "refused_windows": refusals,
         "refusal_rate": refusals / attempts if attempts else None,
         "curve_v2": curve_scopes["micro"],
         "last_value_baseline": baseline_scopes["micro"],
-        "metrics": {"curve_v2": curve_scopes, "last_value_baseline": baseline_scopes},
+        "rolling_median_baseline": median_scopes["micro"],
+        "metrics": {"curve_v2": curve_scopes, "last_value_baseline": baseline_scopes, "rolling_median_baseline": median_scopes},
         "aggregation_policy": "micro is prediction-point weighted; macro_by_window and macro_by_participant are unweighted means of their units",
         "windows": rows,
     }

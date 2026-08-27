@@ -15,6 +15,10 @@ import { getFollowupStatus } from './tools/followupStatus.js';
 import { canActFor } from '../lib/intake.js';
 import { buildAgentPresentation, presentationGroundingText } from './presentation.js';
 import { localizeVisibleText, metricName } from './elderlyLanguage.js';
+import {
+  buildControlledGraphQuery, buildGraphEvidenceSnapshot, buildPredictionSnapshot,
+  curveGraphContext, enforceSafeCurveGraphResponse,
+} from './safeCurveGraphLink.js';
 
 const MAX_TOOL_CALLS = 3;
 const MAX_CONTEXT_TOKENS = 12000;
@@ -200,11 +204,26 @@ function modelResultView(name, result) {
     period_days: result.requested_days || result.period_days || result.days || 90,
     data_freshness: result.data_freshness || null,
     metrics: (result.metrics || []).slice(0, 4).map(row => ({
-      metric: row.metric, status: row.status, unit: row.unit, data_points: row.data_points,
+      metric: row.metric, status: row.status, schema_version: row.schema_version, unit: row.unit, data_points: row.data_points,
       long_term_trend: row.long_term_trend, recent_trend: row.recent_trend,
       latest_value: row.latest_value, previous_value: row.previous_value, change: row.change,
-      time_span_days: row.time_span_days, fluctuation: row.fluctuation,
-      forecast: row.forecast ? { available: row.forecast.available, horizon_days: row.forecast.horizon_days, reason: row.forecast.reason } : null,
+      time_span_days: row.time_span_days, fluctuation: row.fluctuation, abnormal_spike: !!row.abnormal_spike,
+      removed_outliers: row.removed_outliers || 0, change_point: !!row.change_point,
+      measurement_condition_coverage: row.measurement_condition_coverage ?? null,
+      measurement_condition_complete: row.measurement_condition_complete ?? null,
+      model: row.model || null,
+      model_version: `${row.schema_version || 'curve.v2'}:${row.forecast?.model || row.model || 'none'}`,
+      forecast: row.forecast ? {
+        available: !!row.forecast.available, horizon_days: row.forecast.horizon_days, reason: row.forecast.reason,
+        model: row.forecast.model || null, coverage_target: row.forecast.coverage_target ?? null,
+        calibration_coverage: row.forecast.calibration_coverage ?? null,
+        calibration_status: row.forecast.calibration_status || null,
+        mean_interval_width: row.forecast.mean_interval_width ?? null,
+        boundary_hit: !!row.forecast.boundary_hit,
+        curve: row.forecast.available ? {
+          lower: row.forecast.curve?.lower || [], upper: row.forecast.curve?.upper || [],
+        } : { lower: [], upper: [] },
+      } : null,
       eligibility: row.eligibility || null,
     })),
   };
@@ -485,6 +504,7 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   fitToolResultsIntoContext(contextPlan, toolResults);
   db.prepare('UPDATE agent_runs SET context_manifest=? WHERE id=?').run(JSON.stringify(contextPlan.manifest), runId);
   let response = emergency;
+  let curveGraphLink = null;
   if (!response) {
     try {
       response = await composeGroundedResponse({
@@ -495,9 +515,32 @@ export async function runAgentV2({ actor, subject, conversation, message, client
       if (response && (toolResults.length || liveContext) && !groundedNumbersMatch(response.content, toolResults, liveContext)) response = null;
     } catch { response = null; }
     response ||= deterministicReply(message, toolResults, intent);
+
+    // Curve -> GraphRAG 安全联动：预测事件在后端生成并冻结；LLM 的候选文本随后会被
+    // 确定性渲染覆盖，因此无法改写预测值、区间、模型状态、来源或行动边界。
+    const trendResult = toolResults.find(item => item.name === 'health_trend' && item.status === 'success')?.result;
+    if (trendResult?.metrics?.length) {
+      const capturedAt = nowIso();
+      const predictionSnapshot = buildPredictionSnapshot(trendResult, capturedAt);
+      let graphRaw = { index_version: null, results: [], recommendations: [] };
+      try {
+        graphRaw = await queryKnowledgeGraph(
+          buildControlledGraphQuery(predictionSnapshot.events),
+          intent.disease || diseaseFromMessage(message),
+          curveGraphContext(predictionSnapshot.events),
+          { audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', topK: 8, maxHops: 2, includeTrace: true, sourceGate: 'exclude_legacy_pending' },
+        );
+      } catch (error) {
+        console.error('[curve-graphrag-link] evidence retrieval failed:', error.message);
+      }
+      const graphSnapshot = buildGraphEvidenceSnapshot(graphRaw, capturedAt);
+      const units = Object.fromEntries((trendResult.metrics || []).map(row => [row.metric, row.unit || '']));
+      curveGraphLink = enforceSafeCurveGraphResponse(response, predictionSnapshot, graphSnapshot, units);
+      response = { ...response, ...curveGraphLink };
+    }
   }
   const previews = actionPreview(message);
-  if (previews.length) response.plan = previews;
+  if (previews.length && !curveGraphLink) response.plan = previews;
   response.plan = (response.plan || []).slice(0, 2);
   response.content = normalizeOutputPhrases(response.content);
   const activeKnowledge = toolResults.find(item => item.name === 'knowledge' && item.status === 'success')?.result || null;
@@ -507,7 +550,7 @@ export async function runAgentV2({ actor, subject, conversation, message, client
     if (paths.length) response.content = `${response.content}\n测试版关联发现：${paths.join('；')}。这是间接关联线索，尚未证明直接因果。`;
   }
   let presentation = buildAgentPresentation({ response, toolResults, liveContext, intent, subject, actor, message });
-  if (presentation.mode !== 'plain' && !groundedNumbersMatch(presentationGroundingText(presentation), toolResults, liveContext)) {
+  if (!curveGraphLink && presentation.mode !== 'plain' && !groundedNumbersMatch(presentationGroundingText(presentation), toolResults, liveContext)) {
     const fallback = deterministicReply(message, toolResults, intent);
     response = { ...response, ...fallback, plan: previews.length ? previews : fallback.plan };
     response.content = normalizeOutputPhrases(response.content);
@@ -521,9 +564,17 @@ export async function runAgentV2({ actor, subject, conversation, message, client
     ...(response.evidence || {}),
     research_relationships: knowledgeEvidence.research_relationships || [],
   } : response.evidence;
+  const evidenceWithSnapshots = curveGraphLink ? {
+    ...(mergedEvidence || {}),
+    curve_graph_link: {
+      linkage_version: curveGraphLink.linkage_version,
+      prediction_snapshot: curveGraphLink.prediction_snapshot,
+      graph_evidence_snapshot: curveGraphLink.graph_evidence_snapshot,
+    },
+  } : mergedEvidence;
   response = {
     ...response,
-    evidence: mergedEvidence,
+    evidence: evidenceWithSnapshots,
     run_id: runId,
     conversation_id: conversation.id,
     tool_trace: trace,

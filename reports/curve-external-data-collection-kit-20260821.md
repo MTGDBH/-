@@ -9,14 +9,20 @@
 | 字段 | 规则 |
 |---|---|
 | `participant_id` | 去标识化编号，例如 `P001`；不要填写姓名、身份证号或手机号 |
-| `timestamp` | ISO 8601 日期时间，保留时区；同一老人未来记录不能进入过去窗口 |
+| `site_id` | 采集机构去标识化编号；每位老人只能属于一个站点 |
+| `timestamp` | ISO 8601 日期时间，必须保留时区；同一老人未来记录不能进入过去窗口 |
 | `metric` | `systo`、`diasto`、`glucose`、`weight`、`pulse` |
 | `value` | 数值，不带单位字符串 |
 | `unit` | mmHg、mmol/L、kg 或 bpm |
 | `condition` | 血糖必须是 `fasting`/`postprandial_2h`/`random`；心率必须是 `resting` |
-| `source` | `real_device`、`manual` 或 `clinic`；合成数据只能用于测试 |
-| `measurement_id` | 设备记录 ID 或现场编号，用于异常点回溯 |
-| `quality_status` | `valid`、`questionable` 或 `excluded` |
+| `posture` | 按指标填写 seated/supine/standing/not_applicable |
+| `device_id` | 去标识化设备编号，不能用 unknown 代替长期缺失 |
+| `measurement_source` | `real_device`、`manual` 或 `clinic`；真实候选集禁止 synthetic |
+| `repeat_flag` | initial/repeat/confirmed_repeat/not_applicable |
+| `medication_context` | 与预先约定的服药时点关系，不根据结果反推 |
+| `missing_reason` | value 为空时必须填写；有值时为空或 not_missing |
+| `quality_flag` | valid/questionable/excluded/missing |
+| `age, sex, region, baseline_conditions` | participant 级固定亚组字段；基础疾病用 `|` 分隔或填写 none |
 
 ## 推荐采集设计
 
@@ -34,9 +40,10 @@
 ```powershell
 $py = 'C:\Users\zhaoq\.workbuddy\binaries\python\envs\default\Scripts\python.exe'
 & $py D:\BIGCHUANG\-\ml\curve\validate_external_dataset.py D:\path\to\curve_external.csv --out D:\path\to\quality.json
-& $py D:\BIGCHUANG\-\ml\curve\temporal_validation.py --csv D:\path\to\curve_external.csv --out D:\path\to\temporal_result.json
+& $py D:\BIGCHUANG\-\ml\curve\leakage_safe_split.py D:\path\to\curve_external.csv --external-site SITE_B --out D:\path\to\split.json
+& $py D:\BIGCHUANG\-\ml\curve\evaluate_external_longitudinal.py D:\path\to\curve_external.csv --manifest D:\path\to\split.json --out-json D:\path\to\result.json --out-md D:\path\to\result.md
 ```
 
-质量校验通过只代表“可以进入候选评测”，不代表外部验证完成。最终报告必须同时写出参与者数量、覆盖天数、每指标有效日数、拒绝窗口、MAE、RMSE、MASE、80% 覆盖率、区间宽度和数据缺失情况。
+质量校验通过只代表“可以进入候选评测”，不代表外部验证完成。最终报告同时写出 micro/participant macro/site macro、全部要求指标、participant bootstrap CI、亚组、漂移、设备、测量条件缺失及拒绝原因分布。
 
 模板文件：`ml/curve/external_dataset_template.csv`；字段规范：`ml/curve/external_dataset_schema.json`；校验脚本：`ml/curve/validate_external_dataset.py`。

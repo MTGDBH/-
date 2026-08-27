@@ -1,133 +1,45 @@
-// 设置路由：LLM 模型配置管理
 import express from 'express';
 import db from '../db.js';
 import { getLLMStatus } from '../ai/agent.js';
+import { requireCapability } from '../middleware/accessControl.js';
+import { getLLMConfig, publicLLMConfig } from '../services/llmConfigService.js';
 
 const router = express.Router();
 
-// 获取 LLM 配置（不返回完整 API Key，只返回掩码）
-router.get('/llm', (req, res) => {
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('llm_config');
-  let cfg = { api_key: '', base_url: '', model: '' };
+router.get('/llm', (_req, res) => res.json(publicLLMConfig()));
+router.get('/llm/status', (_req, res) => res.json(getLLMStatus()));
 
-  if (row) {
-    try { cfg = { ...cfg, ...JSON.parse(row.value) }; } catch {}
+router.put('/llm', requireCapability('manage_system_settings'), (req, res) => {
+  if (String(req.body?.api_key || '').trim()) {
+    return res.status(400).json({ error: '为避免密钥明文落库，请通过服务器环境变量配置 API Key' });
   }
-
-  // 回退到环境变量
-  if (!cfg.api_key && (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY)) {
-    cfg.api_key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-    cfg.base_url = cfg.base_url || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_BASE_URL : process.env.OPENAI_BASE_URL) || '';
-    cfg.model = cfg.model || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_MODEL : process.env.OPENAI_MODEL) || '';
-  }
-
-  // 掩码处理：只返回前 4 位 + ****
-  const maskedKey = cfg.api_key
-    ? cfg.api_key.slice(0, 4) + '****' + cfg.api_key.slice(-4)
-    : '';
-
-  const mode = cfg.api_key ? 'llm' : 'mock';
-
-  const baseUrl = cfg.base_url || (cfg.api_key ? 'https://api.deepseek.com/v1' : 'https://api.deepseek.com/v1');
-  const model = cfg.model || (cfg.api_key ? 'deepseek-chat' : 'deepseek-chat');
-  res.json({
-    api_key_masked: maskedKey,
-    api_key_set: !!cfg.api_key,
-    base_url: baseUrl,
-    model,
-    provider: /deepseek/i.test(baseUrl) ? 'deepseek' : /openai/i.test(baseUrl) ? 'openai' : 'custom',
-    mode,
-  });
-});
-
-router.get('/llm/status', (req, res) => {
-  res.json(getLLMStatus());
-});
-
-// 保存 LLM 配置
-router.put('/llm', (req, res) => {
-  const { api_key, base_url, model } = req.body;
-
-  // 读取现有配置
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('llm_config');
-  let existing = { api_key: '', base_url: '', model: '' };
-  if (row) {
-    try { existing = { ...existing, ...JSON.parse(row.value) }; } catch {}
-  }
-
-  // 如果前端传了空 api_key，保留原有的（不覆盖）
-  const finalKey = api_key !== undefined && api_key !== '' ? api_key : existing.api_key;
-
-  const cfg = {
-    api_key: finalKey,
-    base_url: base_url || existing.base_url || 'https://api.deepseek.com/v1',
-    model: model || existing.model || 'deepseek-chat',
+  const current = publicLLMConfig();
+  const metadata = {
+    base_url: String(req.body?.base_url || current.base_url || '').slice(0, 500),
+    model: String(req.body?.model || current.model || '').slice(0, 120),
+    secret_source: 'environment',
   };
-
-  db.prepare(`
-    INSERT INTO settings (key, value, updated_at)
-    VALUES ('llm_config', ?, datetime('now', 'localtime'))
-    ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = datetime('now', 'localtime')
-  `).run(JSON.stringify(cfg), JSON.stringify(cfg));
-
-  const maskedKey = cfg.api_key
-    ? cfg.api_key.slice(0, 4) + '****' + cfg.api_key.slice(-4)
-    : '';
-
-  res.json({
-    api_key_masked: maskedKey,
-    api_key_set: !!cfg.api_key,
-    base_url: cfg.base_url,
-    model: cfg.model,
-    mode: cfg.api_key ? 'llm' : 'mock',
-    provider: /deepseek/i.test(cfg.base_url) ? 'deepseek' : /openai/i.test(cfg.base_url) ? 'openai' : 'custom',
-  });
+  db.prepare(`INSERT INTO settings (key,value,updated_at) VALUES ('llm_metadata',?,datetime('now','localtime'))
+    ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=datetime('now','localtime')`).run(JSON.stringify(metadata));
+  res.json({ ...publicLLMConfig(), ...metadata, note: 'API Key 只从环境变量读取，未写入数据库' });
 });
 
-// 测试 LLM 连接
-router.post('/llm/test', async (req, res) => {
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('llm_config');
-  let cfg = { api_key: '', base_url: '', model: '' };
-  if (row) {
-    try { cfg = { ...cfg, ...JSON.parse(row.value) }; } catch {}
-  }
-  // 回退到环境变量
-  if (!cfg.api_key && (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY)) {
-    cfg.api_key = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-    cfg.base_url = cfg.base_url || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_BASE_URL : process.env.OPENAI_BASE_URL) || '';
-    cfg.model = cfg.model || (process.env.DEEPSEEK_API_KEY ? process.env.DEEPSEEK_MODEL : process.env.OPENAI_MODEL) || '';
-  }
-
-  if (!cfg.api_key) {
-    return res.json({ success: false, message: '未配置 API Key，当前为 Mock 模式' });
-  }
-
-  const base = (cfg.base_url || 'https://api.deepseek.com/v1').replace(/\/$/, '');
+router.post('/llm/test', requireCapability('manage_system_settings'), async (_req, res) => {
+  const cfg = getLLMConfig();
+  if (!cfg) return res.json({ success: false, message: '服务器尚未配置 API Key，当前使用本地降级模式' });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8_000);
   try {
-    const response = await fetch(`${base}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${cfg.api_key}`,
-      },
-      body: JSON.stringify({
-        model: cfg.model || 'deepseek-chat',
-        messages: [{ role: 'user', content: '你好' }],
-        max_tokens: 10,
-      }),
+    const response = await fetch(`${cfg.base_url.replace(/\/$/, '')}/chat/completions`, {
+      method: 'POST', signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.api_key}` },
+      body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: '请回复“连接正常”' }], max_tokens: 12 }),
     });
-
-    if (!response.ok) {
-      await response.text();
-      return res.json({ success: false, message: `API 返回 ${response.status}` });
-    }
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || '(空回复)';
-    res.json({ success: true, message: `连接成功！模型回复：${reply}` });
-  } catch (err) {
-    res.json({ success: false, message: `连接失败：${err.message}` });
-  }
+    await response.text();
+    res.json(response.ok ? { success: true, message: '连接正常' } : { success: false, message: `服务返回 ${response.status}` });
+  } catch (error) {
+    res.json({ success: false, message: error.name === 'AbortError' ? '连接超时，请检查网络或服务地址' : '暂时无法连接模型服务' });
+  } finally { clearTimeout(timer); }
 });
 
 export default router;

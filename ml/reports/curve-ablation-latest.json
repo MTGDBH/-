@@ -1,0 +1,1061 @@
+{
+  "schema_version": "curve-ablation.v1",
+  "data_class": "test_synthetic_dry_run",
+  "source": "generated:curve-temporal-validation.synthetic.v1",
+  "split": {
+    "method": "participant-disjoint deterministic holdout",
+    "development_participants": [
+      "demo_a"
+    ],
+    "test_participants": [
+      "demo_b",
+      "demo_c",
+      "demo_d"
+    ],
+    "overlap": []
+  },
+  "evaluation": "strict terminal rolling-origin; one non-overlapping terminal window per elder and horizon",
+  "score_formula": "prediction_error + 0.50*calibration_error + 0.35*instability_penalty + complexity_penalty",
+  "variants": {
+    "reference": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.560000000000002
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.3799999999999955,
+          "rmse": 3.397008487870855,
+          "mase": 0.9589559296387354,
+          "coverage_80": 1.0,
+          "interval_width": 7.12666666666667
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.300000000000002,
+          "rmse": 3.3924474940667864,
+          "mase": 0.9252092876322863,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.088333333333331
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "no_anomaly_handling": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.560000000000002
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.3799999999999955,
+          "rmse": 3.397008487870855,
+          "mase": 0.9589559296387354,
+          "coverage_80": 1.0,
+          "interval_width": 7.12666666666667
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.300000000000002,
+          "rmse": 3.3924474940667864,
+          "mase": 0.9252092876322863,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.088333333333331
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "no_change_point": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.560000000000002
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.3799999999999955,
+          "rmse": 3.397008487870855,
+          "mase": 0.9589559296387354,
+          "coverage_80": 1.0,
+          "interval_width": 7.12666666666667
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.300000000000002,
+          "rmse": 3.3924474940667864,
+          "mase": 0.9252092876322863,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.088333333333331
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "no_damping": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.560000000000002
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.6400000000000006,
+          "rmse": 3.6769280656548076,
+          "mase": 1.032721770380178,
+          "coverage_80": 1.0,
+          "interval_width": 7.893333333333331
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.4150000000000014,
+          "rmse": 3.508596585531032,
+          "mase": 0.9574514294740174,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.156666666666662
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "no_refusal": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 3,
+        "refused_windows": 0,
+        "refusal_rate": 0.0,
+        "curve": {
+          "mae": 6.839999999999989,
+          "rmse": 6.839999999999989,
+          "mase": 1.0822866972504908,
+          "coverage_80": 1.0,
+          "interval_width": 15.893333333333336
+        },
+        "last_value": {
+          "mae": 5.1299999999999955,
+          "rmse": 5.1299999999999955,
+          "mase": 0.6631345369090446
+        },
+        "rolling_median": {
+          "mae": 7.171666666666667,
+          "rmse": 7.171666666666667,
+          "mase": 1.1745261357354613
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 3,
+        "refused_windows": 0,
+        "refusal_rate": 0.0,
+        "curve": {
+          "mae": 6.8299999999999965,
+          "rmse": 7.836691428158216,
+          "mase": 1.0970450266668559,
+          "coverage_80": 0.75,
+          "interval_width": 13.419999999999998
+        },
+        "last_value": {
+          "mae": 6.671249999999995,
+          "rmse": 8.110768266061605,
+          "mase": 1.0411920662724268
+        },
+        "rolling_median": {
+          "mae": 7.151874999999999,
+          "rmse": 8.392829111307034,
+          "mase": 1.1728596721233477
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 3,
+        "refused_windows": 0,
+        "refusal_rate": 0.0,
+        "curve": {
+          "mae": 4.508947368421053,
+          "rmse": 5.99593262710725,
+          "mase": 0.7428341092840541,
+          "coverage_80": 0.7894736842105263,
+          "interval_width": 15.286842105263155
+        },
+        "last_value": {
+          "mae": 7.973684210526322,
+          "rmse": 9.025269735021956,
+          "mase": 1.2179797752860957
+        },
+        "rolling_median": {
+          "mae": 4.562105263157896,
+          "rmse": 6.0423579448734674,
+          "mase": 0.7549949064854574
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 3,
+        "refused_windows": 0,
+        "refusal_rate": 0.0,
+        "curve": {
+          "mae": 5.446153846153844,
+          "rmse": 6.774272308829279,
+          "mase": 0.9246680699159459,
+          "coverage_80": 0.7435897435897436,
+          "interval_width": 15.780512820512822
+        },
+        "last_value": {
+          "mae": 5.578461538461541,
+          "rmse": 6.697161424404946,
+          "mase": 0.9307217355282972
+        },
+        "rolling_median": {
+          "mae": 5.408589743589742,
+          "rmse": 6.869483985213567,
+          "mase": 0.9194576588243256
+        }
+      }
+    },
+    "interval_gaussian_residual": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 9.349999999999994
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.3799999999999955,
+          "rmse": 3.397008487870855,
+          "mase": 0.9589559296387354,
+          "coverage_80": 1.0,
+          "interval_width": 9.00666666666666
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.300000000000002,
+          "rmse": 3.3924474940667864,
+          "mase": 0.9252092876322863,
+          "coverage_80": 0.8333333333333334,
+          "interval_width": 8.820000000000002
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "interval_pooled_conformal": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.519999999999996
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.3799999999999955,
+          "rmse": 3.397008487870855,
+          "mase": 0.9589559296387354,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.256666666666665
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.300000000000002,
+          "rmse": 3.3924474940667864,
+          "mase": 0.9252092876322863,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.596666666666664
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "candidates_baselines_ets": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "candidates_baselines_kalman": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 4.109999999999999,
+          "rmse": 4.109999999999999,
+          "mase": 1.1430274135876044,
+          "coverage_80": 1.0,
+          "interval_width": 8.560000000000002
+        },
+        "last_value": {
+          "mae": 0.19999999999998863,
+          "rmse": 0.19999999999998863,
+          "mase": 0.05562177195073185
+        },
+        "rolling_median": {
+          "mae": 5.105000000000004,
+          "rmse": 5.105000000000004,
+          "mase": 1.4197457290425122
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.6400000000000006,
+          "rmse": 3.6769280656548076,
+          "mase": 1.032721770380178,
+          "coverage_80": 1.0,
+          "interval_width": 7.893333333333331
+        },
+        "last_value": {
+          "mae": 2.8133333333333326,
+          "rmse": 3.4357337886784314,
+          "mase": 0.7981842254586722
+        },
+        "rolling_median": {
+          "mae": 4.0083333333333355,
+          "rmse": 4.249716657221597,
+          "mase": 1.1372233780972203
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 1,
+        "refused_windows": 2,
+        "refusal_rate": 0.6666666666666666,
+        "curve": {
+          "mae": 3.4150000000000014,
+          "rmse": 3.508596585531032,
+          "mase": 0.9574514294740174,
+          "coverage_80": 0.6666666666666666,
+          "interval_width": 7.156666666666662
+        },
+        "last_value": {
+          "mae": 3.670000000000004,
+          "rmse": 3.914307090661136,
+          "mase": 1.028944874427422
+        },
+        "rolling_median": {
+          "mae": 3.4083333333333385,
+          "rmse": 3.519918322916037,
+          "mase": 0.955582319802034
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "candidates_baselines_quantile": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    },
+    "candidates_baselines_only": {
+      "1": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "3": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "7": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      },
+      "14": {
+        "attempts": 3,
+        "forecasted_windows": 0,
+        "refused_windows": 3,
+        "refusal_rate": 1.0,
+        "curve": {
+          "mae": null,
+          "rmse": null,
+          "mase": null,
+          "coverage_80": null,
+          "interval_width": null
+        },
+        "last_value": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        },
+        "rolling_median": {
+          "mae": null,
+          "rmse": null,
+          "mase": null
+        }
+      }
+    }
+  },
+  "clinical_claim_allowed": false,
+  "limitations": [
+    "Synthetic dry-runs verify code paths only and cannot establish clinical effectiveness.",
+    "Refused windows are reported separately and are not removed from the refusal denominator.",
+    "Model fitting and preprocessing use only observations available before each origin."
+  ]
+}

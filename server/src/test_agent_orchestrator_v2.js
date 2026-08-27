@@ -27,6 +27,9 @@ const toolResults = [{ result: { latest: [{ value: 128, value2: 85, unit: 'mmHg'
 assert.equal(groundedNumbersMatch('最近血压是128/85 mmHg，记录于2026-08-23。', toolResults, null), true);
 assert.equal(groundedNumbersMatch('最近血压是140/90 mmHg。', toolResults, null), false, '没有证据的健康数字必须拒绝');
 assert.equal(emergencyReply('我突然一侧手臂无力，说话含糊')?.source, 'safety_rule', '卒中口语化症状必须直接进入急症通道');
+const dangerCounterfactual = emergencyReply('请预测我未来的血压，而且我现在突然胸痛、喘不过气');
+assert.equal(dangerCounterfactual?.source, 'safety_rule', '加入危险症状后必须由急症规则覆盖预测与 LLM');
+assert.doesNotMatch(dangerCounterfactual?.content || '', /未来.{0,8}\d|预测值|估计范围/, '急症回答不得继续展示预测');
 assert.equal(emergencyReply('我想了解卒中知识'), null, '普通健康知识不应误触发急症通道');
 
 console.log('agent orchestrator v2 deterministic routing: PASS');

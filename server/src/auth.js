@@ -1,141 +1,84 @@
-// 登录鉴权路由 + session 中间件
-// 注意：Mock 实现：仅做本地演示，未做密码哈希、未做防爆破、未做 HTTPS 强制
-// 生产环境必须：bcrypt + rate-limit + secure cookie + CSRF
 import express from 'express';
-import crypto from 'node:crypto';
-import db from './db.js';
+import { authRepository } from './repositories/authRepository.js';
+import { audit, requestFingerprint } from './services/auditService.js';
+import {
+  authenticate, cleanupSessions, cookieHeader, cookieName, createSession,
+  hashPassword, resolveSession, revokeSession, safeUser,
+} from './services/authService.js';
+import { validateLoginInput, validateRegistrationInput } from './validators/authValidator.js';
 
 const router = express.Router();
-const COOKIE_NAME = 'sid';
-const SESSION_TTL_MS = 7 * 24 * 3600 * 1000; // 7 天
+const ipWindows = new Map();
+const RATE_WINDOW_MS = Math.max(10_000, Number(process.env.LOGIN_RATE_WINDOW_MS || 60_000));
+const RATE_MAX = Math.max(3, Number(process.env.LOGIN_RATE_MAX || 10));
 
-function newToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-// 从 cookie 取 token
 function getTokenFromReq(req) {
-  const cookieHeader = req.headers.cookie || '';
-  const m = cookieHeader.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
-  return m ? m[1] : null;
+  const match = String(req.headers.cookie || '').match(new RegExp(`(?:^|;\\s*)${cookieName()}=([^;]+)`));
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
-// ===== session 中间件 =====
-// 从 cookie 拿 token，查 session，挂 req.user；查不到不报错（让路由自己决定 401）
+function rateLimited(req) {
+  const key = req.ip || req.socket?.remoteAddress || 'unknown';
+  const now = Date.now();
+  const current = ipWindows.get(key);
+  if (!current || current.resetAt <= now) { ipWindows.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS }); return false; }
+  current.count += 1;
+  return current.count > RATE_MAX;
+}
+
 export function sessionMiddleware(req, _res, next) {
   req.user = null;
-  const token = getTokenFromReq(req);
-  if (!token) return next();
-  const row = db.prepare(`
-    SELECT s.token, s.expires_at, u.* FROM sessions s
-    JOIN users u ON u.id = s.user_id
-    WHERE s.token = ?
-  `).get(token);
-  if (!row) return next();
-  if (new Date(row.expires_at) < new Date()) {
-    // 过期清理
-    db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
-    return next();
-  }
-  req.user = row;
-  req.token = token;
+  req.session_token_hash = null;
+  const session = resolveSession(getTokenFromReq(req));
+  if (session) { req.user = session.row; req.session_token_hash = session.tokenHash; }
   next();
 }
 
-// ===== 需要登录的守卫 =====
 export function requireAuth(req, res, next) {
-  if (!req.user) return res.status(401).json({ error: 'not authenticated' });
+  if (!req.user) return res.status(401).json({ error: '登录状态已失效，请重新登录' });
   next();
 }
 
-// ===== 登录 =====
-router.post('/login', (req, res) => {
-  const { identifier, password } = req.body;
-  // identifier 可以是 name 或 emergency_phone
-  if (!identifier || !password) {
-    return res.status(400).json({ error: '请输入账号和密码' });
+router.post('/login', async (req, res) => {
+  if (rateLimited(req)) {
+    audit({ event_type: 'auth_login', action: 'login', outcome: 'rate_limited', request_id: req.request_id, ...requestFingerprint(req) });
+    return res.status(429).json({ error: '尝试次数较多，请稍后再试' });
   }
-  const user = db.prepare(`
-    SELECT * FROM users WHERE name = ? OR emergency_phone = ? LIMIT 1
-  `).get(identifier.trim(), identifier.trim());
-
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: '账号或密码不对，再试试？' });
+  const parsed = validateLoginInput(req.body);
+  if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+  const result = await authenticate(parsed.value.identifier, parsed.value.password);
+  if (!result.ok) {
+    audit({ actor_user_id: result.user?.id, event_type: 'auth_login', action: 'login', outcome: result.code, request_id: req.request_id, ...requestFingerprint(req) });
+    if (result.code === 'ACCOUNT_LOCKED') return res.status(423).json({ error: '账号暂时锁定，请稍后再试', retry_at: result.retry_at });
+    return res.status(401).json({ error: '账号或密码不对，请核对后再试' });
   }
-
-  // 创建 session
-  const token = newToken();
-  const expires = new Date(Date.now() + SESSION_TTL_MS).toISOString();
-  db.prepare(`
-    INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)
-  `).run(token, user.id, expires);
-
-  // 设置 cookie（httpOnly 防 XSS）
-  res.setHeader('Set-Cookie',
-    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}`
-  );
-
-  const { password: _, ...safeUser } = user;
-  res.json({ user: safeUser, expires_at: expires });
+  const session = createSession(result.user.id, req);
+  res.setHeader('Set-Cookie', cookieHeader(session.rawToken));
+  audit({ actor_user_id: result.user.id, subject_user_id: result.user.id, event_type: 'auth_login', action: 'login', outcome: 'success', request_id: req.request_id, ...requestFingerprint(req) });
+  res.json({ user: safeUser(result.user), expires_at: session.expiresAt });
 });
 
-// ===== 注册 =====
-router.post('/register', (req, res) => {
-  const { name, gender, age, password } = req.body;
-  const role = ['senior', 'caregiver', 'doctor'].includes(req.body.role) ? req.body.role : 'senior';
-  if (!name || !name.trim()) {
-    return res.status(400).json({ error: '请输入姓名' });
-  }
-  if (!password || password.length < 6) {
-    return res.status(400).json({ error: '密码至少 6 位' });
-  }
-
-  // 检查姓名是否已存在
-  const existing = db.prepare('SELECT id FROM users WHERE name = ?').get(name.trim());
-  if (existing) {
-    return res.status(409).json({ error: '该姓名已被注册，请换一个或直接登录' });
-  }
-
-  // 随机暖色头像
-  const avatarColors = ['#F4A261', '#E76F51', '#7FB069', '#6C8EBF', '#B084CC', '#E9A368'];
-  const avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
-
-  const result = db.prepare(`
-    INSERT INTO users (name, gender, age, password, avatar_color, role)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(name.trim(), gender || 'unknown', age || null, password, avatarColor, role);
-
-  // 自动创建 session（注册即登录）
-  const token = newToken();
-  const expires = new Date(Date.now() + SESSION_TTL_MS).toISOString();
-  db.prepare(`
-    INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)
-  `).run(token, result.lastInsertRowid, expires);
-
-  res.setHeader('Set-Cookie',
-    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_MS / 1000}`
-  );
-
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
-  const { password: _, ...safeUser } = user;
-  res.status(201).json({ user: safeUser, expires_at: expires });
+router.post('/register', async (req, res) => {
+  const parsed = validateRegistrationInput(req.body);
+  if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+  if (authRepository.findUser(parsed.value.name)) return res.status(409).json({ error: '该姓名已被注册，请换一个或直接登录' });
+  const colors = ['#F4A261', '#E76F51', '#5A8045', '#386FBD', '#80649B', '#A65D32'];
+  const inserted = authRepository.createUser({ ...parsed.value, password: await hashPassword(parsed.value.password), avatarColor: colors[Math.floor(Math.random() * colors.length)] });
+  const user = authRepository.findUserById(inserted.lastInsertRowid);
+  const session = createSession(user.id, req);
+  res.setHeader('Set-Cookie', cookieHeader(session.rawToken));
+  audit({ actor_user_id: user.id, subject_user_id: user.id, event_type: 'auth_register', action: 'register', outcome: 'success', request_id: req.request_id, ...requestFingerprint(req), metadata: { role: user.role } });
+  res.status(201).json({ user: safeUser(user), expires_at: session.expiresAt });
 });
 
-// ===== 登出 =====
 router.post('/logout', (req, res) => {
-  const token = getTokenFromReq(req);
-  if (token) db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
-  res.setHeader('Set-Cookie',
-    `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
-  );
+  revokeSession(getTokenFromReq(req));
+  res.setHeader('Set-Cookie', cookieHeader('', { clear: true }));
+  audit({ actor_user_id: req.user?.id, subject_user_id: req.user?.id, event_type: 'auth_logout', action: 'logout', outcome: 'success', request_id: req.request_id, ...requestFingerprint(req) });
   res.json({ ok: true });
 });
 
-// ===== 当前用户 =====
-router.get('/me', (req, res) => {
-  if (!req.user) return res.status(401).json({ error: 'not authenticated' });
-  const { password: _, ...safeUser } = req.user;
-  res.json(safeUser);
-});
+router.get('/me', (req, res) => req.user ? res.json(safeUser(req.user)) : res.status(401).json({ error: '登录状态已失效，请重新登录' }));
 
+cleanupSessions();
 export default router;

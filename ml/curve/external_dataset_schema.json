@@ -1,31 +1,44 @@
 {
-  "schema_version": "curve-external-dataset.v1",
-  "required_columns": ["participant_id", "timestamp", "metric", "value"],
-  "optional_columns": ["unit", "condition", "source", "measurement_id", "quality_status", "notes"],
+  "schema_version": "curve-external-dataset.v2",
+  "required_columns": [
+    "participant_id", "site_id", "timestamp", "metric", "value", "unit", "condition",
+    "posture", "device_id", "measurement_source", "repeat_flag", "medication_context",
+    "missing_reason", "quality_flag", "age", "sex", "region", "baseline_conditions"
+  ],
+  "identifier_columns": ["participant_id", "site_id", "device_id"],
   "metrics": {
-    "systo": {"label": "收缩压", "unit": "mmHg", "condition": ["morning_rest", "evening_rest", "other"]},
-    "diasto": {"label": "舒张压", "unit": "mmHg", "condition": ["morning_rest", "evening_rest", "other"]},
-    "glucose": {"label": "血糖", "unit": "mmol/L", "condition": ["fasting", "postprandial_2h", "random"]},
-    "weight": {"label": "体重", "unit": "kg", "condition": ["morning_fasting", "other"]},
-    "pulse": {"label": "静息心率", "unit": "bpm", "condition": ["resting"]}
+    "systo": {"label": "收缩压", "unit": "mmHg", "conditions": ["morning_rest", "evening_rest", "other"], "postures": ["seated", "supine", "standing"], "boundary_event": [90, 180]},
+    "diasto": {"label": "舒张压", "unit": "mmHg", "conditions": ["morning_rest", "evening_rest", "other"], "postures": ["seated", "supine", "standing"], "boundary_event": [60, 120]},
+    "glucose": {"label": "血糖", "unit": "mmol/L", "conditions": ["fasting", "postprandial_2h", "random"], "postures": ["not_applicable"], "boundary_event": [3.9, 13.9]},
+    "weight": {"label": "体重", "unit": "kg", "conditions": ["morning_similar_clothing", "other"], "postures": ["standing", "not_applicable"], "boundary_event": null},
+    "pulse": {"label": "静息心率", "unit": "bpm", "conditions": ["resting"], "postures": ["seated", "supine"], "boundary_event": [50, 120]}
+  },
+  "allowed_values": {
+    "measurement_source": ["real_device", "manual", "clinic"],
+    "repeat_flag": ["initial", "repeat", "confirmed_repeat", "not_applicable"],
+    "medication_context": ["before_scheduled_dose", "after_scheduled_dose", "unchanged_routine", "unknown", "not_applicable"],
+    "missing_reason": ["", "not_missing", "participant_unavailable", "device_failure", "sync_failure", "forgotten", "hospitalization", "withdrawn", "other"],
+    "quality_flag": ["valid", "questionable", "excluded", "missing"],
+    "sex": ["female", "male", "other", "unknown"]
   },
   "quality_gates": {
     "engineering_pilot_participants": 100,
     "model_development_minimum_participants": 300,
     "model_development_target_participants": 500,
     "minimum_span_days": 90,
-    "target_span_days": 90,
-    "minimum_valid_days_for_7d_forecast": 21,
-    "minimum_source_values": ["real_device", "manual", "clinic"],
+    "minimum_valid_days_for_7d_forecast": 28,
     "minimum_sites_for_external_holdout": 2,
-    "minimum_external_site_participants": 50
+    "minimum_external_site_participants": 50,
+    "maximum_condition_missing_rate": 0.05,
+    "maximum_device_unknown_rate": 0.01
   },
   "rules": [
-    "同一 participant_id 的记录必须按时间隔离，不能把同一老人的未来记录用于历史窗口。",
-    "血糖必须填写 fasting、postprandial_2h 或 random，unknown 不得进入预测序列。",
-    "静息心率必须填写 resting；步数和睡眠不进入精确未来数值外推。",
-    "source=synthetic 只能用于测试，不得标记为外部验证。",
-    "工程试点至少100名参与者连续90天；模型开发至少300名、目标500名。",
-    "外部测试必须完整留出一个或多个 site_id/region_id，同一参与者不能跨集合。"
+    "participant_id 必须去标识化，且只能属于一个 site_id。",
+    "至少一个完整 site_id 必须在建模前预先指定并永久留作 external_site_test。",
+    "同一 participant_id 不得跨 train、validation、temporal_test、external_site_test。",
+    "有测量值的行 missing_reason 必须为空或 not_missing；无值的计划行必须给出 missing_reason 且 quality_flag=missing。",
+    "任何 fold 的去重、异常处理、change-point、模型选择和区间校准只能拟合于 origin 及以前。",
+    "measurement_source 不允许 synthetic；合成数据必须使用独立测试协议，不能进入本 schema 的真实候选集。",
+    "步数和睡眠不进入精确未来日值外部评测。"
   ]
 }

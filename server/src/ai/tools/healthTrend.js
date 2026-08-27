@@ -36,7 +36,7 @@ const LOOKBACK_MAX = 365;
 /** 读取某 DB type 在 days 内的记录（升序） */
 function fetchPoints(userId, dbType, sinceIso) {
   return db.prepare(`
-    SELECT value, value2, recorded_at FROM metrics
+    SELECT id, value, value2, recorded_at, source, measurement_condition FROM metrics
     WHERE user_id = ? AND type = ? AND recorded_at >= ?
     ORDER BY recorded_at ASC
   `).all(userId, dbType, sinceIso);
@@ -58,7 +58,10 @@ function buildPoints(userId, metric, days) {
       v = r.value / (u.height * u.height);
     }
     if (v == null) continue;
-    points.push({ t: r.recorded_at, v: Math.round(v * 10000) / 10000 });
+    points.push({
+      id: r.id, t: r.recorded_at, v: Math.round(v * 10000) / 10000,
+      source: r.source || null, condition: r.measurement_condition || 'unknown',
+    });
   }
   return { ok: true, points, unit: def.unit, rawCount: rows.length };
 }

@@ -12,6 +12,9 @@ import { fileURLToPath } from 'node:url';
 import { getModelBundleStatus, populationCapabilities } from '../lib/modelBundle.js';
 import { intakeSchema, scoreIntake, canActFor, INTAKE_SCHEMA_VERSION } from '../lib/intake.js';
 import { discoverFromIntake, latestDiscoveryEvents } from '../lib/discovery.js';
+import { PREDICTION_SCHEMA_VERSION, VALUE_LABELS } from '../contracts/predictionContract.js';
+import { validateCurveRequest } from '../validators/predictionValidator.js';
+import { findCurvePoints } from '../repositories/predictionRepository.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -175,9 +178,6 @@ function classifyForecastQuality(result) {
   if (mase < 1) return { level: 'reference', label: '参考估计', mase };
   return { level: 'baseline', label: '仅基线参考', mase, reason: '滚动回测未优于简单基线' };
 }
-
-const PREDICTION_SCHEMA_VERSION = 'health-prediction.v1';
-const VALUE_LABELS = { measured: '直接测量值', estimated: '估计值', predicted: '预测值' };
 
 function buildPredictionContract(type, meta, curve) {
   const mode = meta?.prediction_mode || 'not_supported';
@@ -793,25 +793,21 @@ router.get('/population/:type', async (req, res) => {
 
 // Curve V2 个体短期基线；人群模型通过 /population/:type 单独获取，防止混淆时间尺度。
 router.get('/:type', async (req, res) => {
-  const { type } = req.params;
+  const validated = validateCurveRequest(req.params.type, req.query.days, type => !!curveMetricMeta(type));
+  if (!validated.ok) return res.status(validated.status).json({ error: validated.error });
+  const { type, days } = validated;
   const subject = resolveSubject(req, req.query.subject_user_id);
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
-  const days = Math.min(parseInt(req.query.days || '30', 10), 365);
   // The server chooses the highest defensible horizon; clients no longer need
   // to promise a fixed forecast length.
   const futureDays = 30;
 
   const meta = curveMetricMeta(type);
-  if (!meta) return res.status(400).json({ error: '未知指标类型' });
 
   // 获取历史数据
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
   const sourceType = type === 'bmi' ? 'weight' : type === 'pulse_pressure' ? 'bp' : type;
-  const points = db.prepare(`
-    SELECT id, value, value2, recorded_at, source, measurement_condition FROM metrics
-    WHERE user_id = ? AND type = ? AND recorded_at >= ?
-    ORDER BY recorded_at ASC
-  `).all(subject.id, sourceType, since);
+  const points = findCurvePoints(subject.id, sourceType, since);
 
   const sourcePoints = points.map(p => ({ ...p, value: p.value }));
   let curve;

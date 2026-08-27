@@ -11,16 +11,15 @@
 //   HTN_PYTHON       Python 解释器路径（推荐显式设置）；缺省用 python/python3
 //   HTN_TIMEOUT_MS   单次预测超时毫秒数，默认 15000（包含 Windows/Python 模型冷启动）
 // ============================================================
-import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { executePython } from '../services/pythonRuntime.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 项目根目录（server/src/lib → 上溯 3 级），禁止写死盘符路径
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..');
 const PREDICT_SCRIPT = path.join(PROJECT_ROOT, 'ml', 'predict_htn.py');
-const DEFAULT_TIMEOUT_MS = 15000;
 
 // 模型期望的 12 个特征字段（顺序与训练一致）
 export const HTN_FEATURES = [
@@ -35,12 +34,6 @@ const CHOL_MMOL_TO_MGDL = 38.67;          // mmol/L × 38.67 → mg/dl
 const URIC_UMOL_TO_MGDL = 59.48;          // μmol/L ÷ 59.48 → mg/dl
 
 /** 解析 Python 解释器：优先环境变量 HTN_PYTHON，未设置用 python/python3 */
-function resolvePython() {
-  const envPy = process.env.HTN_PYTHON;
-  if (envPy && envPy.trim()) return envPy.trim();
-  return process.platform === 'win32' ? 'python' : 'python3';
-}
-
 /**
  * APP metrics → 模型 12 特征
  * @param {object} metrics  GET /api/health/metrics 返回结构的对象
@@ -96,71 +89,7 @@ export function buildHtnPredictionInput(metrics, opts = {}) {
  * @returns {Promise<object>} 结构化结果或 {success:false, error:{code,message}}
  */
 export function runPythonTool(scriptPath, input, timeoutMs) {
-  return new Promise((resolve) => {
-    let payload;
-    try {
-      payload = JSON.stringify(input);
-    } catch (e) {
-      return resolve({ success: false, error: { code: 'PYTHON_INTERNAL', message: '输入无法序列化为 JSON' } });
-    }
-
-    const python = resolvePython();
-    const t = timeoutMs ?? parseInt(process.env.HTN_TIMEOUT_MS || String(DEFAULT_TIMEOUT_MS), 10);
-
-    let child;
-    try {
-      child = spawn(python, [scriptPath], {
-        stdio: ['pipe', 'pipe', 'pipe'],
-        windowsHide: true,
-        // Windows 中文系统默认代码页可能是 GBK；所有 Python 工具统一以 UTF-8 输出，
-        // 否则 GraphRAG 的证据、行动建议和模型免责声明会在 Node 中变成乱码。
-        env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
-      });
-    } catch (e) {
-      return resolve({ success: false, error: { code: 'PYTHON_NOT_FOUND', message: `无法启动 Python: ${e.message}` } });
-    }
-
-    let stdout = '';
-    let stderr = '';
-    let settled = false;
-    const done = (r) => { if (!settled) { settled = true; resolve(r); } };
-
-    const timer = setTimeout(() => {
-      try { child.kill('SIGKILL'); } catch { /* 已退出则忽略 */ }
-      done({ success: false, error: { code: 'PYTHON_TIMEOUT', message: `Python 超时（${t}ms）` } });
-    }, t);
-
-    child.stdout.on('data', (d) => { stdout += d; });
-    child.stderr.on('data', (d) => { stderr += d; });
-
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      done({ success: false, error: { code: 'PYTHON_NOT_FOUND', message: `Python 启动失败: ${err.message}` } });
-    });
-
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      if (settled) return;
-      if (code !== 0) {
-        // 只取 stderr 最后一行"错误摘要"，剥离 traceback/文件路径（禁止泄漏内部细节）
-        const lines = stderr.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const last = [...lines].reverse().find(l => !/Traceback|File "|^\s+at /i.test(l)) || 'unknown error';
-        return done({ success: false, error: { code: 'PYTHON_EXIT', message: `Python 退出码 ${code}: ${String(last).slice(0, 200)}` } });
-      }
-      const trimmed = stdout.trim();
-      if (!trimmed) {
-        return done({ success: false, error: { code: 'PYTHON_EMPTY_OUTPUT', message: 'Python 无输出' } });
-      }
-      try {
-        return done(JSON.parse(trimmed));
-      } catch {
-        return done({ success: false, error: { code: 'PYTHON_BAD_OUTPUT', message: 'Python 输出无法解析为 JSON' } });
-      }
-    });
-
-    child.stdin.write(payload);
-    child.stdin.end();
-  });
+  return executePython(scriptPath, input, timeoutMs);
 }
 
 /**

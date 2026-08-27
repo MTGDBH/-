@@ -117,7 +117,7 @@ glu = []
 for i in range(30):
     glu.append({'t': iso(35 - i), 'v': 5.2 + i * 0.01, 'condition': 'fasting'})
 r = analyze('glucose', 'mmol/L', glu, forecast_days=7, condition_group='fasting')
-ok('空腹血糖可按条件预测', r['forecast']['available'] is True, str(r['forecast']))
+ok('30天记录在严格选择/独立校准不足时拒绝', r['forecast']['available'] is False and r['forecast']['reason_code'] in {'NO_STABLE_MODEL', 'INSUFFICIENT_CALIBRATION_RESIDUALS'}, str(r['forecast']))
 r = analyze('glucose', 'mmol/L', [dict(p, condition='unknown') for p in glu], forecast_days=7, condition_group='unknown')
 ok('未标记血糖不混合预测', r['forecast']['available'] is False and r['forecast']['reason_code'] == 'MEASUREMENT_CONDITION_NOT_READY', str(r['forecast']))
 

@@ -1,1 +1,1 @@
-participant_id,timestamp,metric,value,unit,condition,source,measurement_id,quality_status,notes
+participant_id,site_id,timestamp,metric,value,unit,condition,posture,device_id,measurement_source,repeat_flag,medication_context,missing_reason,quality_flag,age,sex,region,baseline_conditions

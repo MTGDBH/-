@@ -8,6 +8,7 @@ import { buildHealthContext, buildEvidenceCard } from '../ai/contextBuilder.js';
 import { ensureConversation, refreshConversationSummary, resolveAgentSubject, runAgentV2 } from '../ai/orchestratorV2.js';
 import { runAgentV3 } from '../ai/orchestratorV3.js';
 import { listFollowups } from '../lib/followups.js';
+import { recordLLM, recordSafetyRule } from '../services/opsMetrics.js';
 
 const router = express.Router();
 const agentV2Enabled = () => process.env.AGENT_ORCHESTRATOR_V2 !== '0';
@@ -69,6 +70,8 @@ function serializeChatRow(row) {
     ...row,
     plan: parseJSON(row.plan, null), confidence: parseJSON(row.confidence, { type: 'common_sense' }),
     evidence: parseJSON(row.evidence, null), presentation: parseJSON(row.presentation, null), graph_evidence: parseJSON(row.graph_evidence, null),
+    prediction_snapshot: parseJSON(row.prediction_snapshot, null), graph_evidence_snapshot: parseJSON(row.graph_evidence_snapshot, null),
+    linkage_version: row.linkage_version || null,
     tool_calls: parseJSON(row.tool_calls, []),
     feedback: feedback || null,
     llm: { provider: row.provider || 'unknown', model: row.model || null, call_status: row.call_status || 'unknown', latency_ms: row.latency_ms, tool_calls: parseJSON(row.tool_calls, []), fallback_reason: row.fallback_reason || null },
@@ -141,11 +144,17 @@ async function handleChatV2(req, res) {
   const backendEvidence = evidenceContext ? buildEvidenceCard(evidenceContext, message, result.confidence) : null;
   const mergedEvidence = (backendEvidence || result.evidence) ? { ...(backendEvidence || {}), graph: result.evidence || null, tool_trace: result.tool_trace || [] } : { tool_trace: result.tool_trace || [] };
   const llm = result.__llm || result.llm || { provider: result.source || 'tool', model: null, call_status: result.source === 'safety_rule' ? 'safety_rule' : 'tool', tool_calls: [] };
+  recordLLM(llm.call_status || 'tool');
+  if (result.source === 'safety_rule') recordSafetyRule();
   const assistantInsert = db.prepare(`INSERT INTO chat_messages
-    (user_id,role,content,plan,confidence,evidence,presentation,provider,model,call_status,latency_ms,tool_calls,fallback_reason,
-     conversation_id,actor_user_id,subject_user_id,parent_message_id,supersedes_message_id,run_id)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    (user_id,role,content,plan,confidence,evidence,presentation,graph_evidence,prediction_snapshot,graph_evidence_snapshot,linkage_version,
+     provider,model,call_status,latency_ms,tool_calls,fallback_reason,conversation_id,actor_user_id,subject_user_id,parent_message_id,supersedes_message_id,run_id)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
       req.user.id, 'assistant', result.content || '', JSON.stringify(result.plan || []), JSON.stringify(result.confidence || { type: 'common_sense' }), JSON.stringify(mergedEvidence), JSON.stringify(result.presentation || { mode: 'plain' }),
+      result.graph_evidence_snapshot ? JSON.stringify(result.graph_evidence_snapshot) : null,
+      result.prediction_snapshot ? JSON.stringify(result.prediction_snapshot) : null,
+      result.graph_evidence_snapshot ? JSON.stringify(result.graph_evidence_snapshot) : null,
+      result.linkage_version || null,
       llm.provider || result.source || 'tool', llm.model || null, llm.call_status || 'tool', Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
       JSON.stringify((result.tool_trace || []).map(item => item.name)), llm.fallback_reason || null,
       conversation.id, req.user.id, resolved.subject.id, userMessageId, req.body?._supersedes_message_id || null, result.run_id);
@@ -163,6 +172,8 @@ async function handleChatV2(req, res) {
     id: assistantInsert.lastInsertRowid, role: 'assistant', content: result.content, plan: result.plan || [], confidence: result.confidence || { type: 'common_sense' },
     evidence: mergedEvidence, presentation: result.presentation || { mode: 'plain' }, source: result.source || llm.provider, llm, conversation_id: conversation.id, run_id: result.run_id,
     tool_trace: result.tool_trace || [], memory_candidates: result.memory_candidates || [], action_previews: result.action_previews || [],
+    prediction_snapshot: result.prediction_snapshot || null, graph_evidence_snapshot: result.graph_evidence_snapshot || null,
+    linkage_version: result.linkage_version || null,
   });
 }
 
@@ -514,12 +525,18 @@ router.post('/chat', async (req, res) => {
       call_status: result.source === 'mock' ? 'mock' : result.source === 'tool' ? 'tool' : 'fallback',
       fallback_reason: result.source === 'mock' ? '未配置 DeepSeek' : null,
     };
+    recordLLM(llm.call_status || 'unknown');
+    if (result.source === 'safety_rule') recordSafetyRule();
     const graphIndexVersion = result.evidence?.index_version || result.evidence?.retrieval_trace?.index_version || null;
     const ins = db.prepare(`
       INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence, graph_evidence,
+        prediction_snapshot, graph_evidence_snapshot, linkage_version,
         provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version)
-      VALUES (?, 'assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, 'assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson, graphEvidenceJson,
+      result.prediction_snapshot ? JSON.stringify(result.prediction_snapshot) : null,
+      result.graph_evidence_snapshot ? JSON.stringify(result.graph_evidence_snapshot) : null,
+      result.linkage_version || null,
       llm.provider || result.source || 'unknown', llm.model || null, llm.call_status || 'unknown',
       Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
       JSON.stringify(llm.tool_calls || []), llm.fallback_reason || null, graphIndexVersion);
@@ -539,6 +556,9 @@ router.post('/chat', async (req, res) => {
       evidence: mergedEvidence,
       source: result.source,
       llm,
+      prediction_snapshot: result.prediction_snapshot || null,
+      graph_evidence_snapshot: result.graph_evidence_snapshot || null,
+      linkage_version: result.linkage_version || null,
     });
 });
 
@@ -556,8 +576,8 @@ router.get('/chat/history', (req, res) => {
     return res.json(rows.map(row => ({ ...row, conversation_id: conversation.id })));
   }
   const rows = db.prepare(`
-      SELECT id, role, content, plan, confidence, evidence, graph_evidence, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM (
-       SELECT id, role, content, plan, confidence, evidence, graph_evidence, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM chat_messages
+      SELECT id, role, content, plan, confidence, evidence, graph_evidence, prediction_snapshot, graph_evidence_snapshot, linkage_version, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM (
+       SELECT id, role, content, plan, confidence, evidence, graph_evidence, prediction_snapshot, graph_evidence_snapshot, linkage_version, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM chat_messages
       WHERE user_id = ? ORDER BY id DESC LIMIT 50
     ) ORDER BY id ASC
   `).all(req.user.id);
@@ -567,6 +587,9 @@ router.get('/chat/history', (req, res) => {
     confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
     evidence: r.evidence ? JSON.parse(r.evidence) : null,
       graph_evidence: r.graph_evidence ? JSON.parse(r.graph_evidence) : null,
+      prediction_snapshot: r.prediction_snapshot ? JSON.parse(r.prediction_snapshot) : null,
+      graph_evidence_snapshot: r.graph_evidence_snapshot ? JSON.parse(r.graph_evidence_snapshot) : null,
+      linkage_version: r.linkage_version || null,
       llm: { provider: r.provider, model: r.model, call_status: r.call_status, latency_ms: r.latency_ms, tool_calls: r.tool_calls ? JSON.parse(r.tool_calls) : [], fallback_reason: r.fallback_reason, graph_index_version: r.graph_index_version },
   })));
 });

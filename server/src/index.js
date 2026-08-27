@@ -1,22 +1,24 @@
 // 入口文件
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
 import db from './db.js';
 import authRouter, { sessionMiddleware, requireAuth } from './auth.js';
 import { getLLMStatus } from './ai/agent.js';
 import { getModelBundleStatus } from './lib/modelBundle.js';
+import { auditMutations } from './services/auditService.js';
+import opsRouter from './routes/ops.js';
+import { pythonRuntimeHealth } from './services/pythonRuntime.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
-// 从 server/.env 加载本地演示配置；密钥仍只存在环境/设置表，不进入代码和前端。
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
-
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false);
 
 async function ensureSeedData() {
   const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
@@ -40,9 +42,14 @@ app.use(cors({
   credentials: true,
 }));
 
-// 简单日志
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+app.use((req, res, next) => {
+  req.request_id = String(req.get('x-request-id') || crypto.randomUUID()).slice(0, 100);
+  res.setHeader('X-Request-Id', req.request_id);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'");
+  console.log(JSON.stringify({ time: new Date().toISOString(), request_id: req.request_id, method: req.method, path: req.path }));
   next();
 });
 
@@ -55,6 +62,10 @@ app.get('/api/health', (_req, res) => {
   const bundle = getModelBundleStatus();
   res.json({ ok: true, time: new Date().toISOString(), mode: llm.mode, provider: llm.provider, model: llm.model, populationModels: bundle.status === 'ready' ? 'ready' : 'degraded' });
 });
+app.get('/api/health/dependencies', async (_req, res) => {
+  const python = await pythonRuntimeHealth();
+  res.status(python.status === 'degraded' ? 503 : 200).json({ ok: python.status !== 'degraded', python });
+});
 app.use('/api/auth', authRouter);
 
 // ===== 静态前端（Sealos / 单容器部署）=====
@@ -64,6 +75,7 @@ app.use(express.static(ROOT_DIR));
 
 // ===== 鉴权守卫 =====
 app.use('/api', requireAuth);
+app.use('/api', auditMutations);
 
 // ===== 业务路由（鉴权后）=====
 // 这些在后续任务中逐个挂载
@@ -90,11 +102,12 @@ app.use('/api/prediction', predictionRouter);
 app.use('/api/actions', actionsRouter);
 app.use('/api/care', careRouter);
 app.use('/api/weather', weatherRouter);
+app.use('/api/ops', opsRouter);
 
 // 错误处理
-app.use((err, _req, res, _next) => {
-  console.error('[error]', err);
-  res.status(err.status || 500).json({ error: err.message || 'internal error' });
+app.use((err, req, res, _next) => {
+  console.error(JSON.stringify({ event: 'request_error', request_id: req.request_id, code: err.code || 'INTERNAL', status: err.status || 500 }));
+  res.status(err.status || 500).json({ error: err.status && err.status < 500 ? err.message : '服务暂时没有响应，请稍后再试', request_id: req.request_id });
 });
 
 app.listen(PORT, () => {

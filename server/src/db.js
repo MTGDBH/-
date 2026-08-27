@@ -48,6 +48,11 @@ addColumnIfMissing('users', 'emergency_name', 'TEXT');
 addColumnIfMissing('users', 'emergency_phone', 'TEXT');
 addColumnIfMissing('users', 'notification_prefs', 'TEXT');
 addColumnIfMissing('users', 'role', "TEXT DEFAULT 'senior'");
+addColumnIfMissing('users', 'password_algo', "TEXT DEFAULT 'legacy_plaintext'");
+addColumnIfMissing('users', 'password_changed_at', 'TEXT');
+addColumnIfMissing('users', 'login_failures', 'INTEGER NOT NULL DEFAULT 0');
+addColumnIfMissing('users', 'locked_until', 'TEXT');
+addColumnIfMissing('users', 'last_failed_login_at', 'TEXT');
 db.prepare("UPDATE users SET role = 'senior' WHERE role IS NULL OR role = ''").run();
 // 风险评估档案：可由老人/家属逐步补充，缺失时模型必须降低可信度
 addColumnIfMissing('users', 'education_level', 'INTEGER');
@@ -78,6 +83,23 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
   );
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
+  CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY,
+    actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    subject_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    event_type TEXT NOT NULL,
+    resource TEXT,
+    action TEXT,
+    outcome TEXT NOT NULL,
+    request_id TEXT,
+    ip_hash TEXT,
+    user_agent_hash TEXT,
+    metadata TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_logs(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_logs(actor_user_id,created_at DESC);
 
   CREATE TABLE IF NOT EXISTS care_relationships (
     id INTEGER PRIMARY KEY,
@@ -346,6 +368,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_discovery_events_dedupe
     ON discovery_events(user_id, event_key, created_at DESC);
 `);
+addColumnIfMissing('sessions', 'last_seen_at', 'TEXT');
+addColumnIfMissing('sessions', 'user_agent_hash', 'TEXT');
+addColumnIfMissing('sessions', 'ip_hash', 'TEXT');
 
 // ============= 智能体 V2：对象绑定、分层记忆与可审计工具调用 =============
 db.exec(`
@@ -441,6 +466,9 @@ addColumnIfMissing('chat_messages', 'confidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'evidence', 'TEXT');
 addColumnIfMissing('chat_messages', 'presentation', 'TEXT');
 addColumnIfMissing('chat_messages', 'graph_evidence', 'TEXT');
+addColumnIfMissing('chat_messages', 'prediction_snapshot', 'TEXT');
+addColumnIfMissing('chat_messages', 'graph_evidence_snapshot', 'TEXT');
+addColumnIfMissing('chat_messages', 'linkage_version', 'TEXT');
 addColumnIfMissing('chat_messages', 'provider', 'TEXT');
 addColumnIfMissing('chat_messages', 'model', 'TEXT');
 addColumnIfMissing('chat_messages', 'call_status', 'TEXT');
@@ -455,6 +483,20 @@ addColumnIfMissing('chat_messages', 'client_request_id', 'TEXT');
 addColumnIfMissing('chat_messages', 'parent_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'supersedes_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'run_id', 'INTEGER');
+
+// 安全迁移：旧版可能把 LLM API Key 写入 settings。启动后立即移除密钥，仅保留非敏感元数据。
+const legacyLlmConfig = db.prepare("SELECT value FROM settings WHERE key='llm_config'").get();
+if (legacyLlmConfig) {
+  try {
+    const parsed = JSON.parse(legacyLlmConfig.value || '{}');
+    const metadata = { base_url: parsed.base_url || '', model: parsed.model || '', secret_source: 'environment' };
+    db.transaction(() => {
+      db.prepare("DELETE FROM settings WHERE key='llm_config'").run();
+      db.prepare(`INSERT INTO settings(key,value,updated_at) VALUES('llm_metadata',?,datetime('now','localtime'))
+        ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=datetime('now','localtime')`).run(JSON.stringify(metadata));
+    })();
+  } catch { db.prepare("DELETE FROM settings WHERE key='llm_config'").run(); }
+}
 
 // 单入口智能管家：知识文章审核信息。旧文章默认待审核，只能作为研究预览。
 addColumnIfMissing('knowledge_articles', 'review_status', "TEXT NOT NULL DEFAULT 'pending'");
