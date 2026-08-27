@@ -7,7 +7,9 @@ from collections import defaultdict
 import numpy as np
 
 METRIC_FIELDS = ('mae', 'rmse', 'mase', 'coverage', 'interval_width', 'bias',
-                 'refusal_rate', 'baseline_win_rate', 'boundary_event_sensitivity')
+                 'refusal_rate', 'baseline_win_rate', 'boundary_event_sensitivity',
+                 'last_value_mae', 'rolling_median_mae',
+                 'mae_delta_vs_last_value', 'mae_delta_vs_rolling_median')
 
 
 def aggregate_contributions(rows):
@@ -26,10 +28,13 @@ def aggregate_contributions(rows):
     baseline_points = sum(int(row.get('n') or 0) for row in comparable)
     events = sum(int(row.get('boundary_event_count') or 0) for row in forecasted)
     detected = sum(int(row.get('boundary_event_detected') or 0) for row in forecasted)
+    last_value_mae = sum(float(row.get('last_value_mae') or 0) * int(row.get('n') or 0) for row in comparable) / baseline_points if baseline_points else None
+    rolling_median_mae = sum(float(row.get('rolling_median_mae') or 0) * int(row.get('n') or 0) for row in comparable) / baseline_points if baseline_points else None
+    mae = abs_sum / n if n else None
     return {
         'attempts': attempts, 'forecasted_windows': len(forecasted), 'refused_windows': refused,
         'unscorable_forecast_windows': unscorable, 'forecast_points': n,
-        'mae': abs_sum / n if n else None,
+        'mae': mae,
         'rmse': float(np.sqrt(sq_sum / n)) if n else None,
         'mase': abs_sum / scale_sum if scale_sum > 0 else None,
         'coverage': covered / n if n else None,
@@ -37,8 +42,10 @@ def aggregate_contributions(rows):
         'bias': error_sum / n if n else None,
         'refusal_rate': refused / attempts if attempts else None,
         'baseline_win_rate': sum(bool(row['model_wins_best_baseline']) for row in comparable) / len(comparable) if comparable else None,
-        'last_value_mae': sum(float(row.get('last_value_mae') or 0) * int(row.get('n') or 0) for row in comparable) / baseline_points if baseline_points else None,
-        'rolling_median_mae': sum(float(row.get('rolling_median_mae') or 0) * int(row.get('n') or 0) for row in comparable) / baseline_points if baseline_points else None,
+        'last_value_mae': last_value_mae,
+        'rolling_median_mae': rolling_median_mae,
+        'mae_delta_vs_last_value': mae - last_value_mae if mae is not None and last_value_mae is not None else None,
+        'mae_delta_vs_rolling_median': mae - rolling_median_mae if mae is not None and rolling_median_mae is not None else None,
         'boundary_event_sensitivity': detected / events if events else None,
         'boundary_events': events, 'baseline_comparable_windows': len(comparable),
     }

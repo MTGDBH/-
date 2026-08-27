@@ -5,18 +5,26 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from datetime import date
+import sys
+from datetime import datetime
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
 MANIFEST = ROOT / "output" / "relation_review_manifest.json"
-DECISIONS = {"approve_education", "approve_with_guardrails", "needs_revision", "reject"}
+DECISIONS = {"approve", "reject", "revise"}
+DATA_GAP_PREFIX = "[MISSING_SOURCE_METADATA:"
 REQUIRED = {
     "relation_index", "source", "target", "type", "strength", "evidence",
-    "evidence_level", "clinician_decision", "clinician_id", "clinician_role",
-    "review_date", "rationale", "signoff",
+    "evidence_level", "decision", "reviewer_id", "reviewer_role",
+    "reviewed_at", "review_version", "rationale", "revision_text",
+    "source_excerpt", "source_url", "source_version", "publication_date",
+    "applicable_population", "relation_direction", "causal_wording",
+    "proposed_allowed_expression", "proposed_forbidden_expression",
 }
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
 def main() -> None:
@@ -42,17 +50,29 @@ def main() -> None:
                 continue
             if idx not in expected:
                 errors.append(f"line {line_no}: unknown relation_index={idx}")
-            decision = str(row.get("clinician_decision", "")).strip()
+            decision = str(row.get("decision", "")).strip()
             if decision and decision not in DECISIONS:
-                errors.append(f"line {line_no}: invalid clinician_decision={decision}")
+                errors.append(f"line {line_no}: invalid decision={decision}")
             if decision:
-                for field in ("clinician_id", "clinician_role", "review_date", "rationale", "signoff"):
+                for field in ("reviewer_id", "reviewer_role", "reviewed_at", "review_version", "rationale"):
                     if not str(row.get(field, "")).strip():
                         errors.append(f"line {line_no}: {field} required when decision is filled")
                 try:
-                    date.fromisoformat(str(row.get("review_date", "")).strip())
+                    datetime.fromisoformat(str(row.get("reviewed_at", "")).strip().replace("Z", "+00:00"))
                 except ValueError:
-                    errors.append(f"line {line_no}: review_date must be YYYY-MM-DD")
+                    errors.append(f"line {line_no}: reviewed_at must be ISO-8601")
+                if decision == "revise" and not str(row.get("revision_text", "")).strip():
+                    errors.append(f"line {line_no}: revision_text required for revise")
+                if decision == "approve":
+                    for field in (
+                        "source_excerpt", "source_url", "source_version",
+                        "publication_date", "applicable_population",
+                    ):
+                        value = str(row.get(field, "")).strip()
+                        if not value or value.startswith(DATA_GAP_PREFIX):
+                            errors.append(
+                                f"line {line_no}: cannot approve while {field} is missing"
+                            )
     indexes = []
     for row in rows:
         try: indexes.append(int(str(row.get("relation_index", "")).strip()))
@@ -61,15 +81,15 @@ def main() -> None:
     if duplicates: errors.append(f"duplicate relation_index: {duplicates}")
     missing_rows = sorted(expected - set(indexes))
     if missing_rows: errors.append(f"missing relation_index rows: {missing_rows[:10]}" + ("..." if len(missing_rows) > 10 else ""))
-    signed = [r for r in rows if str(r.get("clinician_decision", "")).strip()]
+    signed = [r for r in rows if str(r.get("decision", "")).strip()]
     complete = not errors and len(signed) == len(expected)
     result = {
         "status": "valid_submission" if complete else "pending",
         "review_complete": complete,
         "errors": errors, "expected_relations": len(expected), "rows": len(rows),
         "signed_rows": len(signed), "unsigned_rows": max(0, len(expected) - len(signed)),
-        "decisions": {d: sum(str(r.get("clinician_decision", "")).strip() == d for r in rows) for d in sorted(DECISIONS)},
-        "policy": "验证脚本不写入 live GraphRAG；只有项目组完成医生签字和复核后，才允许人工导入 approved 状态。",
+        "decisions": {d: sum(str(r.get("decision", "")).strip() == d for r in rows) for d in sorted(DECISIONS)},
+        "policy": "验证脚本不写入 live GraphRAG；reviewer_id 必须来自真实受控身份映射，不得伪造姓名、角色、时间或签字。",
     }
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

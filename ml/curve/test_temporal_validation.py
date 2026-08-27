@@ -3,20 +3,40 @@
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
-proc = subprocess.run([sys.executable, str(ROOT / "temporal_validation.py")], capture_output=True, text=True, encoding="utf-8")
-assert proc.returncode == 0, proc.stderr
-report = json.loads((ROOT.parent.parent / "ml" / "reports" / "curve-temporal-validation-20260821.json").read_text(encoding="utf-8"))
+with tempfile.TemporaryDirectory(prefix="curve-validation-") as temp_dir:
+    report_path = Path(temp_dir) / "curve-temporal-validation.json"
+    markdown_path = Path(temp_dir) / "curve-temporal-validation.md"
+    proc = subprocess.run([sys.executable, str(ROOT / "temporal_validation.py"), "--out", str(report_path), "--report-path", str(markdown_path)], capture_output=True, text=True, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr
+    report = json.loads(report_path.read_text(encoding="utf-8"))
 assert report["data_class"] == "test_synthetic_dry_run"
 assert report["evaluation"]["attempts"] > 0
 assert report["evaluation"]["forecasted_windows"] > 0
 assert report["evaluation"]["refusal_rate"] >= 0
 assert report["evaluation"]["curve_v2"]["coverage_80"] is not None
 assert report["external_validation_status"] == "dry_run_only"
+assert set(report["synthetic_scenarios"]) == {
+    "stable_level", "slow_trend", "level_shift", "weekly_cycle", "missingness",
+    "device_offset", "heteroscedastic", "single_point_error", "post_medication_state_change",
+}
+assert len(report["coverage_width_refusal_table"]) == 4
+assert all({"coverage", "mean_interval_width", "refusal_rate"} <= set(row) for row in report["coverage_width_refusal_table"])
+assert report["evaluation"]["unconditional_metrics"]["last_value"]["n"] > 0
+assert all(row["reason_code"] and row["reason_category"] for row in report["evaluation"]["windows"] if row["status"] == "refused")
+assert sum(row["count"] for row in report["evaluation"]["refusal_reason_summary"]) == report["evaluation"]["refused_windows"]
+assert 0.75 <= report["evaluation"]["curve_v2"]["coverage_80"] <= 0.85
+stable_windows = [row for row in report["evaluation"]["windows"] if row["scenario"] == "stable_level"]
+assert stable_windows and sum(row["status"] == "forecasted" for row in stable_windows) > sum(row["status"] == "refused" for row in stable_windows)
+assert report["baseline_reference"]["primary_refusal_reasons"] == [
+    {"reason_code": "NO_STABLE_MODEL", "count": 24, "share_of_refusals": 24 / 31},
+    {"reason_code": "HORIZON_BUCKET_NOT_READY", "count": 7, "share_of_refusals": 7 / 31},
+]
 for window in report["evaluation"]["windows"]:
     if window["status"] == "forecasted":
         assert len(window["aligned_dates"]) == window["curve_v2"]["n"]

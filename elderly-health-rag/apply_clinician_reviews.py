@@ -2,7 +2,7 @@
 """Create a versioned clinician-review decision artifact after full sign-off.
 
 This command never overwrites relationships.json. It requires a complete,
-validated 83-row review table and refuses to produce an importable artifact when
+validated complete review table and refuses to produce an importable artifact when
 any relation is unsigned, needs revision, or is rejected.
 """
 from __future__ import annotations
@@ -40,11 +40,11 @@ def main() -> None:
     errors = []
     if indexes != expected: errors.append("review table must contain exactly all relation_index rows")
     for row in rows:
-        decision = str(row.get("clinician_decision", "")).strip()
+        decision = str(row.get("decision", "")).strip()
         if decision not in DECISIONS: errors.append(f"relation {row.get('relation_index')}: missing or invalid decision")
-        for field in ("clinician_id", "clinician_role", "review_date", "rationale", "signoff"):
+        for field in ("reviewer_id", "reviewer_role", "reviewed_at", "review_version", "rationale"):
             if not str(row.get(field, "")).strip(): errors.append(f"relation {row.get('relation_index')}: missing {field}")
-    unsafe = [r.get("relation_index") for r in rows if str(r.get("clinician_decision", "")).strip() in {"needs_revision", "reject"}]
+    unsafe = [r.get("relation_index") for r in rows if str(r.get("decision", "")).strip() in {"revise", "reject"}]
     if unsafe: errors.append(f"cannot create approved decision artifact; unresolved decisions: {unsafe[:10]}")
     payload = {
         "schema_version": "clinician-review-decisions.v1",
@@ -54,7 +54,7 @@ def main() -> None:
         "status": "ready_to_import" if not errors else "blocked",
         "errors": errors,
         "policy": "This artifact is versioned and does not overwrite live GraphRAG; import requires a separate deployment review.",
-        "decisions": [{k: row.get(k, "") for k in ("relation_index", "clinician_decision", "clinician_id", "clinician_role", "review_date", "rationale", "approved_wording", "forbidden_wording", "signoff")} for row in rows],
+        "decisions": [{k: row.get(k, "") for k in ("relation_index", "decision", "reviewer_id", "reviewer_role", "reviewed_at", "review_version", "rationale", "revision_text", "proposed_allowed_expression", "proposed_forbidden_expression")} for row in rows],
     }
     if args.apply:
         args.out.parent.mkdir(parents=True, exist_ok=True)

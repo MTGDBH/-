@@ -1,0 +1,32 @@
+{
+  "schema_version": "graphrag-empty-evaluation-report.v1",
+  "status": "not_collected",
+  "clinical_claim_allowed": false,
+  "regression_internal": {
+    "status": "not_run",
+    "registered_cases": 61,
+    "metrics": null
+  },
+  "blind": {
+    "collection_name": "blind_internal",
+    "status": "not_collected",
+    "registered_cases": 0,
+    "recommended_minimum": 100,
+    "agreement": null,
+    "metrics": null
+  },
+  "external": {
+    "collection_name": "external_clinician",
+    "status": "not_collected",
+    "registered_cases": 0,
+    "recommended_minimum": 50,
+    "agreement": null,
+    "metrics": null
+  },
+  "cross_split_average": null,
+  "release_decision": "blocked_until_independent_data_are_collected_sealed_and_evaluated",
+  "notes": [
+    "No independent annotations, clinician identities, signatures, approvals, or performance results are asserted by this template.",
+    "Each split must be reported separately."
+  ]
+}

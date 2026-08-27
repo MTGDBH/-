@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 from validate_external_dataset import SCHEMA, validate
+from validate_external_preregistration import validate_preregistration
 
 SPLITS = ('train', 'validation', 'temporal_test', 'external_site_test')
 
@@ -93,9 +94,25 @@ def validate_manifest(df, manifest):
     external_sites = set(map(str, manifest.get('external_sites', [])))
     external_wrong = sorted(str(pid) for pid, sites in participant_sites.items()
                             if ((sites[0] in external_sites) != (assignments.get(str(pid)) == 'external_site_test')))
-    return {'valid': not missing and not extra and not site_leaks and not external_wrong,
+    invalid_split_values = {str(pid): value for pid, value in assignments.items() if value not in SPLITS}
+    supplied_by_split = {split: list(map(str, manifest.get('participants_by_split', {}).get(split, []))) for split in SPLITS}
+    supplied_memberships = defaultdict(list)
+    for split, participant_ids in supplied_by_split.items():
+        for participant_id in participant_ids:
+            supplied_memberships[participant_id].append(split)
+    supplied_overlaps = {pid: splits for pid, splits in supplied_memberships.items() if len(set(splits)) > 1}
+    expected_by_split = {split: sorted(str(pid) for pid, value in assignments.items() if value == split) for split in SPLITS}
+    participants_by_split_mismatch = {
+        split: {'expected': expected_by_split[split], 'supplied': sorted(supplied_by_split[split])}
+        for split in SPLITS if expected_by_split[split] != sorted(supplied_by_split[split])
+    }
+    valid = not any((missing, extra, site_leaks, external_wrong, invalid_split_values,
+                     supplied_overlaps, participants_by_split_mismatch))
+    return {'valid': valid,
             'missing_participants': missing, 'extra_participants': extra,
-            'multi_site_participants': site_leaks, 'external_site_assignment_errors': external_wrong}
+            'multi_site_participants': site_leaks, 'external_site_assignment_errors': external_wrong,
+            'invalid_split_values': invalid_split_values, 'participants_in_multiple_splits': supplied_overlaps,
+            'participants_by_split_mismatch': participants_by_split_mismatch}
 
 
 def main():
@@ -104,15 +121,27 @@ def main():
     parser.add_argument('--external-site', action='append', required=True,
                         help='Pre-specified site_id to hold out in full; repeat for multiple sites')
     parser.add_argument('--salt', default='curve.external.v2')
+    parser.add_argument('--preregistration', type=Path, required=True,
+                        help='Study-team preregistration with external_site_ids fixed before results')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     quality = validate(args.csv)
     if not quality['valid']:
         raise SystemExit(f'dataset validation failed: {quality["errors"][:10]}')
     df = pd.read_csv(args.csv, dtype={'participant_id': str, 'site_id': str})
+    prereg_bytes = args.preregistration.read_bytes()
+    prereg = json.loads(prereg_bytes)
+    prereg_check = validate_preregistration(prereg, require_frozen=False)
+    if not prereg_check['valid']:
+        raise SystemExit(f'preregistration validation failed: {prereg_check["errors"]}')
+    registered_sites = sorted(map(str, prereg.get('population', {}).get('external_site_ids') or []))
+    requested_sites = sorted(set(map(str, args.external_site)))
+    if registered_sites != requested_sites:
+        raise SystemExit(f'external sites must match preregistration: preregistration={registered_sites}, requested={requested_sites}')
     manifest = build_manifest(df, args.external_site, args.salt)
     manifest['dataset_sha256'] = hashlib.sha256(args.csv.read_bytes()).hexdigest()
     manifest['dataset_schema_version'] = SCHEMA['schema_version']
+    manifest['preregistration_sha256'] = hashlib.sha256(prereg_bytes).hexdigest()
     manifest['validation'] = validate_manifest(df, manifest)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')

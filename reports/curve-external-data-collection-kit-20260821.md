@@ -40,9 +40,14 @@
 ```powershell
 $py = 'C:\Users\zhaoq\.workbuddy\binaries\python\envs\default\Scripts\python.exe'
 & $py D:\BIGCHUANG\-\ml\curve\validate_external_dataset.py D:\path\to\curve_external.csv --out D:\path\to\quality.json
-& $py D:\BIGCHUANG\-\ml\curve\leakage_safe_split.py D:\path\to\curve_external.csv --external-site SITE_B --out D:\path\to\split.json
-& $py D:\BIGCHUANG\-\ml\curve\evaluate_external_longitudinal.py D:\path\to\curve_external.csv --manifest D:\path\to\split.json --out-json D:\path\to\result.json --out-md D:\path\to\result.md
+& $py D:\BIGCHUANG\-\ml\curve\render_external_quality_dashboard.py D:\path\to\curve_external.csv --out-json D:\path\to\quality-dashboard.json --out-md D:\path\to\quality-dashboard.md
+& $py D:\BIGCHUANG\-\ml\curve\validate_external_preregistration.py D:\path\to\preregistration.json --require-frozen
+& $py D:\BIGCHUANG\-\ml\curve\leakage_safe_split.py D:\path\to\curve_external.csv --external-site SITE_B --preregistration D:\path\to\preregistration.json --out D:\path\to\split.json
+& $py D:\BIGCHUANG\-\ml\curve\freeze_external_split.py --manifest D:\path\to\split.json --preregistration D:\path\to\preregistration.json --out-dir D:\path\to\freeze --frozen-by '研究负责人姓名或角色'
+& $py D:\BIGCHUANG\-\ml\curve\evaluate_external_longitudinal.py D:\path\to\curve_external.csv --manifest D:\path\to\split.json --preregistration D:\path\to\preregistration.json --freeze-record D:\path\to\freeze\freeze-record.json --out-json D:\path\to\result.json --out-md D:\path\to\result.md
 ```
+
+`preregistration.json` 应从 `ml/curve/external_validation_preregistration.template.json` 复制后由研究团队、统计负责人、临床审核人和数据控制方填写。软件不会代签、不会把草稿标记成已注册，也不会声称已取得伦理审批。冻结目录不覆盖已有文件；任何修订必须产生新版本并保留原冻结件。
 
 质量校验通过只代表“可以进入候选评测”，不代表外部验证完成。最终报告同时写出 micro/participant macro/site macro、全部要求指标、participant bootstrap CI、亚组、漂移、设备、测量条件缺失及拒绝原因分布。
 

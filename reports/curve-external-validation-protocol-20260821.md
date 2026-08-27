@@ -18,6 +18,8 @@
 
 MAE、RMSE、MASE、coverage、interval width、bias、refusal rate、baseline win rate、boundary-event sensitivity。分别报告 micro、participant macro、site macro、指标×horizon，以及年龄、性别、地区、设备和基础疾病亚组。行为指标（步数、睡眠）只评估滚动平均/规律性，不评估精确未来日值。
 
+预注册模板将主要分析固定为 external-site test 的晨间静息收缩压、7 日 horizon、participant-macro MAE，主要模型为冻结的 Curve rolling-origin 选择流水线，并同时比较 last-value 与 rolling-median。80% 为预先声明的区间 coverage 目标。只有对两个基线的 participant-bootstrap 95% MAE 差值上界均小于 0，且 participant-macro MAE 均更低，才达到预注册的工程优势判据；否则结论必须是“未证明优势”。该判据不等于临床有效性。
+
 置信区间以 participant 为 cluster 重采样，禁止把同一老人的记录或窗口当作独立样本。模型拒绝和已预测但无可评分目标的窗口分别报告，不得从分母中静默删除。
 
 ## 验收规则
@@ -30,3 +32,5 @@ MAE、RMSE、MASE、coverage、interval width、bias、refusal rate、baseline w
 ## 当前状态
 
 验证流水线已完成，但真实纵向数据和独立站点测试集尚未进入工作区。报告必须分开标识 synthetic dry-run、internal validation、temporal test、external-site test；当前不得把任何 synthetic 结果写成外部临床验证。
+
+外部结果运行前，必须由有权人员填写并冻结 `external_validation_preregistration.template.json`，生成 participant-disjoint split manifest，再用 `freeze_external_split.py` 创建内容寻址快照。`evaluate_external_longitudinal.py` 会核对数据、预注册、manifest 与 freeze record 的 SHA-256；任一不一致即停止。

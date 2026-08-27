@@ -14,6 +14,60 @@ DEFAULT_CANDIDATES = tuple(MODEL_SPECS)
 BASELINES = ('last_value', 'rolling_median')
 
 
+def finite_sample_quantile(scores, coverage=0.80):
+    """Conformal order statistic using ceil((n+1)*coverage), never interpolation.
+
+    Returning ``q=None`` is deliberate: for too few scores the requested
+    marginal coverage cannot be represented by a finite order statistic.
+    """
+    values = np.sort(np.abs(np.asarray(scores, dtype=float)))
+    values = values[np.isfinite(values)]
+    n = int(len(values))
+    rank = int(np.ceil((n + 1) * float(coverage)))
+    if n == 0 or rank > n:
+        return {'q': None, 'n': n, 'rank': rank, 'coverage_target': coverage,
+                'finite_sample_valid': False}
+    return {
+        'q': float(values[rank - 1]), 'n': n, 'rank': rank,
+        'coverage_target': coverage, 'finite_sample_valid': True,
+        'empirical_coverage': float(np.mean(values <= values[rank - 1])),
+    }
+
+
+def conformal_candidates(horizon_results, step, coverage=0.80, block_size=2):
+    """Build leakage-safe interval candidates from completed calibration folds."""
+    bucket = min(value for value in SUPPORTED_HORIZONS if value >= step)
+    specific_rows = horizon_results.get(str(bucket), {}).get('calibration_fold_audit', [])
+    pooled_rows = []
+    for horizon_text, result in horizon_results.items():
+        for row in result.get('calibration_fold_audit', []):
+            pooled_rows.append({**row, 'lead_days': int(horizon_text)})
+
+    def package(name, scores, multiplier=1.0, extra=None):
+        quantile = finite_sample_quantile(scores, coverage)
+        q = quantile['q'] * multiplier if quantile['q'] is not None else None
+        return {'method': name, **quantile, 'q': q, 'scale_multiplier': multiplier, **(extra or {})}
+
+    candidates = {
+        'horizon_specific': package('horizon_specific', [row['error'] for row in specific_rows]),
+        'pooled': package('pooled', [row['error'] for row in pooled_rows]),
+        'lead_time_scaled_pooled': package(
+            'lead_time_scaled_pooled',
+            [float(row['error']) / np.sqrt(max(row['lead_days'], 1)) for row in pooled_rows],
+            np.sqrt(max(step, 1)),
+        ),
+    }
+    ordered = sorted(pooled_rows, key=lambda row: (row.get('target_day', ''), row.get('origin_day', ''), row['lead_days']))
+    block_scores = []
+    for start in range(0, len(ordered) - block_size + 1, block_size):
+        block = ordered[start:start + block_size]
+        block_scores.append(max(abs(float(row['error'])) for row in block))
+    candidates['block_conformal'] = package(
+        'block_conformal', block_scores, extra={'block_size': block_size, 'raw_residual_n': len(ordered)}
+    )
+    return candidates
+
+
 def select_post_change_segment(clean_rows, meta, enabled=True, min_points=7):
     """Use the latest persistent shifted state when enough post-change data exist."""
     result = {'used': False, 'reason': None, 'start_date': clean_rows[0]['local_day'] if clean_rows else None}
@@ -126,10 +180,14 @@ def _candidate_metrics(records, complexity):
     prediction_error = mase
     split = max(2, int(np.floor(len(errors) * 0.60)))
     if len(errors) - split >= 2:
-        q = float(np.quantile(np.abs(errors[:split]), 0.80))
-        coverage = float(np.mean(np.abs(errors[split:]) <= q))
-        width_norm = float(2.0 * q / max(np.median([row['scale'] for row in records]), 1e-9))
-        calibration_error = abs(coverage - 0.80) + 0.05 * width_norm
+        quantile = finite_sample_quantile(errors[:split], 0.80)
+        q = quantile['q']
+        if q is not None:
+            coverage = float(np.mean(np.abs(errors[split:]) <= q))
+            width_norm = float(2.0 * q / max(np.median([row['scale'] for row in records]), 1e-9))
+            calibration_error = abs(coverage - 0.80) + 0.05 * width_norm
+        else:
+            coverage, calibration_error = None, 0.25
     else:
         coverage, calibration_error = None, 0.25
     instability = float(np.std(normalized)) + abs(float(np.mean(errors))) / max(float(np.median([row['scale'] for row in records])), 1e-9)
@@ -243,16 +301,27 @@ def rolling_origin_select(rows, metric, aggregate='median', horizons=SUPPORTED_H
                     and score['mase'] <= baseline_common_score['mase'] * 0.98 and win_rate >= 0.55):
                 eligible.append(name)
         selected = min(eligible, key=lambda name: scores[name]['final_score']) if eligible else None
-        decision = 'forecast' if selected else ('forced_without_refusal' if not refusal and scores else 'trend_only')
-        if selected is None and not refusal and scores:
+        decision = 'forecast' if selected else 'trend_only'
+        # A transparent baseline is a valid forecast for a low-instability level
+        # series. Requiring a complex model to beat it made simple stable series
+        # fail for the wrong reason.
+        if selected is None and best_baseline and scores[best_baseline]['instability_penalty'] <= 1.5:
+            selected = best_baseline
+            decision = 'baseline_forecast'
+        elif selected is None and not refusal and scores:
             selected = min(scores, key=lambda name: scores[name]['final_score'])
+            decision = 'forced_without_refusal'
         residuals, calibration_audit, selection_audit = ([], [], [])
         if selected:
             calibration_records, calibration_audit = evaluate(selected, calibration_origins, audit=True)
             _, selection_audit = evaluate(selected, selection_origins, audit=True)
             residuals = [row['error'] for row in calibration_records]
         result['horizons'][str(horizon)] = {
-            'selected': selected, 'decision': decision, 'reason': None if selected else 'no complex candidate stably outperformed last_value/rolling_median',
+            'selected': selected, 'decision': decision,
+            'reason': ('stable baseline selected because no complex candidate reliably improved it'
+                       if decision == 'baseline_forecast' else None if selected
+                       else 'no candidate produced a stable forecast against last_value/rolling_median'),
+            'model_not_beat_baseline': bool(not eligible),
             'scores': scores, 'best_baseline': best_baseline,
             'selection_origin_indices': selection_origins, 'calibration_origin_indices': calibration_origins,
             'calibration_residuals': [round(float(value), 6) for value in residuals],

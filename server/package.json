@@ -11,7 +11,14 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "seed": "node data/seed.js",
-    "reset": "rm -f data/app.db && node data/seed.js"
+    "reset": "rm -f data/app.db && node data/seed.js",
+    "test": "node scripts/run-tests.mjs core",
+    "test:unit": "node scripts/run-tests.mjs unit",
+    "test:integration": "node scripts/run-tests.mjs integration",
+    "test:graphrag": "node scripts/run-tests.mjs graphrag",
+    "test:curve": "node scripts/run-tests.mjs curve",
+    "test:security": "node scripts/run-tests.mjs security",
+    "test:syntax": "node scripts/run-tests.mjs syntax"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

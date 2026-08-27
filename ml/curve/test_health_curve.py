@@ -15,6 +15,9 @@ from pathlib import Path
 from curve_utils import FoldLocalPipeline, parse_points, dedup_time, clean_series, time_ordered_split, model_metrics
 from health_curve import _backtest, _rows, analyze
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 PASS, FAIL = 0, 0
 
 
@@ -117,7 +120,7 @@ glu = []
 for i in range(30):
     glu.append({'t': iso(35 - i), 'v': 5.2 + i * 0.01, 'condition': 'fasting'})
 r = analyze('glucose', 'mmol/L', glu, forecast_days=7, condition_group='fasting')
-ok('30天记录在严格选择/独立校准不足时拒绝', r['forecast']['available'] is False and r['forecast']['reason_code'] in {'NO_STABLE_MODEL', 'INSUFFICIENT_CALIBRATION_RESIDUALS'}, str(r['forecast']))
+ok('30天单一条件稳定序列可使用有限样本区间', r['forecast']['available'] is True and r['forecast']['calibration_status'] == 'finite_sample_rolling_residual_conformal', str(r['forecast']))
 r = analyze('glucose', 'mmol/L', [dict(p, condition='unknown') for p in glu], forecast_days=7, condition_group='unknown')
 ok('未标记血糖不混合预测', r['forecast']['available'] is False and r['forecast']['reason_code'] == 'MEASUREMENT_CONDITION_NOT_READY', str(r['forecast']))
 

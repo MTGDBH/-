@@ -1,0 +1,103 @@
+{
+  "schema_version": "curve-external-preregistration.v1",
+  "status": "draft_not_registered",
+  "title": "Curve 真实老人纵向外部站点验证预注册",
+  "protocol_version": "TBD_BY_STUDY_TEAM",
+  "registered_at": null,
+  "registered_by": null,
+  "registry_or_archive_uri": null,
+  "external_results_unseen_at_freeze": null,
+  "dataset_schema_version": "curve-external-dataset.v2",
+  "population": {
+    "minimum_age_years_at_enrollment": 60,
+    "minimum_total_participants": 100,
+    "minimum_followup_days": 90,
+    "minimum_sites": 2,
+    "minimum_external_site_participants": 50,
+    "external_site_ids": [],
+    "note": "工程试点规模；不作为临床有效性证明。最终样本量须由统计负责人结合预期效应、失访和事件率确认。"
+  },
+  "primary_analysis": {
+    "metric": "systo",
+    "unit": "mmHg",
+    "measurement_condition": "morning_rest",
+    "horizon_days": 7,
+    "aggregation": "participant_macro",
+    "endpoint": "mae",
+    "split": "external_site_test",
+    "primary_model": "Curve locked horizon-specific nested rolling-origin selection pipeline",
+    "comparators": ["last_value", "rolling_median"],
+    "superiority_rule": "Curve is advantageous only if participant-bootstrap 95% CI upper bounds for MAE deltas versus both comparators are below 0 and participant-macro MAE is lower than both comparators; otherwise the conclusion is 未证明优势。"
+  },
+  "intervals": {
+    "method": "lead_time_scaled_pooled",
+    "nominal_coverage": 0.8,
+    "coverage_target": 0.8,
+    "required_reporting": ["coverage", "interval_width", "refusal_rate"],
+    "note": "区间宽度不设事后优化阈值；任何临床可接受宽度须由临床与统计负责人在解盲前另行签署。"
+  },
+  "refusal_rules": [
+    "metric is not forecastable",
+    "requested horizon exceeds 14 days",
+    "fewer than 28 valid historical days for external 7-day scoring eligibility",
+    "mixed or unsupported measurement condition",
+    "high fluctuation state",
+    "no stable model or model does not beat an eligible simple baseline in origin-only backtesting",
+    "horizon model bucket is not ready",
+    "finite-sample interval calibration is unavailable",
+    "maximum interval margin exceeds max(20% of historical median, 1 native unit)",
+    "boundary risk gate is triggered"
+  ],
+  "exclusion_rules": {
+    "participant_level": [
+      "participant_id is not unique to exactly one site",
+      "age at enrollment is below 60 or unavailable",
+      "withdrawal where consent requires removal",
+      "fewer than 28 valid days for the primary 7-day analysis"
+    ],
+    "record_level": [
+      "synthetic or unknown provenance",
+      "unsupported metric, unit, condition, or posture",
+      "non-finite value",
+      "quality_flag is excluded or missing for scoring",
+      "exact duplicate measurement key",
+      "timestamp lacks timezone"
+    ],
+    "policy": "Apply rules without consulting external-site outcomes; report counts and reasons. Do not impute measurement values."
+  },
+  "subgroups": [
+    "age_group: 60-69, 70-79, 80-89, 90+",
+    "sex",
+    "region",
+    "device_id",
+    "baseline_condition"
+  ],
+  "required_external_reporting": [
+    "micro",
+    "participant_macro",
+    "site_macro",
+    "participant_bootstrap_95_ci",
+    "refusal_rate",
+    "interval_coverage",
+    "interval_width",
+    "baseline_win_rate",
+    "boundary_sensitivity"
+  ],
+  "sample_size_basis": {
+    "pilot_floor": "100 participants followed for about 90 days across at least two sites tests recruitment, retention, data transfer, missingness, device heterogeneity and pipeline execution.",
+    "external_site_floor": "At least 50 participants in the fully held-out site is an engineering gate, not a powered clinical claim.",
+    "confirmatory_calculation": "Before recruitment is finalized, a statistician must use blinded internal/pilot variance estimates, the minimally important MAE difference, two-sided alpha, desired power, cluster/within-participant dependence, expected refusal, missingness, attrition and subgroup multiplicity."
+  },
+  "freeze": {
+    "split_manifest_must_be_frozen_before_external_results": true,
+    "participant_overlap_allowed": false,
+    "changes_after_freeze": "Versioned protocol amendment with reason, timestamp and signatures; original manifest remains immutable."
+  },
+  "approvals": {
+    "principal_investigator": null,
+    "statistician": null,
+    "clinical_reviewer": null,
+    "data_controller": null,
+    "ethics_approval_identifier": null
+  }
+}

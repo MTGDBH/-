@@ -1,0 +1,1 @@
+case_id,annotator_id,relevant_evidence_ids_json,acceptable_relations_json,forbidden_claims_json,urgency_label,required_abstention,audience,patient_context_json,notes

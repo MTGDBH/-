@@ -309,7 +309,9 @@ def main():
     parser.add_argument("--registry", type=Path, default=HERE / "datasets.json")
     parser.add_argument("--chunks", type=Path, default=ROOT / "output" / "chunks.json")
     parser.add_argument("--gates", type=Path, default=HERE / "release_gates.json")
-    parser.add_argument("--output-dir", type=Path, required=True)
+    destination = parser.add_mutually_exclusive_group(required=True)
+    destination.add_argument("--output-dir", type=Path)
+    destination.add_argument("--report-path", type=Path, help="Exact metrics JSON path (useful for isolated tests)")
     args = parser.parse_args()
 
     cases = load_registered_cases(args.registry, args.chunks)
@@ -342,12 +344,14 @@ def main():
         report["splits"][split] = {"methods": methods, "registered_case_count": len(registered_cases), "predicted_case_count": len({row["case_id"] for row in split_records})}
     report["release_gate"] = apply_gates(report, read_json(args.gates))
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "metrics_report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_dir = args.output_dir or args.report_path.parent
+    report_path = args.report_path or output_dir / "metrics_report.json"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     for split, payload in report["splits"].items():
-        (args.output_dir / f"metrics_{split}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    write_failure_csv(args.output_dir / "failure_cases.csv", all_failures)
-    print(json.dumps({"report": str(args.output_dir / "metrics_report.json"), "failure_table": str(args.output_dir / "failure_cases.csv"), "release_ready": report["release_gate"]["release_ready"]}, ensure_ascii=False, indent=2))
+        (output_dir / f"metrics_{split}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_failure_csv(output_dir / "failure_cases.csv", all_failures)
+    print(json.dumps({"report": str(report_path), "failure_table": str(output_dir / "failure_cases.csv"), "release_ready": report["release_gate"]["release_ready"]}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

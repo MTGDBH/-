@@ -10,12 +10,16 @@
     },
     {
       "dataset_split": "blind",
+      "collection_name": "blind_internal",
+      "recommended_minimum_cases": 100,
       "source": "cases/blind.json",
       "loader": "unified_case",
       "release_role": "blind_validation"
     },
     {
       "dataset_split": "external",
+      "collection_name": "external_clinician",
+      "recommended_minimum_cases": 50,
       "source": "cases/external.json",
       "loader": "unified_case",
       "release_role": "external_validation"

@@ -24,11 +24,13 @@
 
 ## blind
 
-使用同一指标表，并补充引用支持率、个性化有效率、证据删除反事实适当率、无关记录鲁棒率、攻击抵抗率。不得与其他 split 合并。
+状态：`not_collected / collected_unsealed / sealed_not_run / evaluated`。样本不足 100 时必须醒目标记。使用同一指标表，并补充引用支持率、个性化有效率、证据删除反事实适当率、无关记录鲁棒率、攻击抵抗率。不得与其他 split 合并。
 
 ## external
 
-使用同一指标表。说明数据来源机构、独立性、纳排标准、标注者和裁决流程。不得与其他 split 合并。
+状态：`not_collected / collected_unsealed / sealed_not_run / evaluated`。样本不足 50 时必须醒目标记。使用同一指标表。说明数据来源机构、独立性、纳排标准、匿名标注者和裁决流程。不得与其他 split 合并。
+
+若 blind/external 尚未真实收集，所有指标填写 `NA`，不得用 regression_internal、AI 标注或示例数据代填。
 
 ## 失败案例
 

@@ -9,6 +9,9 @@ ml/models/
 private-artifacts/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
 
 # ===== 环境变量（保留 .env.example 模板）=====
 .env

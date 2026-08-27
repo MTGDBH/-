@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 
 from curve_models import MODEL_SPECS
-from forecast_selection import _seasonal_reliability, fit_predict
+from forecast_selection import _seasonal_reliability, finite_sample_quantile, fit_predict
 from health_curve import analyze
 
 
@@ -31,9 +31,33 @@ if result['forecast']['available']:
 
 flat = [{'t': (start + timedelta(days=i)).isoformat(), 'v': 128.0,
          'condition': 'morning_rest'} for i in range(56)]
-refused = analyze('systo', 'mmHg', flat, forecast_days=7)
-assert refused['forecast']['available'] is False
-assert any(reason['reason_code'] == 'BASELINE_NOT_BEATEN' for reason in refused['forecast']['reasons'])
+stable = analyze('systo', 'mmHg', flat, forecast_days=7)
+assert stable['forecast']['available'] is True
+assert stable['forecast']['model'] in {'last_value', 'rolling_median'}
+
+finite = finite_sample_quantile([1, 2, 3, 4], 0.80)
+assert finite['q'] == 4 and finite['rank'] == 4 and finite['finite_sample_valid'] is True
+assert finite_sample_quantile([1, 2, 3], 0.80)['finite_sample_valid'] is False
+assert stable['forecast']['calibration_status'] == 'finite_sample_rolling_residual_conformal'
+assert stable['forecast']['calibration_leakage_check']['pass'] is True
+
+# Multiple seeds exercise the order-statistic logic without tuning to one fixture.
+coverages = []
+for seed in (7, 42, 101):
+    rng = np.random.default_rng(seed)
+    covered = 0
+    for _ in range(1200):
+        calibration = np.abs(rng.normal(size=9))
+        q = finite_sample_quantile(calibration, 0.80)['q']
+        covered += abs(rng.normal()) <= q
+    coverages.append(covered / 1200)
+assert all(0.75 <= value <= 0.85 for value in coverages), coverages
+
+volatile = [{'t': (start + timedelta(days=i)).isoformat(), 'v': 128 + (-1) ** i * (18 + i % 5),
+             'condition': 'morning_rest'} for i in range(56)]
+volatile_result = analyze('systo', 'mmHg', volatile, forecast_days=7)
+assert volatile_result['forecast']['available'] is False
+assert any(reason['reason_code'] == 'HIGH_RECENT_VOLATILITY' for reason in volatile_result['forecast']['reasons'])
 
 seasonal_x = np.arange(42, dtype=float)
 seasonal_y = 100 + 10 * np.sin(2 * np.pi * seasonal_x / 7)

@@ -69,7 +69,11 @@ def canonical_measurement_group(metric, row):
         return 'weight:morning_similar_clothing' if morning and similar else 'weight:other_or_unknown'
     if metric in {'systo', 'diasto'}:
         posture = text('posture')
-        period = text('measurement_period')
+        # The external longitudinal schema names the protocol condition
+        # (morning_rest/evening_rest/other) in ``condition``.  Preserve it in
+        # the grouping key when a separate measurement_period is unavailable;
+        # otherwise morning and evening measurements would be mixed.
+        period = text('measurement_period', condition)
         device = text('device_source', text('source'))
         repeat = text('repeat_status')
         if condition != 'unknown' and all(value == 'unknown' for value in (posture, period, device, repeat)):

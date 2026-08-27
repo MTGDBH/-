@@ -1,87 +1,75 @@
-"""Generate a clinician review packet without changing medical review statuses.
-
-The packet is deliberately a blank review form: AI pre-review can help triage,
-but it never becomes clinical approval.  A clinician must complete the decision
-fields before a high-risk relationship is eligible for deterministic advice.
-"""
-
+#!/usr/bin/env python3
+"""Generate a 90-row clinician review packet without filling reviewer decisions."""
 from __future__ import annotations
 
+import argparse
+import csv
 import json
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-MANIFEST = ROOT / "output" / "relation_review_manifest.json"
-PRE_REVIEW = ROOT / "output" / "medical_pre_review.json"
-OUT = ROOT.parent / "reports" / "clinician-review-packet-20260821.md"
+OUTPUT = ROOT / "output"
+DATA_GAP = "[MISSING_SOURCE_METADATA: must be completed from the primary source before approval]"
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
-def main() -> None:
-    payload = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    relations = payload.get("relations", [])
-    pre_payload = json.loads(PRE_REVIEW.read_text(encoding="utf-8")) if PRE_REVIEW.exists() else {}
-    pre_by_index = {r.get("relation_index"): r for r in pre_payload.get("relations", [])}
-    pending = [r for r in relations if r.get("review_status") == "pending_medical_review"]
-    pending.sort(key=lambda r: (r.get("source", ""), r.get("target", ""), r.get("relation_index", 0)))
-
-    lines = [
-        "# GraphRAG 高风险关系医学审核包（待签署）",
-        "",
-        f"- 索引版本：`{payload.get('index_version', 'unknown')}`",
-        f"- 生成日期：`{payload.get('generated_at', 'unknown')}`",
-        f"- 待审核关系数：**{len(pending)}**",
-        "- 用途：供老年医学/全科/慢病管理专业人员逐条审核；本文件不会自动改变系统中的 `review_status`。",
-        "",
-        "> 审核规则：未完成医学审核的高风险关系不得在老人端生成确定性诊断、用药调整或急症处置建议。AI 预审结果仅用于分流，不等同于医生批准。",
-        "",
-        "## 审核汇总",
-        "",
-        "| 关系索引 | 来源节点 | 目标节点 | 关系类型 | 强度 | 证据等级 | 原始状态 | AI预审 | 医生结论 | 医生签名/日期 |",
-        "|---:|---|---|---|---|---|---|---|---|---|",
-    ]
-    for r in pending:
-        ai = pre_by_index.get(r.get("relation_index"), {}).get("ai_review_opinion", {})
-        ai_status = pre_by_index.get(r.get("relation_index"), {}).get("ai_pre_review_status", "未记录")
-        ai_decision = f"{ai_status}; {ai.get('decision_label', '未记录')}"
-        lines.append(
-            f"| {r.get('relation_index', '')} | `{r.get('source', '')}` | `{r.get('target', '')}` | `{r.get('type', '')}` | {r.get('strength', '')} | {r.get('evidence_level', '')} | `{r.get('review_status', '')}` | {ai_decision} |  |  |"
-        )
-
-    lines += ["", "## 逐条审核记录", ""]
-    for i, r in enumerate(pending, 1):
-        pre = pre_by_index.get(r.get("relation_index"), {})
-        ai = pre.get("ai_review_opinion", {}) if isinstance(pre, dict) else {}
-        lines += [
-            f"### {i}. 关系 #{r.get('relation_index', '')}",
-            "",
-            f"- **关系**：`{r.get('source', '')}` → `{r.get('target', '')}`",
-            f"- **类型/强度**：`{r.get('type', '')}` / `{r.get('strength', '')}`",
-            f"- **证据**：`{r.get('evidence', '')}`",
-            f"- **证据等级**：`{r.get('evidence_level', '')}`",
-            f"- **原始审核状态**：`{r.get('review_status', '')}`",
-            f"- **AI 预审状态**：{pre.get('ai_pre_review_status', '未记录')}",
-            f"- **AI 预审意见**：{ai.get('decision_label', '未记录')}",
-            f"- **AI 预审允许表达**：{ai.get('allowed_expression', '未记录')}",
-            f"- **AI 预审禁止表达**：{ai.get('forbidden_expression', '未记录')}",
-            "",
-            "#### 医学审核（由医生填写）",
-            "",
-            "- 结论：□ 通过  □ 限定条件通过  □ 退回修改  □ 拒绝",
-            "- 适用人群/限制条件：",
-            "- 可用于老人端的表达：",
-            "- 必须屏蔽的表达或行动：",
-            "- 是否需要复测/就医边界：",
-            "- 审核人：",
-            "- 执业信息/机构：",
-            "- 审核日期：",
-            "- 签名：",
-            "",
-        ]
-
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text("\n".join(lines), encoding="utf-8")
-    print(json.dumps({"output": str(OUT), "pending": len(pending)}, ensure_ascii=False))
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--manifest", type=Path, default=OUTPUT / "relation_review_manifest.json")
+    parser.add_argument("--relationships", type=Path, default=OUTPUT / "relationships.json")
+    parser.add_argument("--chunks", type=Path, default=OUTPUT / "chunks.json")
+    parser.add_argument("--source-manifest", type=Path, default=OUTPUT / "source_manifest.json")
+    parser.add_argument("--output-dir", required=True, type=Path)
+    args = parser.parse_args()
+    manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
+    relationships = json.loads(args.relationships.read_text(encoding="utf-8"))
+    chunks = {row["id"]: row for row in json.loads(args.chunks.read_text(encoding="utf-8"))}
+    sources = json.loads(args.source_manifest.read_text(encoding="utf-8")).get("sources", [])
+    source_by_key = {}
+    for source in sources:
+        for key in (source.get("file"), source.get("source_id"), f"registry:{source.get('source_id')}"):
+            if key:
+                source_by_key[str(key)] = source
+    rows = []
+    for review in manifest.get("relations", []):
+        index = int(review["relation_index"])
+        relation = relationships[index]
+        chunk = chunks.get(relation.get("chunk_id"), {})
+        source = source_by_key.get(str(chunk.get("source")), {})
+        opinion = review.get("ai_review_opinion") or {}
+        rows.append({
+            "relation_index": index, "source": review.get("source"), "type": review.get("type"), "target": review.get("target"),
+            "relation_direction": f"{review.get('source')} -> {review.get('target')}",
+            "causal_wording": relation.get("causal_status") or "unspecified_requires_review",
+            "strength": review.get("strength"), "evidence": review.get("evidence"), "evidence_level": review.get("evidence_level"),
+            "source_excerpt": chunk.get("text") or DATA_GAP,
+            "source_url": relation.get("source_url") or chunk.get("source_url") or source.get("source_url") or DATA_GAP,
+            "source_version": chunk.get("source_version") or source.get("version") or DATA_GAP,
+            "publication_date": str(chunk.get("publication_year") or source.get("publication_year") or DATA_GAP),
+            "publication_date_precision": "year" if chunk.get("publication_year") or source.get("publication_year") else "unknown",
+            "applicable_population": relation.get("population") or source.get("population") or DATA_GAP,
+            "limitations": source.get("limitations") or "",
+            "proposed_allowed_expression": opinion.get("allowed_expression") or "使用相关/可能/需结合复测与医生评估等非确定性表述。",
+            "proposed_forbidden_expression": opinion.get("forbidden_expression") or "不得声称确诊、必然因果、具体用药剂量或保证疗效。",
+            "wording_status": "draft_not_clinician_approved",
+            "decision": "", "revision_text": "", "reviewer_id": "", "reviewer_role": "", "reviewed_at": "", "review_version": "", "rationale": "",
+        })
+    if len(rows) != 90:
+        raise SystemExit(f"expected 90 high-risk relations, found {len(rows)}")
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = args.output_dir / "high_risk_relation_review.json"
+    csv_path = args.output_dir / "high_risk_relation_review.csv"
+    json_path.write_text(json.dumps({"schema_version": "clinician-relation-review-package.v1", "status": "pending_medical_review", "reviewed_relations": 0, "approved": 0, "policy": "Draft wording is not clinician approval. Reviewer identity fields and decisions are intentionally blank.", "relations": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
+    with csv_path.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader(); writer.writerows(rows)
+    guide = ["# 高风险关系医生审核包", "", f"待审核关系：{len(rows)}；已审核：0；approved：0。", "", "> 本包由现有证据和 pending 清单机械生成。建议表述不是医生意见，不能自动转为 approved。", "", "审核人逐条核对原文、URL、版本、发布日期/年份、适用人群、关系方向和因果口径后，填写 `decision=approve|reject|revise`。决定不为空时必须填写匿名 `reviewer_id`、`reviewer_role`、ISO-8601 `reviewed_at`、`review_version` 和 `rationale`；`revise` 还必须填写 `revision_text`。", "", "不得填写虚假姓名、机构、签字或日期。身份映射保存在受控系统，不进入公开仓库。"]
+    (args.output_dir / "README.md").write_text("\n".join(guide) + "\n", encoding="utf-8")
+    print(json.dumps({"relations": len(rows), "approved": 0, "csv": str(csv_path), "json": str(json_path)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ from curve_utils import (
     condition_is_forecast_ready, local_day,
 )
 from forecast_selection import (
-    SUPPORTED_HORIZONS, fit_predict, rolling_origin_select, select_post_change_segment,
+    SUPPORTED_HORIZONS, conformal_candidates, finite_sample_quantile, fit_predict,
+    rolling_origin_select, select_post_change_segment,
 )
 
 MIN_TREND_DAYS = 7
@@ -136,7 +137,7 @@ def _metrics(actual, predicted, scale):
     rmse = float(np.sqrt(np.mean(errors ** 2))) if len(errors) else None
     bias = float(np.mean(errors)) if len(errors) else None
     denom = max(float(scale), 1e-9)
-    interval_q80 = float(np.quantile(np.abs(errors), 0.80)) if len(errors) else None
+    interval_q80 = finite_sample_quantile(errors, 0.80)['q'] if len(errors) else None
     interval_coverage = float(np.mean(np.abs(errors) <= interval_q80)) if len(errors) else None
     r2 = None
     if len(actual) > 1:
@@ -235,7 +236,7 @@ def _reason_message(reasons):
 
 
 def analyze(metric, unit, points, forecast_days=7, condition_group=None, population_prior=None,
-            selection_options=None, interval_method='horizon_specific_split_conformal'):
+            selection_options=None, interval_method='lead_time_scaled_pooled'):
     requested_raw = int(max(1, min(30, int(forecast_days or 7))))
     requested = max(value for value in SUPPORTED_HORIZONS if value <= min(requested_raw, 14))
     policy = METRIC_POLICIES.get(metric, {})
@@ -269,6 +270,7 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
         }
     clean_rows, clean_meta = pipeline.fit_transform(raw_rows)
     requested_selection_options = dict(selection_options or {})
+    precomputed_backtest = requested_selection_options.pop('_precomputed_backtest', None)
     if not requested_selection_options.get('anomaly_handling', True):
         bounds_for_ablation = MEDICAL_BOUNDS.get(metric)
         clean_rows = [row for row in deduped if not bounds_for_ablation or bounds_for_ablation[0] <= row['v'] <= bounds_for_ablation[1]]
@@ -335,18 +337,21 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
             else:
                 population_prior_status = {'enabled': True, 'reason': None, 'version': population_prior['version']}
     selection_options['population_prior'] = population_prior
-    backtest = _backtest(raw_rows, metric, policy.get('aggregate', 'median'), **selection_options) if len(y) >= 12 else None
+    backtest = precomputed_backtest or (_backtest(raw_rows, metric, policy.get('aggregate', 'median'), **selection_options) if len(y) >= 12 else None)
     horizon_results = backtest.get('horizons', {}) if backtest else {}
     horizon_decisions = {}
     for key, value in horizon_results.items():
         horizon_residuals = np.abs(np.asarray(value.get('calibration_residuals') or [], dtype=float))
-        horizon_q = float(np.quantile(horizon_residuals, 0.80)) if len(horizon_residuals) else None
+        horizon_quantile = finite_sample_quantile(horizon_residuals, 0.80)
+        horizon_q = horizon_quantile['q']
         horizon_decisions[key] = {
             'model': value.get('selected'), 'decision': value.get('decision'), 'reason': value.get('reason'),
+            'model_not_beat_baseline': value.get('model_not_beat_baseline', False),
             'score': value.get('scores', {}).get(value.get('selected')),
             'best_baseline': value.get('best_baseline'), 'calibration_n': int(len(horizon_residuals)),
             'interval_coverage': round(float(np.mean(horizon_residuals <= horizon_q)), 4) if horizon_q is not None else None,
             'mean_interval_width_unbounded': round(2.0 * horizon_q, 4) if horizon_q is not None else None,
+            'finite_sample_quantile': horizon_quantile,
         }
     selected = horizon_results.get(str(requested), {}).get('selected')
     score = horizon_results.get(str(requested), {}).get('scores', {}).get(selected) if selected else None
@@ -363,30 +368,43 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
     requested_result = horizon_results.get(str(requested), {})
     calibration_residuals = np.asarray(requested_result.get('calibration_residuals') or [], dtype=float)
     required_buckets = [value for value in SUPPORTED_HORIZONS if value <= requested]
-    all_bucket_ready = all(
-        horizon_results.get(str(value), {}).get('selected') and
-        len(horizon_results.get(str(value), {}).get('calibration_residuals') or []) >= 4
-        for value in required_buckets
-    )
+    all_model_buckets_ready = all(horizon_results.get(str(value), {}).get('selected') for value in required_buckets)
+    method_aliases = {
+        'horizon_specific_split_conformal': 'horizon_specific',
+        'pooled_split_conformal': 'pooled',
+        'lead_time_scaled_pooled': 'lead_time_scaled_pooled',
+        'block_conformal': 'block_conformal',
+    }
+    strategy_key = method_aliases.get(interval_method, interval_method)
+    calibration_plan = {
+        step: conformal_candidates(horizon_results, step, coverage=0.80)
+        for step in range(1, requested + 1)
+    } if horizon_results else {}
+    selected_calibrations = [plan.get(strategy_key, {}) for plan in calibration_plan.values()]
+    calibration_ready = bool(selected_calibrations) and all(row.get('finite_sample_valid') for row in selected_calibrations)
+    effective_calibration_n = min((int(row.get('n') or 0) for row in selected_calibrations), default=0)
+    maximum_margin = max((float(row.get('q')) for row in selected_calibrations if row.get('q') is not None), default=float('inf'))
+    interval_limit = max(abs(float(np.median(y))) * 0.20, 1.0)
     available = bool(
         metric in FORECASTABLE_METRICS and horizon > 0 and selected and score and fluct != 'high' and
         int(score.get('origin_folds') or 0) >= 3 and
-        len(calibration_residuals) >= 4 and all_bucket_ready and
-        float(np.quantile(np.abs(calibration_residuals), 0.80)) <= max(abs(float(np.median(y))) * 0.20, 1.0) and
+        all_model_buckets_ready and calibration_ready and maximum_margin <= interval_limit and
         condition_ready
     )
     if metric in FORECASTABLE_METRICS and requested_raw > 14:
         reasons = [_reason('MAXIMUM_HORIZON_14_DAYS', '个体曲线经稳定性约束后最多外推14天；不提供30天精确日值')]
         available = False
     elif not available:
-        reasons = _forecast_reasons(metric, len(y), span, requested, policy, fluct, selected, condition_ready, len(calibration_residuals))
-        if not all_bucket_ready and metric in FORECASTABLE_METRICS:
-            reasons.append(_reason('HORIZON_BUCKET_NOT_READY', '至少一个较短预测窗口缺少稳定优于双基线的模型或独立校准残差'))
+        reasons = _forecast_reasons(metric, len(y), span, requested, policy, fluct, selected, condition_ready, effective_calibration_n)
+        if not all_model_buckets_ready and metric in FORECASTABLE_METRICS:
+            reasons.append(_reason('MODEL_NOT_BEAT_BASELINE', '至少一个预测步长没有可用模型；模型选择失败与校准不足分别报告'))
+        if not calibration_ready and metric in FORECASTABLE_METRICS:
+            reasons.append(_reason('INSUFFICIENT_CALIBRATION_RESIDUALS', f'{strategy_key} 有限样本校准不足（最少{effective_calibration_n}个分数）'))
         if horizon == 0 and metric in FORECASTABLE_METRICS:
             reasons.append(_reason('FORECAST_GATE_NOT_MET', f'预测门槛未满足：当前{len(y)}个有效日、跨度{span:.1f}天'))
         if requested_result.get('decision') == 'trend_only':
-            reasons.append(_reason('BASELINE_NOT_BEATEN', '没有候选模型在该预测窗口稳定优于 last_value/rolling_median'))
-        if len(calibration_residuals) >= 4 and float(np.quantile(np.abs(calibration_residuals), 0.80)) > max(abs(float(np.median(y))) * 0.20, 1.0):
+            reasons.append(_reason('MODEL_NOT_BEAT_BASELINE', '没有候选模型形成稳定预测；此原因不代表校准不足'))
+        if calibration_ready and maximum_margin > interval_limit:
             reasons.append(_reason('CALIBRATION_INTERVAL_TOO_WIDE', '独立校准集得到的预测区间过宽'))
     else:
         reasons = []
@@ -398,9 +416,22 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
         'reason': reason, 'reason_code': primary_reason['reason_code'], 'message': primary_reason['message'], 'reasons': reasons,
         'note': '模型估计范围，不代表真实未来，也不是医学诊断', 'coverage_target': 0.80,
         'horizon_models': horizon_decisions, 'requested_horizon_days': requested_raw,
+        'interval_candidates': calibration_plan.get(requested, {}),
+        'calibration_n': effective_calibration_n,
         'calibration_status': 'not_available', 'curve': {'timestamps': [], 'predicted': [], 'lower': [], 'upper': []},
         'boundary_hit': False, 'boundary_hit_indices': [], 'unclipped_prediction': [],
         'safety_message': None, 'display_policy': 'unclipped_when_within_bounds_else_clipped_with_warning',
+    }
+    calibration_targets = [
+        row.get('target_day') for item in horizon_results.values()
+        for row in item.get('calibration_fold_audit', []) if row.get('target_day')
+    ]
+    last_observed_day = clean_rows[-1]['local_day']
+    forecast['calibration_leakage_check'] = {
+        'pass': all(day <= last_observed_day for day in calibration_targets),
+        'last_observed_day': last_observed_day,
+        'max_calibration_target_day': max(calibration_targets) if calibration_targets else None,
+        'policy': 'all selection and calibration targets must be observed no later than the forecast origin',
     }
     if available:
         steps = np.arange(1, horizon + 1, dtype=float)
@@ -409,16 +440,11 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
             bucket = min(value for value in SUPPORTED_HORIZONS if value >= step)
             bucket_result = horizon_results.get(str(bucket), {})
             model_name = bucket_result.get('selected')
-            residuals = np.asarray(bucket_result.get('calibration_residuals') or calibration_residuals, dtype=float)
             pred = fit_predict(model_name, model_x, model_y, np.asarray([model_x[-1] + step]), population_prior)[0]
-            q = float(np.quantile(np.abs(residuals), 0.80))
-            if interval_method == 'gaussian_residual':
-                q = 1.2816 * float(np.std(residuals, ddof=1)) if len(residuals) > 1 else q
-            elif interval_method == 'pooled_split_conformal':
-                pooled = [residual for item in horizon_results.values() for residual in item.get('calibration_residuals', [])]
-                q = float(np.quantile(np.abs(pooled), 0.80)) if pooled else q
+            calibration = calibration_plan[int(step)][strategy_key]
+            q = float(calibration['q'])
             q = max(q, abs(float(np.median(model_y))) * 0.01, 1e-6)
-            prediction.append(float(pred)); margins.append(q * np.sqrt(1.0 + step / max(len(model_y), 1))); point_models.append(model_name)
+            prediction.append(float(pred)); margins.append(q); point_models.append(model_name)
         prediction, margins = np.asarray(prediction), np.asarray(margins)
         unclipped_prediction = prediction.copy()
         if bounds:
@@ -434,10 +460,10 @@ def analyze(metric, unit, points, forecast_days=7, condition_group=None, populat
             lower, upper = prediction - margins, prediction + margins
         future_ts = clean_rows[-1]['t'] + steps * 86400.0
         forecast['estimated_value'] = round(float(prediction[-1]), 2)
-        forecast['calibration_status'] = 'rolling_residual_conformal'
-        forecast['interval_method'] = interval_method
+        forecast['calibration_status'] = 'finite_sample_rolling_residual_conformal'
+        forecast['interval_method'] = strategy_key
         forecast['point_models'] = point_models
-        forecast['calibration_coverage'] = horizon_decisions[str(requested)]['interval_coverage']
+        forecast['calibration_coverage'] = selected_calibrations[-1].get('empirical_coverage')
         forecast['mean_interval_width'] = round(float(np.mean(upper - lower)), 4)
         forecast['unclipped_prediction'] = [round(float(value), 2) for value in unclipped_prediction]
         forecast['curve'] = {

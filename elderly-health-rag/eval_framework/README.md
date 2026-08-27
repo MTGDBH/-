@@ -2,6 +2,8 @@
 
 本目录把既有 `eval/golden_questions.json` 固定定义为 `regression_internal`。它只用于开发回归，不再被称为外部验证，也不得与 blind 或 external 的结果混合平均。真实 blind/external 数据必须由数据保管人独立写入 `cases/blind.json` 和 `cases/external.json`；仓库不伪造外部样本。
 
+当前状态：`regression_internal=61`、`blind=0`、`external=0`。独立数据仍是 `not_collected`，不能据此报告 blind/external 分数。完整收集、双标注、一致性、仲裁和冻结流程见 `COLLECTION_PROTOCOL.md`。
+
 ## 防泄漏原则
 
 1. 在运行待评方法前完成题目、qrel、可接受关系、禁断声明、紧急度和拒答标签的双人标注与裁决。

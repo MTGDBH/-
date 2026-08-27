@@ -14,16 +14,26 @@ AI 预审核数量和逐条意见以 `output/medical_pre_review.json` 为准。`
 
 ```text
 relation_index
-review_status: approved | rejected | pending_medical_review
-reviewer_name_or_id
+decision: approve | reject | revise
+reviewer_id（匿名、可追溯到受控身份映射）
 reviewer_role
 reviewed_at
-decision_rationale
+review_version
+rationale
 population_scope
 allowed_audience
 conditions_or_exceptions
 source_version_checked
 ```
+
+生成审核包不会生成审批结论：
+
+```powershell
+python generate_clinician_review_packet.py --output-dir eval_framework\review_packets\clinician_review_v1
+python validate_clinician_reviews.py eval_framework\review_packets\clinician_review_v1\high_risk_relation_review.csv
+```
+
+初始包必须显示 90 条 unsigned、approved=0，且 `reviewer_id`、`reviewer_role`、`reviewed_at`、`review_version` 全部为空。不得用 AI、开发人员或虚构医生身份补写这些字段。
 
 ## 审核准入规则
 

@@ -307,10 +307,15 @@ def tokenize(text):
     terms.update(han[i:i+2] for i in range(max(0, len(han)-1)))
     return terms
 
-def write_generated_index_stats(stats):
-    """Write one canonical stats artifact and refresh marked documentation blocks."""
+def write_generated_index_stats(stats, output_path=None, report_path=None, update_docs=False):
+    """Write stats to an explicit target; documentation updates are opt-in."""
+    output_dir = Path(output_path) if output_path else OUTPUT
     payload = {'schema_version': 'graphrag-index-stats.v1', 'generated_at': '2026-08-26', **stats}
-    (OUTPUT / 'index_stats.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+    target = Path(report_path) if report_path else output_dir / 'index_stats.json'
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+    if not update_docs:
+        return
     summary = (f"索引 `{stats['index_version']}`：{stats['sources']} 个可审计来源、"
                f"{stats['chunks']} 个分块、{stats['entities']} 个实体、"
                f"{stats['relationships']} 条关系、{stats['communities']} 个疾病社区、"
@@ -374,7 +379,8 @@ def apply_action_gates(items, gates_by_evidence):
         })
     return gated
 
-def build():
+def build(output_path=None, report_path=None, update_docs=False):
+    output_dir = Path(output_path) if output_path else OUTPUT
     chunks, entities, relationships = [], {}, []
     source_manifest = []
     invalid_relations = []
@@ -465,19 +471,19 @@ def build():
         relationships.append(rel)
     for ent in entities.values():
         ent['chunk_ids'] = sorted({r['chunk_id'] for r in relationships if r.get('chunk_id') and (r.get('target') == ent['id'] or r.get('source') == ent['id'])})
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    (OUTPUT/'chunks.json').write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding='utf-8')
-    (OUTPUT/'entities.json').write_text(json.dumps(list(entities.values()), ensure_ascii=False, indent=2), encoding='utf-8')
-    (OUTPUT/'relationships.json').write_text(json.dumps(relationships, ensure_ascii=False, indent=2), encoding='utf-8')
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir/'chunks.json').write_text(json.dumps(chunks, ensure_ascii=False, indent=2), encoding='utf-8')
+    (output_dir/'entities.json').write_text(json.dumps(list(entities.values()), ensure_ascii=False, indent=2), encoding='utf-8')
+    (output_dir/'relationships.json').write_text(json.dumps(relationships, ensure_ascii=False, indent=2), encoding='utf-8')
     hidden_relationships = discover_hidden_relationships(relationships)
-    (OUTPUT/'hidden_relationship_candidates.json').write_text(json.dumps({
+    (output_dir/'hidden_relationship_candidates.json').write_text(json.dumps({
         'schema_version': 'hidden-relationship-candidate.v1', 'index_version': INDEX_VERSION,
         'generated_at': '2026-08-26', 'candidate_count': len(hidden_relationships),
         'policy': '仅供医生或审计人员复核；两跳路径不得自动改写为因果或进入老人行动建议。',
         'candidates': hidden_relationships,
     }, ensure_ascii=False, indent=2), encoding='utf-8')
     evidence_conflicts = detect_evidence_conflicts(relationships)
-    (OUTPUT/'evidence_conflicts.json').write_text(json.dumps({
+    (output_dir/'evidence_conflicts.json').write_text(json.dumps({
         'schema_version': 'evidence-conflict.v1', 'index_version': INDEX_VERSION,
         'checked_relationships': len(relationships), 'conflict_count': len(evidence_conflicts),
         'conflicts': evidence_conflicts,
@@ -506,7 +512,7 @@ def build():
                 'conditions_or_exceptions': rel.get('conditions_or_exceptions'),
                 'source_version_checked': rel.get('source_version_checked'),
             })
-    (OUTPUT/'relation_review_manifest.json').write_text(json.dumps({
+    (output_dir/'relation_review_manifest.json').write_text(json.dumps({
         'schema_version': 'relation-review.v1', 'index_version': INDEX_VERSION,
         'generated_at': '2026-08-26', 'policy': 'high_strength_or_safety_relation',
         'statuses': {'pending_medical_review': sum(r['review_status'] == 'pending_medical_review' for r in review_rows),
@@ -518,7 +524,7 @@ def build():
     for disease in DISEASE_ALIASES:
         ids = [e['id'] for e in entities.values() if e['id'] == f'disease:{disease}' or e['id'] in {r['target'] for r in relationships if r['source'] == f'disease:{disease}'}]
         communities.append({'id': f'community:{disease}', 'disease': disease, 'entity_ids': sorted(ids), 'entity_count': len(ids), 'chunk_count': len([c for c in chunks if c['disease'] == disease])})
-    (OUTPUT/'communities.json').write_text(json.dumps(communities, ensure_ascii=False, indent=2), encoding='utf-8')
+    (output_dir/'communities.json').write_text(json.dumps(communities, ensure_ascii=False, indent=2), encoding='utf-8')
     for record in curated_source_registry():
         source_manifest.append({'file': f"registry:{record['source_id']}", 'source_id': record['source_id'],
                                 'sha256': hashlib.sha256(json.dumps(record, ensure_ascii=False, sort_keys=True).encode('utf-8')).hexdigest(),
@@ -530,9 +536,9 @@ def build():
                                 'limitations': record.get('limitations', '来源摘要，不能替代原文或个体医学判断。'),
                                 'retrieved_at': record.get('retrieved_at', '2026-08-23'),
                                 'index_version': INDEX_VERSION})
-    (OUTPUT/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-26', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
+    (output_dir/'source_manifest.json').write_text(json.dumps({'index_version': INDEX_VERSION, 'generated_at': '2026-08-26', 'sources': source_manifest, 'invalid_relations': invalid_relations}, ensure_ascii=False, indent=2), encoding='utf-8')
     stats = {'index_version': INDEX_VERSION, 'chunks': len(chunks), 'entities': len(entities), 'relationships': len(relationships), 'hidden_relationship_candidates': len(hidden_relationships), 'communities': len(communities), 'sources': len(source_manifest), 'invalid_relations': len(invalid_relations)}
-    write_generated_index_stats(stats)
+    write_generated_index_stats(stats, output_dir, report_path, update_docs)
     return stats
 
 def build_retrieval_index(vector_model='hashing_char_ngram_v1', output_path=None):
@@ -543,9 +549,11 @@ def build_retrieval_index(vector_model='hashing_char_ngram_v1', output_path=None
     return {'index_version': INDEX_VERSION, 'stage': 'dense_vector', **result}
 
 def query(question, disease=None, top_k=4, options=None):
-    if not (OUTPUT/'chunks.json').exists(): build()
-    chunks = json.loads((OUTPUT/'chunks.json').read_text(encoding='utf-8'))
-    source_manifest = json.loads((OUTPUT/'source_manifest.json').read_text(encoding='utf-8')) if (OUTPUT/'source_manifest.json').exists() else {'sources': []}
+    options = options or {}
+    output_dir = Path(options.get('output_path') or os.environ.get('GRAPHRAG_OUTPUT_PATH') or OUTPUT)
+    if not (output_dir/'chunks.json').exists(): build(output_dir)
+    chunks = json.loads((output_dir/'chunks.json').read_text(encoding='utf-8'))
+    source_manifest = json.loads((output_dir/'source_manifest.json').read_text(encoding='utf-8')) if (output_dir/'source_manifest.json').exists() else {'sources': []}
     source_status_by_key = {}
     source_metadata_by_key = {}
     for source in source_manifest.get('sources', []):
@@ -562,13 +570,13 @@ def query(question, disease=None, top_k=4, options=None):
             source_version=chunk.get('source_version') or metadata.get('version'),
             retrieved_at=chunk.get('retrieved_at') or metadata.get('retrieved_at')))
     chunks = enriched_chunks
-    relationships = json.loads((OUTPUT/'relationships.json').read_text(encoding='utf-8')) if (OUTPUT/'relationships.json').exists() else []
+    relationships = json.loads((output_dir/'relationships.json').read_text(encoding='utf-8')) if (output_dir/'relationships.json').exists() else []
     relationships = [dict(row, _relation_index=index) for index, row in enumerate(relationships)]
-    evidence_conflicts = json.loads((OUTPUT/'evidence_conflicts.json').read_text(encoding='utf-8')) if (OUTPUT/'evidence_conflicts.json').exists() else {'conflicts': []}
-    medical_pre_review = json.loads((OUTPUT/'medical_pre_review.json').read_text(encoding='utf-8')) if (OUTPUT/'medical_pre_review.json').exists() else {'relations': [], 'counts': {}}
-    hidden_manifest = json.loads((OUTPUT/'hidden_relationship_candidates.json').read_text(encoding='utf-8')) if (OUTPUT/'hidden_relationship_candidates.json').exists() else {'candidates': []}
+    evidence_conflicts = json.loads((output_dir/'evidence_conflicts.json').read_text(encoding='utf-8')) if (output_dir/'evidence_conflicts.json').exists() else {'conflicts': []}
+    medical_pre_review = json.loads((output_dir/'medical_pre_review.json').read_text(encoding='utf-8')) if (output_dir/'medical_pre_review.json').exists() else {'relations': [], 'counts': {}}
+    hidden_manifest = json.loads((output_dir/'hidden_relationship_candidates.json').read_text(encoding='utf-8')) if (output_dir/'hidden_relationship_candidates.json').exists() else {'candidates': []}
     pre_review_by_index = {row.get('relation_index'): row for row in medical_pre_review.get('relations', [])}
-    entities = {e['id']: e for e in json.loads((OUTPUT/'entities.json').read_text(encoding='utf-8'))} if (OUTPUT/'entities.json').exists() else {}
+    entities = {e['id']: e for e in json.loads((output_dir/'entities.json').read_text(encoding='utf-8'))} if (output_dir/'entities.json').exists() else {}
     qtokens = tokenize(question)
     aliases = set(DISEASE_ALIASES.get(disease or '', []))
     graph_seeds = {f'disease:{disease}'} if disease else set()
@@ -655,7 +663,7 @@ def query(question, disease=None, top_k=4, options=None):
         retrieval_chunks.append(c)
     requested_backend = str(options.get('backend', 'local_hybrid') or 'local_hybrid')
     vector_model = str(options.get('vector_model') or os.environ.get('GRAPHRAG_VECTOR_MODEL') or 'disabled')
-    vector_index = options.get('vector_index') or os.environ.get('GRAPHRAG_VECTOR_INDEX') or str(OUTPUT / 'dense_index.json')
+    vector_index = options.get('vector_index') or os.environ.get('GRAPHRAG_VECTOR_INDEX') or str(output_dir / 'dense_index.json')
     reranker_model = str(options.get('reranker_model') or os.environ.get('GRAPHRAG_RERANKER_MODEL') or 'disabled')
     backend_stages = {
         'bm25': (True, False, False, False),
@@ -1023,12 +1031,15 @@ def main():
         except Exception as exc:
             print(json.dumps({'success': False, 'error': type(exc).__name__}, ensure_ascii=False)); return
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
-    sub.add_parser('build')
+    build_parser = sub.add_parser('build')
+    build_parser.add_argument('--output-path')
+    build_parser.add_argument('--report-path')
+    build_parser.add_argument('--update-docs', action='store_true')
     dense = sub.add_parser('build-retrieval-index')
     dense.add_argument('--vector-model', default='hashing_char_ngram_v1')
     dense.add_argument('--output')
     q = sub.add_parser('query'); q.add_argument('--question', required=True); q.add_argument('--disease')
     args = ap.parse_args()
-    out = build() if args.cmd == 'build' else build_retrieval_index(args.vector_model, args.output) if args.cmd == 'build-retrieval-index' else query(args.question, args.disease)
+    out = build(args.output_path, args.report_path, args.update_docs) if args.cmd == 'build' else build_retrieval_index(args.vector_model, args.output) if args.cmd == 'build-retrieval-index' else query(args.question, args.disease)
     print(json.dumps(out, ensure_ascii=False))
 if __name__ == '__main__': main()

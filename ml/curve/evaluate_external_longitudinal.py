@@ -18,10 +18,12 @@ import pandas as pd
 
 from curve_utils import canonical_measurement_group, local_day
 from health_curve import analyze
+from freeze_external_split import validate_freeze
 from leakage_safe_split import validate_manifest
 from participant_bootstrap import aggregate_contributions, participant_bootstrap
 from subgroup_fairness import macro_summary, subgroup_report
 from validate_external_dataset import SCHEMA, validate
+from validate_external_preregistration import validate_preregistration
 
 ROOT = Path(__file__).resolve().parents[2]
 SECTION_MAP = {'validation': 'internal_validation', 'temporal_test': 'temporal_test',
@@ -95,6 +97,7 @@ def evaluate_series(frame, horizon, min_history=28):
         future = frame[(frame['local_day'] > origin_day) & (frame['local_day'] <= window_end)]
         meta = _metadata(frame)
         base = {**meta, 'metric': metric, 'unit': unit, 'measurement_group': condition_group,
+                'condition': str(frame.iloc[0]['condition']),
                 'horizon': horizon, 'origin_day': origin_day, 'window_end_day': window_end,
                 'history_last_day': str(history['local_day'].max()),
                 'preprocessing_fit_end': origin_day, 'future_rows_available': int(len(future))}
@@ -252,14 +255,63 @@ def drift_report(reference, target):
     }
 
 
+def primary_advantage_analysis(section, preregistration, bootstrap_replicates):
+    primary = preregistration['primary_analysis']
+    rows = [row for row in section.get('windows', [])
+            if row.get('metric') == primary['metric']
+            and int(row.get('horizon') or -1) == int(primary['horizon_days'])
+            and row.get('condition') == primary['measurement_condition']]
+    micro = aggregate_contributions(rows)
+    participant_macro = macro_summary(rows, 'participant_id')
+    bootstrap = participant_bootstrap(rows, bootstrap_replicates)
+    delta_fields = ('mae_delta_vs_last_value', 'mae_delta_vs_rolling_median')
+    ci_pass = all(bootstrap['metrics'][field].get('upper') is not None
+                  and bootstrap['metrics'][field]['upper'] < 0 for field in delta_fields)
+    macro_pass = all(participant_macro.get(field) is not None
+                     and participant_macro[field] < 0 for field in delta_fields)
+    proven = bool(rows) and ci_pass and macro_pass
+    return {
+        'definition': primary,
+        'eligible_windows': len(rows),
+        'participants': len({str(row['participant_id']) for row in rows}),
+        'micro': micro,
+        'participant_macro': participant_macro,
+        'participant_bootstrap_ci': bootstrap,
+        'coverage_target': preregistration['intervals']['coverage_target'],
+        'coverage_target_met': micro.get('coverage') is not None
+                               and micro['coverage'] >= preregistration['intervals']['coverage_target'],
+        'superiority_checks': {
+            'both_participant_bootstrap_delta_ci_upper_below_zero': ci_pass,
+            'both_participant_macro_mae_deltas_below_zero': macro_pass,
+        },
+        'conclusion': '达到预注册的工程优势判据（仍非临床有效性证明）' if proven else '未证明优势',
+    }
+
+
 def _fmt(value):
     return 'NA' if value is None else f'{value:.4f}'
 
 
 def render_markdown(report):
+    primary = report.get('primary_analysis', {})
+    primary_conclusion = primary.get('conclusion', '未证明优势')
     lines = ['# 真实老人纵向曲线外部验证结果', '',
              f"数据类别：`{report['data_class']}`", '',
-             '> 本报告只呈现实际输入数据产生的结果；NA 表示尚无可评估数据或事件，不进行填充。', '',
+             f"主要结论：**{primary_conclusion}**。", '',
+             '> 本报告只呈现实际输入数据产生的结果；NA 表示尚无可评估数据或事件，不进行填充。', '']
+    if primary.get('micro'):
+        metric = primary['micro']
+        ci_metrics = primary['participant_bootstrap_ci']['metrics']
+        last_ci = ci_metrics['mae_delta_vs_last_value']
+        median_ci = ci_metrics['mae_delta_vs_rolling_median']
+        lines += ['## 预注册主要分析', '',
+                  '| 参与者 | 窗口 | MAE | Last-value MAE | ΔMAE vs last (95% CI) | Rolling-median MAE | ΔMAE vs median (95% CI) | Coverage/target |',
+                  '|---:|---:|---:|---:|---|---:|---|---|',
+                  f"| {primary['participants']} | {primary['eligible_windows']} | {_fmt(metric['mae'])} | {_fmt(metric['last_value_mae'])} | "
+                  f"{_fmt(metric['mae_delta_vs_last_value'])} ({_fmt(last_ci['lower'])}, {_fmt(last_ci['upper'])}) | "
+                  f"{_fmt(metric['rolling_median_mae'])} | {_fmt(metric['mae_delta_vs_rolling_median'])} "
+                  f"({_fmt(median_ci['lower'])}, {_fmt(median_ci['upper'])}) | {_fmt(metric['coverage'])}/{_fmt(primary['coverage_target'])} |", '']
+    lines += [
              '| 评测层级 | 状态 | 参与者 | MAE | RMSE | MASE | Coverage | Interval width | Bias | Refusal rate | Baseline win rate | Last-value MAE | Rolling-median MAE | Boundary sensitivity |',
              '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
     for section_name in ('synthetic_dry_run', 'internal_validation', 'temporal_test', 'external_site_test'):
@@ -306,6 +358,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('csv', type=Path)
     parser.add_argument('--manifest', type=Path, required=True)
+    parser.add_argument('--preregistration', type=Path, required=True)
+    parser.add_argument('--freeze-record', type=Path, required=True)
     parser.add_argument('--out-json', type=Path, required=True)
     parser.add_argument('--out-md', type=Path, required=True)
     parser.add_argument('--horizons', default='1,3,7,14')
@@ -315,12 +369,38 @@ def main():
     quality = validate(args.csv)
     if not quality['valid']:
         raise SystemExit(f'dataset validation failed: {quality["errors"][:20]}')
+    pilot_gate_failures = []
+    gates = SCHEMA['quality_gates']
+    if quality['participants'] < gates['engineering_pilot_participants']:
+        pilot_gate_failures.append(f'participants={quality["participants"]} < {gates["engineering_pilot_participants"]}')
+    if quality['sites'] < gates['minimum_sites_for_external_holdout']:
+        pilot_gate_failures.append(f'sites={quality["sites"]} < {gates["minimum_sites_for_external_holdout"]}')
+    if quality['span_days'] < gates['minimum_span_days']:
+        pilot_gate_failures.append(f'span_days={quality["span_days"]} < {gates["minimum_span_days"]}')
+    if pilot_gate_failures:
+        raise SystemExit(f'engineering pilot gates failed: {pilot_gate_failures}')
     manifest = json.loads(args.manifest.read_text(encoding='utf-8'))
+    preregistration_bytes = args.preregistration.read_bytes()
+    preregistration = json.loads(preregistration_bytes)
+    preregistration_check = validate_preregistration(preregistration, require_frozen=True)
+    if not preregistration_check['valid']:
+        raise SystemExit(f'preregistration is not frozen: {preregistration_check["errors"]}')
+    freeze_check = validate_freeze(args.freeze_record, args.manifest, args.preregistration, args.csv)
+    if not freeze_check['valid']:
+        raise SystemExit(f'freeze record validation failed: {freeze_check}')
     actual_sha256 = hashlib.sha256(args.csv.read_bytes()).hexdigest()
     if manifest.get('dataset_sha256') != actual_sha256:
         raise SystemExit('split manifest dataset_sha256 does not match the evaluation CSV')
     if manifest.get('dataset_schema_version') != SCHEMA['schema_version']:
         raise SystemExit('split manifest schema version does not match the current validator')
+    if manifest.get('preregistration_sha256') != hashlib.sha256(preregistration_bytes).hexdigest():
+        raise SystemExit('split manifest preregistration hash does not match the frozen preregistration')
+    external_sample_gate = manifest.get('external_sample_size_gate') or {}
+    if not external_sample_gate:
+        raise SystemExit('split manifest is missing external_sample_size_gate')
+    failed_external_sites = sorted(site for site, passed in external_sample_gate.items() if not passed)
+    if failed_external_sites:
+        raise SystemExit(f'external-site participant minimum failed: {failed_external_sites}')
     df = pd.read_csv(args.csv, dtype={'participant_id': str, 'site_id': str, 'device_id': str})
     manifest_check = validate_manifest(df, manifest)
     if not manifest_check['valid'] or not manifest.get('leakage_check_passed'):
@@ -344,13 +424,20 @@ def main():
     leakage_violations = [row for row in all_windows if row['preprocessing_fit_end'] > row['origin_day'] or row['history_last_day'] > row['origin_day']]
     if leakage_violations:
         raise RuntimeError(f'future leakage audit failed: {leakage_violations[:3]}')
+    external_section = sections['external_site_test']
+    primary_analysis = (primary_advantage_analysis(external_section, preregistration, args.bootstrap_replicates)
+                        if external_section.get('status') == 'completed'
+                        else {'definition': preregistration['primary_analysis'], 'eligible_windows': 0,
+                              'participants': 0, 'conclusion': '未证明优势',
+                              'reason': 'external_site_test is not collected or not scorable'})
     report = {
         'schema_version': 'curve-real-longitudinal-evaluation.v1', 'data_class': 'real_longitudinal_candidate',
         'source': str(args.csv.resolve()), 'manifest': str(args.manifest.resolve()),
         'dataset_quality': quality, 'split_validation': manifest_check,
+        'preregistration_validation': preregistration_check, 'freeze_validation': freeze_check,
         'leakage_audit': {'passed': True, 'unit': 'participant_id', 'fold_preprocessing': 'origin-and-earlier only',
                           'violations': 0, 'external_sites': manifest['external_sites']},
-        'sections': sections, 'drift_checks': drift,
+        'sections': sections, 'drift_checks': drift, 'primary_analysis': primary_analysis,
         'clinical_effectiveness_claim': 'not established; requires protocol review and adequate real external-site sample size',
     }
     args.out_json.parent.mkdir(parents=True, exist_ok=True); args.out_md.parent.mkdir(parents=True, exist_ok=True)
