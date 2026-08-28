@@ -9,12 +9,19 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
+from functools import lru_cache
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from common.prediction_contract import build_prediction_output
 from population.modeling import risk_levels
+
+
+@lru_cache(maxsize=32)
+def load_model(path: str):
+    """Load an immutable model artifact once per runtime process."""
+    return joblib.load(path)
 
 
 def load_input(path: str | None) -> dict:
@@ -49,7 +56,7 @@ def predict_numeric(target: str, metadata: dict, payload: dict, models_dir: Path
             return build_prediction_output(contract_target, value_kind="predicted", status="insufficient_data", abstained=True, reason=f"缺少最近一次{source}直接测量值", metadata={"component": target})
         point = float(point)
     else:
-        model = joblib.load(models_dir / f"numeric_{target}.joblib")
+        model = load_model(str(models_dir / f"numeric_{target}.joblib"))
         point = float(model.predict(frame)[0])
     margin = float(metadata["conformal_q80"])
     return build_prediction_output(
@@ -63,7 +70,7 @@ def predict_risk(target: str, tier: str, metadata: dict, payload: dict, models_d
     frame, completeness = feature_frame(payload, metadata["features"])
     if completeness < float(metadata["minimum_completeness"]):
         return build_prediction_output(target, value_kind="estimated", status="insufficient_data", abstained=True, reason=f"特征完整度不足（{completeness:.0%}）", prediction_mode="risk", target_kind=metadata.get("target_kind", "abnormal_risk"))
-    model = joblib.load(models_dir / f"risk_{target}_{tier}.joblib")
+    model = load_model(str(models_dir / f"risk_{target}_{tier}.joblib"))
     probability = float(model.predict_proba(frame)[0, 1])
     threshold = float(metadata["threshold"])
     level = str(risk_levels(np.asarray([probability]), threshold)[0])

@@ -18,7 +18,7 @@ GROUPS = {
         "ml/validation/test_validation_tools.py",
     ],
     "graphrag": ["tests/test_graphrag_isolation.py"],
-    "security": ["tests/test_graphrag_isolation.py"],
+    "security": ["tests/test_graphrag_isolation.py", "tests/test_runtime_service.py", "tests/test_container_hygiene.py"],
     "curve": [
         "tests/test_curve_regression_wrappers.py",
     ],

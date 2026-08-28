@@ -1,10 +1,11 @@
 import db from '../db.js';
 
 export function appendAuditEvent(event) {
+  const existingUserId = value => value && db.prepare('SELECT id FROM users WHERE id=?').get(value) ? value : null;
   db.prepare(`INSERT INTO audit_logs
     (actor_user_id,subject_user_id,event_type,resource,action,outcome,request_id,ip_hash,user_agent_hash,metadata)
     VALUES (?,?,?,?,?,?,?,?,?,?)`).run(
-    event.actor_user_id || null, event.subject_user_id || null, event.event_type,
+    existingUserId(event.actor_user_id), existingUserId(event.subject_user_id), event.event_type,
     event.resource || null, event.action || null, event.outcome || 'success', event.request_id || null,
     event.ip_hash || null, event.user_agent_hash || null, JSON.stringify(event.metadata || {}),
   );
@@ -16,4 +17,3 @@ export function listAuditEvents(limit = 100) {
       ...row, metadata: (() => { try { return JSON.parse(row.metadata || '{}'); } catch { return {}; } })(),
     }));
 }
-

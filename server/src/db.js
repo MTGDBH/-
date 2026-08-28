@@ -17,6 +17,7 @@ const dbPath = path.resolve(__dirname, '..', DB_FILE);
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
+db.pragma('busy_timeout = 5000');
 
 // 帮助函数：安全添加列（已存在则跳过）
 function addColumnIfMissing(table, col, decl) {
@@ -100,6 +101,14 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_logs(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_logs(actor_user_id,created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS auth_rate_limits (
+    bucket_key TEXT PRIMARY KEY,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    reset_at INTEGER NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_auth_rate_reset ON auth_rate_limits(reset_at);
 
   CREATE TABLE IF NOT EXISTS care_relationships (
     id INTEGER PRIMARY KEY,

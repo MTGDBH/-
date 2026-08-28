@@ -144,7 +144,7 @@ async function handleChatV2(req, res) {
   const backendEvidence = evidenceContext ? buildEvidenceCard(evidenceContext, message, result.confidence) : null;
   const mergedEvidence = (backendEvidence || result.evidence) ? { ...(backendEvidence || {}), graph: result.evidence || null, tool_trace: result.tool_trace || [] } : { tool_trace: result.tool_trace || [] };
   const llm = result.__llm || result.llm || { provider: result.source || 'tool', model: null, call_status: result.source === 'safety_rule' ? 'safety_rule' : 'tool', tool_calls: [] };
-  recordLLM(llm.call_status || 'tool');
+  recordLLM(llm.call_status || 'tool', llm.latency_ms);
   if (result.source === 'safety_rule') recordSafetyRule();
   const assistantInsert = db.prepare(`INSERT INTO chat_messages
     (user_id,role,content,plan,confidence,evidence,presentation,graph_evidence,prediction_snapshot,graph_evidence_snapshot,linkage_version,
@@ -525,7 +525,7 @@ router.post('/chat', async (req, res) => {
       call_status: result.source === 'mock' ? 'mock' : result.source === 'tool' ? 'tool' : 'fallback',
       fallback_reason: result.source === 'mock' ? '未配置 DeepSeek' : null,
     };
-    recordLLM(llm.call_status || 'unknown');
+    recordLLM(llm.call_status || 'unknown', llm.latency_ms);
     if (result.source === 'safety_rule') recordSafetyRule();
     const graphIndexVersion = result.evidence?.index_version || result.evidence?.retrieval_trace?.index_version || null;
     const ins = db.prepare(`

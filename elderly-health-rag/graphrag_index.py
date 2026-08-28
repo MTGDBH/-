@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """轻量、可审计的本地 GraphRAG 索引与查询服务（仅标准库）。"""
 import argparse, hashlib, json, math, os, re, sys
+import threading
 from pathlib import Path
 from retrieval_backends import DenseVectorRetriever, HybridRetrievalPipeline, JsonGraphStore, capabilities
 
@@ -13,6 +14,32 @@ OUTPUT = ROOT / 'output'
 RELATIONS_FILE = ROOT / 'input' / 'relations.json'
 EVIDENCE_REGISTRY_FILE = ROOT / 'input' / 'evidence_registry.json'
 INDEX_VERSION = '2026-08-26.v9'
+_RUNTIME_INDEX_CACHE = {}
+_RUNTIME_INDEX_LOCK = threading.Lock()
+
+
+def _index_json(path, default=None):
+    """Return an immutable index component from the resident process cache."""
+    path = Path(path)
+    if not path.exists(): return default
+    key = str(path.resolve())
+    modified = path.stat().st_mtime_ns
+    with _RUNTIME_INDEX_LOCK:
+        cached = _RUNTIME_INDEX_CACHE.get(key)
+        if cached and cached[0] == modified: return cached[1]
+        value = json.loads(path.read_text(encoding='utf-8'))
+        _RUNTIME_INDEX_CACHE[key] = (modified, value)
+        return value
+
+
+def preload_runtime_index(output_path=None):
+    output_dir = Path(output_path or os.environ.get('GRAPHRAG_OUTPUT_PATH') or OUTPUT)
+    if not (output_dir / 'chunks.json').exists(): build(output_dir)
+    names = ('chunks.json', 'entities.json', 'relationships.json', 'source_manifest.json',
+             'evidence_conflicts.json', 'medical_pre_review.json', 'hidden_relationship_candidates.json')
+    loaded = {name: _index_json(output_dir / name) for name in names if (output_dir / name).exists()}
+    return {'output_path': str(output_dir), 'components': sorted(loaded),
+            'chunks': len(loaded.get('chunks.json') or []), 'loaded_once': True}
 
 CHINESE_DISPLAY_NAMES = {
     'activity_pattern':'活动模式','age_over_65':'65岁以上','alcohol':'饮酒','annual_complication_screening':'年度并发症筛查',
@@ -543,7 +570,7 @@ def build(output_path=None, report_path=None, update_docs=False):
 
 def build_retrieval_index(vector_model='hashing_char_ngram_v1', output_path=None):
     if not (OUTPUT / 'chunks.json').exists(): build()
-    chunks = json.loads((OUTPUT / 'chunks.json').read_text(encoding='utf-8'))
+    chunks = _index_json(OUTPUT / 'chunks.json', [])
     target = Path(output_path) if output_path else OUTPUT / 'dense_index.json'
     result = DenseVectorRetriever.build_index(chunks, target, vector_model)
     return {'index_version': INDEX_VERSION, 'stage': 'dense_vector', **result}
@@ -552,8 +579,8 @@ def query(question, disease=None, top_k=4, options=None):
     options = options or {}
     output_dir = Path(options.get('output_path') or os.environ.get('GRAPHRAG_OUTPUT_PATH') or OUTPUT)
     if not (output_dir/'chunks.json').exists(): build(output_dir)
-    chunks = json.loads((output_dir/'chunks.json').read_text(encoding='utf-8'))
-    source_manifest = json.loads((output_dir/'source_manifest.json').read_text(encoding='utf-8')) if (output_dir/'source_manifest.json').exists() else {'sources': []}
+    chunks = _index_json(output_dir/'chunks.json', [])
+    source_manifest = _index_json(output_dir/'source_manifest.json', {'sources': []})
     source_status_by_key = {}
     source_metadata_by_key = {}
     for source in source_manifest.get('sources', []):
@@ -570,13 +597,13 @@ def query(question, disease=None, top_k=4, options=None):
             source_version=chunk.get('source_version') or metadata.get('version'),
             retrieved_at=chunk.get('retrieved_at') or metadata.get('retrieved_at')))
     chunks = enriched_chunks
-    relationships = json.loads((output_dir/'relationships.json').read_text(encoding='utf-8')) if (output_dir/'relationships.json').exists() else []
+    relationships = _index_json(output_dir/'relationships.json', [])
     relationships = [dict(row, _relation_index=index) for index, row in enumerate(relationships)]
-    evidence_conflicts = json.loads((output_dir/'evidence_conflicts.json').read_text(encoding='utf-8')) if (output_dir/'evidence_conflicts.json').exists() else {'conflicts': []}
-    medical_pre_review = json.loads((output_dir/'medical_pre_review.json').read_text(encoding='utf-8')) if (output_dir/'medical_pre_review.json').exists() else {'relations': [], 'counts': {}}
-    hidden_manifest = json.loads((output_dir/'hidden_relationship_candidates.json').read_text(encoding='utf-8')) if (output_dir/'hidden_relationship_candidates.json').exists() else {'candidates': []}
+    evidence_conflicts = _index_json(output_dir/'evidence_conflicts.json', {'conflicts': []})
+    medical_pre_review = _index_json(output_dir/'medical_pre_review.json', {'relations': [], 'counts': {}})
+    hidden_manifest = _index_json(output_dir/'hidden_relationship_candidates.json', {'candidates': []})
     pre_review_by_index = {row.get('relation_index'): row for row in medical_pre_review.get('relations', [])}
-    entities = {e['id']: e for e in json.loads((output_dir/'entities.json').read_text(encoding='utf-8'))} if (output_dir/'entities.json').exists() else {}
+    entities = {e['id']: e for e in _index_json(output_dir/'entities.json', [])}
     qtokens = tokenize(question)
     aliases = set(DISEASE_ALIASES.get(disease or '', []))
     graph_seeds = {f'disease:{disease}'} if disease else set()

@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const thisScript = fileURLToPath(import.meta.url);
 const nodeMajor = Number(process.versions.node.split('.')[0]);
-if ((nodeMajor < 20 || nodeMajor >= 23) && process.env.TEST_NODE_REEXEC !== '1') {
-  console.warn(`Node ${process.versions.node} is outside engines >=20 <23; re-running tests with Node 22.16.0.`);
+if (nodeMajor !== 22 && process.env.TEST_NODE_REEXEC !== '1') {
+  console.warn(`Node ${process.versions.node} is outside engines >=22 <23; re-running tests with Node 22.16.0.`);
   const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   const result = spawnSync(npx, ['--yes', 'node@22.16.0', thisScript, ...process.argv.slice(2)], {
     cwd: process.cwd(), env: { ...process.env, TEST_NODE_REEXEC: '1' }, stdio: 'inherit',
@@ -39,8 +39,12 @@ const unitTests = [
   'src/test_safe_curve_graph_link.js',
   'src/test_weather.js',
   'src/test_curve_reference.js',
+  'src/test_python_runtime.js',
+  'src/test_audit_sanitization.js',
+  'src/test_permission_matrix.js',
 ];
 const integrationTests = [
+  'data/test_auth_integration.mjs',
   'data/test_care_permissions.mjs',
   'data/test_device_sync.mjs',
 ];
@@ -101,6 +105,7 @@ async function runIntegration(tempRoot) {
     env: {
       ...utf8Env, DB_PATH: dbPath, PORT: String(port), NODE_ENV: 'test',
       DEEPSEEK_API_KEY: '', OPENAI_API_KEY: '', LLM_API_KEY: '',
+      LOGIN_RATE_STORE: 'sqlite', LOGIN_RATE_MAX: '100', LOGIN_MAX_FAILURES: '3', COOKIE_SECURE: '1',
     },
     stdio: ['ignore', 'inherit', 'inherit'],
   });

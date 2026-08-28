@@ -309,10 +309,79 @@ class JsonGraphStore(GraphStore):
 
 
 class Neo4jGraphStore(GraphStore):
-    """Optional placeholder; never opens a network connection implicitly."""
-    def __init__(self, *_, **__): raise RuntimeError('neo4j_backend_not_installed_or_configured')
-    def seed_entities(self, chunk_ids, disease=None): return set()
-    def expand(self, seeds, **kwargs): return {}
+    """Bounded Neo4j implementation using the same GraphStore contract.
+
+    The caller must provide a driver or explicit connection settings; importing
+    this module never creates a network connection.
+    """
+    def __init__(self, uri=None, user=None, password=None, database='neo4j', driver=None):
+        if driver is None:
+            if not all((uri, user, password)):
+                raise ValueError('neo4j_connection_settings_required')
+            try:
+                from neo4j import GraphDatabase
+            except ImportError as exc:
+                raise RuntimeError('neo4j_driver_not_installed') from exc
+            driver = GraphDatabase.driver(uri, auth=(user, password))
+        self.driver = driver
+        self.database = database
+
+    def close(self):
+        self.driver.close()
+
+    def seed_entities(self, chunk_ids, disease=None):
+        query = """
+        MATCH (entity:Entity)
+        WHERE entity.id = $disease_id
+           OR any(chunk_id IN coalesce(entity.chunk_ids, []) WHERE chunk_id IN $chunk_ids)
+        RETURN DISTINCT entity.id AS id
+        """
+        disease_id = f'disease:{disease}' if disease else None
+        with self.driver.session(database=self.database) as session:
+            rows = session.run(query, chunk_ids=list(chunk_ids or []), disease_id=disease_id)
+            return {row['id'] for row in rows if row.get('id')}
+
+    def expand(self, seeds, max_hops=2, allowed_node_types=None, allowed_relation_types=None, max_nodes=40, max_edges=60):
+        max_hops = max(1, min(2, int(max_hops)))
+        max_nodes = max(1, min(100, int(max_nodes)))
+        max_edges = max(1, min(160, int(max_edges)))
+        allowed_nodes = list(allowed_node_types or DEFAULT_NODE_TYPES)
+        allowed_relations = list(allowed_relation_types or DEFAULT_RELATION_TYPES)
+        # Hop count cannot be parameterized in Cypher; max_hops is clamped above
+        # and interpolating this integer cannot alter the query structure.
+        query = f"""
+        MATCH path=(seed:Entity)-[rels*1..{max_hops}]-(node:Entity)
+        WHERE seed.id IN $seeds
+          AND coalesce(node.type, '') IN $allowed_nodes
+          AND all(rel IN relationships(path) WHERE type(rel) IN $allowed_relations)
+        RETURN [item IN nodes(path) | properties(item)] AS nodes,
+               [rel IN relationships(path) | properties(rel) + {{type: type(rel)}}] AS edges,
+               length(path) AS hop
+        LIMIT $path_limit
+        """
+        visited = set(seeds or []); expanded = set(); edges = []; chunk_scores = defaultdict(float)
+        seen_edges = set()
+        with self.driver.session(database=self.database) as session:
+            rows = session.run(query, seeds=sorted(visited), allowed_nodes=allowed_nodes,
+                               allowed_relations=allowed_relations, path_limit=max_edges * 2)
+            for row in rows:
+                hop = int(row.get('hop') or max_hops)
+                for node in row.get('nodes') or []:
+                    node_id = node.get('id')
+                    if node_id and node_id not in visited and len(visited) + len(expanded) < max_nodes:
+                        expanded.add(node_id)
+                    for chunk_id in node.get('chunk_ids') or []:
+                        chunk_scores[chunk_id] = max(chunk_scores[chunk_id], .75 / hop)
+                for edge in row.get('edges') or []:
+                    identity = (edge.get('source'), edge.get('target'), edge.get('type'), edge.get('chunk_id'))
+                    if identity in seen_edges or len(edges) >= max_edges: continue
+                    seen_edges.add(identity); edges.append({'hop': hop, **edge})
+                    if edge.get('chunk_id'): chunk_scores[edge['chunk_id']] = max(chunk_scores[edge['chunk_id']], 1 / hop)
+                if len(edges) >= max_edges: break
+        ranking = [{'chunk_id': key, 'score': value} for key, value in sorted(chunk_scores.items(), key=lambda item: (-item[1], item[0]))]
+        return {'seed_entities': sorted(visited), 'expanded_nodes': sorted(expanded), 'edges': edges, 'chunk_ranking': ranking,
+                'limits': {'max_hops': max_hops, 'max_nodes': max_nodes, 'max_edges': max_edges,
+                           'allowed_node_types': sorted(allowed_nodes), 'allowed_relation_types': sorted(allowed_relations)}}
 
 
 def filter_documents(documents, filters=None):

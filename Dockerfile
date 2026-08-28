@@ -1,4 +1,4 @@
-FROM node:20-bookworm
+FROM node:22-bookworm
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 ENV PATH="/opt/venv/bin:${PATH}"
 
-COPY ml/requirements.txt ./ml/
+COPY ml/requirements*.txt ./ml/
 RUN python -m pip install --no-cache-dir -r ./ml/requirements.txt
 
 COPY server/package*.json ./server/
@@ -22,6 +22,9 @@ COPY . .
 WORKDIR /app/server
 
 ENV PORT=3001
+ENV PYTHON_SERVICE_URL=http://127.0.0.1:8765
+ENV PYTHON_CLI_FALLBACK=1
 EXPOSE 3001
 
-CMD ["npm", "start"]
+RUN chmod +x /app/scripts/start-container.sh
+CMD ["/app/scripts/start-container.sh"]

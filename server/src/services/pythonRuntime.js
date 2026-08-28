@@ -1,16 +1,27 @@
 import { spawn } from 'node:child_process';
-import path from 'node:path';
 import { observePythonResult, recordCircuitOpen } from './opsMetrics.js';
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const circuit = { failures: 0, openUntil: 0, lastError: null };
 const FAILURE_THRESHOLD = Math.max(2, Number(process.env.PYTHON_CIRCUIT_FAILURES || 3));
 const COOLDOWN_MS = Math.max(5_000, Number(process.env.PYTHON_CIRCUIT_COOLDOWN_MS || 30_000));
+const TOOL_BY_SUFFIX = new Map([
+  ['/ml/predict_htn.py', 'htn.predict'],
+  ['/ml/curve/health_curve.py', 'curve.analyze'],
+  ['/ml/population/population_service.py', 'population.predict'],
+  ['/ml/disease_risk/predict_disease.py', 'disease.predict'],
+  ['/elderly-health-rag/graphrag_index.py', 'graphrag.query'],
+]);
 
 function safeError(code, message) { return { success: false, error: { code, message } }; }
 function timeoutValue(override) { return Math.max(100, Number(override || process.env.HTN_TIMEOUT_MS || DEFAULT_TIMEOUT_MS)); }
 
-async function callService(scriptPath, input, timeoutMs) {
+function registeredTool(scriptPath) {
+  const normalized = String(scriptPath || '').replaceAll('\\', '/');
+  return [...TOOL_BY_SUFFIX].find(([suffix]) => normalized.endsWith(suffix))?.[1] || null;
+}
+
+async function callService(tool, input, timeoutMs) {
   const base = String(process.env.PYTHON_SERVICE_URL || '').replace(/\/$/, '');
   if (!base) return null;
   if (Date.now() < circuit.openUntil) { recordCircuitOpen(); return safeError('PYTHON_CIRCUIT_OPEN', 'Python 服务暂时降级'); }
@@ -19,7 +30,7 @@ async function callService(scriptPath, input, timeoutMs) {
   try {
     const response = await fetch(`${base}/run`, {
       method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ script: path.basename(scriptPath), input, timeout_ms: timeoutMs }),
+      body: JSON.stringify({ tool, input, timeout_ms: timeoutMs }),
     });
     if (!response.ok) throw new Error(`http_${response.status}`);
     const result = await response.json();
@@ -64,14 +75,16 @@ function callCli(scriptPath, input, timeoutMs) {
 }
 
 export async function executePython(scriptPath, input, timeoutOverride) {
+  const tool = registeredTool(scriptPath);
+  if (!tool) return safeError('TOOL_NOT_ALLOWED', 'Python 工具未注册');
   const timeoutMs = timeoutValue(timeoutOverride);
   const started = Date.now();
   let runtime = 'cli';
   let result = null;
   if (process.env.PYTHON_SERVICE_URL) {
     runtime = 'service';
-    result = await callService(scriptPath, input, timeoutMs);
-    if (result?.success === false && ['PYTHON_SERVICE_TIMEOUT', 'PYTHON_SERVICE_UNAVAILABLE', 'PYTHON_CIRCUIT_OPEN'].includes(result.error?.code) && process.env.PYTHON_CLI_FALLBACK !== '0') {
+    result = await callService(tool, input, timeoutMs);
+    if (result?.success === false && ['PYTHON_SERVICE_TIMEOUT', 'PYTHON_SERVICE_UNAVAILABLE', 'PYTHON_CIRCUIT_OPEN', 'PYTHON_TIMEOUT', 'RUNTIME_QUEUE_FULL'].includes(result.error?.code) && process.env.PYTHON_CLI_FALLBACK !== '0') {
       runtime = 'cli';
       result = await callCli(scriptPath, input, timeoutMs);
       result.runtime_fallback = 'local_cli';
@@ -91,4 +104,3 @@ export async function pythonRuntimeHealth() {
   } catch { return { mode: 'service_with_cli_fallback', status: 'degraded', fallback: process.env.PYTHON_CLI_FALLBACK !== '0' ? 'local_cli' : 'disabled', circuit: { failures: circuit.failures, open: Date.now() < circuit.openUntil } }; }
   finally { clearTimeout(timer); }
 }
-

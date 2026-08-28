@@ -12,6 +12,7 @@ import { getModelBundleStatus } from './lib/modelBundle.js';
 import { auditMutations } from './services/auditService.js';
 import opsRouter from './routes/ops.js';
 import { pythonRuntimeHealth } from './services/pythonRuntime.js';
+import { requestLimits } from './middleware/requestLimits.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,8 @@ async function ensureSeedData() {
 
 await ensureSeedData();
 
-app.use(express.json({ limit: '1mb' }));
+app.use(requestLimits);
+app.use(express.json({ limit: process.env.HTTP_MAX_BODY_SIZE || '1mb' }));
 
 // CORS：开发期允许文件:// 和常见本地端口
 const origins = (process.env.CORS_ORIGIN || '*').split(',').map(s => s.trim());

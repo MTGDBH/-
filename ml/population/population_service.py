@@ -8,14 +8,30 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from population.predict_population import predict_numeric, predict_risk
+from population.predict_population import predict_numeric, predict_risk, load_model
 from population.modeling import project_blood_pressure
 from model_bundle import validate_bundle
+from functools import lru_cache
 
 
-def main():
+@lru_cache(maxsize=64)
+def _metadata(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def preload_models():
+    models_dir = ROOT / "models" / "population"
+    if not models_dir.exists(): return {"models": 0, "metadata": 0}
+    metadata_files = list(models_dir.glob("*.metadata.json"))
+    for path in metadata_files: _metadata(str(path))
+    model_files = list(models_dir.glob("*.joblib"))
+    for path in model_files: load_model(str(path))
+    return {"models": len(model_files), "metadata": len(metadata_files)}
+
+
+def predict(request):
     try:
-        request = json.loads(sys.stdin.buffer.read().decode("utf-8") or "{}")
+        request = request if isinstance(request, dict) else {}
         task = str(request.get("task") or "")
         target = str(request.get("target") or "")
         tier = str(request.get("tier") or "noninvasive")
@@ -28,7 +44,7 @@ def main():
         if task == "blood_pressure":
             outputs = []
             for component in ("systo", "diasto"):
-                metadata = json.loads((models_dir / f"numeric_{component}.metadata.json").read_text(encoding="utf-8"))
+                metadata = _metadata(str(models_dir / f"numeric_{component}.metadata.json"))
                 outputs.append(predict_numeric(component, metadata, payload, models_dir))
             systolic, diastolic = outputs
             if systolic.get("status") == "available" and diastolic.get("status") == "available":
@@ -53,10 +69,9 @@ def main():
                     "horizon_days": 730, "components": {"systolic": systolic, "diastolic": diastolic},
                     "model_version": bundle_version,
                 }
-            sys.stdout.buffer.write((json.dumps(output, ensure_ascii=False) + "\n").encode("utf-8"))
-            return
+            return output
         suffix = f"numeric_{target}" if task == "numeric" else f"risk_{target}_{tier}"
-        metadata = json.loads((models_dir / f"{suffix}.metadata.json").read_text(encoding="utf-8"))
+        metadata = _metadata(str(models_dir / f"{suffix}.metadata.json"))
         if task == "numeric":
             output = predict_numeric(target, metadata, payload, models_dir)
         elif task == "risk":
@@ -69,6 +84,15 @@ def main():
         message = str(exc)
         reason_code = message if message.startswith("MODEL_BUNDLE_") else "MODEL_RUNTIME_ERROR"
         output = {"success": False, "status": "unavailable", "abstained": True, "reason_code": reason_code, "error": f"population prediction unavailable: {type(exc).__name__}"}
+    return output
+
+
+def main():
+    try:
+        request = json.loads(sys.stdin.buffer.read().decode("utf-8") or "{}")
+    except Exception:
+        request = {}
+    output = predict(request)
     sys.stdout.buffer.write((json.dumps(output, ensure_ascii=False) + "\n").encode("utf-8"))
 
 

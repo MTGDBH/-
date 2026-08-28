@@ -5,3 +5,4 @@ scikit-learn==1.9.0
 joblib==1.5.3
 lightgbm==4.7.0
 xgboost==3.4.1
+neo4j>=5.26,<6

@@ -6,24 +6,15 @@ import {
   hashPassword, resolveSession, revokeSession, safeUser,
 } from './services/authService.js';
 import { validateLoginInput, validateRegistrationInput } from './validators/authValidator.js';
+import { getRateLimitStore, loginRateKeys } from './services/rateLimitStore.js';
 
 const router = express.Router();
-const ipWindows = new Map();
 const RATE_WINDOW_MS = Math.max(10_000, Number(process.env.LOGIN_RATE_WINDOW_MS || 60_000));
 const RATE_MAX = Math.max(3, Number(process.env.LOGIN_RATE_MAX || 10));
 
 function getTokenFromReq(req) {
   const match = String(req.headers.cookie || '').match(new RegExp(`(?:^|;\\s*)${cookieName()}=([^;]+)`));
   return match ? decodeURIComponent(match[1]) : null;
-}
-
-function rateLimited(req) {
-  const key = req.ip || req.socket?.remoteAddress || 'unknown';
-  const now = Date.now();
-  const current = ipWindows.get(key);
-  if (!current || current.resetAt <= now) { ipWindows.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS }); return false; }
-  current.count += 1;
-  return current.count > RATE_MAX;
 }
 
 export function sessionMiddleware(req, _res, next) {
@@ -40,17 +31,34 @@ export function requireAuth(req, res, next) {
 }
 
 router.post('/login', async (req, res) => {
-  if (rateLimited(req)) {
-    audit({ event_type: 'auth_login', action: 'login', outcome: 'rate_limited', request_id: req.request_id, ...requestFingerprint(req) });
-    return res.status(429).json({ error: '尝试次数较多，请稍后再试' });
-  }
   const parsed = validateLoginInput(req.body);
+  const rateKeys = loginRateKeys(req, parsed.ok ? parsed.value.identifier : req.body?.identifier);
+  let rateStore; let rateResults;
+  try {
+    rateStore = await getRateLimitStore();
+    rateResults = await rateStore.consume(rateKeys, { windowMs: RATE_WINDOW_MS, maxAttempts: RATE_MAX });
+  } catch (error) {
+    console.error('[rate-limit] store_unavailable', error?.code || error?.name || 'unknown');
+    audit({ event_type: 'auth_login', action: 'login', outcome: 'rate_limit_store_unavailable', request_id: req.request_id, ...requestFingerprint(req) });
+    return res.status(503).json({ error: '登录保护服务暂不可用，请稍后再试' });
+  }
+  if (rateResults.some(result => result.limited)) {
+    audit({ event_type: 'auth_login', action: 'login', outcome: 'rate_limited', request_id: req.request_id, ...requestFingerprint(req) });
+    const retryAt = Math.max(...rateResults.filter(result => result.limited).map(result => result.resetAt));
+    res.setHeader('Retry-After', String(Math.max(1, Math.ceil((retryAt - Date.now()) / 1000))));
+    return res.status(429).json({ error: '尝试次数较多，请稍后再试', retry_at: new Date(retryAt).toISOString() });
+  }
   if (!parsed.ok) return res.status(400).json({ error: parsed.error });
   const result = await authenticate(parsed.value.identifier, parsed.value.password);
   if (!result.ok) {
     audit({ actor_user_id: result.user?.id, event_type: 'auth_login', action: 'login', outcome: result.code, request_id: req.request_id, ...requestFingerprint(req) });
     if (result.code === 'ACCOUNT_LOCKED') return res.status(423).json({ error: '账号暂时锁定，请稍后再试', retry_at: result.retry_at });
     return res.status(401).json({ error: '账号或密码不对，请核对后再试' });
+  }
+  try { await rateStore.clear(rateKeys); }
+  catch (error) {
+    console.error('[rate-limit] clear_failed', error?.code || error?.name || 'unknown');
+    return res.status(503).json({ error: '登录保护服务暂不可用，请稍后再试' });
   }
   const session = createSession(result.user.id, req);
   res.setHeader('Set-Cookie', cookieHeader(session.rawToken));

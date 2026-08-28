@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: [22]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -51,26 +51,21 @@ jobs:
         run: npm run test:integration
 
       - name: Python unit tests
-        if: matrix.node == 22
         run: python scripts/run_python_tests.py unit
 
       - name: GraphRAG build and safety regression
-        if: matrix.node == 22
         working-directory: server
         run: npm run test:graphrag
 
       - name: Curve leakage regression
-        if: matrix.node == 22
         working-directory: server
         run: npm run test:curve
 
       - name: Security regression
-        if: matrix.node == 22
         working-directory: server
         run: npm run test:security
 
       - name: Syntax and UTF-8 checks
-        if: matrix.node == 22
         working-directory: server
         run: npm run test:syntax
 
@@ -83,6 +78,11 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Build and inspect local image
+        run: |
+          docker build -t evicare-security-check .
+          docker run --rm --entrypoint sh evicare-security-check -c 'found="$(find /app -type f \( -name ".env" -o -name "*.db" -o -name "*.sqlite" -o -name "*.sqlite3" -o -name "*.pyc" \) -print -quit)"; test -z "$found"'
 
       - name: Log in to GHCR
         if: github.event_name != 'pull_request'
