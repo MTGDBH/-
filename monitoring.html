@@ -317,13 +317,15 @@
         let badge = '正常', badgeColor = '#7FB069';
         if (avg >= 140) { badge = '需关注'; badgeColor = '#E0784E'; }
         else if (avg >= 130) { badge = '偏高'; badgeColor = '#F4A261'; }
-        document.getElementById('pred-badge').textContent = badge;
+        document.getElementById('pred-badge').textContent = `● ${badge}`;
+        document.getElementById('pred-badge').setAttribute('aria-label', `综合趋势状态：${badge}`);
         document.getElementById('pred-badge').style.background = badgeColor + '22';
         document.getElementById('pred-badge').style.color = badgeColor;
 
         // 绘制折线图
         const svg = document.getElementById('pred-svg');
         if (points.length === 0) {
+          svg.dataset.summary = '近7天血压趋势：暂无血压记录，无法判断上升、下降或稳定。';
           svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#9C8B7A" font-size="13" font-family="sans-serif">暂无血压记录</text>';
           return;
         }
@@ -335,6 +337,11 @@
         const xToPx = (i) => padX + (xs.length === 1 ? (W - 2*padX)/2 : (i/(xs.length-1))*(W - 2*padX));
         const yToPx = (v) => H - padY - ((v - yMin) / (yMax - yMin)) * (H - 2*padY);
         const polyline = points.map((p, i) => `${xToPx(i)},${yToPx(p.value)}`).join(' ');
+        const first = points[0];
+        const latest = points.at(-1);
+        const change = Number(latest.value) - Number(first.value);
+        const direction = change > 0 ? '上升' : change < 0 ? '下降' : '持平';
+        svg.dataset.summary = `近7天收缩压趋势：共${points.length}条记录，从${first.value}变为${latest.value}毫米汞柱，总体${direction}${Math.abs(change).toFixed(1)}；平均${avg}毫米汞柱，页面状态标记为${badge}。此摘要只描述已有记录，不替代医学判断。`;
         const dots = points.map((p, i) =>
           `<circle cx="${xToPx(i)}" cy="${yToPx(p.value)}" r="3.5" fill="#F4A261"/>`
         ).join('');

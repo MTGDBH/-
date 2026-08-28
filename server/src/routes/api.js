@@ -9,6 +9,7 @@ import { ensureConversation, refreshConversationSummary, resolveAgentSubject, ru
 import { runAgentV3 } from '../ai/orchestratorV3.js';
 import { listFollowups } from '../lib/followups.js';
 import { recordLLM, recordSafetyRule } from '../services/opsMetrics.js';
+import { interventionRepository } from '../repositories/interventionRepository.js';
 
 const router = express.Router();
 const agentV2Enabled = () => process.env.AGENT_ORCHESTRATOR_V2 !== '0';
@@ -450,11 +451,19 @@ router.get('/agent/inbox', (req, res) => {
   const actions = db.prepare(`SELECT id,action_type,payload,status,created_at FROM action_requests
     WHERE actor_user_id=? AND subject_user_id=? AND status='pending_confirmation' ORDER BY id DESC LIMIT 20`).all(req.user.id, resolved.subject.id)
     .map(row => ({ ...row, payload: parseJSON(row.payload, {}) }));
+  const interventions = interventionRepository.listForSubject(resolved.subject.id, { limit: 30 });
+  const activeInterventions = interventions.filter(row => ['active','evaluating'].includes(row.status));
+  const recentEvaluations = db.prepare(`SELECT e.evaluation_id,e.target_metric,e.evidence_level,e.reason_code,e.created_at,i.intervention_id,i.title
+    FROM intervention_evaluations e JOIN interventions i ON i.id=e.intervention_db_id
+    WHERE e.subject_user_id=? ORDER BY e.created_at DESC,e.id DESC LIMIT 5`).all(resolved.subject.id);
   res.json({ subject: { id: resolved.subject.id, name: resolved.subject.name },
     due: items.filter(row => row.status === 'due'), overdue: items.filter(row => row.status === 'overdue'),
     pending_result_confirmation: items.filter(row => row.status === 'pending_result_confirmation'),
     scheduled: items.filter(row => row.status === 'scheduled'), recently_completed: allItems.filter(row => row.status === 'completed').sort((a,b) => String(b.completed_at || '').localeCompare(String(a.completed_at || ''))).slice(0, 3), pending_actions: actions,
-    counts: { total: items.length, due: items.filter(row => row.status === 'due').length, overdue: items.filter(row => row.status === 'overdue').length, pending_confirmation: items.filter(row => row.status === 'pending_result_confirmation').length } });
+    active_interventions: activeInterventions, recent_intervention_evaluations: recentEvaluations,
+    counts: { total: items.length, due: items.filter(row => row.status === 'due').length, overdue: items.filter(row => row.status === 'overdue').length,
+      pending_confirmation: items.filter(row => row.status === 'pending_result_confirmation').length,
+      active_interventions: activeInterventions.length } });
 });
 
 router.put('/agent/messages/:id/feedback', (req, res) => {

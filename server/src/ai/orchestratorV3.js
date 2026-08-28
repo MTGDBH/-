@@ -63,6 +63,12 @@ export async function runAgentV3(args) {
     const runId = Number(runInsert().lastInsertRowid);
     return clarification(runId, conversation, ['血压', '血糖', '心率', '体重'].map(label => ({ label, value: `看看我最近90天的${label}趋势` })), '您想看哪一项健康趋势？', 'metric_missing');
   }
+  if (turn.intent.proposeInterventionHit && !/(血压|高压|低压|收缩压|舒张压|血糖|心率|脉搏|体重|睡眠)/.test(message)) {
+    const runId = Number(runInsert().lastInsertRowid);
+    return clarification(runId, conversation, ['血压', '血糖', '心率', '体重', '睡眠'].map(label => ({
+      label, value: `请帮我制定一个观察${label}的非药物个体干预方案`,
+    })), '请先明确要观察哪个指标，以及准备怎样复测。', 'intervention_target_missing');
+  }
   const fullPlan = planAgentTools(turn.intent, turn.resolvedMessage, { limit: false });
   if (fullPlan.length > 3) {
     const runId = Number(runInsert().lastInsertRowid);
@@ -71,6 +77,9 @@ export async function runAgentV3(args) {
   }
   const response = await runAgentV2({ ...args, message: turn.resolvedMessage, intentOverride: turn.intent });
   turn.next.pending_actions = (response.presentation?.actions || []).filter(item => item.requires_confirmation).map(item => item.action_type).slice(0, 2);
+  turn.next.intervention_stage = turn.intent.proposeInterventionHit ? 'proposal_preview'
+    : turn.intent.adherenceHit ? 'adherence_preview' : turn.intent.evaluateInterventionHit ? 'evaluated'
+      : turn.intent.explainInterventionHit ? 'explained' : turn.next.intervention_stage || null;
   db.prepare('UPDATE agent_conversations SET dialogue_state=?,updated_at=? WHERE id=? AND actor_user_id=? AND subject_user_id=?')
     .run(JSON.stringify(turn.next), nowIso(), conversation.id, actor.id, subject.id);
   response.context_manifest = { ...(response.context_manifest || {}), dialogue_state: turn.next, inherited_slots: turn.inherited, orchestrator_version: 'v3', v3_latency_ms: Date.now() - started };

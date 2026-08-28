@@ -154,6 +154,7 @@
       const pts = d.points;
       svg.innerHTML = '';
       if (pts.length === 0) {
+        svg.dataset.summary = `${META[type].name}趋势：当前没有记录，无法判断上升、下降或稳定。`;
         svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" font-family="sans-serif" fill="#9C8B7A" font-size="16">还没有数据，先在下面录入一条吧</text>';
         return;
       }
@@ -173,6 +174,15 @@
 
       let polyline = '';
       const color = META[type].color || '#F4A261';
+      const first = pts[0];
+      const latest = pts.at(-1);
+      const primaryChange = Number(latest.value) - Number(first.value);
+      const primaryDirection = primaryChange > 0 ? '上升' : primaryChange < 0 ? '下降' : '持平';
+      const primaryRange = `${Math.min(...pts.map(p => Number(p.value)))}至${Math.max(...pts.map(p => Number(p.value)))}`;
+      const secondarySummary = type === 'bp'
+        ? `；舒张压从${first.value2}变为${latest.value2} ${META[type].unit}`
+        : '';
+      svg.dataset.summary = `${META[type].name}趋势：共${pts.length}条记录，从${fmtDate(first.recorded_at)}的${formatValue(type, first)}变为${fmtDate(latest.recorded_at)}的${formatValue(type, latest)} ${META[type].unit}；主要数值总体${primaryDirection}${Math.abs(primaryChange).toFixed(1)}，范围${primaryRange} ${META[type].unit}${secondarySummary}。此摘要只描述记录变化，不代表诊断。`;
       pts.forEach((p, i) => {
         polyline += `${xToPx(i)},${yToPx(p.value)} `;
       });

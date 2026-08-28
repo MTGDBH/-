@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>照护协同驾驶舱 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="care-page">
+  <div id="app-nav"></div>
+  <main class="main care-main" id="main-content">
+    <header class="page-head care-head">
+      <div>
+        <p class="care-eyebrow">授权可控 · 能力分离 · 全程留痕</p>
+        <h1>照护协同驾驶舱</h1>
+        <p class="subtitle">只展示老人明确授权的信息；查看、代录和临床审核分别控制。</p>
+      </div>
+      <button class="btn btn-secondary" id="care-refresh" type="button">↻ 刷新授权状态</button>
+    </header>
+
+    <section class="care-trust" aria-label="隐私与安全说明">
+      <span aria-hidden="true">盾</span>
+      <div><strong>每次访问都重新核验授权</strong><p>授权撤回或到期后，旧登录会话也会立即失去相关能力；修改网址中的照护对象编号不能绕过校验。</p></div>
+    </section>
+
+    <div id="care-live" class="care-live" role="status" aria-live="polite">正在核验角色与授权…</div>
+    <section id="care-error" class="care-error" role="alert" hidden>
+      <span aria-hidden="true">!</span><div><strong>照护协同暂时无法读取</strong><p id="care-error-message"></p></div>
+      <button class="btn btn-secondary" id="care-retry" type="button">重新加载</button>
+    </section>
+
+    <section id="accept-panel" class="care-panel" hidden aria-labelledby="accept-title">
+      <div class="care-panel-head"><div><p class="care-kicker">收到老人邀请</p><h2 id="accept-title">接受照护授权</h2></div></div>
+      <form id="accept-form" class="care-inline-form">
+        <label><span>授权码</span><input id="invite-code" name="code" maxlength="24" autocomplete="one-time-code" required placeholder="请输入老人提供的授权码"></label>
+        <button class="btn btn-primary" type="submit">核验并接受</button>
+      </form>
+      <p class="care-help">授权角色、范围和有效期由老人设定，接受人无法自行扩大。</p>
+    </section>
+
+    <section id="owner-console" hidden>
+      <section class="care-panel" aria-labelledby="invite-title">
+        <div class="care-panel-head"><div><p class="care-kicker">新增协作者</p><h2 id="invite-title">创建限时授权</h2></div><span class="care-step">1 选择角色与范围</span></div>
+        <form id="invite-form" class="care-invite-form">
+          <div class="care-form-row">
+            <label><span>协作者角色</span><select id="invite-role" name="member_role"><option value="caregiver">家属</option><option value="doctor">医生</option></select></label>
+            <label><span>有效天数</span><input id="invite-days" name="valid_days" type="number" min="1" max="365" value="30" inputmode="numeric"></label>
+          </div>
+          <fieldset><legend>授权范围（可分别选择）</legend><div id="invite-scopes" class="care-scope-grid"></div></fieldset>
+          <label class="care-confirm-line"><input id="invite-confirm" type="checkbox"><span>我已核对角色、权限范围和有效期</span></label>
+          <button class="btn btn-primary" type="submit" disabled>生成一次性授权码</button>
+        </form>
+        <div id="invite-result" class="care-invite-result" hidden tabindex="-1"></div>
+      </section>
+
+      <section class="care-section" aria-labelledby="relations-title">
+        <div class="care-section-head"><div><p class="care-kicker">我的数据由谁协助</p><h2 id="relations-title">授权关系</h2></div><span id="relations-count" class="care-count">0 项</span></div>
+        <div id="relationships-list" class="care-grid"></div>
+      </section>
+    </section>
+
+    <section id="member-console" hidden>
+      <section class="care-section" aria-labelledby="subjects-title">
+        <div class="care-section-head"><div><p class="care-kicker">仅显示已授权字段</p><h2 id="subjects-title">我的照护对象</h2></div><span id="subjects-count" class="care-count">0 位</span></div>
+        <div id="subjects-list" class="care-grid care-subject-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog class="care-dialog" id="care-confirm-dialog" aria-labelledby="care-confirm-title">
+    <form method="dialog" id="care-confirm-form">
+      <span class="care-dialog-icon" aria-hidden="true">!</span><h2 id="care-confirm-title">再次确认</h2><p id="care-confirm-message"></p>
+      <label class="care-confirm-line"><input id="care-confirm-check" type="checkbox"><span id="care-confirm-label">我已看清影响，并确认继续</span></label>
+      <div class="care-dialog-actions"><button class="btn btn-ghost" type="button" data-dialog-cancel>返回</button><button class="btn btn-primary" id="care-confirm-submit" type="submit" disabled>确认</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="care-dialog care-detail-dialog" id="care-detail-dialog" aria-labelledby="care-detail-title">
+    <div><span class="care-dialog-icon" aria-hidden="true">览</span><h2 id="care-detail-title">详细信息</h2><div id="care-detail-content"></div><div class="care-dialog-actions"><button class="btn btn-primary" type="button" data-detail-close>关闭</button></div></div>
+  </dialog>
+
+  <dialog class="care-dialog" id="care-entry-dialog" aria-labelledby="care-entry-title">
+    <form method="dialog" id="care-entry-form"><span class="care-dialog-icon" aria-hidden="true">录</span><h2 id="care-entry-title">协助录入</h2><p>请按老人本人当时的真实情况填写，记录会标明代录人。</p>
+      <label><span>自评健康</span><select id="entry-health" required><option value="">请选择</option><option value="5">很好</option><option value="4">较好</option><option value="3">一般</option><option value="2">较差</option><option value="1">很差</option></select></label>
+      <label><span>近一年是否跌倒</span><select id="entry-fall" required><option value="">请选择</option><option value="0">否</option><option value="1">是</option></select></label>
+      <label class="care-confirm-line"><input id="entry-confirm" type="checkbox"><span>我确认这是老人本人提供的信息</span></label>
+      <div class="care-dialog-actions"><button class="btn btn-ghost" type="button" data-entry-cancel>返回</button><button class="btn btn-primary" id="entry-submit" type="submit" disabled>确认代录</button></div>
+    </form>
+  </dialog>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/care.js"></script>
+  <script>Auth.init();</script>
+</body>
+</html>

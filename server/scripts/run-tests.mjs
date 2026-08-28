@@ -33,6 +33,7 @@ const unitTests = [
   'src/test_agent_dialogue_v3.js',
   'src/test_agent_orchestrator_v2.js',
   'src/test_agent_presentation_v2.js',
+  'src/test_agent_frontend_v2.js',
   'src/test_health_intake.js',
   'src/test_health_text_parser.js',
   'src/test_knowledge_expansion.js',
@@ -44,6 +45,9 @@ const unitTests = [
   'src/test_permission_matrix.js',
   'src/test_intervention_foundation.js',
   'src/test_intervention_evaluation.js',
+  'src/test_intervention_frontend_contract.js',
+  'src/test_care_frontend_contract.js',
+  'src/test_agent_intervention_loop.js',
 ];
 const integrationTests = [
   'data/test_auth_integration.mjs',

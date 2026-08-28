@@ -7,6 +7,8 @@
     { key: 'monitoring',  label: '健康监测',   href: 'monitoring.html' },
     { key: 'assessment',  label: '健康评估',   href: 'assessment.html' },
     { key: 'agent',       label: '智能管家',   href: 'agent.html' },
+    { key: 'intervention',label: '改善计划',   href: 'intervention.html' },
+    { key: 'care',        label: '照护协同',   href: 'care.html' },
     { key: 'knowledge',   label: '健康知识',   href: 'knowledge.html' },
   ];
 
@@ -39,7 +41,7 @@
           </a>
           <nav class="primary-nav" aria-label="主导航">
             ${NAV_ITEMS.map(n => `
-              <a href="${n.href}" class="${n.key === activeKey ? 'is-active' : ''}">${n.label}</a>
+              <a href="${n.href}" class="${n.key === activeKey ? 'is-active' : ''}"${n.key === activeKey ? ' aria-current="page"' : ''}>${n.label}</a>
             `).join('')}
           </nav>
           <div class="topbar-right">
@@ -50,7 +52,7 @@
               🔔
               <span class="bell-badge" data-alert-badge hidden></span>
             </a>
-            <a href="profile.html" class="avatar" style="background:${avColor}" title="${user.name}">${initials}</a>
+            <a href="profile.html" class="avatar" style="background:${avColor}" title="${user.name}" aria-label="个人资料：${user.name}">${initials}</a>
             <a href="settings.html" class="icon-settings" title="设置" aria-label="设置">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/>

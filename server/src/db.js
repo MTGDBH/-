@@ -380,6 +380,59 @@ db.exec(`
 addColumnIfMissing('sessions', 'last_seen_at', 'TEXT');
 addColumnIfMissing('sessions', 'user_agent_hash', 'TEXT');
 addColumnIfMissing('sessions', 'ip_hash', 'TEXT');
+addColumnIfMissing('care_invitations', 'member_role', "TEXT NOT NULL DEFAULT 'caregiver'");
+addColumnIfMissing('care_invitations', 'scopes', "TEXT NOT NULL DEFAULT '[]'");
+addColumnIfMissing('care_invitations', 'relationship_expires_at', 'TEXT');
+addColumnIfMissing('care_relationships', 'scopes', "TEXT NOT NULL DEFAULT '[]'");
+addColumnIfMissing('care_relationships', 'valid_from', 'TEXT');
+addColumnIfMissing('care_relationships', 'expires_at', 'TEXT');
+addColumnIfMissing('care_relationships', 'revoked_at', 'TEXT');
+addColumnIfMissing('care_relationships', 'revoked_by', 'INTEGER');
+addColumnIfMissing('care_relationships', 'revoked_reason', 'TEXT');
+addColumnIfMissing('care_relationships', 'last_access_at', 'TEXT');
+addColumnIfMissing('care_relationships', 'updated_at', 'TEXT');
+addColumnIfMissing('care_relationships', 'revision', 'INTEGER NOT NULL DEFAULT 1');
+db.prepare(`UPDATE care_relationships SET valid_from=COALESCE(valid_from,created_at),updated_at=COALESCE(updated_at,created_at),revision=COALESCE(revision,1)`).run();
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS care_access_logs (
+    id INTEGER PRIMARY KEY,
+    relationship_id INTEGER REFERENCES care_relationships(id) ON DELETE SET NULL,
+    actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    subject_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    scope TEXT,
+    outcome TEXT NOT NULL,
+    resource TEXT,
+    metadata TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_care_access_relationship_time ON care_access_logs(relationship_id,created_at DESC,id DESC);
+  CREATE INDEX IF NOT EXISTS idx_care_access_subject_time ON care_access_logs(subject_user_id,created_at DESC,id DESC);
+
+  CREATE TABLE IF NOT EXISTS intervention_clinical_reviews (
+    id INTEGER PRIMARY KEY,
+    intervention_db_id INTEGER NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    relationship_id INTEGER NOT NULL REFERENCES care_relationships(id) ON DELETE CASCADE,
+    reviewer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL CHECK(status IN ('commented','approved_with_caution','needs_revision')),
+    comment TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_intervention_reviews_plan_time ON intervention_clinical_reviews(intervention_db_id,created_at DESC,id DESC);
+
+  CREATE TABLE IF NOT EXISTS graph_relationship_reviews (
+    id INTEGER PRIMARY KEY,
+    relation_index INTEGER NOT NULL,
+    relationship_id INTEGER NOT NULL REFERENCES care_relationships(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reviewer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL CHECK(status IN ('approved_for_education','needs_revision','rejected')),
+    notes TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    UNIQUE(relation_index,relationship_id,reviewer_id)
+  );
+`);
 
 // ============= 智能体 V2：对象绑定、分层记忆与可审计工具调用 =============
 db.exec(`
@@ -543,6 +596,9 @@ db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_action_requests_actor_idempotency
 
 // 智能体 V3：结构化追问状态与可确认的复测随访闭环。
 addColumnIfMissing('agent_conversations', 'dialogue_state', "TEXT NOT NULL DEFAULT '{}'");
+addColumnIfMissing('agent_tool_calls', 'tool_version', 'TEXT');
+addColumnIfMissing('agent_tool_calls', 'evidence_snapshot', 'TEXT');
+addColumnIfMissing('agent_tool_calls', 'failure_reason', 'TEXT');
 addColumnIfMissing('followups', 'actor_user_id', 'INTEGER');
 addColumnIfMissing('followups', 'baseline_metric_id', 'INTEGER');
 addColumnIfMissing('followups', 'candidate_metric_id', 'INTEGER');

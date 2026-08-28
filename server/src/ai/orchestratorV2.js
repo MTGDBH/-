@@ -12,6 +12,10 @@ import { getHealthSummary } from './tools/healthSummary.js';
 import { getAlertStatus } from './tools/alertStatus.js';
 import { queryKnowledgeGraph } from './tools/knowledgeGraph.js';
 import { getFollowupStatus } from './tools/followupStatus.js';
+import {
+  explainInterventionResult, evaluateInterventionTool, listActiveInterventions,
+  proposeIntervention, recordAdherence, INTERVENTION_AGENT_TOOL_VERSION,
+} from './tools/intervention.js';
 import { canActFor } from '../lib/intake.js';
 import { buildAgentPresentation, presentationGroundingText } from './presentation.js';
 import { localizeVisibleText, metricName } from './elderlyLanguage.js';
@@ -26,6 +30,8 @@ const MEMORY_CATEGORIES = new Set(['communication', 'schedule', 'diet', 'activit
 const TOOL_LABELS = {
   health_trend: '健康趋势', htn_risk: '高血压风险筛查', disease_risk: '疾病风险筛查',
   behavior: '睡眠与活动', device: '设备状态', health_summary: '健康摘要', alerts: '待处理预警', knowledge: '知识依据', followup_status: '复测随访',
+  propose_intervention: '个体干预提议', list_active_interventions: '活动干预', record_adherence: '执行记录',
+  evaluate_intervention: '个体效果评价', explain_intervention_result: '效果结果解释',
 };
 
 export const AGENT_TOOL_POLICIES = Object.freeze({
@@ -38,6 +44,11 @@ export const AGENT_TOOL_POLICIES = Object.freeze({
   alerts: { display_name: '待处理预警', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
   knowledge: { display_name: '知识依据', level: 'read', subject_bound: true, timeout_ms: 5000, cache: 'run+index_version', input_schema: { question: 'string:max500', disease: 'enum|null' } },
   followup_status: { display_name: '复测随访', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
+  propose_intervention: { display_name: '个体干预提议', level: 'confirmation_preview', subject_bound: true, timeout_ms: 5000, cache: 'none', input_schema: { message: 'string:max500' }, version: INTERVENTION_AGENT_TOOL_VERSION },
+  list_active_interventions: { display_name: '活动干预', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {}, version: INTERVENTION_AGENT_TOOL_VERSION },
+  record_adherence: { display_name: '执行记录', level: 'confirmation_preview', subject_bound: true, timeout_ms: 3000, cache: 'none', input_schema: { message: 'string:max500', intervention_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
+  evaluate_intervention: { display_name: '个体效果评价', level: 'explicit_write', subject_bound: true, timeout_ms: 30000, cache: 'none', input_schema: { intervention_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
+  explain_intervention_result: { display_name: '效果结果解释', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: { evaluation_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
 });
 
 function stable(value) {
@@ -54,7 +65,7 @@ function approxTokens(value) { return Math.ceil(JSON.stringify(value || '').leng
 export function resolveAgentSubject(actor, rawSubjectId) {
   const subjectId = rawSubjectId == null || rawSubjectId === '' ? Number(actor.id) : Number(rawSubjectId);
   if (!Number.isInteger(subjectId) || subjectId <= 0) return { error: 400, message: 'subject_user_id 不正确' };
-  const access = canActFor(subjectId, actor.id);
+  const access = canActFor(subjectId, actor.id, 'use_agent', { resource: 'agent' });
   if (!access.allowed) return { error: 403, message: '未获得该老人的授权' };
   const subject = db.prepare('SELECT * FROM users WHERE id = ?').get(subjectId);
   if (!subject) return { error: 404, message: '老人账号不存在' };
@@ -119,6 +130,13 @@ export function classifyAgentIntent(message) {
   const detectedMetrics = metricNames(message);
   const knowledgeOnlyRelation = graphRelationHit && !detectedMetrics.length && !/(最近|近\d+天|趋势|这次测量)/.test(message);
   const followupHit = /(复测|随访).{0,10}(安排|结果|任务|到期|完成|怎么样)|(安排|结果|任务|到期|完成).{0,10}(复测|随访)/.test(message);
+  const explainInterventionHit = /(解释|怎么看|什么意思|如何理解).{0,12}(干预)?(?:评价|评估|效果|证据)|干预结果.{0,8}(解释|怎么看)/.test(message);
+  const evaluateInterventionHit = !explainInterventionHit && /(评价|评估|看看).{0,10}(干预|方案).{0,8}(效果|结果)|(干预|方案).{0,8}(效果|结果).{0,8}(评价|评估)/.test(message);
+  const adherenceHit = /(今天|这次|刚才)?.{0,8}(做了|完成了|没做|未做|漏了|执行记录).{0,10}(干预|计划|散步|运动|活动|作息|饮食)?|记录.{0,8}(依从|执行)/.test(message);
+  const listInterventionsHit = /(我的|当前|正在|活动).{0,8}(干预|观察方案).{0,8}(有哪些|列表|进度|状态)|有哪些.{0,8}(干预|观察方案)/.test(message);
+  const proposeInterventionHit = !evaluateInterventionHit && !explainInterventionHit && !adherenceHit &&
+    /(我想|请|帮我|建议|制定|试试|开始).{0,18}(干预|方案|改善|控制|观察).{0,18}(血压|血糖|心率|体重|睡眠)|(?:血压|血糖|心率|体重|睡眠).{0,18}(干预|方案|改善|控制|观察)/.test(message);
+  const interventionHit = proposeInterventionHit || listInterventionsHit || adherenceHit || evaluateInterventionHit || explainInterventionHit;
   return {
     ...routed, trendHit: dailyTipHit || knowledgeOnlyRelation ? false : trendHit, riskHit: dailyTipHit ? false : riskHit, diseaseRiskHit: dailyTipHit ? false : diseaseRiskHit, graphRelationHit, followupHit,
     dailyPlanHit, dailyTipHit,
@@ -126,12 +144,19 @@ export function classifyAgentIntent(message) {
     deviceHit: routed.device, alertsHit: dailyPlanHit || routed.alerts, healthSummaryHit: dailyPlanHit || routed.healthSummary,
     actionHit: routed.action, forecastRequested: /未来|预测|外推|以后会/.test(message),
     trendMetrics: detectedMetrics, disease: diseaseFromMessage(message),
+    interventionHit, proposeInterventionHit, listInterventionsHit, adherenceHit, evaluateInterventionHit, explainInterventionHit,
   };
 }
 
 export function planAgentTools(intent, message, { limit = true } = {}) {
   const plan = [];
   const add = (name, args = {}) => { if (!plan.some(item => item.name === name)) plan.push({ name, args }); };
+  if (intent.explainInterventionHit) add('explain_intervention_result');
+  else if (intent.evaluateInterventionHit) add('evaluate_intervention');
+  else if (intent.adherenceHit) add('record_adherence', { message: String(message).slice(0, 500) });
+  else if (intent.listInterventionsHit) add('list_active_interventions');
+  else if (intent.proposeInterventionHit) add('propose_intervention', { message: String(message).slice(0, 500) });
+  if (intent.interventionHit) return limit ? plan.slice(0, MAX_TOOL_CALLS) : plan;
   if (intent.dailyPlanHit) {
     add('health_summary'); add('alerts'); add('behavior');
     return limit ? plan.slice(0, MAX_TOOL_CALLS) : plan;
@@ -163,6 +188,11 @@ const REGISTRY = {
   alerts: { retry: 1, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.alerts) && Number.isFinite(Number(x.pending)), run: ctx => getAlertStatus(ctx.subject.id) },
   knowledge: { retry: 1, timeout_ms: 5000, validate: x => Array.isArray(x?.results) && Array.isArray(x?.citations) && typeof x?.index_version === 'string', run: (ctx, args) => queryKnowledgeGraph(args.question, args.disease, ctx.liveContext, { audience: ctx.audience, topK: 6, maxHops: 2, includeTrace: true }) },
   followup_status: { retry: 1, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.items) && Number.isFinite(Number(x.total)), run: ctx => getFollowupStatus(ctx.subject.id) },
+  propose_intervention: { retry: 0, timeout_ms: 5000, validate: x => x?.success === true && x.status === 'confirmation_preview' && x.proposal?.intervention_payload, run: (ctx, args) => proposeIntervention(ctx, args) },
+  list_active_interventions: { retry: 0, timeout_ms: 3000, validate: x => x?.success === true && Array.isArray(x.items), run: ctx => listActiveInterventions(ctx) },
+  record_adherence: { retry: 0, timeout_ms: 3000, validate: x => x?.success === true && x.status === 'confirmation_preview' && x.adherence_preview, run: (ctx, args) => recordAdherence(ctx, args) },
+  evaluate_intervention: { retry: 0, timeout_ms: 30000, validate: x => x?.success === true && x.result?.schema_version === 'n-of-1-intervention-evaluation.v1', run: (ctx, args) => evaluateInterventionTool(ctx, args) },
+  explain_intervention_result: { retry: 0, timeout_ms: 3000, validate: x => x?.success === true && x.explanation && x.evidence_snapshot, run: (ctx, args) => explainInterventionResult(ctx, args) },
 };
 
 function timeout(promise, ms) {
@@ -252,10 +282,11 @@ async function executeOne(runId, callIndex, item, ctx, dataVersion) {
   if (!spec) return { name: item.name, status: 'error', error_code: 'TOOL_NOT_REGISTERED', result: null };
   const args = stable(item.args || {});
   const dedupeKey = hash({ tool: item.name, subject: ctx.subject.id, args, dataVersion });
-  const inserted = db.prepare(`INSERT INTO agent_tool_calls (run_id,call_index,tool_name,subject_user_id,arguments,dedupe_key)
-    VALUES (?,?,?,?,?,?)`).run(runId, callIndex, item.name, ctx.subject.id, JSON.stringify(args), dedupeKey);
+  const inserted = db.prepare(`INSERT INTO agent_tool_calls (run_id,call_index,tool_name,subject_user_id,arguments,dedupe_key,tool_version)
+    VALUES (?,?,?,?,?,?,?)`).run(runId, callIndex, item.name, ctx.subject.id, JSON.stringify(args), dedupeKey,
+      AGENT_TOOL_POLICIES[item.name]?.version || 'agent-tool.v2');
   const started = Date.now();
-  let result = null, fullResult = null, errorCode = null;
+  let result = null, fullResult = null, failureResult = null, errorCode = null;
   for (let attempt = 0; attempt <= spec.retry; attempt++) {
     try {
       fullResult = sanitizeResult(await timeout(spec.run(ctx, args), spec.timeout_ms));
@@ -264,14 +295,18 @@ async function executeOne(runId, callIndex, item, ctx, dataVersion) {
       result = modelResultView(item.name, fullResult);
       break;
     } catch (error) {
-      errorCode = ['TOOL_TIMEOUT', 'TOOL_RESULT_INVALID', 'TOOL_RESULT_SCHEMA'].includes(error.code) || String(error.code || '').startsWith('MODEL_') ? error.code : 'TOOL_UNAVAILABLE';
+      if (fullResult) failureResult = fullResult;
+      errorCode = ['TOOL_TIMEOUT', 'TOOL_RESULT_INVALID', 'TOOL_RESULT_SCHEMA'].includes(error.code) || /^(MODEL_|INTERVENTION_|TARGET_|TRACEABLE_|BASELINE_|ADHERENCE_|ACTIVE_|EVALUAT|EMERGENCY_|MEDICATION_)/.test(String(error.code || '')) ? error.code : 'TOOL_UNAVAILABLE';
       if (attempt >= spec.retry) { result = null; fullResult = null; }
     }
   }
   const latency = Date.now() - started;
-  const manifest = fullResult ? toolManifest(fullResult) : { success: false, status: 'error' };
-  db.prepare(`UPDATE agent_tool_calls SET status=?,latency_ms=?,error_code=?,result_manifest=?,result_hash=?,completed_at=? WHERE id=?`)
-    .run(result ? 'success' : 'error', latency, errorCode, JSON.stringify(manifest), fullResult ? hash(fullResult) : null, nowIso(), inserted.lastInsertRowid);
+  const auditResult = fullResult || failureResult;
+  const manifest = auditResult ? toolManifest(auditResult) : { success: false, status: 'error' };
+  db.prepare(`UPDATE agent_tool_calls SET status=?,latency_ms=?,error_code=?,failure_reason=?,result_manifest=?,result_hash=?,evidence_snapshot=?,completed_at=? WHERE id=?`)
+    .run(result ? 'success' : 'error', latency, errorCode, result ? null : errorCode,
+      JSON.stringify(manifest), auditResult ? hash(auditResult) : null,
+      auditResult?.evidence_snapshot ? JSON.stringify(auditResult.evidence_snapshot) : null, nowIso(), inserted.lastInsertRowid);
   return { name: item.name, label: TOOL_LABELS[item.name], status: result ? 'success' : 'error', latency_ms: latency, error_code: errorCode, manifest, result };
 }
 
@@ -279,7 +314,9 @@ function subjectDataVersion(subjectId) {
   const metric = db.prepare('SELECT COUNT(*) AS n,MAX(recorded_at) AS at FROM metrics WHERE user_id = ?').get(subjectId);
   const alert = db.prepare('SELECT COUNT(*) AS n,MAX(created_at) AS at FROM alerts WHERE user_id = ?').get(subjectId);
   const followup = db.prepare('SELECT COUNT(*) AS n,MAX(updated_at) AS at FROM followups WHERE user_id=?').get(subjectId);
-  return hash({ metric, alert, followup });
+  const intervention = db.prepare('SELECT COUNT(*) AS n,MAX(updated_at) AS at FROM interventions WHERE subject_user_id=?').get(subjectId);
+  const evaluation = db.prepare('SELECT COUNT(*) AS n,MAX(created_at) AS at FROM intervention_evaluations WHERE subject_user_id=?').get(subjectId);
+  return hash({ metric, alert, followup, intervention, evaluation });
 }
 
 function relevantTypes(message, intent) {
@@ -310,7 +347,7 @@ function minimalLiveContext(full, message, intent) {
 }
 
 export function needsLiveHealthContext(message, intent) {
-  if (intent.trendHit || intent.riskHit || intent.diseaseRiskHit || intent.healthSummaryHit || intent.behaviorHit) return true;
+  if (intent.trendHit || intent.riskHit || intent.diseaseRiskHit || intent.healthSummaryHit || intent.behaviorHit || intent.interventionHit) return true;
   return intent.graphRelationHit && /我|我的|本人|结合.{0,6}(?:记录|数据)|根据.{0,6}(?:记录|数据)/.test(message);
 }
 
@@ -431,6 +468,40 @@ function actionPreview(message) {
 
 function deterministicReply(message, toolResults, intent) {
   const ok = toolResults.filter(item => item.status === 'success');
+  const proposal = ok.find(item => item.name === 'propose_intervention')?.result;
+  if (proposal) return {
+    content: `我按当前测量和可追溯依据整理了一个${proposal.proposal.duration}的个体观察方案。请先核对做法、记录、复测和停止条件；只有确认卡片后才会创建。`,
+    plan: [{ icon: '观', title: proposal.proposal.intervention_payload.title,
+      desc: `${proposal.proposal.what}；${proposal.proposal.recheck}`,
+      action_type: 'n_of_1_intervention', requires_confirmation: true,
+      intervention_payload: proposal.proposal.intervention_payload,
+      proposal_details: proposal.proposal }],
+    confidence: { type: 'data', score: 78, sources: proposal.proposal.evidence_sources.map(row => row.label || row.title), reasoning: '基于当前目标指标记录与通过审核的可追溯知识来源生成待确认预览' },
+    evidence: { graph_mode: 'reviewed_evidence_snapshot', index_version: proposal.tool_version,
+      citations: proposal.proposal.evidence_sources.map(row => ({ label: row.label || row.title, url: row.url || null,
+        review_status: row.review_status || 'approved' })), uncertainty: '该证据只支持提出可撤销的个人观察方案，不支持确定性疗效结论' },
+  };
+  const activeInterventions = ok.find(item => item.name === 'list_active_interventions')?.result;
+  if (activeInterventions) return { content: activeInterventions.total
+    ? `目前有 ${activeInterventions.total} 个正在进行或等待评价的个体干预。可以继续记录执行情况，并按计划在相同条件下复测。`
+    : '目前没有正在进行或等待评价的个体干预。', plan: [],
+    confidence: { type: 'data', score: 95, sources: ['活动干预记录'], reasoning: '直接读取当前老人的干预状态' } };
+  const adherence = ok.find(item => item.name === 'record_adherence')?.result;
+  if (adherence) return { content: `我已为“${adherence.intervention.title}”整理本次执行记录预览。请核对是否完成，确认后才会写入。`,
+    plan: [{ icon: '记', title: adherence.adherence_preview.performed ? '记录本次已完成' : '记录本次未完成',
+      desc: adherence.adherence_preview.performed ? '确认后写入本次执行记录' : `未完成原因：${adherence.adherence_preview.skip_reason}`,
+      action_type: 'record_adherence', requires_confirmation: true, intervention_id: adherence.intervention.intervention_id,
+      adherence_payload: adherence.adherence_preview }], confidence: { type: 'data', score: 95, sources: ['活动干预记录'], reasoning: '根据用户本轮明确陈述生成待确认执行记录' } };
+  const evaluation = ok.find(item => item.name === 'evaluate_intervention')?.result;
+  if (evaluation) {
+    const level = evaluation.result.evidence_level;
+    const wording = level === 'insufficient' ? '数据不足，本次已安全拒绝评价' : level === 'descriptive_only' ? '只能报告描述性变化' : level === 'personal_repeated' ? '属于重复个体证据' : '属于初步个体证据';
+    return { content: `评价已完成：${wording}。${evaluation.result.message}`, plan: [],
+      confidence: { type: 'data', score: level === 'insufficient' ? 45 : 78, sources: ['个体干预评价契约'], reasoning: `按版本化评价引擎输出，证据等级为 ${level}` } };
+  }
+  const explanation = ok.find(item => item.name === 'explain_intervention_result')?.result;
+  if (explanation) return { content: `${explanation.explanation.measured_values}。${explanation.explanation.model_prediction}。${explanation.explanation.personal_evidence}。${explanation.explanation.safety_message}`,
+    plan: [], confidence: { type: 'data', score: 82, sources: ['已保存的个体干预评价'], reasoning: '确定性区分测量值、预测、描述性变化、个体证据和数据不足' } };
   if (!ok.length && intent.actionHit) return { content: '我已经整理成待确认的行动。只有你点击确认后，系统才会创建记录。', plan: actionPreview(message), confidence: { type: 'common_sense' } };
   if (!ok.length) return { content: intent.type === 'common_health_question' ? '我可以提供一般健康知识；如果要结合个人数据，请明确告诉我想看哪项指标或哪段时间。' : '相关健康工具暂时没有得到可用结果，请稍后重试，或先补充规范记录。', plan: [], confidence: { type: 'common_sense' } };
   const trend = ok.find(item => item.name === 'health_trend')?.result;
@@ -469,6 +540,10 @@ function normalizeOutputPhrases(value) {
     .replace(/低压（低压）/g, '低压')
     .replace(/现在[：:]\s*现在[：:]/g, '现在：')
     .replace(/今天[：:]\s*今天[：:]/g, '今天：')
+    .replace(/已经证明有效/g, '目前仅有个体观察证据')
+    .replace(/可以停药/g, '不要自行停药')
+    .replace(/可以代替医生/g, '不能代替医生')
+    .replace(/一定能降低患病风险/g, '不能保证降低患病风险')
     .trim();
 }
 
@@ -497,7 +572,7 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   let toolResults = [];
   if (!emergency) {
     const toolPlan = planAgentTools(intent, message);
-    const ctx = { actor, subject, audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', liveContext: liveContext || {} };
+    const ctx = { actor, subject, message, audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', liveContext: liveContext || {} };
     const version = subjectDataVersion(subject.id);
     toolResults = await Promise.all(toolPlan.map((item, index) => executeOne(runId, index, item, ctx, version)));
   }
@@ -506,14 +581,15 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   let response = emergency;
   let curveGraphLink = null;
   if (!response) {
-    try {
-      response = await composeGroundedResponse({
-        messages: contextPlan.recent.map(row => ({ role: row.role, content: row.content })), userMessage: message,
-        healthSummary: { context: liveContext }, user: subject, actor, authority: actor.id === subject.id ? 'self' : 'caregiver', intent,
-        toolResults, memories: contextPlan.memories.map(row => ({ category: row.category, content: row.content })), conversationSummary: contextPlan.summary,
-      });
-      if (response && (toolResults.length || liveContext) && !groundedNumbersMatch(response.content, toolResults, liveContext)) response = null;
-    } catch { response = null; }
+    if (intent.interventionHit) response = deterministicReply(message, toolResults, intent);
+    else try {
+        response = await composeGroundedResponse({
+          messages: contextPlan.recent.map(row => ({ role: row.role, content: row.content })), userMessage: message,
+          healthSummary: { context: liveContext }, user: subject, actor, authority: actor.id === subject.id ? 'self' : 'caregiver', intent,
+          toolResults, memories: contextPlan.memories.map(row => ({ category: row.category, content: row.content })), conversationSummary: contextPlan.summary,
+        });
+        if (response && (toolResults.length || liveContext) && !groundedNumbersMatch(response.content, toolResults, liveContext)) response = null;
+      } catch { response = null; }
     response ||= deterministicReply(message, toolResults, intent);
 
     // Curve -> GraphRAG 安全联动：预测事件在后端生成并冻结；LLM 的候选文本随后会被
@@ -539,7 +615,7 @@ export async function runAgentV2({ actor, subject, conversation, message, client
       response = { ...response, ...curveGraphLink };
     }
   }
-  const previews = actionPreview(message);
+  const previews = intent.interventionHit ? [] : actionPreview(message);
   if (previews.length && !curveGraphLink) response.plan = previews;
   response.plan = (response.plan || []).slice(0, 2);
   response.content = normalizeOutputPhrases(response.content);

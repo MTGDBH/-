@@ -56,7 +56,7 @@ function executeAction(id, actorUserId) {
 
 router.get('/', (req, res) => {
   const subjectId = Number(req.query.subject_user_id || req.user.id);
-  if (!canActFor(subjectId, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(subjectId, req.user.id, 'use_agent', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const rows = db.prepare('SELECT * FROM action_requests WHERE actor_user_id = ? AND subject_user_id = ? ORDER BY id DESC LIMIT 50').all(req.user.id, subjectId)
     .map(row => ({ ...row, payload: parsePayload(row.payload) }));
   res.json({ items: rows });
@@ -66,7 +66,7 @@ router.post('/', (req, res) => {
   const { action_type } = req.body || {};
   if (!ALLOWED.has(action_type)) return res.status(400).json({ error: 'unsupported action_type' });
   const subjectId = Number(req.body?.subject_user_id || req.user.id);
-  if (!canActFor(subjectId, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(subjectId, req.user.id, 'use_agent', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const payload = {
     title: String(req.body.title || '').trim().slice(0, 120),
     desc: String(req.body.desc || '').trim().slice(0, 240),
@@ -104,7 +104,7 @@ router.post('/', (req, res) => {
 // 复测闭环：行动执行后可以安排具体指标的复测，并在下一次采集后回填结果。
 router.get('/followups', (req, res) => {
   const subjectId = Number(req.query.subject_user_id || req.user.id);
-  if (!canActFor(subjectId, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(subjectId, req.user.id, 'view_retest', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   res.json({ items: listFollowups(subjectId) });
 });
 
@@ -122,7 +122,7 @@ router.post('/followups/:id/complete', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const followup = db.prepare('SELECT * FROM followups WHERE id = ?').get(id);
   if (!followup) return res.status(404).json({ error: 'follow-up not found' });
-  if (!canActFor(followup.user_id, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(followup.user_id, req.user.id, 'manage_followups', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const metricId = req.body?.result_metric_id == null ? null : Number(req.body.result_metric_id);
   const result = confirmFollowupCandidate(id, followup.user_id, req.user.id, metricId);
   if (!result) return res.status(400).json({ error: '候选复测记录不匹配' });
@@ -132,7 +132,7 @@ router.post('/followups/:id/complete', (req, res) => {
 router.patch('/followups/:id', (req, res) => {
   const row = db.prepare('SELECT * FROM followups WHERE id=?').get(Number(req.params.id));
   if (!row) return res.status(404).json({ error: 'follow-up not found' });
-  if (!canActFor(row.user_id, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(row.user_id, req.user.id, 'manage_followups', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const result = rescheduleFollowup(row.id, row.user_id, req.user.id, req.body?.due_at);
   if (!result) return res.status(409).json({ error: '当前状态不能修改时间' });
   res.json(result);
@@ -141,7 +141,7 @@ router.patch('/followups/:id', (req, res) => {
 router.post('/followups/:id/cancel', (req, res) => {
   const row = db.prepare('SELECT * FROM followups WHERE id=?').get(Number(req.params.id));
   if (!row) return res.status(404).json({ error: 'follow-up not found' });
-  if (!canActFor(row.user_id, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(row.user_id, req.user.id, 'manage_followups', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const result = cancelFollowup(row.id, row.user_id);
   if (!result && row.status !== 'cancelled') return res.status(409).json({ error: '当前状态不能取消' });
   res.json(result || row);
@@ -150,7 +150,7 @@ router.post('/followups/:id/cancel', (req, res) => {
 router.post('/followups/:id/candidate/confirm', (req, res) => {
   const row = db.prepare('SELECT * FROM followups WHERE id=?').get(Number(req.params.id));
   if (!row) return res.status(404).json({ error: 'follow-up not found' });
-  if (!canActFor(row.user_id, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(row.user_id, req.user.id, 'manage_followups', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const result = confirmFollowupCandidate(row.id, row.user_id, req.user.id, Number(req.body?.metric_id));
   if (!result) return res.status(400).json({ error: '候选复测记录不匹配' });
   res.json(result);
@@ -159,7 +159,7 @@ router.post('/followups/:id/candidate/confirm', (req, res) => {
 router.post('/followups/:id/candidate/reject', (req, res) => {
   const row = db.prepare('SELECT * FROM followups WHERE id=?').get(Number(req.params.id));
   if (!row) return res.status(404).json({ error: 'follow-up not found' });
-  if (!canActFor(row.user_id, req.user.id).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
+  if (!canActFor(row.user_id, req.user.id, 'manage_followups', { resource: req.path }).allowed) return res.status(403).json({ error: '未获得该老人的授权' });
   const result = rejectFollowupCandidate(row.id, row.user_id, Number(req.body?.metric_id));
   if (!result) return res.status(400).json({ error: '候选复测记录不匹配' });
   res.json(result);
@@ -173,7 +173,7 @@ router.post('/:id/confirm', (req, res) => {
     reason_code: 'INTERVENTION_CONFIRM_VIA_DEDICATED_API',
     message: '个体干预必须通过 /api/actions/interventions/:interventionId/confirm 确认，不能使用通用行动入口',
   });
-  if (!canActFor(existing.subject_user_id, req.user.id).allowed) return res.status(403).json({ error: '老人授权已失效，不能执行该行动' });
+  if (!canActFor(existing.subject_user_id, req.user.id, 'use_agent', { resource: req.path }).allowed) return res.status(403).json({ error: '老人授权已失效，不能执行该行动' });
   if (existing.status === 'executed') return res.json({ request: { ...existing, payload: parsePayload(existing.payload) }, followup: db.prepare('SELECT * FROM followups WHERE action_request_id=?').get(id), idempotent_replay: true });
   if (!['pending_confirmation', 'confirmed'].includes(existing.status)) return res.status(400).json({ error: '行动已取消或不可执行' });
   const executed = executeAction(id, req.user.id);
@@ -189,7 +189,7 @@ router.post('/:id/cancel', (req, res) => {
     reason_code: 'INTERVENTION_CANCEL_VIA_DEDICATED_API',
     message: '个体干预必须通过干预专用拒绝或取消 API 处理',
   });
-  if (!canActFor(existing.subject_user_id, req.user.id).allowed) return res.status(403).json({ error: '老人授权已失效' });
+  if (!canActFor(existing.subject_user_id, req.user.id, 'use_agent', { resource: req.path }).allowed) return res.status(403).json({ error: '老人授权已失效' });
   if (existing.status === 'cancelled') return res.json({ request: { ...existing, payload: parsePayload(existing.payload) }, idempotent_replay: true });
   if (existing.status !== 'pending_confirmation') return res.status(400).json({ error: '行动已执行或不可取消' });
   db.prepare(`UPDATE action_requests SET status='cancelled' WHERE id=? AND actor_user_id=?`).run(id, req.user.id);

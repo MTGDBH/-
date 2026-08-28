@@ -91,6 +91,15 @@ function toolFacts(toolResults) {
   }
   const followups = toolResults.find(item => item.name === 'followup_status' && item.status === 'success')?.result;
   if (followups) facts.push({ label: '待处理复测', value: String(followups.total || 0), unit: '项', measured_at: null, context: followups.pending_confirmation ? `其中 ${followups.pending_confirmation} 项需确认新测量` : '暂无待确认测量', trend: null });
+  const proposal = toolResults.find(item => item.name === 'propose_intervention' && item.status === 'success')?.result;
+  if (proposal) facts.push({ label: '待确认个体方案', value: proposal.proposal.duration, unit: '', measured_at: null,
+    context: `观察${proposal.proposal.target_metric}；确认前不写入`, trend: null });
+  const active = toolResults.find(item => item.name === 'list_active_interventions' && item.status === 'success')?.result;
+  if (active) facts.push({ label: '活动干预', value: String(active.total || 0), unit: '项', measured_at: null, context: '正在进行或等待评价', trend: null });
+  const evaluation = toolResults.find(item => item.name === 'evaluate_intervention' && item.status === 'success')?.result?.result;
+  if (evaluation) facts.push({ label: evaluation.evidence_level === 'insufficient' ? '数据不足' : evaluation.evidence_level === 'descriptive_only' ? '描述性变化' : '个体证据',
+    value: evaluation.absolute_change == null ? '不生成变化量' : String(evaluation.absolute_change), unit: evaluation.target_metric?.unit || '',
+    measured_at: null, context: `证据等级：${evaluation.evidence_level}`, trend: null });
   return facts;
 }
 
@@ -151,6 +160,8 @@ function presentationActions(plan, intent, tone, liveContext, strictEvidence = f
     action_type: item.action_type || null,
     requires_confirmation: !!item.action_type,
     ...(item.action_type === 'schedule_recheck' ? scheduleFields(item) : {}),
+    ...(item.action_type === 'n_of_1_intervention' ? { intervention_payload: item.intervention_payload, proposal_details: item.proposal_details } : {}),
+    ...(item.action_type === 'record_adherence' ? { intervention_id: item.intervention_id, adherence_payload: item.adherence_payload } : {}),
   })).filter(item => item.title);
   if (!strictEvidence && intent.trendHit && !actions.some(item => item.action_type === 'schedule_recheck')) {
     actions.unshift({ title: '安排一次规范复测', description: '选择时间后先生成待确认预览，确认后才创建站内待办。', action_type: 'schedule_recheck', requires_confirmation: true, ...scheduleFields({}) });
@@ -170,7 +181,7 @@ function safetyFor(tone, intent, response) {
 export function buildAgentPresentation({ response, toolResults = [], liveContext = null, intent = {}, subject = {}, actor = {}, message = '' }) {
   const emergency = response?.source === 'safety_rule';
   const personalCard = emergency || intent.trendHit || intent.riskHit || intent.diseaseRiskHit || intent.healthSummaryHit
-    || intent.behaviorHit || intent.deviceHit || intent.alertsHit || intent.actionHit || intent.followupHit || !!liveContext;
+    || intent.behaviorHit || intent.deviceHit || intent.alertsHit || intent.actionHit || intent.followupHit || intent.interventionHit || !!liveContext;
   if (!personalCard) return { mode: 'plain' };
   const tone = toneFor(response, toolResults);
   const facts = emergency

@@ -15,7 +15,10 @@
         <h1>智能管家</h1>
         <p class="subtitle">直接说出您的问题，小康会自动选择合适的健康能力</p>
       </div>
-      <button type="button" class="agent-daily-plan-button" id="agent-daily-plan">生成今日健康方案</button>
+      <div class="agent-page-actions">
+        <a class="btn btn-secondary" id="agent-intervention-link" href="intervention.html">我的改善计划</a>
+        <button type="button" class="agent-daily-plan-button" id="agent-daily-plan">生成今日健康方案</button>
+      </div>
     </header>
 
     <section class="agent-context-bar" aria-label="智能体上下文">
@@ -263,6 +266,7 @@
     function bindAgentContext() {
       document.getElementById('agent-subject').addEventListener('change', async e => {
         subjectId = Number(e.target.value); conversationId = null;
+        syncInterventionLink();
         await loadConversations(); await Promise.all([loadChat(), loadMemories(), loadPlan(), loadInbox(), loadDailyTip()]);
       });
       document.getElementById('agent-conversation').addEventListener('change', async e => { conversationId = Number(e.target.value); await Promise.all([loadChat(), loadPlan()]); });
@@ -283,6 +287,7 @@
 
     async function initAgentContext() {
       me = await API.get('/api/auth/me'); subjectId = me.id;
+      syncInterventionLink();
       let relationships = { as_member: [] };
       try { relationships = await API.get('/api/care/relationships'); } catch {}
       if (relationships.as_member?.length) {
@@ -290,6 +295,11 @@
         document.getElementById('agent-subject').innerHTML = `<option value="${me.id}">${escapeHTML(me.name)}（本人）</option>` + relationships.as_member.filter(x => x.status === 'active').map(x => `<option value="${x.senior_id}">${escapeHTML(x.name)}（已授权）</option>`).join('');
       }
       await loadConversations(); await Promise.all([loadChat(), loadMemories()]);
+    }
+
+    function syncInterventionLink() {
+      const link = document.getElementById('agent-intervention-link');
+      if (link && subjectId) link.href = `intervention.html?subject_user_id=${encodeURIComponent(subjectId)}`;
     }
 
     async function loadConversations() {
@@ -593,9 +603,17 @@
 
     function renderPlanControl(p) {
       const metricType = inferActionMetric(p);
-      const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || p.description || '')}" data-metric-type="${metricType}" data-baseline-metric-id="${p.baseline_metric_id || ''}"`;
+      const interventionPayload = p.intervention_payload ? encodeURIComponent(JSON.stringify(p.intervention_payload)) : '';
+      const adherencePayload = p.adherence_payload ? encodeURIComponent(JSON.stringify(p.adherence_payload)) : '';
+      const attrs = `data-action-type="${p.action_type || ''}" data-title="${encodeURIComponent(p.title)}" data-desc="${encodeURIComponent(p.desc || p.description || '')}" data-metric-type="${metricType}" data-baseline-metric-id="${p.baseline_metric_id || ''}" data-intervention-id="${p.intervention_id || ''}" data-intervention-payload="${interventionPayload}" data-adherence-payload="${adherencePayload}"`;
       const schedule = p.action_type === 'schedule_recheck' ? `<div class="agent-schedule-picker" aria-label="选择复测时间"><div class="agent-schedule-head"><strong>选择复测时间</strong><span>选择后再确认，不会自动保存</span></div><div class="agent-schedule-options">${(p.schedule_options || [{key:'later_today',label:'今天稍后'},{key:'tomorrow_morning',label:'明早'},{key:'custom',label:'自选时间'}]).map((item,index) => `<button type="button" data-schedule-key="${item.key}" class="${index===1?'selected':''}">${escapeHTML(item.label)}</button>`).join('')}</div><input type="datetime-local" aria-label="自选复测时间" hidden></div>` : '';
-      if (p.requires_confirmation || p.action_type) return `${schedule}<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>确认安排</button><button data-action="dismiss-plan">暂不安排</button></div>`;
+      const detail = p.action_type === 'n_of_1_intervention' && p.proposal_details ? `<div class="agent-intervention-details">
+        <p><strong>做什么：</strong>${escapeHTML(p.proposal_details.what || '')}</p><p><strong>做多久：</strong>${escapeHTML(p.proposal_details.duration || '')}</p>
+        <p><strong>如何记录：</strong>${escapeHTML(p.proposal_details.recording || '')}</p><p><strong>何时复测：</strong>${escapeHTML(p.proposal_details.recheck || '')}</p>
+        <p><strong>观察指标：</strong>${escapeHTML(p.proposal_details.target_metric || '')}</p><p><strong>为什么：</strong>${escapeHTML(p.proposal_details.why || '')}</p>
+        <p><strong>证据来源：</strong>${(p.proposal_details.evidence_sources || []).map(x => escapeHTML(x.label || x.title || '')).join('；')}</p>
+        <p><strong>停止并就医：</strong>${escapeHTML(p.proposal_details.stop_and_seek_care || '')}</p></div>` : '';
+      if (p.requires_confirmation || p.action_type) return `${detail}${schedule}<div class="agent-action-preview-controls"><button data-action="plan" ${attrs}>${p.action_type === 'n_of_1_intervention' ? '确认创建干预' : p.action_type === 'record_adherence' ? '确认记录' : '确认安排'}</button><button data-action="dismiss-plan">${p.action_type === 'n_of_1_intervention' ? '拒绝方案' : '暂不安排'}</button></div>`;
       return `<button class="plan-card-check" data-action="plan" ${attrs} style="color:${planColorFg(p.color)};border:0;background:transparent;cursor:pointer" title="创建今日待办">＋</button>`;
     }
 
@@ -810,6 +828,20 @@
       const sensitive = /用药|药物|就医|医生|家属|通知/.test(title + desc);
       const actionType = btn.dataset.actionType || (/复测|复查|测量|监测/.test(title) ? 'schedule_recheck' : /通知家属/.test(title) ? 'notify_caregiver' : /联系医生|就医/.test(title) ? 'contact_doctor' : 'create_todo');
       try {
+        if (actionType === 'n_of_1_intervention') {
+          const payload = JSON.parse(decodeURIComponent(btn.dataset.interventionPayload || ''));
+          if (!window.confirm(`请再次核对卡片内容。确认创建并激活“${title}”吗？这不是药物调整，也不能替代就医。`)) return;
+          const created = await API.post('/api/actions/interventions', { ...payload, subject_user_id: subjectId });
+          if (!created.intervention?.intervention_id) throw new Error('没有生成待确认干预');
+          await API.post(`/api/actions/interventions/${created.intervention.intervention_id}/confirm`, {});
+          btn.textContent = '已确认'; btn.disabled = true; toast('干预已由本人确认并激活', 'success'); await loadInbox(); return;
+        }
+        if (actionType === 'record_adherence') {
+          const payload = JSON.parse(decodeURIComponent(btn.dataset.adherencePayload || ''));
+          if (!window.confirm(`确认写入“${title}”吗？`)) return;
+          await API.post(`/api/actions/interventions/${btn.dataset.interventionId}/executions`, payload);
+          btn.textContent = '已记录'; btn.disabled = true; toast('执行情况已记录', 'success'); await loadInbox(); return;
+        }
         const schedule = actionType === 'schedule_recheck' ? selectedDueAt(btn) : {};
         const metricType = btn.dataset.metricType || (/血压/.test(title + desc) ? 'bp' : /血糖/.test(title + desc) ? 'glucose' : /心率|脉搏/.test(title + desc) ? 'hr' : /体重/.test(title + desc) ? 'weight' : /睡眠/.test(title + desc) ? 'sleep' : null);
         if (actionType === 'schedule_recheck' && !metricType) throw new Error('请先明确要复测的健康指标');

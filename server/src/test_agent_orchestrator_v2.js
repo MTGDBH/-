@@ -21,7 +21,13 @@ assert.equal(needsLiveHealthContext('今天有什么养生贴士', classifyAgent
 const crowded = namesFor('看看总体健康、睡眠、设备同步和待处理预警');
 assert.ok(crowded.length <= 3, '单轮工具预算最多3项');
 assert.equal(new Set(crowded).size, crowded.length, '单轮工具必须去重');
-assert.ok(Object.values(AGENT_TOOL_POLICIES).every(policy => policy.level === 'read' && policy.subject_bound && policy.input_schema), '注册表必须声明权限和输入Schema');
+assert.ok(Object.values(AGENT_TOOL_POLICIES).every(policy => policy.subject_bound && policy.input_schema), '注册表必须声明对象绑定和输入Schema');
+assert.equal(AGENT_TOOL_POLICIES.propose_intervention.level, 'confirmation_preview');
+assert.equal(AGENT_TOOL_POLICIES.evaluate_intervention.level, 'explicit_write');
+assert.deepEqual(namesFor('请帮我制定一个改善血糖的非药物干预方案'), ['propose_intervention']);
+assert.deepEqual(namesFor('我今天完成了干预，请记录执行'), ['record_adherence']);
+assert.deepEqual(namesFor('请评估这个干预的效果'), ['evaluate_intervention']);
+assert.deepEqual(namesFor('解释一下干预评价结果'), ['explain_intervention_result']);
 
 const toolResults = [{ result: { latest: [{ value: 128, value2: 85, unit: 'mmHg', recorded_at: '2026-08-23' }] } }];
 assert.equal(groundedNumbersMatch('最近血压是128/85 mmHg，记录于2026-08-23。', toolResults, null), true);
@@ -31,5 +37,6 @@ const dangerCounterfactual = emergencyReply('请预测我未来的血压，而�
 assert.equal(dangerCounterfactual?.source, 'safety_rule', '加入危险症状后必须由急症规则覆盖预测与 LLM');
 assert.doesNotMatch(dangerCounterfactual?.content || '', /未来.{0,8}\d|预测值|估计范围/, '急症回答不得继续展示预测');
 assert.equal(emergencyReply('我想了解卒中知识'), null, '普通健康知识不应误触发急症通道');
+assert.equal(emergencyReply('我想做干预，但现在突然胸痛、喘不过气')?.source, 'safety_rule', '急症必须打断干预流程');
 
 console.log('agent orchestrator v2 deterministic routing: PASS');

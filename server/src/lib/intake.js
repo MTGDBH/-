@@ -1,6 +1,7 @@
 // Versioned, server-scored elderly health intake. Question wording mirrors the
 // CHARLS feature semantics while keeping model field names away from the UI.
 import db from '../db.js';
+import { resolveCareAccess } from '../contracts/careAccess.js';
 
 export const INTAKE_SCHEMA_VERSION = 'elderly-intake.v1';
 
@@ -99,11 +100,11 @@ export function scoreIntake(rawAnswers = {}) {
   };
 }
 
-export function canActFor(subjectUserId, actorUserId) {
-  if (Number(subjectUserId) === Number(actorUserId)) return { allowed: true, role: 'self' };
-  const relationship = db.prepare(`SELECT id, member_role FROM care_relationships
-    WHERE senior_id = ? AND member_id = ? AND status = 'active'`).get(subjectUserId, actorUserId);
-  return relationship ? { allowed: true, role: 'caregiver', relationship_id: relationship.id } : { allowed: false };
+export function canActFor(subjectUserId, actorUserId, requiredScope = 'view_summary', options = {}) {
+  const access = resolveCareAccess(subjectUserId, actorUserId, requiredScope, options);
+  return access.allowed
+    ? { ...access, relationship_id: access.relationship?.id || null }
+    : access;
 }
 
 export function intakeSchema() {

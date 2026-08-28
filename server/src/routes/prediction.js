@@ -585,10 +585,10 @@ export { referenceFor, peerReferenceFor, transformCurve, curveMetricMeta, CURVE_
 
 // ===== 路由 =====
 
-function resolveSubject(req, rawId = null) {
+function resolveSubject(req, rawId = null, requiredScope = 'view_summary') {
   const subjectId = rawId == null || rawId === '' ? req.user.id : Number(rawId);
   if (!Number.isInteger(subjectId) || subjectId <= 0) return { error: 400, message: 'subject_user_id 不正确' };
-  const access = canActFor(subjectId, req.user.id);
+  const access = canActFor(subjectId, req.user.id, requiredScope, { resource: req.path });
   if (!access.allowed) return { error: 403, message: '未获得该老人的授权' };
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(subjectId);
   if (!user) return { error: 404, message: '老人账号不存在' };
@@ -610,7 +610,7 @@ router.get('/intake/latest', (req, res) => {
 });
 
 router.post('/intakes', (req, res) => {
-  const subject = resolveSubject(req, req.body?.subject_user_id);
+  const subject = resolveSubject(req, req.body?.subject_user_id, 'record_intake');
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
   const scored = scoreIntake(req.body?.answers || {});
   if (!Object.keys(scored.answers).length) return res.status(400).json({ error: '请至少回答一题' });
@@ -652,7 +652,7 @@ router.post('/intakes', (req, res) => {
 });
 
 router.get('/discovery/overview', async (req, res) => {
-  const subject = resolveSubject(req, req.query.subject_user_id);
+  const subject = resolveSubject(req, req.query.subject_user_id, 'view_trends');
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
   try {
     const diseases = await Promise.all([...DISEASES].map(async disease => [disease, await predictDisease(subject.id, subject.user, disease)]));
@@ -796,7 +796,7 @@ router.get('/:type', async (req, res) => {
   const validated = validateCurveRequest(req.params.type, req.query.days, type => !!curveMetricMeta(type));
   if (!validated.ok) return res.status(validated.status).json({ error: validated.error });
   const { type, days } = validated;
-  const subject = resolveSubject(req, req.query.subject_user_id);
+  const subject = resolveSubject(req, req.query.subject_user_id, 'view_trends');
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
   // The server chooses the highest defensible horizon; clients no longer need
   // to promise a fixed forecast length.
@@ -1001,7 +1001,7 @@ router.get('/overview/composite', async (req, res) => {
 
 // 获取所有有数据的指标列表（用于预测页渲染多张图）
 router.get('/overview/list', (req, res) => {
-  const subject = resolveSubject(req, req.query.subject_user_id);
+  const subject = resolveSubject(req, req.query.subject_user_id, 'view_trends');
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
   const days = Math.min(parseInt(req.query.days || '30', 10), 365);
   const since = new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();

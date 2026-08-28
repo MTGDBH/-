@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../db.js';
 import { hasPermission } from '../contracts/accessControl.js';
+import { resolveCareAccess } from '../contracts/careAccess.js';
 import {
   INTERVENTION_REASON_CODES, INTERVENTION_STATUSES, canTransitionIntervention,
   validateExecutionLogInput, validateInterventionInput,
@@ -28,20 +29,13 @@ function resolveSubjectAccess(req, rawSubjectId, operation = 'view') {
     return { allowed: true, subject, accessRole: 'self', canManage: true, canRecord: true, canView: true };
   }
   if (req.user.role === 'admin') return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '管理员不能默认读取或管理个人健康干预' };
-  const relationship = db.prepare(`SELECT id,member_role FROM care_relationships
-    WHERE senior_id=? AND member_id=? AND status='active'`).get(subjectId, req.user.id);
-  if (!relationship) return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '未获得该老人的有效授权' };
-  if (req.user.role === 'doctor' && relationship.member_role === 'doctor' && hasPermission('doctor', 'view_authorized_interventions')) {
-    if (operation !== 'view') return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '医生角色仅可查看授权干预，不能代替老人确认或记录执行' };
-    return { allowed: true, subject, relationship, accessRole: 'doctor', canManage: false, canRecord: false, canView: true };
-  }
-  if (req.user.role === 'caregiver' && relationship.member_role === 'caregiver' && hasPermission('caregiver', 'view_authorized_interventions')) {
-    if (operation === 'manage') return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '家属只能查看或协助记录，不能代替老人确认、结束或取消干预' };
-    const canRecord = hasPermission('caregiver', 'record_authorized_intervention_adherence');
-    if (operation === 'record' && !canRecord) return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '当前授权不允许协助记录干预执行情况' };
-    return { allowed: true, subject, relationship, accessRole: 'caregiver', canManage: false, canRecord, canView: true };
-  }
-  return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '账号角色与授权关系不匹配' };
+  if (operation === 'manage') return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: req.user.role === 'doctor' ? '医生不能代替老人确认、结束或取消干预' : '家属不能代替老人确认、结束或取消干预' };
+  const requiredScope = operation === 'record' ? 'record_adherence' : 'view_interventions';
+  const delegated = resolveCareAccess(subjectId, req.user.id, requiredScope, { resource: req.path });
+  if (!delegated.allowed) return { error: delegated.status || 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: delegated.message };
+  const canRecord = delegated.scopes.includes('record_adherence') && req.user.role === 'caregiver';
+  if (operation === 'record' && !canRecord) return { error: 403, reasonCode: INTERVENTION_REASON_CODES.FORBIDDEN, message: '当前授权不允许协助记录干预执行情况' };
+  return { allowed: true, subject, relationship: delegated.relationship, accessRole: delegated.role, canManage: false, canRecord, canView: true };
 }
 
 function accessForIntervention(req, intervention, operation = 'view') {

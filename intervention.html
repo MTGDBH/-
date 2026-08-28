@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的改善计划 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="intervention-page">
+  <div id="app-nav"></div>
+
+  <main class="main intervention-main" id="main-content">
+    <header class="page-head intervention-head">
+      <div>
+        <p class="intervention-eyebrow">N-of-1 个体干预闭环</p>
+        <h1>我的改善计划</h1>
+        <p class="subtitle">从本人确认、每日执行到复测评价，每一步都清楚可追溯。</p>
+      </div>
+      <a class="btn btn-secondary intervention-agent-link" href="agent.html">和智能管家调整计划</a>
+    </header>
+
+    <section class="intervention-notice" aria-label="使用说明">
+      <span class="intervention-notice-icon" aria-hidden="true">盾</span>
+      <div><strong>先确认，再执行；不舒服，先暂停。</strong><p>计划用于个人健康管理，不替代诊断、处方或紧急就医。效果评价只代表您的个人记录。</p></div>
+    </section>
+
+    <div class="intervention-live" id="intervention-live" role="status" aria-live="polite">正在读取改善计划…</div>
+    <section class="intervention-error" id="intervention-error" role="alert" hidden>
+      <span aria-hidden="true">!</span>
+      <div><strong id="intervention-error-title">计划暂时无法读取</strong><p id="intervention-error-message">请检查网络后重试，已保存的数据不会丢失。</p></div>
+      <button class="btn btn-secondary" type="button" id="intervention-retry">重新加载</button>
+    </section>
+
+    <div class="intervention-sections" id="intervention-sections" aria-busy="true">
+      <section class="intervention-section" aria-labelledby="pending-title">
+        <header><div><span class="section-symbol symbol-pending" aria-hidden="true">?</span><div><h2 id="pending-title">待确认计划</h2><p>请本人看清内容后选择接受或拒绝</p></div></div><span class="section-count" data-count="pending">0 项</span></header>
+        <div class="intervention-grid" data-list="pending"></div>
+      </section>
+
+      <section class="intervention-section" aria-labelledby="active-title">
+        <header><div><span class="section-symbol symbol-active" aria-hidden="true">行</span><div><h2 id="active-title">进行中计划</h2><p>查看周期、目标和下一次复测安排</p></div></div><span class="section-count" data-count="active">0 项</span></header>
+        <div class="intervention-grid" data-list="active"></div>
+      </section>
+
+      <section class="intervention-section intervention-today" aria-labelledby="today-title">
+        <header><div><span class="section-symbol symbol-today" aria-hidden="true">今</span><div><h2 id="today-title">今日执行打卡</h2><p>完成后打卡，忘记记录可补记</p></div></div><span class="section-count" data-count="today">0 项</span></header>
+        <div class="intervention-grid" data-list="today"></div>
+      </section>
+
+      <section class="intervention-section" aria-labelledby="retest-title">
+        <header><div><span class="section-symbol symbol-retest" aria-hidden="true">测</span><div><h2 id="retest-title">待复测</h2><p>按原测量条件复测，减少偶然差异</p></div></div><span class="section-count" data-count="retest">0 项</span></header>
+        <div class="intervention-grid" data-list="retest"></div>
+      </section>
+
+      <section class="intervention-section" aria-labelledby="completed-title">
+        <header><div><span class="section-symbol symbol-result" aria-hidden="true">果</span><div><h2 id="completed-title">已完成效果</h2><p>结果同时展示变化、数据量和不确定性</p></div></div><span class="section-count" data-count="completed">0 项</span></header>
+        <div class="intervention-grid intervention-result-grid" data-list="completed"></div>
+      </section>
+
+      <section class="intervention-section" aria-labelledby="paused-title">
+        <header><div><span class="section-symbol symbol-paused" aria-hidden="true">停</span><div><h2 id="paused-title">数据不足或暂停计划</h2><p>不生成伪精确结论，可查看原因和后续建议</p></div></div><span class="section-count" data-count="paused">0 项</span></header>
+        <div class="intervention-grid" data-list="paused"></div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="intervention-dialog" id="intervention-dialog" aria-labelledby="dialog-title">
+    <form method="dialog" id="intervention-dialog-form">
+      <div class="dialog-icon" id="dialog-icon" aria-hidden="true">?</div>
+      <h2 id="dialog-title">再次确认</h2>
+      <p id="dialog-message"></p>
+      <label id="dialog-reason-wrap" hidden><span id="dialog-reason-label">请填写原因</span><textarea id="dialog-reason" rows="3" maxlength="300"></textarea></label>
+      <label id="dialog-time-wrap" hidden><span>补记时间</span><input id="dialog-time" type="datetime-local"></label>
+      <label class="dialog-check"><input id="dialog-confirm-check" type="checkbox"><span id="dialog-check-label">我已看清内容，并确认继续</span></label>
+      <div class="dialog-actions"><button class="btn btn-ghost" value="cancel" type="button" id="dialog-cancel">返回</button><button class="btn btn-primary" value="confirm" type="submit" id="dialog-confirm" disabled>确认</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="intervention-dialog evidence-dialog" id="evidence-dialog" aria-labelledby="evidence-title">
+    <div><div class="dialog-icon" aria-hidden="true">据</div><h2 id="evidence-title">计划证据来源</h2><div id="evidence-content"></div><div class="dialog-actions"><button class="btn btn-primary" type="button" id="evidence-close">我知道了</button></div></div>
+  </dialog>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/intervention.js"></script>
+  <script>Auth.init();</script>
+</body>
+</html>
