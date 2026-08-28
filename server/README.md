@@ -1,143 +1,68 @@
-# 老年人健康管理网站 · 后端 API
+# 后端 API
 
-> Node.js + Express + SQLite · 零配置即跑
+Node.js 22 + Express + SQLite。服务同时托管仓库根目录的 15 个 HTML 页面和 `/api`，不需要另启静态服务器。
 
-## 一、文件结构
+## 启动
 
-```
-server/
-├── package.json          # 依赖 + 脚本（npm start / seed / reset / dev）
-├── .env.example          # 环境变量模板（拷贝为 .env 后填 OPENAI_API_KEY 即可启用真实 LLM）
-├── start.sh              # macOS / Linux 一键启动
-├── start.bat             # Windows 一键启动
-├── data/
-│   ├── app.db            # SQLite 数据库（首次启动自动生成）
-│   └── seed.js           # 种子数据脚本（与设计稿一致：86 分、128/85、4,820 步……）
-└── src/
-    ├── index.js          # 入口：CORS、路由挂载、健康检查
-    ├── db.js             # SQLite 连接 + 表结构（启动自动建表）
-    ├── lib/scoring.js    # 健康评分算法（5 大子项 + 总分 + 改善建议）
-    ├── ai/agent.js       # AI 智能体：OpenAI 兼容接口 / Mock 回退
-    └── routes/
-        ├── health.js     # GET /api/health/summary, /metrics, POST /metrics
-        └── api.js        # assessments, todos, devices, alerts, chat
+```powershell
+Set-Location 'D:\BIGCHUANG\-\server'
+npm ci
+npm start
 ```
 
-## 二、快速开始
+Windows 固定 Node 22 启动也可使用：
 
-### macOS / Linux
-```bash
-./start.sh
-```
-
-### Windows
 ```cmd
 start-node22.bat
 ```
 
-Windows 若本机 Node 主版本为 24，建议使用 `start-node22.bat`。项目的
-`better-sqlite3` 原生模块按 Node 22 ABI 运行；该脚本会通过 npx 缓存 Node 22，
-避免本机安装 Visual Studio C++ 构建工具或手工重编译。
+浏览器访问 `http://localhost:3001/login.html`；健康检查为 `GET http://localhost:3001/api/health`。
 
-### 手动
-```bash
-npm install
-node data/seed.js
-npm start
+## 鉴权事实
+
+- `POST /api/auth/register`：注册并自动建立会话；
+- `POST /api/auth/login`：bcrypt 校验、失败计数、临时锁定和 IP/账号限速；
+- `POST /api/auth/logout`：撤销当前会话；
+- `GET /api/auth/me`：检查会话；
+- 会话支持绝对过期和空闲过期，Cookie 为 HttpOnly + SameSite=Strict；
+- 旧明文密码只在一次成功校验后迁移为 bcrypt，新密码和演示账号均以 bcrypt 保存。
+
+## 主要模块
+
+| 路径前缀 | 用途 |
+|---|---|
+| `/api/health` | 健康检查、指标摘要、历史、录入和文本批量识别 |
+| `/api/prediction` | 健康问卷、Curve、发现总览和疾病风险 |
+| `/api/knowledge` | 知识文章、GraphRAG 查询、来源和审核数据 |
+| `/api/actions` | 需确认的智能体行动与复测随访 |
+| `/api/care` | 家属/医生授权、授权摘要和关系撤销 |
+| `/api/devices` | 设备登记、状态和同步入库 |
+| `/api/chat` | 智能体对话、证据与历史 |
+| `/api/profile` | 资料、改密和账号注销 |
+| `/api/ops` | 按角色控制的运行指标、审计和依赖状态 |
+
+完整路由以 `src/index.js` 和 `src/routes/` 为准，API 速查见仓库根目录 `README.md`。
+
+## 权限边界
+
+- 老人可管理本人健康记录和照护授权；
+- 已授权家属/医生可读取老人摘要；
+- 已授权家属可代填结构化健康问卷/档案；
+- 直接代写血压等测量记录目前被拒绝，不应写成“家属可代录所有健康数据”；
+- 管理配置、运行指标和审计日志使用独立 capability 检查。
+
+## LLM 与模型降级
+
+复制 `.env.example` 为 `.env` 后可配置 OpenAI 兼容 LLM。密钥留空时使用明确标记的 Mock/本地工具降级。私有人群模型包未安装时，主站、Curve 和 GraphRAG 仍可运行，风险页面显示模型包未安装/降级，不生成伪概率。
+
+## 测试
+
+```powershell
+npm test
 ```
 
-启动成功后会看到：
+要求 Node `>=22 <23`。该命令运行 Node 单元/集成、Python 单元、GraphRAG、Curve、安全和语法检查，并保证测试不改写 Git 工作区。详见根目录 `TESTING.md`。
 
-```
-🩺 老年人健康管家 API 已启动
-   地址:  http://localhost:3001
-   模式:  Mock  （填入 OPENAI_API_KEY 后会自动切到 LLM）
-   数据库: .../data/app.db
-```
+## 生产边界
 
-打开 http://localhost:3001/api/health 应返回 `{ok:true}`。
-
-## 三、AI 模式切换
-
-环境变量留空 → 自动用 Mock 智能体（关键词匹配 + 模板回复）  
-填入 `OPENAI_API_KEY` → 自动切到真实 LLM
-
-兼容：OpenAI / DeepSeek / 通义千问 / Ollama / 任何 OpenAI 兼容协议
-
-```bash
-# .env
-OPENAI_API_KEY=sk-...
-OPENAI_BASE_URL=https://api.deepseek.com/v1   # 默认是 OpenAI
-OPENAI_MODEL=deepseek-chat
-```
-
-**切换无需改代码**，重启服务即生效。
-
-## 四、API 一览
-
-| 方法 | 路径 | 用途 |
-|---|---|---|
-| GET | `/api/health` | 健康检查 |
-| GET | `/api/health/summary` | 今日健康摘要（分数+子项+待办+预警） |
-| GET | `/api/health/metrics` | 8 项指标最新值 |
-| GET | `/api/health/metrics/:type/history?days=7` | 单项历史 |
-| POST | `/api/health/metrics` | 录入一条数据 |
-| GET | `/api/assessments/latest` | 最近评估（实时计算） |
-| POST | `/api/assessments` | 触发一次完整评估并存档 |
-| GET | `/api/assessments` | 历史评估列表 |
-| GET | `/api/todos/today` | 今日待办 |
-| PATCH | `/api/todos/:id` | 标记完成/未完成 |
-| GET | `/api/devices` | 设备列表 |
-| GET | `/api/alerts?status=pending` | 预警列表 |
-| PATCH | `/api/alerts/:id` | 更新预警状态 |
-| POST | `/api/chat` | 智能体对话 |
-| GET | `/api/chat/history` | 对话历史 |
-
-## 五、前端对接
-
-在 `assets/js/main.js` 里修改一行：
-
-```js
-const API_BASE = 'http://localhost:3001';
-```
-
-> 注意：浏览器跨域请求本地 API 时，前端要用 HTTP 服务方式打开（不能 `file://`）。
-> 推荐启动一个静态服务：
->
-> ```bash
-> # 在项目根目录
-> python3 -m http.server 3000
-> # 然后访问 http://localhost:3000
-> ```
-
-或者把前端也部署在 Node 服务的 `/` 下（修改 `src/index.js` 加上 `app.use(express.static('../'))`）。
-
-## 六、待办清单（同学接手时主要做的）
-
-- [ ] 前端 4 个 HTML 替换硬编码为 API 调用
-- [ ] 用户登录（目前 hardcode user_id=1）
-- [ ] 设备配网流程（蓝牙/Wi-Fi 配对）
-- [ ] 真正的医学级别评分（接入医生审核过的规则库）
-- [ ] LLM 上下文记忆（目前只取最近 10 条对话）
-- [ ] 多租户 / 家庭账号体系
-- [ ] 移动端 H5 适配
-
-## 七、调试小贴士
-
-```bash
-# 看数据库内容
-sqlite3 data/app.db "SELECT * FROM metrics LIMIT 10;"
-
-# 重置数据
-npm run reset
-
-# 开发模式（文件变更自动重启）
-npm run dev
-```
-
-## 八、技术决策说明
-
-- **为什么用 better-sqlite3 而非 sqlite3**：同步 API、无回调地狱、性能更好，单文件后端首选
-- **为什么不用 ORM（Prisma/TypeORM）**：本项目表少，ORM 反而是负担
-- **为什么不用 axios**：Node 22 原生 fetch 足够，零依赖
-- **为什么不用 LLM SDK**：OpenAI 兼容协议是 fetch 一个 POST，SDK 多一层封装没收益
+本仓库默认配置用于本地工程验收。生产环境应使用 Redis 登录限速、HTTPS、受限 CORS、持久化与备份、集中密钥管理、监控审计及合规评估。健康评分、风险模型和 GraphRAG 不能替代医生诊断或医疗处置。

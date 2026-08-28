@@ -88,12 +88,15 @@ def _graphrag_handler(module):
 def _load_registry() -> dict[str, Tool]:
     htn = _module("runtime_predict_htn", ROOT / "predict_htn.py")
     curve = _module("runtime_health_curve", ROOT / "curve" / "health_curve.py")
+    intervention_evaluation = _module("runtime_intervention_evaluation", ROOT / "intervention_evaluation" / "engine.py")
     population = _module("runtime_population_service", ROOT / "population" / "population_service.py")
     disease = _module("runtime_predict_disease", ROOT / "disease_risk" / "predict_disease.py")
     graphrag = _module("runtime_graphrag_index", RAG_ROOT / "graphrag_index.py")
     registry = {
         "htn.predict": Tool("htn.predict", htn.run_prediction, max_input_bytes=64 * 1024),
         "curve.analyze": Tool("curve.analyze", _curve_handler(curve)),
+        "intervention.evaluate": Tool("intervention.evaluate", intervention_evaluation.evaluate_intervention,
+                                      max_input_bytes=1024 * 1024),
         "population.predict": Tool("population.predict", population.predict),
         "disease.predict": Tool("disease.predict", disease.predict, max_input_bytes=256 * 1024),
         "graphrag.query": Tool("graphrag.query", _graphrag_handler(graphrag), lock=threading.Lock()),

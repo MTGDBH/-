@@ -4,39 +4,39 @@
 
 1. **时间趋势**：Curve V2 对血压、按条件分组的血糖、体重和静息心率进行稳健历史趋势和分层预测；默认未来 7 天，数据充分时扩展到 14 天，30 天仅给周级区间；步数、睡眠和综合分只做行为/历史趋势，不做精确医学预测。输出原始点、清洗点、趋势线、预测点、预测上下界、异常点、回测指标和拒绝原因。
 2. **疾病风险**：用 CHARLS Wave1→Wave2 的新发结局训练四类两年筛查模型；Logistic 与 XGBoost 使用训练集交叉验证选择，测试集只做最终评估，概率经校准并输出缺失特征和模型卡。
-3. **GraphRAG**：WHO、AHA/ASA、ADA、KDIGO、PubMed系统综述和关键随机试验等 18 份原始知识源 + 42 条分层摘要 + 18 条可追溯证据记录，共 78 个来源 → 111 个分块/159 个实体/419 条关系/6 个疾病社区。查询返回证据等级、版本、适用人群、限制、关系路径解释、审核状态和冲突标记；4 个 legacy 待复核来源默认只做显式标记，严格模式才排除；三路检索量化对照见 [GraphRAG方法评估](reports/graphrag-method-comparison-20260821.md)。
+3. **GraphRAG**：当前 live 索引为 `2026-08-26.v9`，包含 83 个来源、129 个分块、192 个实体、557 条关系和 6 个疾病社区（以 `elderly-health-rag/output/index_stats.json` 为准）。查询返回证据等级、版本、适用人群、限制、关系路径解释、审核状态和冲突标记；三路检索最新内部对照见 `reports/graphrag-method-comparison-20260826.md`。
 4. **智能体**：DeepSeek 负责自然语言解释，后端按意图调用健康摘要、趋势、行为模式、设备、风险和 GraphRAG 知识工具；用户数据由服务端按登录身份读取，预测与常识分开，数据不足时禁止编造。
+5. **账户与协同**：已实现注册、bcrypt 密码哈希、失败锁定、共享登录限速、会话绝对/空闲过期、登出撤销和账号注销。老人可用一次性授权码授权家属/医生读取摘要；已授权家属可代填结构化健康问卷，但不能直接代写血压等测量值。
+6. **页面与部署**：根目录共 15 个 HTML 页面，其中 11 个登录后功能页、2 个鉴权页、2 个展示/开发页。Node 服务同时托管前端与 API，支持 Windows 一键脚本和 Docker 单容器部署。
+
+## 交付声明分级
+
+| 等级 | 当前内容 | 可以怎样表述 |
+|---|---|---|
+| 已完成工程能力 | 鉴权、权限、健康记录、授权问卷代录、设备同步接口、Curve/风险接口、GraphRAG、行动确认、随访闭环、部署脚本 | “已实现并有代码/测试证据” |
+| 演示能力 | 演示账号、模拟设备、无 LLM 密钥时的 Mock/工具降级、合成 Curve 记录 | “可本地演示”，不得称真实用户或真实临床运行 |
+| 内部验证结果 | 固定内部问题集、合成干跑、CHARLS 内部/时间切分、回归与安全测试 | “内部验证/工程回归”，不得称独立外部验证或临床疗效 |
+| 真实外部验证 | 当前未完成 | 只有取得独立真实数据、伦理/授权和预设方案结果后才能声明 |
+| 尚待医生审核 | 高风险 GraphRAG 关系的持证医生逐条确认与签字 | AI 预审核只能称“预审核/分流”，不能称医生批准 |
+
+## 项目核心创新
+
+- Curve 将真实时间戳、测量条件、异常处理、简单基线、滚动回测、预测区间和结构化拒绝合并为个人趋势链路；
+- 疾病风险概率与缺失特征、适用人群、模型卡和数据完整度一起输出；
+- GraphRAG 把来源版本、证据等级、关系路径、冲突和审核状态带入回答，而不是只返回不可追溯文本；
+- 智能体把建议转换为需确认的行动与可回填复测，且区分操作人和健康数据主体；
+- 工程测试、合成演示、内部研究验证、外部临床证据使用明确的声明边界。
 
 ## 验收命令
 
 ```powershell
-$py = 'C:\Users\zhaoq\.workbuddy\binaries\python\envs\default\Scripts\python.exe'
-& $py D:\BIGCHUANG\-\ml\curve\test_health_curve.py
-& $py D:\BIGCHUANG\-\ml\disease_risk\test_multidisease.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\test_graphrag.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_personalization.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_graph.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\validate_graph.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\medical_pre_review.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\test_medical_gate.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_golden.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_counterfactual.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_personalization_pairs.py
-& $py D:\BIGCHUANG\-\elderly-health-rag\evaluate_retrieval_methods.py
-& $py D:\BIGCHUANG\-\ml\test_risk_data_manifest.py
-node D:\BIGCHUANG\-\server\src\test_tool_calling.js
-node D:\BIGCHUANG\-\server\src\test_health_trend.js
-node D:\BIGCHUANG\-\server\final_acceptance.mjs
-node D:\BIGCHUANG\-\server\data\evaluate_risk_personalization.mjs
-node D:\BIGCHUANG\-\server\data\test_risk_profile.mjs
-node D:\BIGCHUANG\-\server\data\test_actions.mjs
-node D:\BIGCHUANG\-\server\data\test_care_permissions.mjs
-node D:\BIGCHUANG\-\server\data\test_device_sync.mjs
-node D:\BIGCHUANG\-\server\data\test_health_summary.mjs
-node D:\BIGCHUANG\-\server\data\test_trend_alerts.mjs
-node D:\BIGCHUANG\-\server\data\test_agent_tools.mjs
-node D:\BIGCHUANG\-\server\data\test_graph_grounding.mjs
+Set-Location 'D:\BIGCHUANG\-\server'
+npm test
 ```
+
+这是当前 `server/package.json` 定义的一键、无副作用核心验收入口。它使用 Node 22，调用仓库 `.venv`（若存在），并覆盖 Node 单元/集成、Python 单元、GraphRAG、安全、Curve 和语法/UTF-8 检查。详细安装、分组命令与结果解释见 `TESTING.md`。
+
+2026-08-28 本轮实测：`npm test` 全部通过且 Git 状态未被测试改变；本地启动、健康检查、登录页 HTTP 200 和停止脚本通过。当前主机无 Docker CLI，因此 Docker 实机构建未执行，不能宣称本轮镜像构建通过。完整记录见 `reports/documentation-capability-audit-20260828.md`。
 
 Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次验证：趋势问题、疾病风险问题、知识解释问题、`/api/chat/history` 和四个疾病预测接口。风险接口同时返回 `data_completeness`，说明缺失字段和建议补采内容；智能体证据卡片由后端真实上下文生成。
 
@@ -46,11 +46,11 @@ Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次�
 - “最近身体怎么样”会批量读取近 90 天指标、行为、缺失项、待办和预警，并在回复下方生成后端证据卡片；证据随对话持久化，刷新或打开新对话仍可回看；
 - 指标保存后仅在异常或明显趋势时异步生成主动提醒，同一指标/提醒类型 24 小时去重；
 - “有哪些待处理提醒”会调用只读预警工具；“帮我明早测血压/通知家属/联系医生”先生成带行动类型的计划，只有点击并确认后才写入行动闭环；
-- 老人一次性授权家属或医生，只允许授权关系读取只读健康摘要；
+- 老人一次性授权家属或医生读取授权健康摘要；已授权家属还可提交结构化健康问卷/档案，但不能直接代写血压等测量值；
 - 蓝牙/模拟设备统一通过 `/api/devices/:id/sync` 写入 `metrics.source=device`，智能体可查询同步状态；
 - 注销账号会按外键依赖清理会话、健康记录、授权关系、行动和提醒数据。
 - GraphRAG 聊天回复会把索引版本、引用、关系路径和个性化理由保存到聊天历史，刷新页面后仍可追溯。
-- 83 条高风险关系已完成 AI 证据预审核：66 条仅允许演示/健康教育，17 条必须临床人员确认；每条均有允许表达、禁止表达和安全护栏。预审核不替代医生签字，原审核状态仍为 `pending_medical_review`，明细见 `elderly-health-rag/output/medical_pre_review.json`。
+- 当前 90 条高风险/安全关系已完成 AI 证据预审核：70 条仅允许演示/健康教育，20 条需要临床人员确认；全部 90 条的原审核状态仍为 `pending_medical_review`，已批准为 0。预审核不替代医生签字，明细见 `elderly-health-rag/output/medical_pre_review.json` 和 `relation_review_manifest.json`。
 
 ## 国奖提交材料（2026-08-21）
 
@@ -70,8 +70,8 @@ Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次�
 - 人因工程干跑：`reports/human-evaluation-dry-run-20260821.md`（0 名真实受试者，不宣称理解度或行动完成率）
 - Curve V2 外部验证协议：`reports/curve-external-validation-protocol-20260821.md`
 - Curve V2 时间验证框架：`ml/curve/temporal_validation.py`；合成 90 天干跑：`reports/curve-temporal-validation-20260821.md`
-- 医学审核待签署包：`reports/clinician-review-packet-20260821.md`（83 条高风险关系，未自动批准）
-- 医学审核结构化表：`reports/clinician-review-submission-guide-20260821.md`、`reports/clinician-review-template.csv`、`reports/clinician-review-validation.json`（83 行，0 条签字，状态 pending）；完整签字后由 `apply_clinician_reviews.py` 生成版本化决策文件，默认不覆盖 live GraphRAG。
+- 历史医学审核待签署包：`reports/clinician-review-packet-20260821.md`（83 条、0 签字，已落后于当前 v9 的 90 条审核范围，不得作为当前完整审核包提交）。当前索引应重新生成 90 条审核包后再由持证医生逐条签署。
+- 历史医学审核结构化表：`reports/clinician-review-submission-guide-20260821.md`、`reports/clinician-review-template.csv`、`reports/clinician-review-validation.json`（83 行、0 签字、pending）；即使完整签字也只能覆盖当时版本，不能自动批准 v9 新增关系。
 - 提交前自检清单：`reports/submission-readiness-check-20260821.md`（材料与边界检查 36/36 通过）
 - 提交物哈希清单：`reports/submission-artifact-manifest-20260821.json`（78 个交付物，缺失 0）
 - 最终提交审计：`reports/final-submission-audit-20260821.md/json`（本地检查与外部证据门槛分离，状态为 `ready_with_external_gates`）
@@ -79,7 +79,7 @@ Node 端使用 Node 22 启动 `server/src/index.js`，登录张奶奶后依次�
 - 回归测试汇总：`reports/regression-suite-summary-20260821.md/json`（8 组 Python 回归和 Node 最终验收）
 - 医生审核报告：`reports/clinician-review-report-20260821.md/json`（待签署版，不冒充医生批准）
 - 张奶奶演示数据说明：`reports/demo-curve-data-generation-20260821.md`（819 条 synthetic 演示记录及验证结果）
-- GraphRAG 来源完整性审计：`reports/source-integrity-audit-20260821.md`（78 个来源，6 个核心疾病均具备指南/综述/关键研究层）
+- GraphRAG 来源完整性审计：`reports/source-integrity-audit-20260821.md` 是 78 来源的历史审计；当前 v9 为 83 来源，应以 `elderly-health-rag/output/source_manifest.json` 和本轮文档能力审计为准并补做新版来源审计。
 - GraphRAG 来源门控回归：`reports/graphrag-source-gate-regression-20260821.json`（老人端默认标记待复核来源，严格模式可排除，医生端保留完整图）
 - Curve V2 真实数据采集包：`reports/curve-external-data-collection-kit-20260821.md`
 - 人因评价数据采集包：`reports/human-evaluation-data-collection-kit-20260821.md`

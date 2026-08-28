@@ -3,9 +3,13 @@ import express from 'express';
 import db from '../db.js';
 import { canActFor } from '../lib/intake.js';
 import { cancelFollowup, confirmFollowupCandidate, createFollowupForAction, listFollowups, rejectFollowupCandidate, rescheduleFollowup } from '../lib/followups.js';
+import interventionRouter from './interventions.js';
 
 const router = express.Router();
 const ALLOWED = new Set(['create_todo', 'schedule_recheck', 'notify_caregiver', 'contact_doctor']);
+
+// N-of-1 干预复用本行动域的确认语义，独立子路由保证旧 API 契约不变。
+router.use('/interventions', interventionRouter);
 
 function parsePayload(value) {
   try { return JSON.parse(value || '{}'); } catch { return {}; }
@@ -165,6 +169,10 @@ router.post('/:id/confirm', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const existing = db.prepare('SELECT * FROM action_requests WHERE id = ? AND actor_user_id = ?').get(id, req.user.id);
   if (!existing) return res.status(404).json({ error: '待确认行动不存在' });
+  if (existing.action_type === 'n_of_1_intervention') return res.status(409).json({
+    reason_code: 'INTERVENTION_CONFIRM_VIA_DEDICATED_API',
+    message: '个体干预必须通过 /api/actions/interventions/:interventionId/confirm 确认，不能使用通用行动入口',
+  });
   if (!canActFor(existing.subject_user_id, req.user.id).allowed) return res.status(403).json({ error: '老人授权已失效，不能执行该行动' });
   if (existing.status === 'executed') return res.json({ request: { ...existing, payload: parsePayload(existing.payload) }, followup: db.prepare('SELECT * FROM followups WHERE action_request_id=?').get(id), idempotent_replay: true });
   if (!['pending_confirmation', 'confirmed'].includes(existing.status)) return res.status(400).json({ error: '行动已取消或不可执行' });
@@ -177,6 +185,10 @@ router.post('/:id/cancel', (req, res) => {
   const id = parseInt(req.params.id, 10);
   const existing = db.prepare('SELECT * FROM action_requests WHERE id=? AND actor_user_id=?').get(id, req.user.id);
   if (!existing) return res.status(404).json({ error: '待确认行动不存在' });
+  if (existing.action_type === 'n_of_1_intervention') return res.status(409).json({
+    reason_code: 'INTERVENTION_CANCEL_VIA_DEDICATED_API',
+    message: '个体干预必须通过干预专用拒绝或取消 API 处理',
+  });
   if (!canActFor(existing.subject_user_id, req.user.id).allowed) return res.status(403).json({ error: '老人授权已失效' });
   if (existing.status === 'cancelled') return res.json({ request: { ...existing, payload: parsePayload(existing.payload) }, idempotent_replay: true });
   if (existing.status !== 'pending_confirmation') return res.status(400).json({ error: '行动已执行或不可取消' });

@@ -8,6 +8,7 @@ const COOLDOWN_MS = Math.max(5_000, Number(process.env.PYTHON_CIRCUIT_COOLDOWN_M
 const TOOL_BY_SUFFIX = new Map([
   ['/ml/predict_htn.py', 'htn.predict'],
   ['/ml/curve/health_curve.py', 'curve.analyze'],
+  ['/ml/intervention_evaluation/evaluate.py', 'intervention.evaluate'],
   ['/ml/population/population_service.py', 'population.predict'],
   ['/ml/disease_risk/predict_disease.py', 'disease.predict'],
   ['/elderly-health-rag/graphrag_index.py', 'graphrag.query'],

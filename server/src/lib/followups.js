@@ -70,6 +70,23 @@ export function listFollowups(userId, { activeOnly = false, limit = 50 } = {}) {
   return db.prepare(`SELECT * FROM followups WHERE user_id=? ${where} ORDER BY due_at ASC,id DESC LIMIT ?`).all(...args).map(hydrate);
 }
 
+// N-of-1 干预不重复创建复测表：显式 followup_id 必须属于同一老人和目标指标；
+// 未显式指定时，仅复用结局窗口内已经存在的活动复测任务。
+export function resolveInterventionFollowup(userId, targetMetrics, requestedId, outcomeStart, outcomeEnd) {
+  const types = [...new Set((targetMetrics || []).map(String))];
+  if (requestedId != null) {
+    const row = db.prepare('SELECT * FROM followups WHERE id=? AND user_id=?').get(Number(requestedId), userId);
+    if (!row || !types.includes(row.metric_type)) return { error: 'INVALID_INTERVENTION_FOLLOWUP' };
+    return { followup: row };
+  }
+  if (!types.length) return { followup: null };
+  const placeholders = types.map(() => '?').join(',');
+  const row = db.prepare(`SELECT * FROM followups WHERE user_id=? AND metric_type IN (${placeholders})
+    AND status IN ('scheduled','due','overdue','pending_result_confirmation') AND due_at BETWEEN ? AND ?
+    ORDER BY due_at ASC,id ASC LIMIT 1`).get(userId, ...types, outcomeStart, outcomeEnd);
+  return { followup: row || null };
+}
+
 export function createFollowupForAction(request, payload, todoId) {
   const metricType = String(payload.metric_type || '').slice(0, 40) || null;
   if (!metricType || !db.prepare('SELECT type FROM metric_defs WHERE type=?').get(metricType)) throw Object.assign(new Error('metric_type is required for recheck'), { code: 'INVALID_METRIC' });

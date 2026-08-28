@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "n-of-1-intervention-evaluation.v1",
+  "title": "N-of-1 intervention evaluation output",
+  "type": "object",
+  "required": [
+    "schema_version", "algorithm_version", "baseline_summary", "outcome_summary",
+    "absolute_change", "relative_change", "effect_size", "uncertainty_interval",
+    "adherence_rate", "measurement_count", "confidence_level", "evidence_level",
+    "confounders", "reason_code", "message"
+  ],
+  "properties": {
+    "schema_version": { "const": "n-of-1-intervention-evaluation.v1" },
+    "algorithm_version": { "type": "string" },
+    "baseline_summary": { "type": ["object", "null"] },
+    "outcome_summary": { "type": ["object", "null"] },
+    "absolute_change": { "type": ["number", "null"] },
+    "relative_change": { "type": ["number", "null"] },
+    "effect_size": { "type": "object", "required": ["type", "value"] },
+    "uncertainty_interval": { "type": ["object", "null"] },
+    "adherence_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "measurement_count": { "type": "object", "required": ["baseline", "outcome", "total", "excluded"] },
+    "confidence_level": { "type": "number", "minimum": 0.8, "maximum": 0.99 },
+    "evidence_level": { "enum": ["insufficient", "descriptive_only", "personal_preliminary", "personal_repeated"] },
+    "confounders": { "type": "array", "items": { "type": "object", "required": ["code", "severity", "message"] } },
+    "reason_code": { "type": "string" },
+    "message": { "type": "string" },
+    "clinical_interpretation": { "type": "string" },
+    "method": { "type": "object" }
+  },
+  "additionalProperties": true
+}

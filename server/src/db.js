@@ -556,6 +556,92 @@ addColumnIfMissing('followups', 'updated_at', 'TEXT');
 db.prepare(`UPDATE followups SET actor_user_id=COALESCE(actor_user_id,user_id),
   suggested_due_at=COALESCE(suggested_due_at,due_at),updated_at=COALESCE(updated_at,created_at)`).run();
 
+// N-of-1 个体干预数据底座：复用 action_requests 的确认门槛、metrics 的基线/结局记录，
+// 仅新增版本化干预协议与追加式执行日志。CREATE IF NOT EXISTS 保证旧数据库原位兼容。
+db.exec(`
+  CREATE TABLE IF NOT EXISTS interventions (
+    id INTEGER PRIMARY KEY,
+    intervention_id TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    action_request_id INTEGER REFERENCES action_requests(id) ON DELETE SET NULL,
+    followup_id INTEGER REFERENCES followups(id) ON DELETE SET NULL,
+    intervention_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    protocol TEXT NOT NULL DEFAULT '{}',
+    target_metrics TEXT NOT NULL DEFAULT '[]',
+    baseline_start TEXT NOT NULL,
+    baseline_end TEXT NOT NULL,
+    intervention_start TEXT NOT NULL,
+    intervention_end TEXT NOT NULL,
+    outcome_start TEXT NOT NULL,
+    outcome_end TEXT NOT NULL,
+    adherence_target TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'pending_confirmation'
+      CHECK(status IN ('proposed','pending_confirmation','active','evaluating','completed','cancelled','insufficient_data','safety_stopped')),
+    evidence_source_ids TEXT NOT NULL DEFAULT '[]',
+    idempotency_key TEXT,
+    schema_version TEXT NOT NULL DEFAULT 'n-of-1-intervention.v1',
+    rule_version TEXT NOT NULL,
+    status_reason_code TEXT,
+    status_message TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    confirmed_at TEXT,
+    completed_at TEXT,
+    cancelled_at TEXT,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    revision INTEGER NOT NULL DEFAULT 1
+  );
+  CREATE INDEX IF NOT EXISTS idx_interventions_subject_status
+    ON interventions(subject_user_id,status,intervention_end,outcome_end);
+  CREATE INDEX IF NOT EXISTS idx_interventions_actor_created
+    ON interventions(actor_user_id,created_at DESC);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_interventions_actor_idempotency
+    ON interventions(actor_user_id,idempotency_key) WHERE idempotency_key IS NOT NULL;
+
+  CREATE TABLE IF NOT EXISTS intervention_execution_logs (
+    id INTEGER PRIMARY KEY,
+    execution_log_id TEXT NOT NULL UNIQUE,
+    intervention_db_id INTEGER NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    performed INTEGER NOT NULL CHECK(performed IN (0,1)),
+    performed_at TEXT NOT NULL,
+    user_note TEXT,
+    skip_reason TEXT,
+    data_source TEXT NOT NULL,
+    idempotency_key TEXT,
+    supersedes_log_id INTEGER REFERENCES intervention_execution_logs(id) ON DELETE SET NULL,
+    revision INTEGER NOT NULL DEFAULT 1,
+    change_reason TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_intervention_logs_intervention_time
+    ON intervention_execution_logs(intervention_db_id,performed_at DESC,id DESC);
+  CREATE INDEX IF NOT EXISTS idx_intervention_logs_supersedes
+    ON intervention_execution_logs(supersedes_log_id);
+
+  CREATE TABLE IF NOT EXISTS intervention_evaluations (
+    id INTEGER PRIMARY KEY,
+    evaluation_id TEXT NOT NULL UNIQUE,
+    intervention_db_id INTEGER NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    subject_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    target_metric TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    algorithm_version TEXT NOT NULL,
+    input_fingerprint TEXT,
+    evidence_level TEXT NOT NULL,
+    reason_code TEXT NOT NULL,
+    result TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_intervention_evaluations_lookup
+    ON intervention_evaluations(intervention_db_id,target_metric,created_at DESC);
+`);
+addColumnIfMissing('intervention_execution_logs', 'idempotency_key', 'TEXT');
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_intervention_logs_actor_idempotency
+  ON intervention_execution_logs(intervention_db_id,actor_user_id,idempotency_key) WHERE idempotency_key IS NOT NULL`);
+
 // 兼容已有库：metrics 增加 device_id（可空，手动录入为 NULL）
 addColumnIfMissing('metrics', 'device_id', 'INTEGER');
 addColumnIfMissing('metrics', 'measurement_condition', 'TEXT');

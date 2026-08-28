@@ -42,11 +42,14 @@ const unitTests = [
   'src/test_python_runtime.js',
   'src/test_audit_sanitization.js',
   'src/test_permission_matrix.js',
+  'src/test_intervention_foundation.js',
+  'src/test_intervention_evaluation.js',
 ];
 const integrationTests = [
   'data/test_auth_integration.mjs',
   'data/test_care_permissions.mjs',
   'data/test_device_sync.mjs',
+  'data/test_interventions.mjs',
 ];
 
 function gitStatus() {
