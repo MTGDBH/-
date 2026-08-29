@@ -4,5 +4,7 @@ pandas==3.0.3
 scikit-learn==1.9.0
 joblib==1.5.3
 lightgbm==4.7.0
-xgboost==3.4.1
+# Debian bookworm ships Python 3.11, while CI uses Python 3.13. XGBoost 3.4.1
+# requires Python >=3.12, so keep the 3.x series on an installable version for both.
+xgboost==3.2.0
 neo4j>=5.26,<6

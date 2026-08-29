@@ -8,6 +8,7 @@ joblib>=1.4,<2
 # The trainer resolves backends in this order: CatBoost, LightGBM, XGBoost.
 # Installing either preferred backend is sufficient; XGBoost remains the tested
 # fallback because it is already required by the online disease-risk service.
+# Keep this compatible with the repo's Python 3.11 Docker image and Python 3.13 CI.
 catboost>=1.2,<2
 lightgbm>=4.5,<5
-xgboost==3.4.1
+xgboost==3.2.0

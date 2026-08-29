@@ -113,7 +113,7 @@ def create_bundle(source: Path, output: Path, version: str) -> dict:
                 "scikit_learn": "1.9.0",
                 "joblib": "1.5.3",
                 "lightgbm": "4.7.0",
-                "xgboost": "3.4.1",
+                "xgboost": "3.2.0",
             },
             "files": entries,
         }
