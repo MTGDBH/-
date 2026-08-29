@@ -474,25 +474,62 @@ async function cachedPopulationPrediction(userId, user, type) {
 
 export { buildPopulationFeatures, buildStepActivityPlan, calculateEgfr2021, projectBloodPressure, runPopulationPrediction, cachedPopulationPrediction, populationDataSignature, PREDICTION_INPUT_DEFS };
 
+function selectComparableCurvePoints(metric, points, conditionGroup) {
+  if (conditionGroup || !['systo', 'diasto'].includes(metric) || points.length < 2) return points;
+  const keyOf = point => `${String(point.measurement_condition || 'unknown').toLowerCase()}|${String(point.source || 'unknown').toLowerCase()}`;
+  const counts = new Map();
+  points.forEach(point => counts.set(keyOf(point), (counts.get(keyOf(point)) || 0) + 1));
+  const dominantKey = [...counts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0];
+  return dominantKey ? points.filter(point => keyOf(point) === dominantKey) : points;
+}
+
+function userFacingForecastReason(result) {
+  const code = result?.forecast?.reason_code || result?.eligibility?.reason_code || result?.error?.code;
+  const friendly = {
+    MIXED_MEASUREMENT_CONDITIONS: '测量条件不一致，系统暂时无法生成可靠的未来曲线',
+    INSUFFICIENT_EFFECTIVE_DAYS: '有效测量天数不足，请继续规律记录',
+    INSUFFICIENT_TIME_SPAN: '记录覆盖时间还不够，请继续规律测量',
+    MEASUREMENT_CONDITION_NOT_READY: '测量条件不够规范，请尽量在相同时间和状态下测量',
+    NO_STABLE_MODEL: '近期数据波动较大，暂时没有稳定的预测模型',
+    HIGH_RECENT_VOLATILITY: '近期波动较大，暂时不适合外推未来数值',
+    METRIC_NOT_FORECASTABLE: '该指标用于观察历史趋势，不提供未来数值预测',
+    PYTHON_TIMEOUT: '预测计算时间较长，请稍后刷新重试',
+  };
+  if (friendly[code]) return friendly[code];
+  const raw = result?.forecast?.reason || result?.eligibility?.reason || result?.error?.message || null;
+  if (raw && /condition_group|\b(?:bp|pulse|glucose|weight):|\[["']?/i.test(raw)) {
+    return '测量条件不一致，系统暂时无法生成可靠的未来曲线';
+  }
+  return raw;
+}
+
 /** 统一调用 Python 曲线服务，并转换为预测页使用的稳定契约。 */
 async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = null) {
   if (!CURVE_METRICS.has(metric)) return { status: 'not_applicable', actual: points, predicted: [], fitted: [] };
+  // Fit short-term forecasts on a recent, comparable window. The full history
+  // remains available for counts and display, while rolling backtests stay fast.
+  const conditionFilteredPoints = conditionGroup && conditionGroup !== 'unknown'
+    ? points.filter(point => String(point.measurement_condition || 'unknown').toLowerCase() === conditionGroup)
+    : points;
+  const comparablePoints = selectComparableCurvePoints(metric, conditionFilteredPoints, conditionGroup);
+  const modelPoints = comparablePoints.slice(-90);
   const result = await runPythonTool(CURVE_SCRIPT, {
     metric,
     unit,
     condition_group: conditionGroup,
-    points: points.map(p => ({ id: p.id, t: p.recorded_at, v: p.value, condition: p.measurement_condition || 'unknown', source: p.source || null })),
+    points: modelPoints.map(p => ({ id: p.id, t: p.recorded_at, v: p.value, condition: p.measurement_condition || 'unknown', source: p.source || null })),
     forecast_days: futureDays,
-  });
-  const sourceById = new Map(points.map(point => [point.id, point]));
-  const raw = result?.curve?.raw_timestamps?.map((t, i) => ({
-    id: result.curve.raw_ids?.[i] ?? i,
-    day: i, value: result.curve.raw_actual[i], recorded_at: isoFromSeconds(t), predicted: false,
-    outlier: (result.curve.raw_outlier_indices || []).includes(i),
-    measurement_condition: sourceById.get(result.curve.raw_ids?.[i])?.measurement_condition || conditionGroup || 'unknown',
-    source: sourceById.get(result.curve.raw_ids?.[i])?.source || null,
+  }, 30000);
+  const modelRawIds = result?.curve?.raw_ids || [];
+  const outlierIds = new Set((result?.curve?.raw_outlier_indices || []).map(index => modelRawIds[index]));
+  const raw = comparablePoints.map((point, i) => ({
+    ...point,
+    day: i, value: point.value, recorded_at: point.recorded_at, predicted: false,
+    outlier: outlierIds.has(point.id),
+    measurement_condition: point.measurement_condition || conditionGroup || 'unknown',
+    source: point.source || null,
     value_kind: 'measured', display_label: VALUE_LABELS.measured,
-  })) || points.map((p, i) => ({ ...p, day: i, predicted: false, outlier: false }));
+  }));
   const fittedValues = result?.curve?.fitted || [];
   const fittedTimes = result?.curve?.timestamps || [];
   const fitted = fittedTimes?.map((t, i) => ({ recorded_at: isoFromSeconds(t), value: fittedValues[i] })) || [];
@@ -510,11 +547,13 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
     schemaVersion: result?.schema_version || 'curve.v2',
     conditionGroup,
     forecastInterval: result?.forecast?.curve || null,
-    stats: result?.stats || statsFromValues(points.map(p => p.value)),
+    stats: result?.stats || statsFromValues(comparablePoints.map(p => p.value)),
     predTrend: mapTrend(result?.long_term_trend),
     analysis: result?.success ? {
       model: result.model, confidence: result.confidence, confidenceLevel: result.confidence_level, modelScore: result.model_score,
       dataPoints: result.data_points, rawPoints: result.raw_points,
+      totalHistoryPoints: comparablePoints.length, totalSourcePoints: points.length,
+      excludedConditionPoints: Math.max(0, points.length - comparablePoints.length), modelWindowPoints: modelPoints.length,
       removedOutliers: result.removed_outliers, forecastAvailable: !!result.forecast?.available,
       forecastDays: result.forecast?.days || 0, forecastModel: result.forecast?.model || null,
       forecastGranularity: result.forecast?.granularity || 'daily',
@@ -526,12 +565,22 @@ async function analyzeCurve(metric, unit, points, futureDays, conditionGroup = n
       measurementConditionCoverage: result.measurement_condition_coverage ?? null,
       dateStart: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[0]).slice(0, 10) : null,
       dateEnd: result.curve?.timestamps?.length ? isoFromSeconds(result.curve.timestamps[result.curve.timestamps.length - 1]).slice(0, 10) : null,
-      forecastReason: result.forecast?.reason || null,
+      forecastReason: userFacingForecastReason(result),
       forecastQuality,
       eligibility: result.eligibility || null,
       medicalBounds: result.medical_bounds || null,
       warning: result.warning,
-    } : { error: result?.error || 'curve service unavailable' },
+    } : {
+      error: result?.error || 'curve service unavailable',
+      dataPoints: modelPoints.length,
+      totalHistoryPoints: comparablePoints.length,
+      totalSourcePoints: points.length,
+      excludedConditionPoints: Math.max(0, points.length - comparablePoints.length),
+      modelWindowPoints: modelPoints.length,
+      forecastAvailable: false,
+      forecastDays: 0,
+      forecastReason: userFacingForecastReason(result) || '预测模型本次计算失败，请稍后重试',
+    },
   };
 }
 
@@ -800,7 +849,8 @@ router.get('/:type', async (req, res) => {
   if (subject.error) return res.status(subject.error).json({ error: subject.message });
   // The server chooses the highest defensible horizon; clients no longer need
   // to promise a fixed forecast length.
-  const futureDays = 30;
+  // The validated personal daily forecast horizon is at most 14 days.
+  const futureDays = 14;
 
   const meta = curveMetricMeta(type);
 
@@ -887,7 +937,11 @@ router.get('/:type', async (req, res) => {
   const displayState = primaryAnalysis.forecastAvailable ? 'forecast' : (primaryAnalysis.eligibility?.trend ? 'trend_only' : 'history_only');
   const nextAction = primaryAnalysis.forecastAvailable
     ? '按相同条件继续记录，若持续异常请咨询专业人员'
-    : (displayState === 'trend_only' ? '固定时间继续记录，数据更充分后系统会自动更新' : '先完成规律记录，至少7个有效日后查看趋势');
+    : (primaryAnalysis.error
+      ? '预测计算暂未完成，请稍后刷新重试'
+      : (displayState === 'trend_only'
+        ? '固定时间继续记录；当前指标按趋势管理，不提供未来数值'
+        : (primaryAnalysis.forecastReason || '继续按相同条件规律记录，系统会自动更新')));
   res.json({
     type,
     meta,

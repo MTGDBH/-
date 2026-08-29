@@ -197,16 +197,28 @@ router.get('/assessments/latest', (req, res) => {
 
   const evaluation = evaluateHealth(metrics, { todoCompletionRate, height: req.user.height });
 
-  // ADL / IADL：读取最近一次评估记录；无记录则为 null（严禁硬编码假值）
+  // ADL / IADL：优先读取统一健康档案问卷，旧 assessments 记录仅作兼容回退。
+  const latestIntake = db.prepare(`
+    SELECT scores, recorded_at FROM health_intakes
+    WHERE subject_user_id = ? AND status = 'completed'
+    ORDER BY recorded_at DESC, id DESC LIMIT 1
+  `).get(req.user.id);
+  let intakeScores = {};
+  try { intakeScores = latestIntake ? JSON.parse(latestIntake.scores || '{}') : {}; } catch { intakeScores = {}; }
   const lastAssess = db.prepare(`
     SELECT adl, iadl FROM assessments WHERE user_id = ? ORDER BY id DESC LIMIT 1
   `).get(req.user.id);
+  const adl = Number.isFinite(Number(intakeScores.adlab_c)) ? Number(intakeScores.adlab_c) : (lastAssess?.adl ?? null);
+  const iadl = Number.isFinite(Number(intakeScores.iadl)) ? Number(intakeScores.iadl) : (lastAssess?.iadl ?? null);
 
   res.json({
     total_score: evaluation.total_score,
     subscores: evaluation.subscores,
-    adl: lastAssess?.adl ?? null,
-    iadl: lastAssess?.iadl ?? null,
+    scoring_details: evaluation.scoring_details,
+    adl,
+    iadl,
+    functional_evaluated_at: latestIntake?.recorded_at ?? null,
+    functional_complete: adl != null && iadl != null,
     suggestions: evaluation.suggestions,
     summary: evaluation.summary,
     evaluated_at: new Date().toISOString(),

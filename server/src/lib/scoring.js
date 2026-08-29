@@ -6,7 +6,7 @@
 // - 各项指标按"健康区间"分段打分（参考中国老年健康指南与常见临床阈值）
 // - 指标元数据（哪些指标存在、正常范围）以 metric_defs 表为唯一数据源
 // - 这里只保留"评分区间"这一份纯评分策略
-// - 子项聚合：有真实数据的子项参与平均；无数据子项不出现、不默认 80
+// - 子项聚合：采用分层加权模型；无数据项不补分，并按实际可用权重归一化
 // - 情绪(mood)：当前无真实数据来源，不参与评分（严禁再出现 85 等硬编码默认值）
 //
 // 注意：本算法为演示用工程实现，未做医学级别校验。
@@ -18,6 +18,37 @@ import db from '../db.js';
 const KNOWN_TYPES = new Set(
   db.prepare('SELECT type FROM metric_defs').all().map(r => r.type)
 );
+
+const METRIC_META = new Map(
+  db.prepare('SELECT type, name, unit FROM metric_defs').all().map(r => [r.type, r])
+);
+
+// 健康管理参考权重（不是疾病诊断概率）：
+// 慢病控制 40%、活动 25%、营养/体成分 20%、睡眠 15%。
+// 设计参考 AHA Life's Essential 8 与 WHO ICOPE 的核心健康领域，
+// 并根据本项目当前可采集指标做工程化映射。
+export const SCORE_MODEL = {
+  version: 'weighted-v1',
+  period_days: 7,
+  dimensions: {
+    chronic: {
+      label: '慢病控制', weight: 40,
+      metrics: { bp: 30, glucose: 15, hba1c: 15, cholesterol: 10, spo2: 10, uricacid: 10, resp: 5, temp: 5 },
+    },
+    activity: {
+      label: '活动', weight: 25,
+      metrics: { steps: 50, grip: 30, hr: 20 },
+    },
+    nutrition: {
+      label: '营养', weight: 20,
+      metrics: { weight: 50, waist: 30, bodyfat: 20 },
+    },
+    sleep: {
+      label: '睡眠', weight: 15,
+      metrics: { sleep: 100 },
+    },
+  },
+};
 
 // 评分区间（纯评分策略；指标元数据在 metric_defs）
 const SCORE_RANGES = {
@@ -91,13 +122,6 @@ function clampScore(s) {
  * 无数据子项不出现在结果中；mood 无真实数据源，不参与评分
  */
 export function aggregateMetrics(metrics, ctx = {}) {
-  const groups = {
-    sleep: ['sleep'],
-    nutrition: ['weight', 'bodyfat', 'waist'],
-    activity: ['hr', 'steps', 'grip'],
-    chronic: ['bp', 'glucose', 'spo2', 'temp', 'resp', 'uricacid', 'cholesterol', 'hba1c'],
-  };
-
   // 取每种类型最近一条
   const latestByType = {};
   for (const m of metrics) {
@@ -108,25 +132,68 @@ export function aggregateMetrics(metrics, ctx = {}) {
   }
 
   const subscores = {};
-  for (const [subKey, types] of Object.entries(groups)) {
-    const scores = types
-      .map(t => latestByType[t])
-      .filter(Boolean)
-      .map(m => scoreMetric(m.value, m.value2, m.type, ctx))
-      .filter(s => s != null);
-    if (scores.length) {
-      subscores[subKey] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  const dimensions = [];
+  let totalWeightedScore = 0;
+  let availableDimensionWeight = 0;
+  let coverageWeight = 0;
+
+  for (const [key, config] of Object.entries(SCORE_MODEL.dimensions)) {
+    const metricDetails = [];
+    let weightedScore = 0;
+    let availableMetricWeight = 0;
+
+    for (const [type, metricWeight] of Object.entries(config.metrics)) {
+      const metric = latestByType[type];
+      const score = metric ? scoreMetric(metric.value, metric.value2, type, ctx) : null;
+      if (score == null) continue;
+      const meta = METRIC_META.get(type) || {};
+      weightedScore += score * metricWeight;
+      availableMetricWeight += metricWeight;
+      coverageWeight += config.weight * (metricWeight / 100);
+      metricDetails.push({
+        type,
+        label: meta.name || type,
+        unit: meta.unit || '',
+        value: metric.value,
+        value2: metric.value2 ?? null,
+        score,
+        weight: metricWeight,
+        recorded_at: metric.recorded_at,
+      });
     }
-    // 无数据子项：不写 key，前端显示 "--"，不默认 80
+
+    const score = availableMetricWeight
+      ? Math.round(weightedScore / availableMetricWeight)
+      : null;
+    if (score != null) {
+      subscores[key] = score;
+      totalWeightedScore += score * config.weight;
+      availableDimensionWeight += config.weight;
+    }
+    dimensions.push({
+      key,
+      label: config.label,
+      weight: config.weight,
+      score,
+      available_metric_weight: availableMetricWeight,
+      metrics: metricDetails,
+    });
   }
 
-  // mood：当前无真实问卷/情绪数据来源，不做任何默认分
-  const subValues = Object.values(subscores);
-  const total = subValues.length
-    ? Math.round(subValues.reduce((a, b) => a + b, 0) / subValues.length)
+  // 缺失维度不补假分：总分按当前实际参与维度的权重重新归一化。
+  const total = availableDimensionWeight
+    ? Math.round(totalWeightedScore / availableDimensionWeight)
     : null;
+  const scoring_details = {
+    model: SCORE_MODEL.version,
+    method: 'hierarchical_weighted',
+    period_days: SCORE_MODEL.period_days,
+    available_weight: availableDimensionWeight,
+    coverage_percent: Math.round(coverageWeight),
+    dimensions,
+  };
 
-  return { total, subscores };
+  return { total, subscores, scoring_details };
 }
 
 /**
@@ -190,7 +257,7 @@ export function generateSuggestions(subscores, latestByType) {
  * 主入口：聚合 + 建议
  */
 export function evaluateHealth(metrics, ctx = {}) {
-  const { total, subscores } = aggregateMetrics(metrics, ctx);
+  const { total, subscores, scoring_details } = aggregateMetrics(metrics, ctx);
 
   const latestByType = {};
   for (const m of metrics) {
@@ -202,11 +269,13 @@ export function evaluateHealth(metrics, ctx = {}) {
   const suggestions = generateSuggestions(subscores, latestByType);
   const dimensionLabels = { sleep: '睡眠', nutrition: '营养', activity: '活动', chronic: '慢病控制' };
   const usedDimensions = Object.keys(subscores).map(key => dimensionLabels[key]).filter(Boolean);
+  const coverage = scoring_details.coverage_percent;
   const summary = total == null
     ? '暂无足够健康数据，先到"健康监测"录入一次吧。'
-    : `根据近 7 天有数据的${usedDimensions.join('、')}维度，您今天的健康评分 ${total} 分${
-        total >= 80 ? '，整体状态良好' : total >= 60 ? '，需关注' : '，建议尽快复诊'
+    : `根据近 7 天有数据的${usedDimensions.join('、')}维度加权计算，您今天的健康评分 ${total} 分${
+        coverage < 40 ? `；当前数据覆盖率 ${coverage}%，仅供有限参考`
+          : total >= 80 ? '，整体状态良好' : total >= 60 ? '，需关注' : '，建议尽快复诊'
       }。`;
 
-  return { total_score: total, subscores, suggestions, summary };
+  return { total_score: total, subscores, scoring_details, suggestions, summary };
 }

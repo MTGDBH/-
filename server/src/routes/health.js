@@ -75,6 +75,7 @@ router.get('/summary', (req, res) => {
     today: todayDate,
     total_score: evaluation.total_score,
     subscores: evaluation.subscores,
+    scoring_details: evaluation.scoring_details,
     summary: evaluation.summary,
     todo_count: todos.length,
     todo_completed: todos.filter(t => t.completed).length,

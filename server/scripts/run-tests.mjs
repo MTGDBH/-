@@ -52,6 +52,7 @@ const unitTests = [
 ];
 const integrationTests = [
   'data/test_auth_integration.mjs',
+  'data/test_function_assessment.mjs',
   'data/test_care_permissions.mjs',
   'data/test_device_sync.mjs',
   'data/test_interventions.mjs',

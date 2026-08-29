@@ -35,12 +35,10 @@
             <div class="ring-side-label">AI 综合评分</div>
             <div class="ring-side-desc" id="summary-text">—</div>
             <div class="ring-side-comp" id="ring-meta">—</div>
-            <section class="score-detail-panel" aria-labelledby="score-detail-title">
-              <div class="score-detail-head"><strong id="score-detail-title">评分详情</strong><span>近 7 天</span></div>
-              <div class="score-detail-formula" id="score-detail-formula">正在读取参与评分的项目…</div>
-              <div class="score-detail-items" id="score-detail-items"></div>
-              <p>每类指标取近 7 天内最新记录；分项内部取有效指标平均，总分再取有数据分项的等权平均。情绪没有有效问卷数据时不参与计算。</p>
-            </section>
+            <button class="score-detail-trigger" id="score-detail-open" type="button">
+              <span><strong>评分详情</strong><small id="score-detail-preview">分层加权计算</small></span>
+              <b>查看方法 →</b>
+            </button>
           </div>
         </div>
 
@@ -59,9 +57,9 @@
         <div class="life-card">
           <div class="life-title">生活能力评估</div>
           <div class="life-sub" id="life-sub">—</div>
-          <div class="life-row"><div class="life-icon" style="background:#E5F0DC;color:#5A8045">日</div><div class="life-text"><div class="life-name">基本生活 ADL</div><div class="life-desc">吃饭、穿衣、移动、如厕</div></div><div class="life-score" style="color:#5A8045" id="adl">--</div></div>
-          <div class="life-row"><div class="life-icon" style="background:#FFE9D9;color:#F4A261">用</div><div class="life-text"><div class="life-name">工具性生活 IADL</div><div class="life-desc">做饭、购物、用药、电话</div></div><div class="life-score" style="color:#F4A261" id="iadl">--</div></div>
-          <button class="btn btn-primary btn-block" id="btn-assess">开始重新评估</button>
+          <div class="life-row"><div class="life-icon" style="background:#E5F0DC;color:#5A8045">日</div><div class="life-text"><div class="life-name">基本生活 ADL</div><div class="life-desc">穿衣、洗澡、吃饭、上下床、如厕</div></div><div class="life-score-wrap"><div class="life-score" style="color:#5A8045" id="adl">--</div><small id="adl-status">尚未评估</small></div></div>
+          <div class="life-row"><div class="life-icon" style="background:#FFE9D9;color:#F4A261">用</div><div class="life-text"><div class="life-name">工具性生活 IADL</div><div class="life-desc">购物、做饭、用药、钱款、家务</div></div><div class="life-score-wrap"><div class="life-score" style="color:#F4A261" id="iadl">--</div><small id="iadl-status">尚未评估</small></div></div>
+          <button class="btn btn-primary btn-block" id="btn-assess" type="button">开始生活能力评估</button>
         </div>
 
         <div class="improve-card">
@@ -87,6 +85,61 @@
       <div class="disease-risk-foot">这里不再重复计算，避免不同页面出现不一致结论。</div>
     </section>
   </main>
+
+  <dialog class="score-detail-dialog" id="score-detail-dialog" aria-labelledby="score-detail-title">
+    <div class="score-dialog-shell">
+      <header class="score-dialog-head">
+        <div><span>健康管理参考评分</span><h2 id="score-detail-title">评分详情</h2></div>
+        <button class="score-dialog-close" id="score-detail-close" type="button" aria-label="关闭评分详情">×</button>
+      </header>
+      <div class="score-dialog-body">
+        <section class="score-method-summary">
+          <div><span>计算方式</span><strong>分层加权</strong></div>
+          <div><span>数据周期</span><strong>近 7 天</strong></div>
+          <div><span>数据覆盖率</span><strong id="score-coverage">—</strong></div>
+        </section>
+        <div class="score-coverage-note" id="score-coverage-note"></div>
+        <section class="score-formula-box" aria-label="总分计算公式">
+          <span>本次总分公式</span>
+          <strong id="score-detail-formula">正在读取参与评分的项目…</strong>
+        </section>
+        <section class="score-dimension-list" id="score-detail-items"></section>
+        <section class="score-method-note">
+          <h3>权重为什么这样分配？</h3>
+          <p>慢病控制 40%、活动 25%、营养 20%、睡眠 15%。评分维度参考美国心脏协会 Life's Essential 8 与世界卫生组织 ICOPE 老年综合照护框架；具体权重是本项目依据当前可采集数据设置的健康管理优先级，并非指南直接规定的临床权重。缺失数据不会补成正常分，而会降低覆盖率。</p>
+          <div class="score-source-links">
+            <a href="https://www.heart.org/en/healthy-living/healthy-lifestyle/lifes-essential-8" target="_blank" rel="noopener">AHA Life's Essential 8 ↗</a>
+            <a href="https://www.who.int/publications/i/item/9789241550109" target="_blank" rel="noopener">WHO ICOPE 指南 ↗</a>
+          </div>
+          <small>该分数用于日常健康管理与趋势观察，不代替医生诊断、疾病风险模型或治疗建议。</small>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="function-assess-dialog" id="function-assess-dialog" aria-labelledby="function-assess-title">
+    <form class="function-assess-shell" id="function-assess-form" method="dialog">
+      <header class="function-assess-head">
+        <div><span>生活能力评估</span><h2 id="function-assess-title">日常生活是否需要帮助？</h2></div>
+        <button class="score-dialog-close" id="function-assess-close" type="button" aria-label="关闭生活能力评估">×</button>
+      </header>
+      <div class="function-assess-body">
+        <div class="function-stepper" aria-label="评估进度">
+          <div class="is-active" id="function-step-adl"><b>1</b><span>基本生活 ADL<small>6 个项目</small></span></div>
+          <i></i>
+          <div id="function-step-iadl"><b>2</b><span>工具性生活 IADL<small>5 个项目</small></span></div>
+        </div>
+        <div class="function-intro" id="function-intro"></div>
+        <div class="function-question-list" id="function-question-list"></div>
+        <p class="function-form-message" id="function-form-message" role="status" aria-live="polite"></p>
+      </div>
+      <footer class="function-assess-actions">
+        <button class="btn function-back" id="function-back" type="button">上一步</button>
+        <span id="function-progress">第 1 步，共 2 步</span>
+        <button class="btn btn-primary" id="function-next" type="button">下一步</button>
+      </footer>
+    </form>
+  </dialog>
 
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
@@ -155,19 +208,22 @@
     }
 
     function renderTotal(d) {
-      const total = d.total_score;
-      document.getElementById('ring-num').textContent = total;
-      const dash = Math.round((total / 100) * 628);
+      const total = Number(d.total_score);
+      const hasTotal = Number.isFinite(total);
+      const coverage = Number(d.scoring_details?.coverage_percent) || 0;
+      document.getElementById('ring-num').textContent = hasTotal ? Math.round(total) : '--';
+      const dash = hasTotal ? Math.round((total / 100) * 628) : 0;
       document.getElementById('ring-progress').setAttribute('stroke-dasharray', `${dash} 628`);
-      const badge = total >= 80 ? '状态良好' : total >= 60 ? '需关注' : '需复诊';
-      const badgeBg = total >= 80 ? '#E5F0DC' : total >= 60 ? '#FFE9D9' : '#FBE4DD';
-      const badgeColor = total >= 80 ? '#5A8045' : total >= 60 ? '#F4A261' : '#A04632';
+      const lowCoverage = coverage < 40;
+      const badge = lowCoverage ? '数据不足' : total >= 80 ? '状态良好' : total >= 60 ? '需关注' : '需复诊';
+      const badgeBg = lowCoverage ? '#EEF1F0' : total >= 80 ? '#E5F0DC' : total >= 60 ? '#FFE9D9' : '#FBE4DD';
+      const badgeColor = lowCoverage ? '#66736F' : total >= 80 ? '#5A8045' : total >= 60 ? '#F4A261' : '#A04632';
       const el = document.getElementById('total-badge');
       el.textContent = badge;
       el.style.background = badgeBg;
       el.style.color = badgeColor;
       document.getElementById('summary-text').textContent = d.summary;
-      document.getElementById('ring-meta').textContent = '· 实时计算自今日数据';
+      document.getElementById('ring-meta').textContent = `· 分层加权计算 · 数据覆盖 ${coverage}%`;
     }
 
     function renderSubs(s) {
@@ -194,24 +250,54 @@
     }
 
     function renderScoreDetail(d) {
-      const labels = { sleep: '睡眠', nutrition: '营养', activity: '活动', chronic: '慢病控制' };
-      const values = Object.entries(labels)
-        .map(([key, label]) => ({ key, label, value: Number(d.subscores?.[key]) }))
-        .filter(item => Number.isFinite(item.value));
+      const details = d.scoring_details || {};
+      const dimensions = Array.isArray(details.dimensions) ? details.dimensions : [];
+      const available = dimensions.filter(item => Number.isFinite(Number(item.score)));
       const total = Number(d.total_score);
-      document.getElementById('score-detail-items').innerHTML = values.length
-        ? values.map(item => `<span><b>${item.label}</b><strong>${Math.round(item.value)} 分</strong></span>`).join('')
-        : '<span class="empty">暂无可参与评分的数据</span>';
-      document.getElementById('score-detail-formula').textContent = values.length
-        ? `总分 = (${values.map(item => Math.round(item.value)).join(' + ')}) ÷ ${values.length} = ${Number.isFinite(total) ? Math.round(total) : '—'} 分`
+      const coverage = Number(details.coverage_percent) || 0;
+      const availableWeight = Number(details.available_weight) || available.reduce((sum, item) => sum + Number(item.weight || 0), 0);
+      document.getElementById('score-detail-preview').textContent = `数据覆盖 ${coverage}% · 点击查看算法`;
+      document.getElementById('score-coverage').textContent = `${coverage}%`;
+      const coverageNote = document.getElementById('score-coverage-note');
+      coverageNote.className = `score-coverage-note ${coverage < 40 ? 'low' : coverage < 70 ? 'mid' : 'good'}`;
+      coverageNote.textContent = coverage < 40
+        ? '当前数据覆盖较低，分数只能作为有限参考；建议继续补充睡眠、活动、营养和慢病指标。'
+        : coverage < 70 ? '当前已有部分关键数据，继续完善记录可提高评分稳定性。' : '当前数据覆盖较完整，评分更适合用于观察近期趋势。';
+
+      document.getElementById('score-detail-formula').textContent = available.length
+        ? `(${available.map(item => `${Math.round(item.score)}×${item.weight}%`).join(' + ')}) ÷ ${availableWeight}% = ${Number.isFinite(total) ? Math.round(total) : '—'} 分`
         : '总分暂不可计算，请先记录健康数据。';
+
+      document.getElementById('score-detail-items').innerHTML = dimensions.map(item => {
+        const hasScore = Number.isFinite(Number(item.score));
+        const metrics = Array.isArray(item.metrics) ? item.metrics : [];
+        const metricRows = metrics.length ? metrics.map(metric => {
+          const value = metric.value2 == null ? metric.value : `${metric.value}/${metric.value2}`;
+          return `<div class="score-metric-row"><span><b>${escapeHTML(metric.label)}</b><small>最新 ${escapeHTML(value)}${escapeHTML(metric.unit || '')}</small></span><span><small>维度内权重 ${metric.weight}%</small><strong>${metric.score} 分</strong></span></div>`;
+        }).join('') : '<div class="score-metric-empty">近 7 天暂无可评分记录</div>';
+        return `<article class="score-dimension-card${hasScore ? '' : ' is-empty'}">
+          <header><span><b>${escapeHTML(item.label)}</b><small>总分权重 ${item.weight}%</small></span><strong>${hasScore ? `${Math.round(item.score)} 分` : '未参与'}</strong></header>
+          <div class="score-metric-list">${metricRows}</div>
+        </article>`;
+      }).join('') || '<div class="score-metric-empty">暂无评分明细</div>';
     }
 
+    const scoreDialog = document.getElementById('score-detail-dialog');
+    document.getElementById('score-detail-open').addEventListener('click', () => scoreDialog.showModal());
+    document.getElementById('score-detail-close').addEventListener('click', () => scoreDialog.close());
+    scoreDialog.addEventListener('click', event => { if (event.target === scoreDialog) scoreDialog.close(); });
+
     function renderAdlIadl(d) {
-      // ADL / IADL：仅展示真实评估记录，无记录显示 "--"（严禁兜底假值）
-      document.getElementById('adl').textContent = d.adl ?? '--';
-      document.getElementById('iadl').textContent = d.iadl ?? '--';
-      document.getElementById('life-sub').textContent = `ADL / IADL 综合 · ${fmtDate(new Date().toISOString())}`;
+      // 数值代表“有困难或需要帮助”的项目数，越少越好。
+      const adl = Number.isFinite(Number(d.adl)) ? Number(d.adl) : null;
+      const iadl = Number.isFinite(Number(d.iadl)) ? Number(d.iadl) : null;
+      document.getElementById('adl').textContent = adl == null ? '--' : `${adl} 项`;
+      document.getElementById('iadl').textContent = iadl == null ? '--' : `${iadl} 项`;
+      document.getElementById('adl-status').textContent = adl == null ? '尚未评估' : adl === 0 ? '可独立完成' : '存在受限';
+      document.getElementById('iadl-status').textContent = iadl == null ? '尚未评估' : iadl === 0 ? '可独立完成' : '存在受限';
+      const dateText = d.functional_evaluated_at ? fmtDate(d.functional_evaluated_at) : '尚未完成';
+      document.getElementById('life-sub').textContent = `受限项目数，越少越好 · ${dateText}`;
+      document.getElementById('btn-assess').textContent = d.functional_complete ? '重新进行生活能力评估' : '开始生活能力评估';
     }
 
     function renderSuggest(list) {
@@ -230,13 +316,98 @@
       `).join('');
     }
 
-    document.getElementById('btn-assess').addEventListener('click', async () => {
+    const functionDialog = document.getElementById('function-assess-dialog');
+    let functionSchema = null;
+    let functionAnswers = {};
+    let functionStep = 0;
+
+    async function openFunctionAssessment() {
+      const message = document.getElementById('function-form-message');
+      message.textContent = '正在读取问卷…';
       try {
-        await API.post('/api/assessments', {});
-        toast('已生成新评估', 'success');
-        loadAll();
-      } catch (err) { toast(err.message, 'error'); }
+        const [schema, latest] = await Promise.all([
+          API.get('/api/prediction/intake/schema'),
+          API.get('/api/prediction/intake/latest').catch(() => ({ answers: {} })),
+        ]);
+        functionSchema = schema;
+        functionAnswers = { ...(latest.answers || {}) };
+        functionStep = 0;
+        renderFunctionAssessment();
+        functionDialog.showModal();
+      } catch (err) {
+        toast('问卷加载失败：' + err.message, 'error');
+      }
+    }
+
+    function functionQuestionsForStep(step) {
+      const prefix = step === 0 ? 'adl_' : 'iadl_';
+      return (functionSchema?.questions || []).filter(question => question.id.startsWith(prefix));
+    }
+
+    function renderFunctionAssessment() {
+      const isAdl = functionStep === 0;
+      document.getElementById('function-step-adl').classList.toggle('is-active', isAdl);
+      document.getElementById('function-step-adl').classList.toggle('is-complete', !isAdl);
+      document.getElementById('function-step-iadl').classList.toggle('is-active', !isAdl);
+      document.getElementById('function-back').style.visibility = isAdl ? 'hidden' : 'visible';
+      document.getElementById('function-next').textContent = isAdl ? '下一步' : '完成评估';
+      document.getElementById('function-progress').textContent = `第 ${functionStep + 1} 步，共 2 步`;
+      document.getElementById('function-intro').innerHTML = isAdl
+        ? '<strong>基本生活 ADL</strong><span>评估吃饭、穿衣和移动等基础生活是否需要帮助</span>'
+        : '<strong>工具性生活 IADL</strong><span>评估购物、做饭和用药等复杂生活事务是否需要帮助</span>';
+      document.getElementById('function-form-message').textContent = '';
+      const questions = functionQuestionsForStep(functionStep);
+      document.getElementById('function-question-list').innerHTML = questions.map((question, index) => `
+        <fieldset class="function-question" data-question-id="${escapeHTML(question.id)}">
+          <legend><span>${index + 1}</span>${escapeHTML(question.prompt)}</legend>
+          <div class="function-options">${question.options.map(option => {
+            const checked = String(functionAnswers[question.id]) === String(option.value) ? ' checked' : '';
+            return `<label><input type="radio" name="${escapeHTML(question.id)}" value="${escapeHTML(option.value)}"${checked}><span>${escapeHTML(option.label)}</span></label>`;
+          }).join('')}</div>
+        </fieldset>`).join('');
+    }
+
+    function collectFunctionAnswers() {
+      for (const question of functionQuestionsForStep(functionStep)) {
+        const checked = document.querySelector(`input[name="${question.id}"]:checked`);
+        if (checked) functionAnswers[question.id] = Number(checked.value);
+      }
+    }
+
+    function validateFunctionStep() {
+      collectFunctionAnswers();
+      const missing = functionQuestionsForStep(functionStep).find(question => functionAnswers[question.id] == null);
+      document.querySelectorAll('.function-question.is-missing').forEach(el => el.classList.remove('is-missing'));
+      if (!missing) return true;
+      const field = document.querySelector(`[data-question-id="${missing.id}"]`);
+      field?.classList.add('is-missing');
+      field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('function-form-message').textContent = '请完成本页所有项目后继续。';
+      return false;
+    }
+
+    document.getElementById('btn-assess').addEventListener('click', openFunctionAssessment);
+    document.getElementById('function-assess-close').addEventListener('click', () => functionDialog.close());
+    document.getElementById('function-back').addEventListener('click', () => { collectFunctionAnswers(); functionStep = 0; renderFunctionAssessment(); });
+    document.getElementById('function-next').addEventListener('click', async () => {
+      if (!validateFunctionStep()) return;
+      if (functionStep === 0) { functionStep = 1; renderFunctionAssessment(); return; }
+      const button = document.getElementById('function-next');
+      button.disabled = true;
+      button.textContent = '正在保存…';
+      try {
+        await API.post('/api/prediction/intakes', { answers: functionAnswers, status: 'completed' });
+        functionDialog.close();
+        toast('生活能力评估已完成', 'success');
+        await loadAll();
+      } catch (err) {
+        document.getElementById('function-form-message').textContent = '保存失败：' + err.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = '完成评估';
+      }
     });
+    functionDialog.addEventListener('click', event => { if (event.target === functionDialog) functionDialog.close(); });
 
     function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
   </script>
