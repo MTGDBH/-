@@ -1,4 +1,5 @@
 // 数据质量、复测闭环和医生知识审核接口回归。
+import db from '../src/db.js';
 const base = process.env.TEST_BASE_URL || 'http://localhost:3001';
 async function request(path, options = {}) {
   const res = await fetch(base + path, { ...options, headers: { 'content-type': 'application/json', ...(options.headers || {}) } });
@@ -11,6 +12,7 @@ const login = await request('/api/auth/register', { method: 'POST', body: JSON.s
 const auth = { Cookie: (login.headers.get('set-cookie') || '').split(';')[0] };
 let doctorAuth;
 const doctor = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ name: `${name}医生`, age: 42, role: 'doctor', password: '123456' }) });
+db.prepare("UPDATE users SET role='doctor' WHERE id=?").run(doctor.body.user.id);
 doctorAuth = { Cookie: (doctor.headers.get('set-cookie') || '').split(';')[0] };
 try {
   const invalid = await request('/api/health/metrics', { method: 'POST', headers: auth, body: JSON.stringify({ type: 'bp', value: 300, value2: 90 }) }).catch(e => ({ body: { error: e.message } }));
@@ -24,11 +26,16 @@ try {
   const confirmed = await request(`/api/actions/${action.body.request.id}/confirm`, { method: 'POST', headers: auth, body: JSON.stringify({ confirmation_token: action.body.confirmation.one_time_token }) });
   const followup = confirmed.body.followup;
   if (!followup?.id || followup.status !== 'scheduled') throw new Error('follow-up was not created atomically');
+  const recheck = await request('/api/health/metrics', { method: 'POST', headers: auth, body: JSON.stringify({ type: 'bp', value: 136, value2: 84, measurement_condition: '静坐5分钟后', recorded_at: new Date(Date.now() + 2 * 60000).toISOString() }) });
+  if (recheck.body.followup_match?.status !== 'pending_result_confirmation') throw new Error('new measurement was not matched to the scheduled follow-up');
+  const completed = await request(`/api/actions/followups/${followup.id}/candidate/confirm`, { method: 'POST', headers: auth, body: JSON.stringify({ metric_id: recheck.body.id }) });
+  if (completed.body.status !== 'completed' || completed.body.result_metric_id !== recheck.body.id) throw new Error('follow-up result was not confirmed');
+  if (completed.body.comparison?.delta !== -9 || completed.body.comparison?.delta2 !== -4) throw new Error('follow-up comparison does not match evidence');
   const sources = (await request('/api/knowledge/graph/sources', { headers: doctorAuth })).body;
   const sourceId = sources.sources?.[0]?.source_id;
   const review = await request('/api/knowledge/graph/reviews', { method: 'POST', headers: doctorAuth, body: JSON.stringify({ source_id: sourceId, status: 'approved', notes: '演示审核通过' }) });
   if (review.body.status !== 'approved') throw new Error('knowledge review was not persisted');
-  console.log(JSON.stringify({ pass: true, quality_flags: duplicate.body.quality?.flags || [], duplicate_marked: true, followup_status: followup.status, source_review: review.body.status }));
+  console.log(JSON.stringify({ pass: true, quality_flags: duplicate.body.quality?.flags || [], duplicate_marked: true, followup_status: completed.body.status, comparison: { delta: completed.body.comparison.delta, delta2: completed.body.comparison.delta2 }, source_review: review.body.status }));
 } finally {
   // 隔离数据库由主测试入口统一销毁。
 }

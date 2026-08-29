@@ -19,5 +19,5 @@ if (!injected.response.ok || injected.body.tool_trace.length || !/不能更改�
 const emergency = await raw('/api/chat', { method: 'POST', headers: auth, body: JSON.stringify({ message: '我现在胸痛并且说话不清', conversation_id: first.body.conversation_id, client_request_id: `emergency-${Date.now()}` }) });
 if (!emergency.response.ok || emergency.body.tool_trace.length || !/立即.*急救|立即拨打/.test(emergency.body.content)) throw new Error('emergency did not bypass tools');
 const stranger = await raw('/api/chat', { method: 'POST', headers: auth, body: JSON.stringify({ message: '看数据', subject_user_id: 1, client_request_id: `cross-${Date.now()}` }) });
-if (Number(register.body.id) !== 1 && stranger.response.status !== 403) throw new Error('cross-user read was not denied');
+if (Number(register.body.user.id) !== 1 && stranger.response.status !== 403) throw new Error('cross-user read was not denied');
 console.log(JSON.stringify({ pass: true, v3_only: true, structured_contract: true, idempotent_replay: true, injection_blocked: true, emergency_bypass: true, cross_user_denied: true }));

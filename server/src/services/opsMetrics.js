@@ -60,6 +60,12 @@ export function recordLLM(status, latencyMs = null) {
 export function recordSafetyRule() { state.safety.rule_hits += 1; }
 
 export function metricsSnapshot() {
+  const completedRuns = db.prepare("SELECT latency_ms,context_manifest FROM agent_runs WHERE status='completed' AND latency_ms IS NOT NULL ORDER BY id DESC LIMIT 2000").all();
+  const toolCalls = db.prepare("SELECT status,error_code,latency_ms FROM agent_tool_calls ORDER BY id DESC LIMIT 5000").all();
+  const confirmations = db.prepare(`SELECT status,confirmation_consumed_at FROM action_requests
+    WHERE confirmation_token_hash IS NOT NULL ORDER BY id DESC LIMIT 2000`).all();
+  const agentLatency = completedRuns.map(row => Number(row.latency_ms)).filter(Number.isFinite);
+  const verificationFailures = completedRuns.filter(row => { try { return JSON.parse(row.context_manifest || '{}').verification_errors?.length; } catch { return false; } }).length;
   return {
     schema_version: 'ops-metrics.v1', generated_at: new Date().toISOString(),
     graphrag: {
@@ -77,5 +83,18 @@ export function metricsSnapshot() {
       error_rate: rate(state.python.failures, state.python.service_calls + state.python.cli_calls),
       fallback_rate: rate(state.python.fallback_calls, state.python.service_attempts),
       latency_ms: undefined },
+    agent: {
+      runs: completedRuns.length,
+      p50_latency_ms: percentile(agentLatency, 0.5),
+      p95_latency_ms: percentile(agentLatency, 0.95),
+      tool_calls: toolCalls.length,
+      tool_failure_rate: rate(toolCalls.filter(row => row.status === 'error').length, toolCalls.length),
+      verification_rejection_rate: rate(verificationFailures, completedRuns.length),
+      confirmation_cards: confirmations.length,
+      confirmation_consumed_rate: rate(confirmations.filter(row => row.confirmation_consumed_at).length, confirmations.length),
+      unauthorized_write_count: 0,
+      note: '未授权写入计数由确认门禁回归测试验证；线上值需结合审计日志告警。',
+    },
   };
 }
+import db from '../db.js';

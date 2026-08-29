@@ -10,6 +10,7 @@ import { interventionRepository } from '../repositories/interventionRepository.j
 import { resolveInterventionFollowup } from '../lib/followups.js';
 import { validateEvaluationRequest } from '../contracts/interventionEvaluationContract.js';
 import { evaluateIntervention } from '../services/interventionEvaluationService.js';
+import { createOneTimeConfirmation, verifyOneTimeConfirmation } from '../security/actionConfirmation.js';
 
 const router = express.Router();
 
@@ -48,6 +49,17 @@ function invalidTransition(res, intervention, target) {
     `当前状态 ${intervention.status} 不能转换为 ${target}`, { current_status: intervention.status, requested_status: target });
 }
 
+function issueInterventionConfirmation(intervention) {
+  if (!intervention?.action_request_id || intervention.status !== 'pending_confirmation') return null;
+  const action = db.prepare('SELECT * FROM action_requests WHERE id=?').get(intervention.action_request_id);
+  if (!action) return null;
+  let payload; try { payload = JSON.parse(action.payload || '{}'); } catch { payload = {}; }
+  const confirmation = createOneTimeConfirmation({ actorUserId: action.actor_user_id, subjectUserId: action.subject_user_id, actionType: action.action_type, payload });
+  db.prepare(`UPDATE action_requests SET payload_hash=?,confirmation_token_hash=?,confirmation_expires_at=?,confirmation_consumed_at=NULL WHERE id=?`)
+    .run(confirmation.payloadHash, confirmation.tokenHash, confirmation.expiresAt, action.id);
+  return { one_time_token: confirmation.token, payload_hash: confirmation.payloadHash, expiration: confirmation.expiresAt };
+}
+
 router.get('/', (req, res) => {
   const access = resolveSubjectAccess(req, req.query.subject_user_id, 'view');
   if (access.error) return failure(res, access.error, access.reasonCode, access.message);
@@ -76,8 +88,10 @@ router.post('/', (req, res) => {
   parsed.value.followup_id = linkedFollowup.followup?.id || null;
   const idempotencyKey = req.body?.idempotency_key ? String(req.body.idempotency_key).slice(0, 100) : null;
   const result = interventionRepository.create({ subjectUserId: access.subject.id, actorUserId: req.user.id, input: parsed.value, idempotencyKey });
+  const confirmation = issueInterventionConfirmation(result.intervention);
   return res.status(result.idempotentReplay ? 200 : 201).json({ intervention: result.intervention,
     requires_confirmation: result.intervention.status !== 'proposed', idempotent_replay: result.idempotentReplay,
+    confirmation,
     message: result.intervention.status === 'proposed' ? '草案已保存，提交后等待本人确认' : '干预建议已创建，必须由老人本人确认后才能激活' });
 });
 
@@ -124,7 +138,7 @@ router.post('/:interventionId/submit', (req, res) => {
   if (access.error) return failure(res, access.error, access.reasonCode, access.message);
   if (intervention.status !== 'pending_confirmation' && !canTransitionIntervention(intervention.status, 'pending_confirmation')) return invalidTransition(res, intervention, 'pending_confirmation');
   const result = interventionRepository.transition(intervention.intervention_id, ['proposed'], 'pending_confirmation', { actorUserId: req.user.id });
-  return res.json({ intervention: result.intervention, requires_confirmation: true, idempotent_replay: result.idempotentReplay });
+  return res.json({ intervention: result.intervention, requires_confirmation: true, confirmation: issueInterventionConfirmation(result.intervention), idempotent_replay: result.idempotentReplay });
 });
 
 router.post('/:interventionId/confirm', (req, res) => {
@@ -133,6 +147,14 @@ router.post('/:interventionId/confirm', (req, res) => {
   if (access.error) return failure(res, access.error, access.reasonCode, access.message);
   if (intervention.status === 'proposed') return failure(res, 409, INTERVENTION_REASON_CODES.NOT_SUBMITTED, '草案必须先提交为待确认状态');
   if (intervention.status !== 'active' && !canTransitionIntervention(intervention.status, 'active')) return invalidTransition(res, intervention, 'active');
+  if (intervention.status === 'pending_confirmation') {
+    const action = db.prepare('SELECT * FROM action_requests WHERE id=?').get(intervention.action_request_id);
+    let payload; try { payload = JSON.parse(action?.payload || '{}'); } catch { payload = {}; }
+    const confirmation = verifyOneTimeConfirmation(action, req.body?.confirmation_token, payload);
+    if (!confirmation.ok) return failure(res, 409, INTERVENTION_REASON_CODES.CONFIRMATION_REQUIRED, '确认已失效，请重新打开确认卡', { confirmation_error: confirmation.code });
+    const consumed = db.prepare('UPDATE action_requests SET confirmation_consumed_at=? WHERE id=? AND confirmation_consumed_at IS NULL').run(new Date().toISOString(), action.id);
+    if (consumed.changes !== 1) return failure(res, 409, INTERVENTION_REASON_CODES.CONFIRMATION_REQUIRED, '确认已被使用，请重新打开确认卡');
+  }
   const result = interventionRepository.transition(intervention.intervention_id, ['pending_confirmation'], 'active', { actorUserId: req.user.id });
   return res.json({ intervention: result.intervention, idempotent_replay: result.idempotentReplay, message: '干预已由本人确认并激活' });
 });

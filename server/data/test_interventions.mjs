@@ -75,7 +75,7 @@ try {
     body: JSON.stringify({ performed: true, performed_at: '2026-01-09T10:00:00Z', data_source: 'self_report' }) });
   assert.equal(doctorLog.status, 403);
 
-  const confirmed = await request(`/api/actions/interventions/${interventionId}/confirm`, { method: 'POST', headers: senior.headers, body: '{}' });
+  const confirmed = await request(`/api/actions/interventions/${interventionId}/confirm`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ confirmation_token: replay.body.confirmation.one_time_token }) });
   assert.equal(confirmed.status, 200);
   assert.equal(confirmed.body.intervention.status, 'active');
   const caregiverLogBody = { performed: false, performed_at: '2026-01-09T10:00:00Z', skip_reason: '下雨路滑', data_source: 'caregiver_report', idempotency_key: `care-log-${stamp}` };
@@ -96,7 +96,7 @@ try {
   const second = await request('/api/actions/interventions', { method: 'POST', headers: senior.headers,
     body: JSON.stringify({ ...proposal, idempotency_key: `cancel-${stamp}`, title: '每日固定时间测量血压', intervention_type: 'measurement_routine', target_metrics: ['bp'] }) });
   const secondId = second.body.intervention.intervention_id;
-  assert.equal((await request(`/api/actions/interventions/${secondId}/confirm`, { method: 'POST', headers: senior.headers, body: '{}' })).body.intervention.status, 'active');
+  assert.equal((await request(`/api/actions/interventions/${secondId}/confirm`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ confirmation_token: second.body.confirmation.one_time_token }) })).body.intervention.status, 'active');
   const cancelled = await request(`/api/actions/interventions/${secondId}/cancel`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ reason: '个人安排变化' }) });
   assert.equal(cancelled.status, 200);
   assert.equal(cancelled.body.intervention.status, 'cancelled');
@@ -113,7 +113,7 @@ try {
   const evaluable = await request('/api/actions/interventions', { method: 'POST', headers: senior.headers,
     body: JSON.stringify({ ...proposal, idempotency_key: `complete-${stamp}`, title: '固定时间进行呼吸放松', intervention_type: 'stress_management', target_metrics: ['hr'] }) });
   const evaluableId = evaluable.body.intervention.intervention_id;
-  assert.equal((await request(`/api/actions/interventions/${evaluableId}/confirm`, { method: 'POST', headers: senior.headers, body: '{}' })).body.intervention.status, 'active');
+  assert.equal((await request(`/api/actions/interventions/${evaluableId}/confirm`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ confirmation_token: evaluable.body.confirmation.one_time_token }) })).body.intervention.status, 'active');
   const evaluating = await request(`/api/actions/interventions/${evaluableId}/end`, { method: 'POST', headers: senior.headers, body: '{}' });
   assert.equal(evaluating.status, 200);
   assert.equal(evaluating.body.intervention.status, 'evaluating');
@@ -125,8 +125,9 @@ try {
     body: JSON.stringify({ ...proposal, draft: true, idempotency_key: `draft-${stamp}`, title: '睡前保持固定放松流程', intervention_type: 'sleep_hygiene', target_metrics: ['sleep'] }) });
   const draftId = draft.body.intervention.intervention_id;
   assert.equal(draft.body.intervention.status, 'proposed');
-  assert.equal((await request(`/api/actions/interventions/${draftId}/submit`, { method: 'POST', headers: senior.headers, body: '{}' })).body.intervention.status, 'pending_confirmation');
-  assert.equal((await request(`/api/actions/interventions/${draftId}/confirm`, { method: 'POST', headers: senior.headers, body: '{}' })).body.intervention.status, 'active');
+  const submitted = await request(`/api/actions/interventions/${draftId}/submit`, { method: 'POST', headers: senior.headers, body: '{}' });
+  assert.equal(submitted.body.intervention.status, 'pending_confirmation');
+  assert.equal((await request(`/api/actions/interventions/${draftId}/confirm`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ confirmation_token: submitted.body.confirmation.one_time_token }) })).body.intervention.status, 'active');
   const safetyStopped = await request(`/api/actions/interventions/${draftId}/end`, { method: 'POST', headers: senior.headers, body: JSON.stringify({ safety_stop: true, reason: '出现不适，停止并联系医生' }) });
   assert.equal(safetyStopped.status, 200);
   assert.equal(safetyStopped.body.intervention.status, 'safety_stopped');

@@ -899,7 +899,8 @@
           if (!window.confirm(`请再次核对卡片内容。确认创建并激活“${title}”吗？这不是药物调整，也不能替代就医。`)) return;
           const created = await API.post('/api/actions/interventions', { ...payload, subject_user_id: subjectId });
           if (!created.intervention?.intervention_id) throw new Error('没有生成待确认干预');
-          await API.post(`/api/actions/interventions/${created.intervention.intervention_id}/confirm`, {});
+          if (!created.confirmation?.one_time_token) throw new Error('干预确认卡已失效，请重新生成');
+          await API.post(`/api/actions/interventions/${created.intervention.intervention_id}/confirm`, { confirmation_token: created.confirmation.one_time_token });
           btn.textContent = '已确认'; btn.disabled = true; toast('干预已由本人确认并激活', 'success'); await loadInbox(); return;
         }
         if (actionType === 'record_adherence') {
@@ -1045,6 +1046,8 @@
           source: r.source,
           llm: r.llm,
           tool_trace: r.tool_trace,
+          task_state: r.task_state,
+          context_manifest: r.context_manifest,
           memory_candidates: r.memory_candidates,
           id: r.id
         });

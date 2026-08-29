@@ -24,9 +24,9 @@ try {
   if (denied.status !== 409) throw new Error('缺少一次性令牌仍可确认');
   const executed = (await request(`/api/actions/${pending.request.id}/confirm`, { method: 'POST', headers: auth, body: JSON.stringify({ confirmation_token: pending.confirmation.one_time_token }) })).body;
   if (executed.request?.status !== 'executed') throw new Error('确认后行动未执行');
-  const beforeReplay = db.prepare("SELECT COUNT(*) AS n FROM alerts WHERE user_id=? AND title='建议联系医生'").get(login.body.id).n;
+  const beforeReplay = db.prepare("SELECT COUNT(*) AS n FROM alerts WHERE user_id=? AND title='建议联系医生'").get(login.body.user.id).n;
   const replay = (await request(`/api/actions/${pending.request.id}/confirm`, { method: 'POST', headers: auth, body: JSON.stringify({ confirmation_token: pending.confirmation.one_time_token }) })).body;
-  const afterReplay = db.prepare("SELECT COUNT(*) AS n FROM alerts WHERE user_id=? AND title='建议联系医生'").get(login.body.id).n;
+  const afterReplay = db.prepare("SELECT COUNT(*) AS n FROM alerts WHERE user_id=? AND title='建议联系医生'").get(login.body.user.id).n;
   if (!replay.idempotent_replay || beforeReplay !== afterReplay) throw new Error('确认重放产生了重复写入');
   console.log(JSON.stringify({ pass: true, todo_created_after_confirmation: true, confirmation_required: true, replay_safe: true, action_status: executed.request.status }));
 } finally {
