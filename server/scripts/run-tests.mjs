@@ -31,6 +31,9 @@ const utf8Env = {
 const unitTests = [
   'src/test_agent_chinese_output.js',
   'src/test_agent_dialogue_v3.js',
+  'src/test_agent_followup_v3.js',
+  'src/test_agent_context_v2.js',
+  'src/test_agent_single_entry.js',
   'src/test_agent_orchestrator_v2.js',
   'src/test_agent_presentation_v2.js',
   'src/test_agent_frontend_v2.js',
@@ -49,6 +52,7 @@ const unitTests = [
   'src/test_care_frontend_contract.js',
   'src/test_privacy_contract.js',
   'src/test_agent_intervention_loop.js',
+  'src/test_agent_security_v3.js',
 ];
 const integrationTests = [
   'data/test_auth_integration.mjs',
@@ -57,7 +61,13 @@ const integrationTests = [
   'data/test_device_sync.mjs',
   'data/test_interventions.mjs',
   'data/test_privacy_center.mjs',
+  'data/test_actions.mjs',
+  'data/test_agent_tools.mjs',
+  'data/test_quality_followup_review.mjs',
+  'data/test_agent_v3_security.mjs',
 ];
+
+const securityNodeTests = ['src/test_agent_security_v3.js'];
 
 function gitStatus() {
   return spawnSync('git', ['status', '--porcelain=v1', '-z'], { cwd: repoRoot }).stdout;
@@ -159,7 +169,11 @@ async function main() {
   try {
     if (group === 'unit') runUnit(tempRoot);
     else if (group === 'integration') await runIntegration(tempRoot);
-    else if (group === 'graphrag' || group === 'curve' || group === 'security') runPython(group);
+    else if (group === 'graphrag' || group === 'curve') runPython(group);
+    else if (group === 'security') {
+      for (const file of securityNodeTests) runNodeFile(file, tempRoot);
+      runPython(group);
+    }
     else if (group === 'syntax') runSyntax();
     else if (group === 'core') {
       runUnit(tempRoot);
@@ -167,6 +181,7 @@ async function main() {
       runPython('unit');
       runPython('graphrag');
       runPython('curve');
+      for (const file of securityNodeTests) runNodeFile(file, tempRoot);
       runPython('security');
       runSyntax();
     } else throw new Error(`unknown test group: ${group}`);

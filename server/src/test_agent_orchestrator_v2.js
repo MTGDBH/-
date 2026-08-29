@@ -21,7 +21,7 @@ assert.equal(needsLiveHealthContext('今天有什么养生贴士', classifyAgent
 const crowded = namesFor('看看总体健康、睡眠、设备同步和待处理预警');
 assert.ok(crowded.length <= 3, '单轮工具预算最多3项');
 assert.equal(new Set(crowded).size, crowded.length, '单轮工具必须去重');
-assert.ok(Object.values(AGENT_TOOL_POLICIES).every(policy => policy.subject_bound && policy.input_schema), '注册表必须声明对象绑定和输入Schema');
+assert.ok(Object.values(AGENT_TOOL_POLICIES).every(policy => typeof policy.subject_bound === 'boolean' && policy.input_schema), '注册表必须声明对象绑定和输入Schema');
 assert.equal(AGENT_TOOL_POLICIES.propose_intervention.level, 'confirmation_preview');
 assert.equal(AGENT_TOOL_POLICIES.evaluate_intervention.level, 'explicit_write');
 assert.deepEqual(namesFor('请帮我制定一个改善血糖的非药物干预方案'), ['propose_intervention']);

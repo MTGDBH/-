@@ -647,6 +647,12 @@
       return `<div class="agent-tool-trace"><strong>本次读取依据</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(displayTool(item))} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(new Date(item.freshness).toLocaleDateString('zh-CN'))}`:''}</span>`).join('')}</div>`;
     }
 
+    function renderTaskState(state) {
+      if (!state?.status) return '';
+      const labels = { completed: '本轮已完成', waiting_user: '等待您补充', waiting_confirmation: '等待本人确认', needs_followup: '需要继续跟踪', transferred: '已转为人工处理' };
+      return `<div class="agent-task-state" style="margin:0 0 8px;color:#806b59;font-size:12px"><strong>${escapeHTML(labels[state.status] || '任务进行中')}</strong>${state.next_step ? ` · ${escapeHTML(state.next_step)}` : ''}</div>`;
+    }
+
     function renderMemoryCandidates(m) {
       const rows = m.memory_candidates || [];
       if (!rows.length) return '';
@@ -742,6 +748,7 @@
           <div class="msg msg-ai">
             <div class="msg-avatar">康</div>
             <div>
+              ${renderTaskState(m.task_state)}
               ${hasHealthCard ? renderHealthCard(m, providerLabel) : hasClarification ? renderClarificationCard(m) : `<div class="msg-bubble">${escapeHTML(visibleChinese(m.content)).replace(/\n/g, '<br/>')}</div>${sourceHtml}${planHtml}${renderToolTrace(m)}${renderEvidence(m.evidence)}`}
               ${renderMemoryCandidates(m)}
               ${renderActions(m)}
@@ -776,6 +783,7 @@
             llm: r.llm,
             presentation: r.presentation,
             tool_trace: r.tool_trace,
+            task_state: r.task_state,
             memory_candidates: r.memory_candidates,
             id: r.id
           })
@@ -911,7 +919,8 @@
           toast('已取消，没有创建待办或通知', 'success');
           return;
         }
-        await API.post(`/api/actions/${r.request.id}/confirm`, {});
+        if (!r.confirmation?.one_time_token) throw new Error('确认卡已失效，请重新生成');
+        await API.post(`/api/actions/${r.request.id}/confirm`, { confirmation_token: r.confirmation.one_time_token });
         btn.textContent = '✓';
         btn.disabled = true;
         toast('已确认并记录行动', 'success');

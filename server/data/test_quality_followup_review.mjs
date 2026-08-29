@@ -21,7 +21,7 @@ try {
   const due = new Date(Date.now() + 24 * 3600000).toISOString();
   const action = await request('/api/actions', { method: 'POST', headers: auth, body: JSON.stringify({ action_type: 'schedule_recheck', title: '复测血压', desc: '明早固定时间测量', metric_type: 'bp', baseline_metric_id: first.body.id, due_at: due, idempotency_key: `quality-${Date.now()}` }) });
   if (!action.body.requires_confirmation || action.body.request.status !== 'pending_confirmation') throw new Error('recheck action bypassed confirmation');
-  const confirmed = await request(`/api/actions/${action.body.request.id}/confirm`, { method: 'POST', headers: auth, body: '{}' });
+  const confirmed = await request(`/api/actions/${action.body.request.id}/confirm`, { method: 'POST', headers: auth, body: JSON.stringify({ confirmation_token: action.body.confirmation.one_time_token }) });
   const followup = confirmed.body.followup;
   if (!followup?.id || followup.status !== 'scheduled') throw new Error('follow-up was not created atomically');
   const sources = (await request('/api/knowledge/graph/sources', { headers: doctorAuth })).body;
@@ -30,6 +30,5 @@ try {
   if (review.body.status !== 'approved') throw new Error('knowledge review was not persisted');
   console.log(JSON.stringify({ pass: true, quality_flags: duplicate.body.quality?.flags || [], duplicate_marked: true, followup_status: followup.status, source_review: review.body.status }));
 } finally {
-  await request('/api/profile/me', { method: 'DELETE', headers: auth });
-  await request('/api/profile/me', { method: 'DELETE', headers: doctorAuth });
+  // 隔离数据库由主测试入口统一销毁。
 }

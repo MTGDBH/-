@@ -4,6 +4,7 @@ import db from '../db.js';
 import { canActFor } from '../lib/intake.js';
 import { cancelFollowup, confirmFollowupCandidate, createFollowupForAction, listFollowups, rejectFollowupCandidate, rescheduleFollowup } from '../lib/followups.js';
 import interventionRouter from './interventions.js';
+import { createOneTimeConfirmation, verifyOneTimeConfirmation } from '../security/actionConfirmation.js';
 
 const router = express.Router();
 const ALLOWED = new Set(['create_todo', 'schedule_recheck', 'notify_caregiver', 'contact_doctor']);
@@ -20,7 +21,7 @@ function sensitiveAction(actionType, payload) {
     || /用药|药物|就医|医生|家属|通知/.test(`${payload.title || ''}${payload.desc || ''}`);
 }
 
-function executeAction(id, actorUserId) {
+function executeAction(id, actorUserId, confirmationToken) {
   try {
     return db.transaction(() => {
       const request = db.prepare('SELECT * FROM action_requests WHERE id = ? AND actor_user_id = ?').get(id, actorUserId);
@@ -29,6 +30,10 @@ function executeAction(id, actorUserId) {
       if (!['pending_confirmation', 'confirmed'].includes(request.status)) return { error: 'already_processed', request };
       const payload = parsePayload(request.payload);
       const now = new Date().toISOString();
+      const confirmation = verifyOneTimeConfirmation(request, confirmationToken, payload);
+      if (!confirmation.ok) return { error: confirmation.code };
+      const claimed = db.prepare('UPDATE action_requests SET confirmation_consumed_at=? WHERE id=? AND confirmation_consumed_at IS NULL').run(now, id);
+      if (claimed.changes !== 1) return { error: 'CONFIRMATION_REPLAYED' };
       let result = null, followup = null;
       if (request.action_type === 'create_todo' || request.action_type === 'schedule_recheck') {
         const title = String(payload.title || (request.action_type === 'schedule_recheck' ? '安排复测' : '完成健康计划')).trim().slice(0, 120);
@@ -92,13 +97,25 @@ router.post('/', (req, res) => {
   const idempotencyKey = req.body?.idempotency_key ? String(req.body.idempotency_key).slice(0, 100) : null;
   if (idempotencyKey) {
     const existing = db.prepare('SELECT * FROM action_requests WHERE actor_user_id=? AND idempotency_key=?').get(req.user.id, idempotencyKey);
-    if (existing) return res.status(202).json({ requires_confirmation: existing.status === 'pending_confirmation', request: { ...existing, payload: parsePayload(existing.payload) }, idempotent_replay: true });
+    if (existing) {
+      let confirmation = null;
+      if (existing.status === 'pending_confirmation') {
+        const existingPayload = parsePayload(existing.payload);
+        confirmation = createOneTimeConfirmation({ actorUserId: existing.actor_user_id, subjectUserId: existing.subject_user_id, actionType: existing.action_type, payload: existingPayload });
+        db.prepare(`UPDATE action_requests SET payload_hash=?,confirmation_token_hash=?,confirmation_expires_at=?,confirmation_consumed_at=NULL WHERE id=?`)
+          .run(confirmation.payloadHash, confirmation.tokenHash, confirmation.expiresAt, existing.id);
+      }
+      return res.status(202).json({ requires_confirmation: existing.status === 'pending_confirmation', request: { ...existing, payload: parsePayload(existing.payload) },
+        confirmation: confirmation ? { one_time_token: confirmation.token, payload_hash: confirmation.payloadHash, expiration: confirmation.expiresAt } : null, idempotent_replay: true });
+    }
   }
-  const inserted = db.prepare(`INSERT INTO action_requests (user_id,actor_user_id,subject_user_id,action_type,payload,status,idempotency_key)
-    VALUES (?,?,?,?,?,'pending_confirmation',?)`)
-    .run(subjectId, req.user.id, subjectId, action_type, JSON.stringify(payload), idempotencyKey);
+  const confirmation = createOneTimeConfirmation({ actorUserId: req.user.id, subjectUserId: subjectId, actionType: action_type, payload });
+  const inserted = db.prepare(`INSERT INTO action_requests (user_id,actor_user_id,subject_user_id,action_type,payload,status,idempotency_key,payload_hash,confirmation_token_hash,confirmation_expires_at)
+    VALUES (?,?,?,?,?,'pending_confirmation',?,?,?,?)`)
+    .run(subjectId, req.user.id, subjectId, action_type, JSON.stringify(payload), idempotencyKey, confirmation.payloadHash, confirmation.tokenHash, confirmation.expiresAt);
   const request = db.prepare('SELECT * FROM action_requests WHERE id = ?').get(inserted.lastInsertRowid);
-  return res.status(202).json({ requires_confirmation: true, request: { ...request, payload }, notice: '确认后才会执行' });
+  return res.status(202).json({ requires_confirmation: true, request: { ...request, payload },
+    confirmation: { one_time_token: confirmation.token, payload_hash: confirmation.payloadHash, expiration: confirmation.expiresAt }, notice: '确认后才会执行' });
 });
 
 // 复测闭环：行动执行后可以安排具体指标的复测，并在下一次采集后回填结果。
@@ -176,8 +193,8 @@ router.post('/:id/confirm', (req, res) => {
   if (!canActFor(existing.subject_user_id, req.user.id, 'use_agent', { resource: req.path }).allowed) return res.status(403).json({ error: '老人授权已失效，不能执行该行动' });
   if (existing.status === 'executed') return res.json({ request: { ...existing, payload: parsePayload(existing.payload) }, followup: db.prepare('SELECT * FROM followups WHERE action_request_id=?').get(id), idempotent_replay: true });
   if (!['pending_confirmation', 'confirmed'].includes(existing.status)) return res.status(400).json({ error: '行动已取消或不可执行' });
-  const executed = executeAction(id, req.user.id);
-  if (executed.error) return res.status(400).json(executed);
+  const executed = executeAction(id, req.user.id, req.body?.confirmation_token);
+  if (executed.error) return res.status(/^CONFIRMATION_/.test(executed.error) ? 409 : 400).json({ ...executed, message: /^CONFIRMATION_/.test(executed.error) ? '确认已失效，请重新打开确认卡' : undefined });
   res.json(executed);
 });
 

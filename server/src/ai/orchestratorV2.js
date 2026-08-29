@@ -23,6 +23,10 @@ import {
   buildControlledGraphQuery, buildGraphEvidenceSnapshot, buildPredictionSnapshot,
   curveGraphContext, enforceSafeCurveGraphResponse,
 } from './safeCurveGraphLink.js';
+import { AGENT_TOOL_REGISTRY } from './toolRegistry.js';
+import { authorizeToolCall } from './policyEngine.js';
+import { inspectUntrustedInput, sanitizeUntrustedToolText, securityRefusal } from './attackGuard.js';
+import { verifyAgentResult } from './resultVerifier.js';
 
 const MAX_TOOL_CALLS = 3;
 const MAX_CONTEXT_TOKENS = 12000;
@@ -34,22 +38,14 @@ const TOOL_LABELS = {
   evaluate_intervention: '个体效果评价', explain_intervention_result: '效果结果解释',
 };
 
-export const AGENT_TOOL_POLICIES = Object.freeze({
-  health_trend: { display_name: '健康趋势', level: 'read', subject_bound: true, timeout_ms: 20000, cache: 'run+data_version', input_schema: { metrics: 'enum[]', days: 'integer:7..365' } },
-  htn_risk: { display_name: '高血压风险筛查', level: 'read', subject_bound: true, timeout_ms: 20000, cache: 'run+data_version', input_schema: {} },
-  disease_risk: { display_name: '疾病风险筛查', level: 'read', subject_bound: true, timeout_ms: 20000, cache: 'run+data_version', input_schema: { disease: 'hypertension|diabetes|heart_disease|stroke' } },
-  behavior: { display_name: '睡眠与活动', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
-  device: { display_name: '设备状态', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
-  health_summary: { display_name: '健康摘要', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
-  alerts: { display_name: '待处理预警', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
-  knowledge: { display_name: '知识依据', level: 'read', subject_bound: true, timeout_ms: 5000, cache: 'run+index_version', input_schema: { question: 'string:max500', disease: 'enum|null' } },
-  followup_status: { display_name: '复测随访', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {} },
-  propose_intervention: { display_name: '个体干预提议', level: 'confirmation_preview', subject_bound: true, timeout_ms: 5000, cache: 'none', input_schema: { message: 'string:max500' }, version: INTERVENTION_AGENT_TOOL_VERSION },
-  list_active_interventions: { display_name: '活动干预', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: {}, version: INTERVENTION_AGENT_TOOL_VERSION },
-  record_adherence: { display_name: '执行记录', level: 'confirmation_preview', subject_bound: true, timeout_ms: 3000, cache: 'none', input_schema: { message: 'string:max500', intervention_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
-  evaluate_intervention: { display_name: '个体效果评价', level: 'explicit_write', subject_bound: true, timeout_ms: 30000, cache: 'none', input_schema: { intervention_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
-  explain_intervention_result: { display_name: '效果结果解释', level: 'read', subject_bound: true, timeout_ms: 3000, cache: 'run+data_version', input_schema: { evaluation_id: 'string|null' }, version: INTERVENTION_AGENT_TOOL_VERSION },
-});
+export const AGENT_TOOL_POLICIES = Object.freeze(Object.fromEntries(Object.entries(AGENT_TOOL_REGISTRY).map(([name, spec]) => [name, Object.freeze({
+  ...spec,
+  display_name: TOOL_LABELS[name],
+  level: spec.requires_confirmation ? 'confirmation_preview' : name === 'evaluate_intervention' ? 'explicit_write' : 'read',
+  timeout_ms: spec.timeout,
+  cache: spec.cache_policy,
+  version: name.includes('intervention') || name === 'record_adherence' ? INTERVENTION_AGENT_TOOL_VERSION : spec.version,
+})])));
 
 function stable(value) {
   if (Array.isArray(value)) return value.map(stable);
@@ -88,7 +84,7 @@ export function ensureConversation(actorId, subjectId, rawConversationId = null)
 
 export function emergencyReply(message) {
   const text = String(message || '');
-  const hit = /突然.{0,30}(?:口角歪|脸歪|说不清|说话.{0,4}(?:不清|含糊)|一侧.{0,6}(?:无力|麻木)|手脚无力)|胸痛|胸口.*(?:压榨|剧痛)|呼吸困难|喘不过气|意识不清|昏迷|抽搐|大量出血/.test(text);
+  const hit = /突然.{0,30}(?:口角歪|脸歪|说不清|说话.{0,4}(?:不清|含糊)|一侧.{0,6}(?:无力|麻木)|手脚无力)|胸痛|胸口.*(?:压榨|剧痛)|明显呼吸困难|呼吸困难|喘不过气|意识(?:异常|不清)|昏迷|抽搐|大量出血|口角歪斜|说话不清|单侧.{0,8}(?:肢体)?(?:无力|麻木)/.test(text);
   if (!hit) return null;
   return {
     source: 'safety_rule', content: '你描述的情况可能是急症信号。请立即拨打当地急救电话或让身边的人帮助就医，不要等待智能体分析，也不要自行驾车。',
@@ -260,8 +256,9 @@ function modelResultView(name, result) {
   if (name === 'knowledge') return {
     query: result.query, disease: result.disease, index_version: result.index_version,
     results: (result.results || []).slice(0, 6).map(row => ({
-      text: String(row.text || '').slice(0, 600), citation: readableKnowledgeCitation(row), evidence_level: row.evidence_level,
+      text: sanitizeUntrustedToolText(row.text), citation: readableKnowledgeCitation(row), evidence_level: row.evidence_level,
       publisher: row.publisher, publication_year: row.publication_year, review_status: row.review_status,
+      trust_level: 'untrusted_retrieved_text',
     })),
     citations: (result.citations || []).slice(0, 6).map(row => ({
       label: readableKnowledgeCitation(row), url: row.source_url || row.url || null,
@@ -281,6 +278,8 @@ async function executeOne(runId, callIndex, item, ctx, dataVersion) {
   const spec = REGISTRY[item.name];
   if (!spec) return { name: item.name, status: 'error', error_code: 'TOOL_NOT_REGISTERED', result: null };
   const args = stable(item.args || {});
+  const policy = authorizeToolCall({ name: item.name, args, actor: ctx.actor, subject: ctx.subject });
+  if (!policy.allowed) return { name: item.name, label: TOOL_LABELS[item.name], status: 'error', error_code: policy.code, result: null, manifest: { success: false, status: 'policy_denied' } };
   const dedupeKey = hash({ tool: item.name, subject: ctx.subject.id, args, dataVersion });
   const inserted = db.prepare(`INSERT INTO agent_tool_calls (run_id,call_index,tool_name,subject_user_id,arguments,dedupe_key,tool_version)
     VALUES (?,?,?,?,?,?,?)`).run(runId, callIndex, item.name, ctx.subject.id, JSON.stringify(args), dedupeKey,
@@ -368,10 +367,23 @@ export function buildContextPlan(conversation, subject, message, intent, liveCon
   let memories = confirmedMemories(subject.id, message);
   let summary = parseSummary(conversation.summary);
   let recent = recentMessages(conversation.id);
-  const manifest = { max_tokens: MAX_CONTEXT_TOKENS, immutable: ['safety_policy', 'identity_authority', 'live_context', 'tool_results'], pruned: [] };
+  const authority = actor?.id === subject.id ? 'self' : actor?.role === 'doctor' ? 'doctor' : 'caregiver';
+  const manifest = {
+    max_tokens: MAX_CONTEXT_TOKENS,
+    immutable: ['safety_policy', 'identity_authority', 'live_context', 'tool_results'],
+    fact_priority: ['live_health_data','explicit_user_confirmation','formal_clinician_or_system_record','confirmed_long_term_memory','conversation_summary','model_inference'],
+    trust_levels: { identity_and_policy: 'trusted_backend', live_health: 'trusted_database', confirmed_memory: 'user_confirmed', conversation: 'untrusted_history', model_inference: 'untrusted_inference' },
+    context_layers: {
+      identity_permission: { actor_user_id: actor?.id || subject.id, subject_user_id: subject.id, actor_role: actor?.role || 'senior', authority },
+      realtime_health_facts: { loaded: !!liveContext, as_of: liveContext?.as_of || null, metric_types: Object.keys(liveContext?.latest || {}), includes_quality_and_source: true },
+      dialogue_task_state: { conversation_id: conversation.id, dialogue_state_version: 'agent-dialogue-state.v1' },
+      confirmed_long_term_memory: { count: memories.length, statuses_loaded: ['confirmed'], candidates_excluded: true },
+    },
+    pruned: [],
+  };
   const current = () => ({
     current_time: nowIso(),
-    identity: { actor_id: actor?.id || subject.id, actor_name: actor?.name || subject.name, subject_id: subject.id, subject_name: subject.name, authority: actor && actor.id !== subject.id ? 'caregiver' : 'self' },
+    identity: { actor_id: actor?.id || subject.id, actor_name: actor?.name || subject.name, subject_id: subject.id, subject_name: subject.name, authority },
     liveContext, memories, summary, recent,
   });
   while (approxTokens(current()) > MAX_CONTEXT_TOKENS && memories.length) { memories.pop(); manifest.pruned.push('memory'); }
@@ -508,7 +520,7 @@ function deterministicReply(message, toolResults, intent) {
   if (trend) {
     const rows = trend.metrics || [];
     const words = rows.map(row => `${metricName(row.metric)}：${row.status === 'ok' ? ({ rising: '总体上升', falling: '总体下降', stable: '总体稳定' }[row.long_term_trend] || '已有趋势') : '数据不足'}`);
-    return { content: `根据当前账户的真实记录，${words.join('；') || '暂时没有足够数据判断趋势'}。这不是诊断，异常读数请按同一条件复测。`, plan: [{ icon: '测', title: '继续规范记录', desc: '固定时间和测量条件，出现不适及时就医', color: 'orange', action_type: 'schedule_recheck' }], confidence: { type: 'data', score: 80, sources: ['健康趋势工具'], reasoning: '由后端趋势工具直接生成' } };
+    return { content: `根据当前账户的真实记录，${words.join('；') || '暂时没有足够数据判断趋势'}。这不是诊断，异常读数请按同一条件复测。`, plan: [{ icon: '测', title: '继续规范记录', desc: '固定时间和测量条件，出现不适及时就医', color: 'orange', action_type: 'schedule_recheck', requires_confirmation: true }], confidence: { type: 'data', score: 80, sources: ['健康趋势工具'], reasoning: '由后端趋势工具直接生成' } };
   }
   const alerts = ok.find(item => item.name === 'alerts')?.result;
   if (alerts && intent.alertsHit) return { content: alerts.pending ? `目前有 ${alerts.pending} 条待处理提醒${alerts.critical ? `，其中 ${alerts.critical} 条为严重提醒` : ''}。请优先查看严重项目。` : '目前没有待处理提醒。请继续按计划记录健康数据。', plan: [], confidence: { type: 'data', score: 90, sources: ['站内预警'], reasoning: '读取当前老人待处理预警' } };
@@ -520,7 +532,15 @@ function deterministicReply(message, toolResults, intent) {
     actions.push({ icon: '记', title: '继续规律记录', desc: '固定时间和测量条件，保留连续记录', color: 'green', action_type: null });
     return { content: `已读取近${summary.window_days || 90}天的健康记录，并整理了今天最重要的事项。${summary.missing_common_metrics?.length ? `目前还缺少${summary.missing_common_metrics.map(metricName).join('、')}记录。` : '常用指标记录较完整。'}`, plan: actions.slice(0, 2), confidence: { type: 'data', score: 82, sources: ['健康摘要', '待处理预警', '睡眠与活动'], reasoning: '根据当前老人的实时健康信息生成' } };
   }
-  if (summary) return { content: `已读取近${summary.window_days || 90}天健康记录，共 ${summary.data_points || 0} 条。${summary.missing_common_metrics?.length ? `还缺少：${summary.missing_common_metrics.join('、')}。` : '常用指标记录较完整。'}请先处理待办预警，再继续规律测量。`, plan: [], confidence: { type: 'data', score: 82, sources: ['健康摘要工具'], reasoning: '读取当前老人实时健康摘要' } };
+  if (summary && !intent.deviceHit) return { content: `已读取近${summary.window_days || 90}天健康记录，共 ${summary.data_points || 0} 条。${summary.missing_common_metrics?.length ? `还缺少：${summary.missing_common_metrics.map(metricName).join('、')}。补充后我会重新分析。` : '常用指标记录较完整。'}请先处理待办预警，再继续规律测量。`, plan: [], confidence: { type: 'data', score: 82, sources: ['健康摘要工具'], reasoning: '读取当前老人实时健康摘要' } };
+  const device = ok.find(item => item.name === 'device')?.result;
+  if (device) {
+    const latest = device.recent_device_metrics?.[0];
+    const problem = device.sync_failures > 0 || device.connected_count === 0;
+    return problem
+      ? { content: '设备目前没有正常同步。请先确认设备电量和蓝牙连接，再检查应用的蓝牙与后台权限；完成后手动同步一次。看到新的测量时间后，才算恢复成功。', plan: [{ icon: '查', title: '检查连接与电量', desc: '确认蓝牙、设备电量和应用权限', action_type: null }, { icon: '验', title: '验证新数据', desc: '重新同步后查看是否出现新的测量时间', action_type: null }], confidence: { type: 'data', score: 90, sources: ['设备状态工具'], reasoning: '根据设备连接和同步错误状态生成恢复步骤' } }
+      : { content: `设备连接正常。${latest ? `最近一次设备数据时间为 ${latest.recorded_at}。` : '目前还没有看到设备上传的测量数据。'}请在下一次同步后确认测量时间已更新，避免只看“已连接”状态。`, plan: [], confidence: { type: 'data', score: 92, sources: ['设备状态工具'], reasoning: '同时核对连接状态和最新设备数据时间' } };
+  }
   const risk = ok.find(item => ['htn_risk', 'disease_risk'].includes(item.name))?.result;
   if (risk) return { content: risk.existing_diagnosis ? '相关疾病已记录为确诊状态，本次不计算新发概率，转为日常管理和复诊提醒。' : `风险工具已完成筛查，当前分层为${risk.risk_tier || risk.risk_level || '证据有限'}。精确概率只有在模型通过准入门槛时才展示，这不是诊断。`, plan: [], confidence: { type: 'data', score: 75, sources: ['疾病风险筛查工具'], reasoning: '使用通过后端门禁的模型结果' } };
   const followups = ok.find(item => item.name === 'followup_status')?.result;
@@ -554,12 +574,13 @@ export async function runAgentV2({ actor, subject, conversation, message, client
     VALUES (?,?,?,?,?)`).run(conversation.id, actor.id, subject.id, clientRequestId || null, JSON.stringify(intent));
   const runId = Number(runInsert.lastInsertRowid);
   const emergency = emergencyReply(message);
+  const attack = emergency ? { blocked: false, flags: [] } : inspectUntrustedInput(message, 'user');
   let liveContext = null;
   let contextPlan;
-  if (emergency) {
+  if (emergency || attack.blocked) {
     contextPlan = {
       memories: [], summary: {}, recent: [],
-      manifest: { max_tokens: MAX_CONTEXT_TOKENS, emergency_bypass: true, live_context_loaded: false, live_metric_types: [], recent_messages: 0, confirmed_memories: 0, estimated_tokens: 0, pruned: [] },
+      manifest: { max_tokens: MAX_CONTEXT_TOKENS, emergency_bypass: !!emergency, security_bypass: attack.blocked, security_flags: attack.flags, live_context_loaded: false, live_metric_types: [], recent_messages: 0, confirmed_memories: 0, estimated_tokens: 0, pruned: [], replan_count: 0 },
     };
   } else {
     const fullContext = needsLiveHealthContext(message, intent) ? buildHealthContext(subject, 90) : null;
@@ -570,15 +591,21 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   }
   db.prepare('UPDATE agent_runs SET context_manifest=? WHERE id=?').run(JSON.stringify(contextPlan.manifest), runId);
   let toolResults = [];
-  if (!emergency) {
+  if (!emergency && !attack.blocked) {
     const toolPlan = planAgentTools(intent, message);
     const ctx = { actor, subject, message, audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', liveContext: liveContext || {} };
     const version = subjectDataVersion(subject.id);
     toolResults = await Promise.all(toolPlan.map((item, index) => executeOne(runId, index, item, ctx, version)));
+    const noSuccess = toolResults.length > 0 && !toolResults.some(item => item.status === 'success');
+    if (noSuccess && toolPlan.length < MAX_TOOL_CALLS && !toolPlan.some(item => item.name === 'health_summary')) {
+      contextPlan.manifest.replan_count = 1;
+      contextPlan.manifest.replan_reason = 'all_primary_tools_failed';
+      toolResults.push(await executeOne(runId, toolPlan.length, { name: 'health_summary', args: {} }, ctx, version));
+    } else contextPlan.manifest.replan_count ||= 0;
   }
   fitToolResultsIntoContext(contextPlan, toolResults);
   db.prepare('UPDATE agent_runs SET context_manifest=? WHERE id=?').run(JSON.stringify(contextPlan.manifest), runId);
-  let response = emergency;
+  let response = emergency || (attack.blocked ? securityRefusal() : null);
   let curveGraphLink = null;
   if (!response) {
     if (intent.interventionHit) response = deterministicReply(message, toolResults, intent);
@@ -632,7 +659,13 @@ export async function runAgentV2({ actor, subject, conversation, message, client
     response.content = normalizeOutputPhrases(response.content);
     presentation = buildAgentPresentation({ response, toolResults, liveContext, intent, subject, actor, message });
   }
-  const memoryCandidate = emergency ? null : createMemoryCandidate(subject.id, actor.id, userMessageId, message);
+  const verification = verifyAgentResult({ response, toolResults, liveContext, actor, subject });
+  if (!verification.ok) {
+    response = { content: '当前结果未通过证据和安全核验，因此没有作为成功结果返回。请稍后重试；如有明显不适，请及时就医。', plan: [], confidence: { type: 'common_sense', score: 100, sources: ['后端结果核验'], reasoning: '结果与证据、单位、日期、确认或医疗边界不一致' }, source: 'verification_rule' };
+    contextPlan.manifest.verification_errors = verification.errors;
+    presentation = buildAgentPresentation({ response, toolResults, liveContext, intent, subject, actor, message });
+  }
+  const memoryCandidate = emergency || attack.blocked ? null : createMemoryCandidate(subject.id, actor.id, userMessageId, message);
   const trace = toolResults.map(item => ({ name: item.name, label: item.label, status: item.status, latency_ms: item.latency_ms, freshness: item.manifest?.freshness || null, error_code: item.error_code || null }));
   const knowledgeEvidence = activeKnowledge;
   const mergedEvidence = knowledgeEvidence ? {

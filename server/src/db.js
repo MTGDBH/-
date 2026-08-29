@@ -565,6 +565,8 @@ addColumnIfMissing('chat_messages', 'graph_index_version', 'TEXT');
 addColumnIfMissing('chat_messages', 'conversation_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'actor_user_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'subject_user_id', 'INTEGER');
+addColumnIfMissing('chat_messages', 'task_state', 'TEXT');
+addColumnIfMissing('chat_messages', 'context_manifest', 'TEXT');
 addColumnIfMissing('chat_messages', 'client_request_id', 'TEXT');
 addColumnIfMissing('chat_messages', 'parent_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'supersedes_message_id', 'INTEGER');
@@ -615,6 +617,10 @@ for (const row of db.prepare('SELECT DISTINCT user_id FROM chat_messages WHERE c
 addColumnIfMissing('action_requests', 'actor_user_id', 'INTEGER');
 addColumnIfMissing('action_requests', 'subject_user_id', 'INTEGER');
 addColumnIfMissing('action_requests', 'idempotency_key', 'TEXT');
+addColumnIfMissing('action_requests', 'payload_hash', 'TEXT');
+addColumnIfMissing('action_requests', 'confirmation_token_hash', 'TEXT');
+addColumnIfMissing('action_requests', 'confirmation_expires_at', 'TEXT');
+addColumnIfMissing('action_requests', 'confirmation_consumed_at', 'TEXT');
 db.prepare('UPDATE action_requests SET actor_user_id = COALESCE(actor_user_id,user_id), subject_user_id = COALESCE(subject_user_id,user_id)').run();
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_action_requests_actor_idempotency ON action_requests(actor_user_id,idempotency_key) WHERE idempotency_key IS NOT NULL');
 

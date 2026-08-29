@@ -22,6 +22,5 @@ try {
   if (pending.length) throw new Error('agent action unexpectedly executed without button confirmation');
   console.log(JSON.stringify({ pass: true, alert_source: alertChat.source, action_source: actionChat.source, action_type: actionChat.plan[0].action_type }));
 } finally {
-  const deleted = await request('/api/profile/me', { method: 'DELETE', headers: auth });
-  if (!deleted.body?.ok) throw new Error('agent tools test account cleanup failed');
+  // 隔离数据库由主测试入口统一销毁；保留本轮审计关系，避免走正式隐私删除流程。
 }

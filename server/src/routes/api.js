@@ -2,18 +2,15 @@
 import express from 'express';
 import crypto from 'node:crypto';
 import db from '../db.js';
-import { evaluateHealth, aggregateMetrics } from '../lib/scoring.js';
-import { chat } from '../ai/agent.js';
+import { evaluateHealth } from '../lib/scoring.js';
 import { buildHealthContext, buildEvidenceCard } from '../ai/contextBuilder.js';
-import { ensureConversation, refreshConversationSummary, resolveAgentSubject, runAgentV2 } from '../ai/orchestratorV2.js';
+import { ensureConversation, refreshConversationSummary, resolveAgentSubject } from '../ai/orchestratorV2.js';
 import { runAgentV3 } from '../ai/orchestratorV3.js';
 import { listFollowups } from '../lib/followups.js';
 import { recordLLM, recordSafetyRule } from '../services/opsMetrics.js';
 import { interventionRepository } from '../repositories/interventionRepository.js';
 
 const router = express.Router();
-const agentV2Enabled = () => process.env.AGENT_ORCHESTRATOR_V2 !== '0';
-const agentV3Enabled = () => process.env.AGENT_ORCHESTRATOR_V3 !== '0';
 
 function parseJSON(value, fallback = null) {
   try { return value == null ? fallback : JSON.parse(value); } catch { return fallback; }
@@ -71,6 +68,7 @@ function serializeChatRow(row) {
     ...row,
     plan: parseJSON(row.plan, null), confidence: parseJSON(row.confidence, { type: 'common_sense' }),
     evidence: parseJSON(row.evidence, null), presentation: parseJSON(row.presentation, null), graph_evidence: parseJSON(row.graph_evidence, null),
+    task_state: parseJSON(row.task_state, null), context_manifest: parseJSON(row.context_manifest, {}),
     prediction_snapshot: parseJSON(row.prediction_snapshot, null), graph_evidence_snapshot: parseJSON(row.graph_evidence_snapshot, null),
     linkage_version: row.linkage_version || null,
     tool_calls: parseJSON(row.tool_calls, []),
@@ -85,7 +83,7 @@ function resolveAgentRequestSubject(req, rawId) {
   return resolved;
 }
 
-async function handleChatV2(req, res) {
+async function handleAgentChat(req, res) {
   const message = String(req.body?.message || '').trim();
   const resolved = resolveAgentRequestSubject(req, req.body?.subject_user_id);
   if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
@@ -124,12 +122,10 @@ async function handleChatV2(req, res) {
   }
   let result;
   try {
-    result = agentV3Enabled()
-      ? await runAgentV3({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId })
-      : await runAgentV2({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId });
+    result = await runAgentV3({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId });
   } catch (error) {
-    db.prepare(`UPDATE agent_runs SET status='error',error_code=?,completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run(agentV3Enabled() ? 'AGENT_V3_FAILED' : 'AGENT_V2_FAILED', new Date().toISOString(), req.user.id, clientRequestId);
-    console.error(agentV3Enabled() ? '[agent-v3] failed:' : '[agent-v2] failed:', error.message);
+    db.prepare(`UPDATE agent_runs SET status='error',error_code=?,completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run('AGENT_V3_FAILED', new Date().toISOString(), req.user.id, clientRequestId);
+    console.error('[agent-v3] failed:', error.message);
     return res.status(500).json({ error: 'agent error' });
   }
   const needsPersonalEvidence = !!result.context_manifest?.live_context_loaded;
@@ -149,8 +145,8 @@ async function handleChatV2(req, res) {
   if (result.source === 'safety_rule') recordSafetyRule();
   const assistantInsert = db.prepare(`INSERT INTO chat_messages
     (user_id,role,content,plan,confidence,evidence,presentation,graph_evidence,prediction_snapshot,graph_evidence_snapshot,linkage_version,
-     provider,model,call_status,latency_ms,tool_calls,fallback_reason,conversation_id,actor_user_id,subject_user_id,parent_message_id,supersedes_message_id,run_id)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+     provider,model,call_status,latency_ms,tool_calls,fallback_reason,conversation_id,actor_user_id,subject_user_id,parent_message_id,supersedes_message_id,run_id,task_state,context_manifest)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
       req.user.id, 'assistant', result.content || '', JSON.stringify(result.plan || []), JSON.stringify(result.confidence || { type: 'common_sense' }), JSON.stringify(mergedEvidence), JSON.stringify(result.presentation || { mode: 'plain' }),
       result.graph_evidence_snapshot ? JSON.stringify(result.graph_evidence_snapshot) : null,
       result.prediction_snapshot ? JSON.stringify(result.prediction_snapshot) : null,
@@ -158,7 +154,8 @@ async function handleChatV2(req, res) {
       result.linkage_version || null,
       llm.provider || result.source || 'tool', llm.model || null, llm.call_status || 'tool', Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
       JSON.stringify((result.tool_trace || []).map(item => item.name)), llm.fallback_reason || null,
-      conversation.id, req.user.id, resolved.subject.id, userMessageId, req.body?._supersedes_message_id || null, result.run_id);
+      conversation.id, req.user.id, resolved.subject.id, userMessageId, req.body?._supersedes_message_id || null, result.run_id,
+      JSON.stringify(result.task_state || {}), JSON.stringify(result.context_manifest || {}));
   db.prepare(`INSERT INTO llm_call_logs
     (user_id,chat_message_id,provider,model,status,latency_ms,tool_calls,fallback_reason,graph_index_version)
     VALUES (?,?,?,?,?,?,?,?,?)`).run(
@@ -172,7 +169,8 @@ async function handleChatV2(req, res) {
   return res.json({
     id: assistantInsert.lastInsertRowid, role: 'assistant', content: result.content, plan: result.plan || [], confidence: result.confidence || { type: 'common_sense' },
     evidence: mergedEvidence, presentation: result.presentation || { mode: 'plain' }, source: result.source || llm.provider, llm, conversation_id: conversation.id, run_id: result.run_id,
-    tool_trace: result.tool_trace || [], memory_candidates: result.memory_candidates || [], action_previews: result.action_previews || [],
+    task_state: result.task_state || { goal: '', status: 'completed', next_step: '', success_criteria: '' },
+    tool_trace: result.tool_trace || [], context_manifest: result.context_manifest || {}, memory_candidates: result.memory_candidates || [], action_previews: result.action_previews || [],
     prediction_snapshot: result.prediction_snapshot || null, graph_evidence_snapshot: result.graph_evidence_snapshot || null,
     linkage_version: result.linkage_version || null,
   });
@@ -452,7 +450,7 @@ router.post('/chat/messages/:id/regenerate', async (req, res) => {
     client_request_id: String(req.body?.client_request_id || crypto.randomUUID()).slice(0, 100),
     _reuse_user_message_id: userMessage.id, _supersedes_message_id: assistant.id,
   };
-  return handleChatV2(req, res);
+  return handleAgentChat(req, res);
 });
 
 router.get('/agent/inbox', (req, res) => {
@@ -509,110 +507,20 @@ router.post('/chat', async (req, res) => {
   if (!message || !message.trim()) {
     return res.status(400).json({ error: 'message is required' });
   }
-  if (agentV2Enabled()) return handleChatV2(req, res);
-
-  const history = db.prepare(`
-    SELECT role, content FROM chat_messages
-    WHERE user_id = ? ORDER BY id DESC LIMIT 10
-  `).all(req.user.id).reverse();
-
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
-  const metrics = db.prepare(`
-    SELECT * FROM metrics WHERE user_id = ? AND recorded_at >= ?
-  `).all(req.user.id, sevenDaysAgo);
-  const { total_score, subscores } = aggregateMetrics(metrics, { height: req.user.height });
-  const healthSummary = { total_score, subscores, context: buildHealthContext(req.user, 90) };
-
-  db.prepare(`INSERT INTO chat_messages (user_id, role, content) VALUES (?, 'user', ?)`)
-    .run(req.user.id, message);
-
-  let result;
-  try {
-    result = await chat(history, message, healthSummary, req.user);
-  } catch (err) {
-    console.error('[chat] error:', err);
-    return res.status(500).json({ error: 'agent error', detail: err.message });
-  }
-
-  const planJson = result.plan ? JSON.stringify(result.plan) : null;
-  const confidenceJson = result.confidence ? JSON.stringify(result.confidence) : null;
-  const evidence = buildEvidenceCard(healthSummary.context, message, result.confidence);
-  const mergedEvidence = (evidence || result.evidence) ? { ...(evidence || {}), graph: result.evidence || null } : null;
-    const evidenceJson = mergedEvidence ? JSON.stringify(mergedEvidence) : null;
-    const graphEvidenceJson = result.evidence ? JSON.stringify(result.evidence) : null;
-    const llm = result.llm || {
-      provider: result.source || 'unknown',
-      model: null,
-      call_status: result.source === 'mock' ? 'mock' : result.source === 'tool' ? 'tool' : 'fallback',
-      fallback_reason: result.source === 'mock' ? '未配置 DeepSeek' : null,
-    };
-    recordLLM(llm.call_status || 'unknown', llm.latency_ms);
-    if (result.source === 'safety_rule') recordSafetyRule();
-    const graphIndexVersion = result.evidence?.index_version || result.evidence?.retrieval_trace?.index_version || null;
-    const ins = db.prepare(`
-      INSERT INTO chat_messages (user_id, role, content, plan, confidence, evidence, graph_evidence,
-        prediction_snapshot, graph_evidence_snapshot, linkage_version,
-        provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version)
-      VALUES (?, 'assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(req.user.id, result.content || '', planJson, confidenceJson, evidenceJson, graphEvidenceJson,
-      result.prediction_snapshot ? JSON.stringify(result.prediction_snapshot) : null,
-      result.graph_evidence_snapshot ? JSON.stringify(result.graph_evidence_snapshot) : null,
-      result.linkage_version || null,
-      llm.provider || result.source || 'unknown', llm.model || null, llm.call_status || 'unknown',
-      Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
-      JSON.stringify(llm.tool_calls || []), llm.fallback_reason || null, graphIndexVersion);
-    db.prepare(`
-      INSERT INTO llm_call_logs (user_id, chat_message_id, provider, model, status, latency_ms, tool_calls, fallback_reason, graph_index_version)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(req.user.id, ins.lastInsertRowid, llm.provider || result.source || 'unknown', llm.model || null,
-      llm.call_status || 'unknown', Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
-      JSON.stringify(llm.tool_calls || []), llm.fallback_reason || null, graphIndexVersion);
-
-  res.json({
-    id: ins.lastInsertRowid,
-    role: 'assistant',
-    content: result.content,
-    plan: result.plan || [],
-    confidence: result.confidence || { type: 'common_sense' },
-      evidence: mergedEvidence,
-      source: result.source,
-      llm,
-      prediction_snapshot: result.prediction_snapshot || null,
-      graph_evidence_snapshot: result.graph_evidence_snapshot || null,
-      linkage_version: result.linkage_version || null,
-    });
+  return handleAgentChat(req, res);
 });
 
 router.get('/chat/history', (req, res) => {
-  if (agentV2Enabled()) {
-    const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
-    if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
-    const conversation = ensureConversation(req.user.id, resolved.subject.id, req.query.conversation_id);
-    if (!conversation) return res.status(404).json({ error: '对话不存在或不属于当前老人' });
-    const rows = db.prepare(`SELECT m.* FROM (
-      SELECT * FROM chat_messages WHERE conversation_id=? AND actor_user_id=?
-      ORDER BY id DESC LIMIT 50
-    ) m WHERE NOT EXISTS (SELECT 1 FROM chat_messages newer WHERE newer.supersedes_message_id=m.id)
-    ORDER BY m.id ASC`).all(conversation.id, req.user.id).map(serializeChatRow);
-    return res.json(rows.map(row => ({ ...row, conversation_id: conversation.id })));
-  }
-  const rows = db.prepare(`
-      SELECT id, role, content, plan, confidence, evidence, graph_evidence, prediction_snapshot, graph_evidence_snapshot, linkage_version, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM (
-       SELECT id, role, content, plan, confidence, evidence, graph_evidence, prediction_snapshot, graph_evidence_snapshot, linkage_version, provider, model, call_status, latency_ms, tool_calls, fallback_reason, graph_index_version, created_at FROM chat_messages
-      WHERE user_id = ? ORDER BY id DESC LIMIT 50
-    ) ORDER BY id ASC
-  `).all(req.user.id);
-  res.json(rows.map(r => ({
-    ...r,
-    plan: r.plan ? JSON.parse(r.plan) : null,
-    confidence: r.confidence ? JSON.parse(r.confidence) : { type: 'common_sense' },
-    evidence: r.evidence ? JSON.parse(r.evidence) : null,
-      graph_evidence: r.graph_evidence ? JSON.parse(r.graph_evidence) : null,
-      prediction_snapshot: r.prediction_snapshot ? JSON.parse(r.prediction_snapshot) : null,
-      graph_evidence_snapshot: r.graph_evidence_snapshot ? JSON.parse(r.graph_evidence_snapshot) : null,
-      linkage_version: r.linkage_version || null,
-      llm: { provider: r.provider, model: r.model, call_status: r.call_status, latency_ms: r.latency_ms, tool_calls: r.tool_calls ? JSON.parse(r.tool_calls) : [], fallback_reason: r.fallback_reason, graph_index_version: r.graph_index_version },
-  })));
+  const resolved = resolveAgentRequestSubject(req, req.query.subject_user_id);
+  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  const conversation = ensureConversation(req.user.id, resolved.subject.id, req.query.conversation_id);
+  if (!conversation) return res.status(404).json({ error: '对话不存在或不属于当前老人' });
+  const rows = db.prepare(`SELECT m.* FROM (
+    SELECT * FROM chat_messages WHERE conversation_id=? AND actor_user_id=?
+    ORDER BY id DESC LIMIT 50
+  ) m WHERE NOT EXISTS (SELECT 1 FROM chat_messages newer WHERE newer.supersedes_message_id=m.id)
+  ORDER BY m.id ASC`).all(conversation.id, req.user.id).map(serializeChatRow);
+  return res.json(rows.map(row => ({ ...row, conversation_id: conversation.id })));
 });
 
 export default router;
