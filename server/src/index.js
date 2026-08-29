@@ -13,6 +13,7 @@ import { auditMutations } from './services/auditService.js';
 import opsRouter from './routes/ops.js';
 import { pythonRuntimeHealth } from './services/pythonRuntime.js';
 import { requestLimits } from './middleware/requestLimits.js';
+import { cleanupPrivacyRetention } from './services/privacyService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,7 @@ async function ensureSeedData() {
 }
 
 await ensureSeedData();
+cleanupPrivacyRetention();
 
 app.use(requestLimits);
 app.use(express.json({ limit: process.env.HTTP_MAX_BODY_SIZE || '1mb' }));
@@ -92,6 +94,7 @@ import predictionRouter from './routes/prediction.js';
 import actionsRouter from './routes/actions.js';
 import careRouter from './routes/care.js';
 import weatherRouter from './routes/weather.js';
+import privacyRouter from './routes/privacy.js';
 
 app.use('/api/health', healthRouter);
 app.use('/api', apiRouter);
@@ -104,6 +107,7 @@ app.use('/api/prediction', predictionRouter);
 app.use('/api/actions', actionsRouter);
 app.use('/api/care', careRouter);
 app.use('/api/weather', weatherRouter);
+app.use('/api/privacy', privacyRouter);
 app.use('/api/ops', opsRouter);
 
 // 错误处理

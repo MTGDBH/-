@@ -78,22 +78,10 @@ router.post('/password', async (req, res) => {
   res.json({ ok: true, message: '密码已更新，其他设备需要重新登录' });
 });
 
-// 注销账号（demo 仅保留逻辑：删除用户，会级联清理数据）
-router.delete('/me', (req, res) => {
-  // 按依赖顺序清理演示账号数据，避免 sessions/metrics 等外键阻止注销。
-  const removeAccount = db.transaction((userId) => {
-    const tables = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(row => row.name));
-    for (const table of ['sessions', 'metrics', 'assessments', 'todos', 'action_requests', 'alerts', 'chat_messages', 'custom_metrics', 'devices', 'agent_actions']) {
-      if (!tables.has(table)) continue;
-      db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
-    }
-    if (tables.has('care_relationships')) db.prepare('DELETE FROM care_relationships WHERE senior_id = ? OR member_id = ?').run(userId, userId);
-    if (tables.has('care_invitations')) db.prepare('DELETE FROM care_invitations WHERE senior_id = ? OR used_by = ?').run(userId, userId);
-    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
-  });
-  removeAccount(req.user.id);
-  res.setHeader('Set-Cookie', 'sid=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
-  res.json({ ok: true });
-});
+// 禁止绕过隐私中心的预览和二次确认流程。
+router.delete('/me', (_req, res) => res.status(409).json({
+  error: '请前往隐私与数据管理中心，查看删除范围并完成二次确认',
+  privacy_center: '/privacy.html',
+}));
 
 export default router;

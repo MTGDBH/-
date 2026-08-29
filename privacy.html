@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐私与数据管理中心 · 小康·健康管家</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="privacy-page">
+  <div id="app-nav"></div>
+  <main class="main privacy-main" id="main-content">
+    <header class="page-head privacy-head">
+      <div><p class="privacy-eyebrow">您的数据，由您做主</p><h1>隐私与数据管理中心</h1>
+        <p class="subtitle">用简单的话说明：保存了什么、谁看过、授权给了谁，以及怎样带走或删除。</p></div>
+      <button class="btn btn-secondary" id="privacy-refresh" type="button">↻ 刷新</button>
+    </header>
+
+    <section class="privacy-trust" aria-label="重要说明"><span aria-hidden="true">盾</span><div>
+      <strong>这里只显示与当前账号有关的数据</strong><p>导出不会包含密码、登录凭证、API 密钥、其他用户资料或系统安全配置。</p>
+    </div></section>
+    <div class="privacy-live" id="privacy-live" role="status" aria-live="polite">正在读取您的数据清单…</div>
+    <section class="privacy-error" id="privacy-error" role="alert" hidden><strong>暂时无法读取隐私中心</strong><p id="privacy-error-message"></p><button class="btn btn-secondary" id="privacy-retry" type="button">重新加载</button></section>
+
+    <div id="privacy-content" hidden>
+      <section class="privacy-section" aria-labelledby="data-title">
+        <div class="privacy-section-head"><div><p>一眼看懂</p><h2 id="data-title">系统保存了什么</h2></div><span id="privacy-total" class="privacy-pill"></span></div>
+        <div class="privacy-category-grid" id="privacy-categories"></div>
+      </section>
+
+      <section class="privacy-two-column">
+        <article class="privacy-panel" aria-labelledby="auth-title">
+          <div class="privacy-section-head"><div><p>可以随时撤回</p><h2 id="auth-title">家属 / 医生授权</h2></div></div>
+          <div id="privacy-authorizations" class="privacy-list"></div>
+        </article>
+        <article class="privacy-panel" aria-labelledby="access-title">
+          <div class="privacy-section-head"><div><p>最近 100 条</p><h2 id="access-title">谁访问过</h2></div></div>
+          <div id="privacy-access" class="privacy-list privacy-scroll"></div>
+        </article>
+      </section>
+
+      <section class="privacy-panel" aria-labelledby="export-title">
+        <div class="privacy-section-head"><div><p>把自己的数据带走</p><h2 id="export-title">导出个人数据</h2></div></div>
+        <p class="privacy-copy">JSON 适合完整保存和程序读取；CSV 可用表格软件打开。为防止账号被批量滥用，默认每 24 小时最多导出 3 次。</p>
+        <div class="privacy-actions"><button class="btn btn-primary" data-export="json" type="button">导出 JSON</button><button class="btn btn-secondary" data-export="csv" type="button">导出 CSV</button><span id="export-status" role="status"></span></div>
+      </section>
+
+      <section class="privacy-panel" aria-labelledby="retention-title">
+        <div class="privacy-section-head"><div><p>保存多久、删除什么</p><h2 id="retention-title">数据保留与删除范围</h2></div></div>
+        <div id="privacy-retention" class="privacy-retention"></div>
+        <div class="privacy-note"><strong>删除账号时</strong><p>基本资料、健康测量、设备、对话、预测、行动干预和授权记录会清除。只保留不含姓名、联系方式和完整健康内容的最小化审计事件及删除状态。</p></div>
+      </section>
+
+      <section class="privacy-panel privacy-policy" aria-labelledby="policy-title">
+        <div class="privacy-section-head"><div><p>隐私说明</p><h2 id="policy-title">我们怎样处理数据</h2></div></div>
+        <p>数据用于账号服务、健康记录展示、用户主动请求的分析预测、改善计划及明确授权的照护协同。系统按当前账号和授权范围控制访问，并记录必要的安全事件。</p>
+        <p>本项目是健康管理与科研演示系统，不替代医生诊断、处方或紧急医疗服务。页面不宣称已获得等保、ISO 27001、HIPAA、医疗器械注册或其他实际未取得的认证。部署方仍需根据真实运营地区、数据来源和处理目的完成法律评估、告知同意、供应商管理和保留期限配置。</p>
+      </section>
+
+      <section class="privacy-danger" aria-labelledby="delete-title">
+        <div><p>不可恢复</p><h2 id="delete-title">删除账号和个人数据</h2><p>开始前会先列出删除类别；之后还要输入指定确认语和账号密码。删除完成后当前设备会退出登录。</p></div>
+        <button class="btn btn-danger" id="start-delete" type="button">查看删除范围</button>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="privacy-dialog" id="delete-dialog" aria-labelledby="delete-dialog-title">
+    <form id="delete-form" method="dialog">
+      <h2 id="delete-dialog-title">再次确认删除</h2>
+      <p>以下数据将被清除，且不能恢复：</p><ul id="delete-categories"></ul>
+      <p class="privacy-retained">仍会保留：不含完整健康隐私的最小化审计事件和删除状态，默认最长 180 天。</p>
+      <label>请输入确认语 <strong id="confirm-phrase"></strong><input class="input" id="delete-confirmation" autocomplete="off" required></label>
+      <label>请输入当前账号密码<input class="input" id="delete-password" type="password" autocomplete="current-password" required></label>
+      <label class="privacy-check"><input id="delete-check" type="checkbox"><span>我已看清删除范围，知道删除后不能恢复</span></label>
+      <div class="privacy-dialog-actions"><button class="btn btn-secondary" id="cancel-delete" type="button">先不删除</button><button class="btn btn-danger" id="confirm-delete" type="submit" disabled>永久删除</button></div>
+      <p id="delete-status" role="status"></p>
+    </form>
+  </dialog>
+
+  <script src="assets/js/api.js"></script><script src="assets/js/auth.js"></script><script src="assets/js/main.js"></script><script src="assets/js/privacy.js"></script>
+  <script>Auth.init();</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+participant_id,site_id,split,metric,measurement_condition,horizon_days,history_start,history_end,origin_time,target_time,status,actual,predicted,lower,upper,refusal_reason

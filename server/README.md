@@ -36,9 +36,10 @@ start-node22.bat
 | `/api/knowledge` | 知识文章、GraphRAG 查询、来源和审核数据 |
 | `/api/actions` | 需确认的智能体行动与复测随访 |
 | `/api/care` | 家属/医生授权、授权摘要和关系撤销 |
+| `/api/privacy` | 数据清单、访问/授权记录、JSON/CSV 导出、二次确认注销 |
 | `/api/devices` | 设备登记、状态和同步入库 |
 | `/api/chat` | 智能体对话、证据与历史 |
-| `/api/profile` | 资料、改密和账号注销 |
+| `/api/profile` | 资料和改密；账号注销统一进入隐私中心 |
 | `/api/ops` | 按角色控制的运行指标、审计和依赖状态 |
 
 完整路由以 `src/index.js` 和 `src/routes/` 为准，API 速查见仓库根目录 `README.md`。

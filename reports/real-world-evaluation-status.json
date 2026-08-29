@@ -1,0 +1,47 @@
+{
+  "schema_version": "real-world-evaluation-toolkit.v1",
+  "generated_at": "2026-08-28T22:42:49.421919+08:00",
+  "older_adult_usability": {
+    "status": "pending",
+    "errors": [],
+    "warnings": [
+      "empty template; no real participant data"
+    ],
+    "n_rows": 0,
+    "older_adult_participants": 0,
+    "primary_endpoints": {},
+    "secondary_endpoints": {},
+    "safety": {},
+    "limitations": [
+      "真实老人任务尚未执行；不得报告完成率、SUS 或理解度结果"
+    ]
+  },
+  "clinician_review": {
+    "status": "pending",
+    "reviewers": 0,
+    "relations": 0,
+    "ratings": 0,
+    "errors": [],
+    "warnings": [
+      "empty clinician panel template; no real clinician review"
+    ]
+  },
+  "curve_longitudinal": {
+    "status": "pending",
+    "participants": 0,
+    "measurement_rows": 0,
+    "prediction_windows": 0,
+    "errors": [],
+    "warnings": [
+      "empty Curve templates; no real longitudinal data"
+    ]
+  },
+  "status": "pending",
+  "prohibited_claims": [
+    "医生审核已完成（当状态非完成）",
+    "经临床验证",
+    "已证明疗效",
+    "N-of-1 证明因果",
+    "通过伦理审批（无真实批件时）"
+  ]
+}

@@ -110,6 +110,30 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_auth_rate_reset ON auth_rate_limits(reset_at);
 
+  CREATE TABLE IF NOT EXISTS privacy_export_events (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    format TEXT NOT NULL,
+    status TEXT NOT NULL,
+    byte_count INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_privacy_export_user_time ON privacy_export_events(user_id, created_at DESC);
+
+  -- 注销后仅保留不可逆主体摘要和流程状态，不保留姓名、联系方式或健康内容。
+  CREATE TABLE IF NOT EXISTS privacy_deletion_requests (
+    id TEXT PRIMARY KEY,
+    subject_hash TEXT NOT NULL,
+    status TEXT NOT NULL,
+    categories TEXT NOT NULL DEFAULT '[]',
+    expires_at TEXT NOT NULL,
+    requested_at TEXT NOT NULL,
+    confirmed_at TEXT,
+    completed_at TEXT,
+    failure_code TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_privacy_deletion_status ON privacy_deletion_requests(status, requested_at DESC);
+
   CREATE TABLE IF NOT EXISTS care_relationships (
     id INTEGER PRIMARY KEY,
     senior_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

@@ -26,10 +26,12 @@
 - 最终提交审计：`D:\BIGCHUANG\-\reports\final-submission-audit-20260821.md`
 - 文档与代码能力复核：`D:\BIGCHUANG\-\reports\documentation-capability-audit-20260828.md`
 - 外部证据闸门清单：`D:\BIGCHUANG\-\reports\external-gate-execution-checklist-20260821.md`
+- 真实评价最小执行工具包：`D:\BIGCHUANG\-\reports\real-world-evaluation-execution-toolkit.md`
+- 匿名评价当前状态：`D:\BIGCHUANG\-\reports\real-world-evaluation-status.md`（当前为 `pending`，0 名真实老人、0 名真实医生、0 条真实纵向测量）
 - 回归测试汇总：`D:\BIGCHUANG\-\reports\regression-suite-summary-20260821.md`
 - 医生审核报告（83 条历史待签版，已落后于 v9 的 90 条范围）：`D:\BIGCHUANG\-\reports\clinician-review-report-20260821.md`
 - 张奶奶演示数据说明：`D:\BIGCHUANG\-\reports\demo-curve-data-generation-20260821.md`
 
 提交包由 `reports/create_submission_bundle.py` 按哈希清单生成，不包含密钥、原始个人数据、`node_modules`、缓存或临时预览文件。
 
-> 当前材料、代码和内部评测可复现；张奶奶等账号为合成演示数据。当前 v9 有 90 条待医生审核关系，而旧签字包只有 83 条且 0 签字，提交前必须重新生成当前版本审核包。真实老人/医生人因研究、带日期的外部 Curve 数据和独立外部风险队列仍需项目组或合作机构完成，不能用演示数据或 AI 预审替代。
+> 当前材料、代码和内部评测可复现；张奶奶等账号为合成演示数据。当前 v9 有 90 条待医生审核关系，当前 90 条审核包仍为 0 审核/0 批准；旧 83 条表仅是历史版本。真实老人/医生人因研究、探索性纵向测量、正式 Curve 外部数据和独立外部风险队列仍需项目组或合作机构完成，不能用演示数据或 AI 预审替代。

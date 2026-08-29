@@ -6,6 +6,7 @@
 - 时间审计数据：原始 `D:\大创数据2\CHARLS.csv` 的 Wave1–5 重复参与者记录；用于 Wave1→2、2→3、3→4 训练，Wave4→5 时间留出审计，详情见 `reports/national-award-risk-temporal-evaluation-20260821.md`。
 - 演示数据：`server/data/app.db` 中标记为 `synthetic` 的账号和指标，仅用于界面与闭环演示。
 - 测试数据：Curve V2 合成序列、Node 工具夹具和 GraphRAG 黄金问题，不进入风险模型训练。
+- 真实评价候选数据：当前未采集；`reports/real-world-evaluation-status.json` 保持 `pending`。空白医生、老人和纵向模板不计作样本。
 
 ## 风险模型样本
 

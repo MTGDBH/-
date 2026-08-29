@@ -20,6 +20,7 @@
     if (p === 'metric.html') return 'monitoring';
     if (p === 'alerts.html') return 'monitoring';
     if (p === 'profile.html') return null;
+    if (p === 'privacy.html') return null;
     return null;
   }
 

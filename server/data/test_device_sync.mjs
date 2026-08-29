@@ -22,6 +22,6 @@ try {
   if (!chat.content || !['deepseek', 'openai', 'custom', 'tool', 'tool_fallback', 'mock'].includes(chat.source)) throw new Error('device agent response unavailable');
   console.log(JSON.stringify({ pass: true, metric_source: synced.body.metric.source, battery: synced.body.device.battery_level, agent_source: chat.source }));
 } finally {
-  const deleted = await request('/api/profile/me', { method: 'DELETE', headers: auth });
-  if (!deleted.body?.ok) throw new Error('device test account cleanup failed');
+  // 集成测试使用一次性临时数据库；生产注销必须经过隐私中心二次确认，
+  // 因此这里不再调用已禁用的一步删除接口。
 }

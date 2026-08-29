@@ -16,6 +16,8 @@ GROUPS = {
         "elderly-health-rag/eval_framework/tests/test_collection_materials.py",
         "ml/common/test_prediction_common.py",
         "ml/validation/test_validation_tools.py",
+        "reports/test_human_evaluation_analyzer.py",
+        "reports/test_real_world_evaluation_toolkit.py",
         "tests/test_intervention_evaluation.py",
     ],
     "graphrag": ["tests/test_graphrag_isolation.py"],
