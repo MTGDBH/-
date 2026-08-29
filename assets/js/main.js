@@ -462,7 +462,7 @@
 
   function enhanceCharts(root = document) {
     root.querySelectorAll('svg:not([aria-hidden="true"]), canvas').forEach((chart, index) => {
-      if (chart.closest('button, a, .brand, .icon-settings')) return;
+      if (chart.dataset.a11yChartSummary === 'off' || chart.closest('button, a, .brand, .icon-settings')) return;
       const summary = chartSummaryText(chart);
       let description = chart.nextElementSibling?.matches('.a11y-chart-summary') ? chart.nextElementSibling : null;
       if (!description) {

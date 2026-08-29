@@ -24,7 +24,7 @@
 
         <div class="ring-row">
           <div class="ring-svg" id="ring-container">
-            <svg width="240" height="240" viewBox="0 0 240 240">
+            <svg width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="总健康评分" data-a11y-chart-summary="off">
               <circle cx="120" cy="120" r="100" stroke="#FAF0E1" stroke-width="20" fill="none"/>
               <circle id="ring-progress" cx="120" cy="120" r="100" stroke="#F4A261" stroke-width="20" fill="none" stroke-linecap="round" transform="rotate(-90 120 120)" pathLength="628"/>
               <text id="ring-num" x="120" y="135" text-anchor="middle" font-size="64" font-weight="700" fill="#F4A261" font-family="sans-serif">--</text>
@@ -35,6 +35,12 @@
             <div class="ring-side-label">AI 综合评分</div>
             <div class="ring-side-desc" id="summary-text">—</div>
             <div class="ring-side-comp" id="ring-meta">—</div>
+            <section class="score-detail-panel" aria-labelledby="score-detail-title">
+              <div class="score-detail-head"><strong id="score-detail-title">评分详情</strong><span>近 7 天</span></div>
+              <div class="score-detail-formula" id="score-detail-formula">正在读取参与评分的项目…</div>
+              <div class="score-detail-items" id="score-detail-items"></div>
+              <p>每类指标取近 7 天内最新记录；分项内部取有效指标平均，总分再取有数据分项的等权平均。情绪没有有效问卷数据时不参与计算。</p>
+            </section>
           </div>
         </div>
 
@@ -94,6 +100,7 @@
         const d = await API.get('/api/assessments/latest');
         renderTotal(d);
         renderSubs(d.subscores);
+        renderScoreDetail(d);
         renderAdlIadl(d);
         renderSuggest(d.suggestions);
         document.getElementById('evaluated-at').textContent = '最近评估：' + (d.evaluated_at || '').slice(0, 16).replace('T', ' ');
@@ -173,16 +180,31 @@
       ];
       const list = document.getElementById('sub-list');
       list.innerHTML = order.map(o => {
-        const v = s[o.key] ?? 80;
-        const w = Math.round((v / 100) * 400);
+        const hasValue = Number.isFinite(Number(s[o.key]));
+        const v = hasValue ? Math.round(Number(s[o.key])) : null;
+        const w = hasValue ? Math.max(0, Math.min(100, v)) : 0;
         return `
-          <div class="sub-row">
+          <div class="sub-row${hasValue ? '' : ' is-empty'}">
             <div class="sub-label">${o.label}</div>
-            <div class="sub-bar" style="background:${o.bg}"><div class="sub-fill" style="width:${w}px;background:${o.color}"></div></div>
-            <div class="sub-num">${v}</div>
+            <div class="sub-bar" style="background:${o.bg}"><div class="sub-fill" style="width:${w}%;background:${o.color}"></div></div>
+            <div class="sub-num">${hasValue ? v : '—'}</div>
           </div>
         `;
       }).join('');
+    }
+
+    function renderScoreDetail(d) {
+      const labels = { sleep: '睡眠', nutrition: '营养', activity: '活动', chronic: '慢病控制' };
+      const values = Object.entries(labels)
+        .map(([key, label]) => ({ key, label, value: Number(d.subscores?.[key]) }))
+        .filter(item => Number.isFinite(item.value));
+      const total = Number(d.total_score);
+      document.getElementById('score-detail-items').innerHTML = values.length
+        ? values.map(item => `<span><b>${item.label}</b><strong>${Math.round(item.value)} 分</strong></span>`).join('')
+        : '<span class="empty">暂无可参与评分的数据</span>';
+      document.getElementById('score-detail-formula').textContent = values.length
+        ? `总分 = (${values.map(item => Math.round(item.value)).join(' + ')}) ÷ ${values.length} = ${Number.isFinite(total) ? Math.round(total) : '—'} 分`
+        : '总分暂不可计算，请先记录健康数据。';
     }
 
     function renderAdlIadl(d) {

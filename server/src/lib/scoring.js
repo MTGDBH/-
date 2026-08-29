@@ -200,9 +200,11 @@ export function evaluateHealth(metrics, ctx = {}) {
   }
 
   const suggestions = generateSuggestions(subscores, latestByType);
+  const dimensionLabels = { sleep: '睡眠', nutrition: '营养', activity: '活动', chronic: '慢病控制' };
+  const usedDimensions = Object.keys(subscores).map(key => dimensionLabels[key]).filter(Boolean);
   const summary = total == null
     ? '暂无足够健康数据，先到"健康监测"录入一次吧。'
-    : `综合睡眠、营养、活动、慢病控制维度，您今天的健康评分 ${total} 分${
+    : `根据近 7 天有数据的${usedDimensions.join('、')}维度，您今天的健康评分 ${total} 分${
         total >= 80 ? '，整体状态良好' : total >= 60 ? '，需关注' : '，建议尽快复诊'
       }。`;
 
