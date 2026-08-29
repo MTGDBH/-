@@ -1,70 +1,58 @@
-// 鉴权 / 导航 / 用户
-// 每个非登录页面 HTML 中：
-//   <script>API.script('/assets/js/auth.js'); Auth.init();</script>
+// 鉴权、全站应用框架与用户信息
 (function () {
   const NAV_ITEMS = [
-    { key: 'overview',    label: '概览',       href: 'index.html' },
-    { key: 'monitoring',  label: '健康监测',   href: 'monitoring.html' },
-    { key: 'assessment',  label: '健康评估',   href: 'assessment.html' },
-    { key: 'agent',       label: '智能管家',   href: 'agent.html' },
-    { key: 'intervention',label: '改善计划',   href: 'intervention.html' },
-    { key: 'care',        label: '照护协同',   href: 'care.html' },
-    { key: 'knowledge',   label: '健康知识',   href: 'knowledge.html' },
+    { key: 'overview', icon: '概', label: '健康概览', href: 'index.html' },
+    { key: 'monitoring', icon: '测', label: '健康监测', href: 'monitoring.html' },
+    { key: 'assessment', icon: '评', label: '健康评估', href: 'assessment.html' },
+    { key: 'agent', icon: '智', label: '智能管家', href: 'agent.html' },
+    { key: 'intervention', icon: '计', label: '改善计划', href: 'intervention.html' },
+    { key: 'care', icon: '护', label: '照护协同', href: 'care.html' },
+    { key: 'knowledge', icon: '知', label: '健康知识', href: 'knowledge.html' },
   ];
 
-  // 当前页面属于哪个导航项（根据 URL 推断）
   function activeKeyFromPath() {
     const p = location.pathname.split('/').pop() || 'index.html';
     const hit = NAV_ITEMS.find(n => n.href === p);
     if (hit) return hit.key;
-    if (p === 'metric.html') return 'monitoring';
-    if (p === 'alerts.html') return 'monitoring';
-    if (p === 'profile.html') return null;
-    if (p === 'privacy.html') return null;
+    if (p === 'metric.html' || p === 'alerts.html') return 'monitoring';
     return null;
   }
 
-  // 渲染顶部栏
   function renderNav(user) {
     const slot = document.getElementById('app-nav');
     if (!slot) return;
     const activeKey = activeKeyFromPath();
-
     const initials = (user.name || '你').slice(0, 1);
-    const avColor = user.avatar_color || '#7FB069';
+    const avColor = user.avatar_color || '#0F766E';
+    const workspaceItems = NAV_ITEMS.slice(0, 4);
+    const serviceItems = NAV_ITEMS.slice(4);
+    const navLink = n => `<a href="${n.href}" class="app-nav-link${n.key === activeKey ? ' is-active' : ''}"${n.key === activeKey ? ' aria-current="page"' : ''}><span aria-hidden="true">${n.icon}</span><strong>${n.label}</strong></a>`;
 
     slot.outerHTML = `
-      <header class="topbar">
-        <div class="topbar-inner">
-          <a href="index.html" class="brand">
-            <span class="brand-mark">康</span>
-            <span class="brand-name">小康·健康管家</span>
-          </a>
-          <nav class="primary-nav" aria-label="主导航">
-            ${NAV_ITEMS.map(n => `
-              <a href="${n.href}" class="${n.key === activeKey ? 'is-active' : ''}"${n.key === activeKey ? ' aria-current="page"' : ''}>${n.label}</a>
-            `).join('')}
-          </nav>
-          <div class="topbar-right">
-            <button type="button" class="icon-theme" data-theme-toggle aria-label="切换到深色模式" aria-pressed="false" title="切换到深色模式">
-              <span data-theme-icon aria-hidden="true">月</span>
-            </button>
-            <a href="alerts.html" class="icon-bell" title="预警中心" aria-label="预警中心">
-              🔔
-              <span class="bell-badge" data-alert-badge hidden></span>
-            </a>
-            <a href="profile.html" class="avatar" style="background:${avColor}" title="${user.name}" aria-label="个人资料：${user.name}">${initials}</a>
-            <a href="settings.html" class="icon-settings" title="设置" aria-label="设置">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </a>
-          </div>
+      <a class="skip-link" href="#main-content">跳到主要内容</a>
+      <aside class="app-sidebar" aria-label="应用导航">
+        <a href="index.html" class="app-sidebar-brand" aria-label="小康健康管家首页"><span>康</span><div><strong>小康健康管家</strong><small>HEALTH OS</small></div></a>
+        <nav class="app-sidebar-nav">
+          <section><p>健康工作台</p>${workspaceItems.map(navLink).join('')}</section>
+          <section><p>服务与知识</p>${serviceItems.map(navLink).join('')}</section>
+        </nav>
+        <div class="app-sidebar-tools">
+          <a href="alerts.html" class="app-tool-link"><span aria-hidden="true">醒</span><strong>预警中心</strong><i class="bell-badge" data-alert-badge hidden></i></a>
+          <a href="settings.html" class="app-tool-link"><span aria-hidden="true">设</span><strong>系统设置</strong></a>
+          <button type="button" class="app-tool-link" data-theme-toggle aria-label="切换到深色模式" aria-pressed="false"><span data-theme-icon aria-hidden="true">月</span><strong>显示模式</strong></button>
         </div>
+        <a href="profile.html" class="app-user-card"><span class="avatar" style="background:${avColor}">${initials}</span><div><strong>${user.name}</strong><small>查看个人资料</small></div><b aria-hidden="true">›</b></a>
+      </aside>
+      <header class="app-mobilebar">
+        <a href="index.html" class="app-mobile-brand"><span>康</span><strong>小康健康管家</strong></a>
+        <details class="app-mobile-menu"><summary aria-label="打开导航">菜单</summary><nav>${NAV_ITEMS.map(navLink).join('')}<a href="alerts.html" class="app-nav-link"><span>醒</span><strong>预警中心</strong><i class="bell-badge" data-alert-badge hidden></i></a><a href="settings.html" class="app-nav-link"><span>设</span><strong>设置</strong></a></nav></details>
+        <a href="profile.html" class="avatar" style="background:${avColor}" aria-label="个人资料：${user.name}">${initials}</a>
       </header>
     `;
+    document.body.classList.add('has-app-shell');
 
+    const main = document.querySelector('main');
+    if (main && !main.id) main.id = 'main-content';
     window.Theme?.syncButton?.();
     loadAlertCount();
   }
@@ -72,22 +60,18 @@
   async function loadAlertCount() {
     try {
       const s = await API.get('/api/alerts/summary');
-      const badge = document.querySelector('[data-alert-badge]');
-      if (badge && s.pending > 0) {
-        badge.hidden = false;
-        badge.textContent = s.pending;
-      }
+      document.querySelectorAll('[data-alert-badge]').forEach(badge => {
+        badge.hidden = !(s.pending > 0);
+        if (s.pending > 0) badge.textContent = s.pending;
+      });
     } catch {}
   }
 
-  // 当前登录用户（未登录抛错）
   async function getMe() {
     return await API.get('/api/auth/me');
   }
 
-  // 初始化入口（每个已登录页面调用）
   async function init() {
-    // login.html 不调用此函数，其他页面都调用
     if (/login\.html$/.test(location.pathname) || location.pathname === '/login.html') return;
     try {
       const user = await getMe();
@@ -95,7 +79,6 @@
       window.__CURRENT_USER__ = user;
       document.dispatchEvent(new CustomEvent('auth:ready', { detail: user }));
     } catch (err) {
-      // api.js 已经会跳 login.html
       console.error('[auth] not logged in:', err.message);
     }
   }

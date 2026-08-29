@@ -10,54 +10,68 @@
   <div id="app-nav"></div>
 
   <main class="main agent-main">
-    <header class="page-head agent-page-head">
-      <div>
-        <h1>智能管家</h1>
-        <p class="subtitle">直接说出您的问题，小康会自动选择合适的健康能力</p>
+    <header class="agent-studio-toolbar">
+      <div class="agent-studio-title">
+        <span class="agent-studio-mark" aria-hidden="true">AI</span>
+        <div><h1>智能管家</h1><p><i aria-hidden="true"></i>小康在线 · 已连接您的健康记录</p></div>
       </div>
-      <div class="agent-page-actions">
-        <a class="btn btn-secondary" id="agent-intervention-link" href="intervention.html">我的改善计划</a>
-        <button type="button" class="agent-daily-plan-button" id="agent-daily-plan">生成今日健康方案</button>
+      <div class="agent-studio-actions">
+        <a id="agent-intervention-link" href="intervention.html"><span aria-hidden="true">✓</span><strong>改善计划</strong></a>
+        <button type="button" class="agent-plan-toggle" id="agent-plan-toggle" aria-expanded="false" aria-controls="agent-plan-drawer"><span aria-hidden="true">☷</span><strong>今日安排</strong></button>
+        <button type="button" id="agent-daily-plan"><span aria-hidden="true">✦</span><strong>生成今日方案</strong></button>
       </div>
     </header>
 
-    <section class="agent-context-bar" aria-label="智能体上下文">
-      <div class="agent-context-fields">
-        <label id="agent-subject-wrap" hidden>选择老人
-          <select id="agent-subject"></select>
-        </label>
-        <label>当前对话
-          <select id="agent-conversation"></select>
-        </label>
-      </div>
-      <div class="agent-context-actions">
-        <button type="button" class="btn btn-secondary" id="agent-new-conversation">＋ 新对话</button>
-        <button type="button" class="btn btn-ghost" id="agent-memory-button">已记住的信息</button>
-      </div>
-      <span class="agent-context-note" id="agent-context-note">健康数据每次实时读取，不使用过期预测</span>
-    </section>
+    <section class="agent-console" aria-label="智能管家工作台">
+      <aside class="agent-control-rail" aria-label="智能体和会话管理">
+        <div class="agent-identity-card">
+          <div class="agent-identity-mark" aria-hidden="true">康<span></span></div>
+          <div><span>当前智能体</span><strong>小康健康管家</strong><small><i></i> 在线 · 健康数据实时读取</small></div>
+        </div>
 
-    <section class="agent-layout-toolbar" aria-label="工作区布局">
-      <div class="agent-layout-copy"><strong>工作区大小</strong><span>拖动中间边界调整宽度，拖动下方边界统一调整高度</span></div>
-      <div class="agent-layout-presets" role="group" aria-label="选择工作区比例">
-        <button type="button" data-agent-layout-ratio="0.72">对话优先</button>
-        <button type="button" data-agent-layout-ratio="0.64" class="active">均衡布局</button>
-        <button type="button" data-agent-layout-ratio="0.56">辅助区优先</button>
-        <button type="button" id="agent-height-decrease" aria-label="降低左右工作区高度">高度－</button>
-        <button type="button" id="agent-height-increase" aria-label="增加左右工作区高度">高度＋</button>
-        <button type="button" id="agent-layout-reset">恢复自适应</button>
-      </div>
-    </section>
+        <div class="agent-rail-section agent-rail-context">
+          <label id="agent-subject-wrap" hidden>选择老人
+            <select id="agent-subject"></select>
+          </label>
+          <label class="agent-conversation-select">当前对话
+            <select id="agent-conversation"></select>
+          </label>
+          <button type="button" class="agent-rail-primary" id="agent-new-conversation"><span aria-hidden="true">＋</span> 新建健康对话</button>
+        </div>
 
-    <section class="agent-row">
+        <section class="agent-history-section" aria-label="历史记录">
+          <div class="agent-history-heading"><span>历史记录</span><small id="agent-history-count">0 条</small></div>
+          <div class="agent-conversation-list" id="agent-conversation-list" role="listbox" aria-label="历史对话"></div>
+        </section>
+
+        <div class="agent-rail-footer">
+          <button type="button" class="agent-rail-button" id="agent-memory-button"><span aria-hidden="true">◇</span><span>已记住的信息</span><b aria-hidden="true">›</b></button>
+          <a href="index.html" class="agent-rail-button"><span aria-hidden="true">⌂</span><span>返回健康概览</span><b aria-hidden="true">›</b></a>
+        </div>
+
+        <nav class="agent-rail-section agent-rail-nav" aria-label="智能体能力">
+          <div class="agent-rail-heading"><span>健康能力</span><small>CAPABILITIES</small></div>
+          <a href="monitoring.html"><span aria-hidden="true">⌁</span><span>实时健康记录<small>血压、血糖、睡眠等</small></span><b aria-hidden="true">›</b></a>
+          <a href="prediction.html"><span aria-hidden="true">⌇</span><span>趋势与风险发现<small>变化趋势和下一步</small></span><b aria-hidden="true">›</b></a>
+          <a href="intervention.html"><span aria-hidden="true">✓</span><span>改善计划<small>执行、复测与评价</small></span><b aria-hidden="true">›</b></a>
+        </nav>
+
+        <div class="agent-rail-status" id="agent-context-note"><span aria-hidden="true">盾</span><p><strong>安全运行中</strong><small>健康建议需经您确认才会创建行动</small></p></div>
+      </aside>
+
+      <section class="agent-row" aria-label="对话与今日辅助">
       <div class="chat-area">
-        <header class="agent-chat-head"><div><span>健康对话</span><h2>和小康聊一聊</h2></div><small>按问题实时读取相关健康数据</small></header>
+        <header class="agent-chat-head">
+          <div><span>健康对话</span><h2>和小康聊一聊</h2></div>
+          <small class="agent-live-status"><i aria-hidden="true"></i>按问题实时读取健康数据</small>
+        </header>
         <div class="chat-history" id="chat-history"></div>
         <div class="agent-chat-composer">
+          <div class="agent-composer-label"><strong>可以这样问</strong><span>建议仅作健康管理参考</span></div>
           <div class="quick-prompts" id="quick-prompts"></div>
           <div class="chat-input-bar">
-            <input class="input chat-input" id="chat-input" placeholder="你想问点什么…" />
-            <button class="btn-icon" id="btn-send" style="background:var(--c-primary);color:#fff;border:none">→</button>
+            <input class="input chat-input" id="chat-input" placeholder="例如：帮我看看最近的血压变化" aria-label="输入健康问题" />
+            <button class="btn-icon" id="btn-send" aria-label="发送问题"><span>发送</span><b aria-hidden="true">↑</b></button>
           </div>
         </div>
       </div>
@@ -66,12 +80,13 @@
         <span aria-hidden="true">⋮</span>
       </div>
 
-      <aside class="plan-area" aria-label="今日健康辅助区">
+      <aside class="plan-area" id="agent-plan-drawer" aria-label="今日健康辅助区" aria-hidden="true">
         <div class="plan-header">
-          <div><span class="agent-side-eyebrow">今日辅助</span><span class="plan-title">今日健康安排</span></div>
+          <div><span class="agent-side-eyebrow">今日辅助</span><span class="plan-title">今日健康安排</span><small>按优先顺序完成即可</small></div>
           <span class="plan-badge" id="plan-count">— 项</span>
+          <button type="button" class="agent-plan-close" id="agent-plan-close" aria-label="关闭今日安排">×</button>
         </div>
-        <div class="plan-sub">AI 实时生成 · <span id="plan-today">—</span></div>
+        <div class="plan-sub"><span class="plan-sub-dot" aria-hidden="true"></span>AI 实时生成 · <span id="plan-today">—</span></div>
         <section class="agent-inbox agent-inbox-sidebar" id="agent-inbox" aria-live="polite" hidden>
           <button type="button" class="agent-inbox-head" id="agent-inbox-toggle" aria-expanded="false" aria-controls="agent-inbox-list">
             <div><span>站内主动提醒</span><h2>待处理健康事项</h2></div>
@@ -86,8 +101,8 @@
           <div id="daily-tip-content" class="agent-daily-tip-content"><span class="loading"></span> 正在准备今日贴士…</div>
         </section>
       </aside>
+      </section>
     </section>
-    <div class="agent-workspace-height-resizer" id="agent-workspace-height-resizer" role="separator" aria-label="统一调整左右工作区高度" aria-orientation="horizontal" aria-valuemin="560" aria-valuemax="1100" tabindex="0" title="上下拖动调整工作区高度，双击恢复默认"><span aria-hidden="true">上下调整</span></div>
     <section class="agent-memory-panel" id="agent-memory-panel" hidden>
       <div class="agent-memory-head"><div><h2>已记住的信息</h2><p>只保存你确认过的偏好和照护信息，不保存健康数值或疾病概率。</p></div><button type="button" id="agent-memory-close">关闭</button></div>
       <div id="agent-memory-list" class="agent-memory-list"></div>
@@ -105,6 +120,7 @@
       bindMsgActions();
       bindPlanActions();
       bindAgentContext();
+      bindAgentPlanDrawer();
       bindAgentSplitter();
       bindAgentWorkspaceHeight();
       renderQuickPrompts();
@@ -269,7 +285,15 @@
         syncInterventionLink();
         await loadConversations(); await Promise.all([loadChat(), loadMemories(), loadPlan(), loadInbox(), loadDailyTip()]);
       });
-      document.getElementById('agent-conversation').addEventListener('change', async e => { conversationId = Number(e.target.value); await Promise.all([loadChat(), loadPlan()]); });
+      document.getElementById('agent-conversation').addEventListener('change', async e => { conversationId = Number(e.target.value); syncConversationList(); await Promise.all([loadChat(), loadPlan()]); });
+      document.getElementById('agent-conversation-list').addEventListener('click', async e => {
+        const item = e.target.closest('[data-conversation-id]');
+        if (!item || item.disabled) return;
+        conversationId = Number(item.dataset.conversationId);
+        document.getElementById('agent-conversation').value = String(conversationId);
+        syncConversationList();
+        await Promise.all([loadChat(), loadPlan()]);
+      });
       document.getElementById('agent-new-conversation').addEventListener('click', async () => {
         const created = await API.post('/api/chat/conversations', { subject_user_id: subjectId, title: '新对话' });
         conversationId = created.id; await loadConversations(); await Promise.all([loadChat(), loadPlan()]);
@@ -282,6 +306,28 @@
       document.getElementById('agent-daily-plan').addEventListener('click', () => {
         document.getElementById('chat-input').value = '请根据我当前的健康记录生成今日健康方案';
         send();
+      });
+    }
+
+    function bindAgentPlanDrawer() {
+      const drawer = document.getElementById('agent-plan-drawer');
+      const toggle = document.getElementById('agent-plan-toggle');
+      const close = document.getElementById('agent-plan-close');
+      const setOpen = open => {
+        drawer.classList.toggle('is-open', open);
+        drawer.setAttribute('aria-hidden', String(!open));
+        toggle.setAttribute('aria-expanded', String(open));
+      };
+      toggle.addEventListener('click', () => setOpen(!drawer.classList.contains('is-open')));
+      close.addEventListener('click', () => setOpen(false));
+      document.addEventListener('keydown', event => { if (event.key === 'Escape') setOpen(false); });
+    }
+
+    function syncConversationList() {
+      document.querySelectorAll('#agent-conversation-list [data-conversation-id]').forEach(item => {
+        const active = Number(item.dataset.conversationId) === Number(conversationId);
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', String(active));
       });
     }
 
@@ -310,6 +356,12 @@
       }
       if (!conversationId || !data.items.some(x => Number(x.id) === Number(conversationId) && x.status === 'active')) conversationId = data.items.find(x => x.status === 'active').id;
       document.getElementById('agent-conversation').innerHTML = data.items.map(x => `<option value="${x.id}" ${Number(x.id)===Number(conversationId)?'selected':''} ${x.status==='archived'?'disabled':''}>${escapeHTML(x.title)}${x.status==='archived'?'（已归档）':''}</option>`).join('');
+      const conversations = data.items || [];
+      document.getElementById('agent-history-count').textContent = `${conversations.filter(x => x.status === 'active').length} 条`;
+      document.getElementById('agent-conversation-list').innerHTML = conversations.length ? conversations.map(x => `
+        <button type="button" role="option" data-conversation-id="${x.id}" ${x.status === 'archived' ? 'disabled' : ''} aria-selected="${Number(x.id) === Number(conversationId)}" class="${Number(x.id) === Number(conversationId) ? 'is-active' : ''}">
+          <span aria-hidden="true">${x.status === 'archived' ? '□' : '○'}</span><strong>${escapeHTML(x.title || '健康对话')}</strong>${x.status === 'archived' ? '<small>已归档</small>' : ''}
+        </button>`).join('') : '<div class="agent-history-empty">还没有历史对话</div>';
       document.getElementById('agent-context-note').textContent = `正在分析：${data.subject?.name || me.name} · 健康数据实时读取`;
     }
 
@@ -761,7 +813,13 @@
     }
     function scrollChat() {
       const el = document.getElementById('chat-history');
-      el.scrollTop = el.scrollHeight;
+      const composer = document.querySelector('.agent-chat-composer');
+      const canScrollInside = el.scrollHeight > el.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(el).overflowY);
+      if (canScrollInside) {
+        el.scrollTop = el.scrollHeight;
+        return;
+      }
+      composer?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     }
 
     // ===== 消息操作栏事件绑定（事件委托） =====

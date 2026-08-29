@@ -4871,3 +4871,888 @@ html[data-theme="dark"] .care-page{background:var(--bg-page)}html[data-theme="da
 @media(max-width:900px){.care-grid{grid-template-columns:1fr}.care-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.care-main{padding-left:14px;padding-right:14px}.care-head{align-items:stretch;flex-direction:column}.care-head .btn{width:100%}.care-panel,.care-card{padding:18px}.care-form-row,.care-scope-grid,.care-data-grid,.care-auth-summary{grid-template-columns:1fr}.care-inline-form{align-items:stretch;flex-direction:column}.care-panel-head,.care-section-head{align-items:flex-start}.care-step{font-size:13px}.care-card-actions{display:grid;grid-template-columns:1fr}.care-card-actions .btn{width:100%}.care-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.care-dialog-actions .btn{width:100%;min-width:0}.care-review-form dl{grid-template-columns:1fr}.care-dialog>form,.care-dialog>div{padding:21px}.care-invite-result strong span{display:block;margin:7px 0 0}}
 @media(prefers-reduced-motion:reduce){.care-page *{scroll-behavior:auto!important;transition:none!important}}
+
+/* ========================================================================
+   全站视觉整理 V3（2026-08）
+   更清晰的导航、信息层级与响应式工作区。此区放在文件末尾作为最终主题层。
+   ======================================================================== */
+:root{
+  --surface-raised:rgba(255,255,255,.96);
+  --surface-sunken:#F1F2ED;
+  --surface-warm:#FCF3EA;
+  --line-strong:#D2CCC3;
+  --focus-ring:rgba(47,111,181,.24);
+  --shadow-card:0 1px 2px rgba(47,42,37,.04),0 12px 34px rgba(47,42,37,.055);
+  --shadow-float:0 18px 54px rgba(47,42,37,.13);
+}
+
+body{font-size:16px;line-height:1.62}
+.skip-link{
+  position:fixed;left:18px;top:12px;z-index:1000;transform:translateY(-140%);
+  padding:10px 16px;border-radius:10px;background:#1F5187;color:#fff;font-weight:800;
+  box-shadow:var(--shadow-float);transition:transform .16s ease;
+}
+.skip-link:focus{transform:translateY(0)}
+
+/* 顶部导航：核心任务直达，低频入口收进“更多”。 */
+.topbar{z-index:50;border-bottom:1px solid rgba(210,204,195,.86)}
+.topbar-inner{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;
+  width:min(calc(100% - 40px),1480px);min-height:80px;padding:12px 0;gap:clamp(18px,3vw,44px);
+}
+.brand{gap:11px;min-width:max-content}
+.brand-mark{
+  width:46px;height:46px;border-radius:15px;
+  background:linear-gradient(145deg,#D27A42 0%,#A9491F 100%);
+  box-shadow:0 8px 20px rgba(135,64,24,.22);font-size:22px;
+}
+.brand-copy{display:grid;gap:1px;line-height:1.2}
+.brand-copy small{color:var(--text-muted);font-size:11px;font-weight:650;letter-spacing:.08em}
+.brand-name{font-size:18px;letter-spacing:.015em}
+.primary-nav{
+  justify-self:start;display:flex;align-items:center;gap:4px;min-width:0;margin:0;padding:5px;
+  border:1px solid rgba(225,221,214,.92);border-radius:15px;background:rgba(245,246,242,.88);
+}
+.primary-nav>a,.nav-more>summary{
+  display:flex;align-items:center;justify-content:center;min-height:42px;padding:8px 14px;
+  border:0;border-radius:10px;color:var(--text-secondary);font-size:15px;font-weight:700;
+  line-height:1;white-space:nowrap;transition:background .16s,color .16s,box-shadow .16s;
+}
+.primary-nav>a:hover,.nav-more>summary:hover{background:#fff;color:var(--text-primary)}
+.primary-nav>a.is-active,.nav-more.is-active>summary{
+  background:#fff;color:var(--color-primary-dark);box-shadow:0 2px 9px rgba(47,42,37,.08);
+}
+.nav-more{position:relative}
+.nav-more>summary{list-style:none;cursor:pointer;gap:5px}
+.nav-more>summary::-webkit-details-marker{display:none}
+.nav-more>summary span{font-size:12px;transition:transform .16s}
+.nav-more[open]>summary span{transform:rotate(180deg)}
+.nav-more-menu{
+  position:absolute;top:calc(100% + 12px);right:0;z-index:80;display:grid;min-width:190px;padding:8px;
+  border:1px solid var(--border);border-radius:16px;background:var(--bg-card);box-shadow:var(--shadow-float);
+}
+.nav-more-menu::before{content:"";position:absolute;right:24px;top:-6px;width:11px;height:11px;transform:rotate(45deg);border-left:1px solid var(--border);border-top:1px solid var(--border);background:var(--bg-card)}
+.nav-more-menu a{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:46px;padding:10px 12px;
+  border-radius:10px;color:var(--text-secondary);font-size:15px;font-weight:700;
+}
+.nav-more-menu a:hover,.nav-more-menu a.is-active{background:var(--color-primary-light);color:var(--color-primary-dark)}
+.nav-more-menu a span{opacity:.55}
+.topbar-right{justify-self:end;gap:9px}
+.icon-theme,.icon-bell,.icon-settings,.topbar-right .avatar{
+  width:42px;height:42px;border:1px solid var(--border);border-radius:13px;background:#fff;
+  box-shadow:none;transition:transform .15s,border-color .15s,background .15s;
+}
+.icon-theme:hover,.icon-bell:hover,.icon-settings:hover,.topbar-right .avatar:hover{transform:translateY(-1px);border-color:#C9BAAC;background:var(--surface-warm)}
+
+/* 页面骨架与标题。 */
+.main,.metric-page{width:min(calc(100% - 40px),1400px);padding:34px 0 72px}
+.page-head,.page-header{position:relative;margin-bottom:28px;padding-left:17px}
+.page-head::before,.page-header::before{
+  content:"";position:absolute;left:0;top:5px;width:5px;height:42px;border-radius:99px;
+  background:linear-gradient(180deg,var(--color-primary),#E3A16F);
+}
+.page-head h1,.metric-page h1,.page-title{font-size:clamp(29px,2.1vw,36px);font-weight:820;letter-spacing:-.035em}
+.page-head .subtitle,.metric-page .subtitle,.page-subtitle{margin-top:4px;font-size:15px}
+
+.card,.score-card,.todo-col,.quick-card,.bulk-health-entry,.entry-card,.device-card,.pred-card,
+.total-card,.life-card,.improve-card,.disease-risk-panel,.profile-form-card,.settings-card,
+.article-card,.metric-stat,.metric-chart,.alert-row,.confidence-card{
+  border:1px solid var(--border);background:var(--surface-raised);box-shadow:var(--shadow-card);
+}
+.score-card,.todo-col,.device-card,.pred-card,.total-card,.life-card,.improve-card{border-radius:22px}
+
+/* 概览：欢迎信息更轻，核心结果与行动区更明确。 */
+.greeting{min-height:88px;margin-bottom:22px;padding:3px 2px}
+.greeting-icon{width:50px;height:50px;border:1px solid #F0D7C2;background:var(--surface-warm);box-shadow:0 6px 18px rgba(135,64,24,.07)}
+.greeting-title{font-size:clamp(25px,2vw,31px);font-weight:820;letter-spacing:-.025em}
+.greeting-date{margin-top:4px;font-size:14px}
+.greeting-right{align-items:flex-start}
+.pill{min-height:40px;border:1px solid transparent;padding:9px 15px;font-size:13px}
+.overview-row{grid-template-columns:minmax(0,1.65fr) minmax(350px,.85fr);gap:18px;margin-bottom:18px}
+.score-card{min-width:0;padding:30px 32px;gap:22px;overflow:hidden;background:linear-gradient(145deg,#FFF 0%,#FFF 58%,#FBF5EE 100%)}
+.score-card::after{content:"";position:absolute;pointer-events:none}
+.score-title{font-size:20px}
+.score-number{gap:15px}
+.score-number-main{font-size:clamp(72px,7vw,104px);font-weight:760;letter-spacing:-.055em;color:var(--color-primary-dark)}
+.subscore-grid{gap:10px}
+.subscore{height:auto;min-height:112px;border:1px solid rgba(98,90,82,.08);border-radius:16px}
+.subscore-value{font-size:28px}
+.score-footer{padding-top:4px}
+.score-footer .link,.score-link{color:var(--color-primary-dark);font-weight:750}
+.todo-col{padding:24px;gap:12px}
+.todo-title{font-size:20px}
+.todo-item{min-height:66px;padding:13px 14px;border:1px solid transparent;border-radius:14px;background:var(--surface-sunken)}
+.todo-item:not(.done):hover{border-color:var(--line-strong);background:#fff}
+.alert{border:1px solid #EDC6BC;border-radius:14px}
+.cta{margin-top:auto;padding:18px;border:1px solid #9D441D;border-radius:17px;background:linear-gradient(135deg,#B85D28,#97451F);box-shadow:0 11px 28px rgba(135,64,24,.18)}
+.cta-action{min-height:42px;border:1px solid rgba(255,255,255,.48)}
+.quick-row{height:auto;gap:12px}
+.quick-card{position:relative;min-height:96px;padding:17px 18px;border-radius:17px;box-shadow:none}
+.quick-card::after{content:"→";color:var(--text-muted);font-weight:800;transition:transform .15s,color .15s}
+.quick-card:hover{border-color:#CDBEAF;box-shadow:var(--shadow-card)}
+.quick-card:hover::after{transform:translateX(3px);color:var(--color-primary-dark)}
+.quick-mark{flex:0 0 auto;width:43px;height:43px;border-radius:13px}
+
+/* 监测：先完成快捷录入，再浏览今日指标。 */
+.bulk-health-entry{
+  position:relative;margin-bottom:26px;padding:26px 28px;border-radius:22px;overflow:hidden;
+  background:linear-gradient(135deg,#FFF 0%,#FFF9F2 60%,#F3EEE6 100%);
+}
+.bulk-health-entry::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(var(--color-primary),#E7AA79)}
+.bulk-entry-head{align-items:flex-start}
+.bulk-entry-head h2{margin-top:2px;font-size:clamp(21px,1.8vw,27px)}
+.bulk-entry-head p{max-width:760px;margin-top:6px}
+.bulk-health-textarea{min-height:112px;margin-top:18px;border:1.5px solid #D7CFC5;border-radius:16px;background:rgba(255,255,255,.9);font-size:17px}
+.bulk-health-textarea:focus{border-color:var(--color-primary);box-shadow:0 0 0 4px rgba(184,93,40,.12)}
+.entry-header{padding:0 2px}.entry-title{font-size:21px}
+.entry-grid{gap:13px}
+.entry-card{min-height:172px;padding:20px;border-radius:18px;box-shadow:none}
+.entry-card:hover{border-color:#CCBCAE;box-shadow:var(--shadow-card)}
+.entry-icon{width:46px;height:46px;border-radius:14px}
+.entry-val{font-size:32px;letter-spacing:-.02em}
+.monitor-bottom{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.device-card,.pred-card{padding:24px;box-shadow:none}
+.device-row,.pred-chart{border:1px solid rgba(98,90,82,.07);background:var(--surface-sunken)}
+.pred-card-clickable:hover{border-color:#CCBCAE;box-shadow:var(--shadow-card)}
+
+/* 评估：评分解释与建议保持同一视觉节奏。 */
+.assess-row{grid-template-columns:minmax(0,1.55fr) minmax(360px,.85fr);gap:18px}
+.total-card,.life-card,.improve-card{padding:28px;box-shadow:var(--shadow-card)}
+.total-card{background:linear-gradient(145deg,#FFF 0%,#FFF 64%,#F7F4EE 100%)}
+.ring-row{gap:clamp(24px,3vw,46px);padding:10px 4px}
+.ring-side-desc{max-width:420px;font-size:15px;line-height:1.75}
+.ring-side-label{font-weight:750;color:var(--color-primary-dark)}
+.sub-row{min-height:38px}
+.sub-bar{height:10px;background:#EAE6DF!important}
+.life-row,.imp-row{border:1px solid rgba(98,90,82,.07);border-radius:14px}
+.disease-risk-panel{margin-top:18px}
+
+/* 登录与注册也使用同一品牌质感。 */
+.login-screen{background:radial-gradient(circle at 18% 5%,rgba(184,93,40,.12),transparent 34rem),radial-gradient(circle at 88% 90%,rgba(111,154,96,.10),transparent 28rem),var(--bg-page)}
+.login-card{border:1px solid var(--border);border-radius:24px;background:rgba(255,255,255,.94);box-shadow:0 28px 80px rgba(47,42,37,.12);backdrop-filter:blur(14px)}
+.login-mark{background:linear-gradient(145deg,#D27A42,#A9491F);box-shadow:0 9px 24px rgba(135,64,24,.22)}
+
+/* 深色模式最终覆盖。 */
+html[data-theme="dark"]{
+  --surface-raised:rgba(27,36,32,.97);--surface-sunken:#17201C;--surface-warm:#332820;
+  --line-strong:#4A5650;--shadow-card:0 10px 30px rgba(0,0,0,.22);--shadow-float:0 20px 58px rgba(0,0,0,.42);
+}
+html[data-theme="dark"] .primary-nav{border-color:#3E4943;background:#171F1B}
+html[data-theme="dark"] .primary-nav>a:hover,html[data-theme="dark"] .nav-more>summary:hover,
+html[data-theme="dark"] .primary-nav>a.is-active,html[data-theme="dark"] .nav-more.is-active>summary{background:#29322D;color:#F0B287}
+html[data-theme="dark"] .nav-more-menu,html[data-theme="dark"] .nav-more-menu::before{background:var(--bg-card)}
+html[data-theme="dark"] .icon-theme,html[data-theme="dark"] .icon-bell,html[data-theme="dark"] .icon-settings{background:#202A25}
+html[data-theme="dark"] .score-card,html[data-theme="dark"] .total-card,html[data-theme="dark"] .bulk-health-entry,html[data-theme="dark"] .login-card{background:var(--surface-raised)}
+html[data-theme="dark"] .todo-item:not(.done):hover{background:#202A25}
+
+@media(max-width:1180px){
+  .topbar-inner{grid-template-columns:auto 1fr auto;gap:14px 20px}
+  .brand-copy small{display:none}
+  .primary-nav>a,.nav-more>summary{padding-inline:11px;font-size:14px}
+  .overview-row{grid-template-columns:minmax(0,1.45fr) minmax(330px,.8fr)}
+  .assess-row{grid-template-columns:minmax(0,1.35fr) minmax(340px,.8fr)}
+  .ring-row{align-items:flex-start}.ring-svg{width:200px;height:200px}.ring-svg svg{width:200px;height:200px}
+}
+
+@media(max-width:980px){
+  .topbar-inner{grid-template-columns:auto auto;gap:8px 18px;padding:10px 0}
+  .primary-nav{grid-column:1/-1;grid-row:2;justify-self:stretch;overflow:visible}
+  .primary-nav>a{flex:1}
+  .topbar-right{grid-column:2;grid-row:1}
+  .overview-row,.assess-row{grid-template-columns:1fr}
+  .todo-col{min-height:auto}.cta{margin-top:4px}
+  .quick-row{grid-template-columns:repeat(2,1fr)}
+  .ring-row{align-items:center}.ring-svg{width:220px;height:220px}.ring-svg svg{width:220px;height:220px}
+}
+
+@media(max-width:700px){
+  .topbar-inner,.main,.metric-page{width:calc(100% - 28px)}
+  .topbar-inner{min-height:auto}
+  .brand-name{font-size:16px}.brand-mark{width:40px;height:40px;font-size:19px;border-radius:12px}
+  .icon-theme,.icon-bell,.icon-settings,.topbar-right .avatar{width:38px;height:38px;border-radius:11px}
+  .icon-settings{display:none}
+  .primary-nav{gap:3px;padding:4px;border-radius:13px;overflow-x:auto;overflow-y:visible;scrollbar-width:none}
+  .primary-nav>a,.nav-more>summary{flex:0 0 auto;min-height:40px;padding:8px 11px;font-size:13px}
+  .nav-more-menu{position:fixed;left:14px;right:14px;top:132px;min-width:0}
+  .nav-more-menu::before{display:none}
+  .main,.metric-page{padding:24px 0 52px}
+  .page-head,.page-header{margin-bottom:22px;padding-left:14px}.page-head::before,.page-header::before{height:38px}
+  .page-head h1,.metric-page h1,.page-title{font-size:28px}
+  .greeting{align-items:flex-start;flex-direction:column;gap:16px}.greeting-right{width:100%;align-items:stretch;flex-direction:column}.weather-widget{align-items:stretch}.weather-button{width:100%}
+  .score-card,.todo-col,.bulk-health-entry,.total-card,.life-card,.improve-card{padding:20px}
+  .score-number-main{font-size:76px}.subscore-grid{grid-template-columns:repeat(2,1fr)}
+  .score-footer{align-items:flex-start;flex-direction:column;gap:8px}
+  .quick-row{grid-template-columns:1fr}.quick-card{min-height:82px}
+  .bulk-entry-controls{display:grid;grid-template-columns:1fr}.bulk-entry-controls .btn{width:100%}
+  .bulk-health-textarea{min-height:150px}
+  .entry-grid,.monitor-bottom{grid-template-columns:1fr}
+  .entry-card{min-height:150px}
+  .ring-row{align-items:center;flex-direction:column;text-align:center}.ring-side-desc{max-width:34rem}.ring-svg,.ring-svg svg{width:210px;height:210px}
+  .sub-row{gap:10px}.sub-label{width:56px}.sub-bar{width:auto;flex:1}
+  .login-card{border-radius:20px}
+}
+
+@media(max-width:390px){
+  .topbar-inner,.main,.metric-page{width:calc(100% - 20px)}
+  .brand-name{max-width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .primary-nav>a,.nav-more>summary{padding-inline:9px}
+  .score-card,.todo-col,.bulk-health-entry,.total-card,.life-card,.improve-card{padding:17px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .skip-link,.primary-nav a,.nav-more summary,.quick-card::after,.icon-theme,.icon-bell,.icon-settings,.avatar{transition:none!important}
+}
+
+/* ========================================================================
+   智能管家工作区 V7：对话优先的健康协作台
+   ======================================================================== */
+.agent-page{
+  background:
+    radial-gradient(circle at 12% 7%,rgba(184,93,40,.07),transparent 31rem),
+    radial-gradient(circle at 92% 18%,rgba(52,123,123,.055),transparent 28rem),
+    var(--bg-page);
+}
+.agent-page .agent-main{width:min(calc(100% - 40px),1500px);max-width:1500px;padding:28px 0 64px}
+
+/* 头部用紧凑的产品说明替代大块横幅。 */
+.agent-page .agent-page-head{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center!important;gap:28px;
+  margin:0 0 16px;padding:22px 24px;border:1px solid var(--border);border-radius:22px;
+  background:linear-gradient(120deg,rgba(255,255,255,.98),rgba(255,250,245,.96));box-shadow:var(--shadow-card);
+}
+.agent-page .agent-page-head::before{display:none}
+.agent-page-intro{display:flex;align-items:center;gap:16px;min-width:0}
+.agent-page-symbol{
+  position:relative;display:grid;place-items:center;flex:0 0 auto;width:58px;height:58px;border-radius:18px;
+  background:linear-gradient(145deg,#D47C43,#A94A20);color:#fff;box-shadow:0 10px 24px rgba(135,64,24,.2);
+}
+.agent-page-symbol span{font-size:24px;font-weight:850}
+.agent-page-symbol i{position:absolute;right:-2px;bottom:-2px;width:15px;height:15px;border:3px solid #fff;border-radius:50%;background:#659552}
+.agent-page-kicker{display:block;margin-bottom:2px;color:var(--color-primary-dark);font-size:12px;font-weight:820;letter-spacing:.09em}
+.agent-page .agent-page-head h1{margin:0;font-size:31px;letter-spacing:-.035em;line-height:1.15}
+.agent-page .agent-page-head .subtitle{margin-top:5px;color:var(--text-secondary);font-size:15px;line-height:1.55}
+.agent-page-actions{justify-content:flex-end;gap:9px}
+.agent-page-actions .btn,.agent-daily-plan-button{gap:7px;min-height:48px;padding:10px 16px;border-radius:12px;font-size:15px}
+.agent-daily-plan-button span{font-size:17px}
+
+/* 对话控制条：上下文在上，操作控件在下。 */
+.agent-page .agent-context-bar{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:13px 18px;
+  margin:0 0 10px;padding:15px 18px;border:1px solid var(--border);border-radius:18px;
+  background:rgba(255,255,255,.82);box-shadow:none;backdrop-filter:blur(10px);
+}
+.agent-context-heading{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.agent-context-heading>div{display:flex;align-items:baseline;gap:9px}
+.agent-context-heading>div span{color:var(--color-primary-dark);font-size:12px;font-weight:820;letter-spacing:.08em}
+.agent-context-heading>div strong{font-size:15px}
+.agent-context-heading .agent-context-note{width:auto;margin:0;padding:0;border:0;color:var(--text-muted);font-size:13px;text-align:right}
+.agent-page .agent-context-fields{display:grid;grid-template-columns:repeat(2,minmax(190px,280px));align-items:end;gap:10px}
+.agent-page .agent-context-fields label{display:grid;gap:5px;min-width:0;color:var(--text-secondary);font-size:13px;font-weight:750}
+.agent-page .agent-context-fields label[hidden]{display:none}
+.agent-page .agent-context-fields select{min-height:44px;padding:7px 34px 7px 11px;border-width:1px;border-radius:11px;font-size:15px}
+.agent-page .agent-context-actions{display:flex;align-items:end;justify-content:flex-end;gap:8px}
+.agent-page .agent-context-actions .btn{min-height:44px;padding:8px 13px;font-size:14px}
+
+/* 布局设置默认收起，保持完整能力但不抢占首屏。 */
+.agent-page .agent-layout-toolbar{
+  display:block;margin:0 0 12px;padding:0;border:1px solid var(--border);border-radius:13px;background:rgba(255,255,255,.64);box-shadow:none;
+}
+.agent-layout-toolbar>summary{list-style:none;cursor:pointer}
+.agent-layout-toolbar>summary::-webkit-details-marker{display:none}
+.agent-page .agent-layout-copy{display:flex;align-items:center;gap:8px;min-height:40px;padding:7px 12px;color:var(--text-secondary)}
+.agent-page .agent-layout-copy>span{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--surface-sunken);color:var(--text-muted);font-size:12px}
+.agent-page .agent-layout-copy strong{font-size:13px}
+.agent-page .agent-layout-copy small{color:var(--text-muted);font-size:12px}
+.agent-page .agent-layout-copy i{margin-left:auto;font-style:normal;font-size:12px;transition:transform .15s}
+.agent-layout-toolbar[open] .agent-layout-copy i{transform:rotate(180deg)}
+.agent-page .agent-layout-presets{justify-content:flex-start;padding:0 12px 11px}
+.agent-page .agent-layout-presets button{min-height:36px;padding:5px 10px;border-radius:9px;font-size:13px}
+
+/* 双栏主体。 */
+.agent-page .agent-row{
+  display:grid;grid-template-columns:minmax(620px,var(--agent-chat-width,1.72fr)) 14px minmax(360px,.88fr);
+  gap:8px;align-items:stretch;
+}
+@media(min-width:1261px){
+  .agent-page .agent-row{height:var(--agent-workspace-height,740px)}
+  .agent-page .chat-area,.agent-page .plan-area{height:var(--agent-workspace-height,740px)!important;min-height:600px!important}
+}
+.agent-page .chat-area,.agent-page .plan-area{
+  border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.97);box-shadow:var(--shadow-card);
+}
+.agent-page .chat-area{padding:0;overflow:hidden!important}
+.agent-page .plan-area{padding:0 18px 22px;overflow-x:hidden!important}
+
+.agent-page .agent-chat-head{
+  flex:0 0 auto;margin:0;padding:18px 20px 15px;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,#FFF,#FCFBF8);
+}
+.agent-chat-head>div{display:flex;align-items:baseline;gap:10px}
+.agent-page .agent-chat-head span{font-size:12px;letter-spacing:.08em}
+.agent-page .agent-chat-head h2{font-size:21px;letter-spacing:-.02em}
+.agent-live-status{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:999px;background:var(--color-green-light);color:var(--color-green-dark)!important;font-size:12px!important;font-weight:700}
+.agent-live-status i{width:7px;height:7px;border-radius:50%;background:var(--color-green);box-shadow:0 0 0 3px rgba(111,154,96,.15)}
+.agent-page .chat-history{
+  flex:1 1 auto;min-height:0;margin:0;padding:22px 20px 16px!important;overflow-x:hidden;overflow-y:auto;
+  background:linear-gradient(180deg,#F8F7F3 0%,#FBFAF7 100%);scrollbar-gutter:stable;
+}
+.agent-page .msg{margin-bottom:15px}
+.agent-page .msg-avatar{width:38px;height:38px;border-radius:12px}
+.agent-page .msg-bubble{max-width:min(82%,760px);border:1px solid #E7E1D9;border-radius:6px 17px 17px 17px;background:#fff;box-shadow:0 4px 14px rgba(47,42,37,.04)}
+.agent-page .msg-user .msg-bubble,.agent-page .msg-bubble-user{border-color:#A34B24;border-radius:17px 6px 17px 17px;background:linear-gradient(135deg,#B85D28,#9A451F);color:#fff}
+.agent-page .agent-health-card{max-width:min(92%,840px);border-radius:18px;overflow:hidden;box-shadow:0 6px 20px rgba(47,42,37,.06)}
+
+/* 输入器固定在对话底部，并让主要动作一眼可见。 */
+.agent-page .agent-chat-composer{
+  position:static;z-index:8;flex:0 0 auto;margin:0;padding:13px 16px 15px;border:0;border-top:1px solid var(--border);border-radius:0;
+  background:#FFF;box-shadow:0 -8px 24px rgba(47,42,37,.035);backdrop-filter:none;
+}
+.agent-composer-label{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}
+.agent-composer-label strong{font-size:12px;color:var(--text-secondary)}
+.agent-composer-label span{color:var(--text-muted);font-size:11px}
+.agent-page .quick-prompts{display:flex;flex-wrap:nowrap;gap:7px;margin:0 0 9px;padding:0;overflow-x:auto;scrollbar-width:none}
+.agent-page .quick-prompts::-webkit-scrollbar{display:none}
+.agent-page .prompt{flex:0 0 auto;min-height:34px;padding:6px 11px;border:1px solid #E5D4C5;border-radius:10px;background:#FFF8F2;color:var(--color-primary-dark);font-size:12px}
+.agent-page .prompt:hover{border-color:var(--color-primary);background:var(--color-primary-light);color:var(--color-primary-dark)}
+.agent-chat-composer .chat-input-bar{display:flex;align-items:center;gap:8px;margin:0;padding:6px 6px 6px 14px;border:1.5px solid #D4CBC1;border-radius:15px;background:#F9F8F5;box-shadow:none}
+.agent-chat-composer .chat-input{min-height:48px;padding:8px 4px;border:0;background:transparent;box-shadow:none;font-size:16px}
+.agent-chat-composer .chat-input:focus{box-shadow:none}
+.agent-chat-composer .chat-input-bar:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 4px rgba(184,93,40,.11);background:#fff}
+.agent-chat-composer #btn-send{
+  display:flex;align-items:center;gap:8px;flex:0 0 auto;width:auto;min-width:82px;height:44px;padding:0 9px 0 14px;
+  border:1px solid var(--color-primary-dark);border-radius:11px;background:var(--color-primary);color:#fff;font:750 14px var(--font-cn);
+}
+.agent-chat-composer #btn-send:hover{background:var(--color-primary-dark)}
+.agent-chat-composer #btn-send b{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:rgba(255,255,255,.18);font-size:17px}
+
+/* 今日安排侧栏。 */
+.agent-page .plan-header{
+  position:sticky;top:0;z-index:3;margin:0 -18px;padding:18px 18px 11px;border-bottom:0;
+  background:linear-gradient(180deg,#FFF 78%,rgba(255,255,255,.92));
+}
+.agent-page .plan-header>div{display:grid;gap:1px}
+.agent-page .plan-title{font-size:21px;letter-spacing:-.02em}
+.agent-page .plan-header small{color:var(--text-muted);font-size:12px}
+.agent-page .plan-badge{align-self:flex-start;padding:6px 10px;border:1px solid #E6CDB9;border-radius:999px;background:var(--color-primary-light);color:var(--color-primary-dark)}
+.agent-page .plan-sub{display:flex;align-items:center;gap:7px;margin:0 -18px 14px;padding:0 18px 13px;border-bottom:1px solid var(--border);font-size:12px}
+.plan-sub-dot{width:7px;height:7px;border-radius:50%;background:var(--color-green)}
+.agent-page #plan-list{display:grid;gap:9px;margin-bottom:14px}
+.agent-page .plan-card-mini{border:1px solid var(--border);border-radius:15px;background:#FAF9F6!important;box-shadow:none}
+.agent-page .plan-card-mini:hover{border-color:#CDBEAF;background:#FFF!important}
+.agent-page .agent-inbox-sidebar,.agent-page .agent-daily-tip{border-radius:15px;box-shadow:none}
+.agent-page .agent-daily-tip{margin-top:14px}
+.agent-page .agent-splitter{width:14px}
+.agent-page .agent-splitter::before{inset:0 6px;background:#D8D1C8}
+.agent-page .agent-splitter span{width:30px;height:42px;margin-left:-8px;border-radius:10px;background:#fff;box-shadow:0 4px 12px rgba(47,42,37,.08)}
+.agent-page .agent-splitter span::after{font-size:15px;color:var(--text-muted)}
+
+html[data-theme="dark"] .agent-page .agent-page-head,
+html[data-theme="dark"] .agent-page .agent-chat-head,
+html[data-theme="dark"] .agent-page .plan-header{background:var(--bg-card)}
+html[data-theme="dark"] .agent-page .agent-context-bar,html[data-theme="dark"] .agent-page .agent-layout-toolbar{background:rgba(27,36,32,.86)}
+html[data-theme="dark"] .agent-page .chat-history{background:#141C18}
+html[data-theme="dark"] .agent-page .agent-chat-composer{background:#1B2420}
+html[data-theme="dark"] .agent-chat-composer .chat-input-bar{border-color:#46534C;background:#17201C}
+html[data-theme="dark"] .agent-page .msg-bubble:not(.msg-bubble-user){border-color:#3E4A43;background:#202A25}
+html[data-theme="dark"] .agent-page .plan-card-mini{border-color:#3E4A43;background:#202A25!important}
+html[data-theme="dark"] .agent-page-symbol i{border-color:var(--bg-card)}
+
+@media(max-width:1260px){
+  .agent-page .agent-main{width:min(calc(100% - 32px),1040px)}
+  .agent-page .agent-row{grid-template-columns:1fr;gap:16px;height:auto}
+  .agent-page .agent-splitter,.agent-workspace-height-resizer{display:none!important}
+  .agent-page .chat-area,.agent-page .plan-area{height:auto!important;min-height:0!important}
+  .agent-page .chat-area{min-height:680px!important}
+  .agent-page .chat-history{min-height:470px;overflow:visible}
+  .agent-page .plan-area{overflow:visible!important}
+  .agent-page .agent-layout-toolbar{display:block}
+}
+
+@media(max-width:780px){
+  .agent-page .agent-main{width:calc(100% - 24px);padding:18px 0 48px}
+  .agent-page .agent-page-head{grid-template-columns:1fr;gap:17px;padding:18px;border-radius:19px}
+  .agent-page-symbol{width:52px;height:52px;border-radius:16px}
+  .agent-page .agent-page-head h1{font-size:28px}
+  .agent-page-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .agent-page-actions .btn,.agent-page-actions button{width:100%;padding-inline:10px}
+  .agent-page .agent-context-bar{grid-template-columns:1fr;padding:14px}
+  .agent-context-heading{align-items:flex-start;flex-direction:column;gap:5px}
+  .agent-context-heading .agent-context-note{text-align:left}
+  .agent-page .agent-context-fields{grid-template-columns:1fr;width:100%}
+  .agent-page .agent-context-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .agent-page .agent-context-actions .btn{width:100%}
+  .agent-page .agent-layout-copy small{display:none}
+  .agent-page .agent-layout-presets{display:grid;grid-template-columns:1fr 1fr}
+  .agent-page .agent-layout-presets #agent-layout-reset{grid-column:1/-1}
+  .agent-page .chat-area,.agent-page .plan-area{border-radius:18px}
+  .agent-page .chat-area{min-height:620px!important}
+  .agent-page .agent-chat-head{align-items:flex-start;flex-direction:column;gap:7px;padding:16px}
+  .agent-live-status{align-self:flex-start}
+  .agent-page .chat-history{min-height:420px;padding:18px 14px 14px!important}
+  .agent-page .msg-bubble{max-width:90%}
+  .agent-page .agent-chat-composer{padding:11px 12px 13px}
+  .agent-composer-label span{display:none}
+  .agent-chat-composer #btn-send{min-width:46px;width:46px;padding:0;justify-content:center}
+  .agent-chat-composer #btn-send>span{display:none}
+  .agent-chat-composer #btn-send b{background:transparent}
+  .agent-page .plan-area{padding-right:14px;padding-left:14px}
+  .agent-page .plan-header,.agent-page .plan-sub{margin-right:-14px;margin-left:-14px;padding-right:14px;padding-left:14px}
+}
+
+@media(max-width:470px){
+  .agent-page .agent-main{width:calc(100% - 18px)}
+  .agent-page-intro{align-items:flex-start}.agent-page-symbol{width:46px;height:46px}.agent-page-symbol span{font-size:21px}
+  .agent-page-actions{grid-template-columns:1fr}
+  .agent-page .agent-context-actions{grid-template-columns:1fr}
+  .agent-page .agent-layout-presets button[data-agent-layout-ratio]{display:none}
+  .agent-page .chat-history{padding-inline:10px!important}
+}
+
+/* 智能管家工作区 V8：整页单滚动。聊天区与方案区不再建立嵌套滚动容器。 */
+.agent-page{overflow-x:clip}
+.agent-page .agent-row{
+  height:auto!important;
+  align-items:start!important;
+}
+.agent-page .chat-area,
+.agent-page .plan-area{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  overscroll-behavior:auto!important;
+  scrollbar-gutter:auto!important;
+  align-self:start!important;
+}
+.agent-page .chat-history{
+  flex:0 0 auto!important;
+  min-height:390px!important;
+  max-height:none!important;
+  overflow:visible!important;
+  overscroll-behavior:auto!important;
+  scrollbar-gutter:auto!important;
+}
+.agent-page .plan-header{position:static!important}
+.agent-page .agent-chat-composer{
+  position:sticky!important;
+  bottom:10px;
+  z-index:12;
+  margin:0 10px 12px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 12px 34px rgba(47,42,37,.13);
+}
+.agent-page .agent-workspace-height-resizer,
+.agent-page #agent-height-decrease,
+.agent-page #agent-height-increase{display:none!important}
+.agent-page .agent-layout-copy small::after{content:" · 页面仅使用一条滚动条"}
+
+@media(max-width:1260px){
+  .agent-page .chat-history{min-height:420px!important}
+  .agent-page .agent-chat-composer{bottom:8px;margin:0 8px 10px}
+}
+@media(max-width:780px){
+  .agent-page .chat-history{min-height:380px!important}
+  .agent-page .agent-chat-composer{margin:0 6px 8px}
+}
+@media(max-width:470px){
+  .agent-page .chat-history{min-height:340px!important}
+  .agent-page .agent-chat-composer{bottom:6px;margin:0 4px 7px}
+}
+
+/* ========================================================================
+   智能管家工作台 V9：Agent Console
+   参考成熟开源 Agent 产品的“管理栏 / 对话 / 检查器”三栏结构。
+   ======================================================================== */
+.agent-page .agent-main{width:min(calc(100% - 32px),1580px);max-width:1580px;padding-top:22px}
+.agent-page .agent-page-head{
+  margin-bottom:12px;padding:17px 20px;border-radius:18px;background:rgba(255,255,255,.91);box-shadow:none;
+}
+.agent-page .agent-page-symbol{width:50px;height:50px;border-radius:15px}
+.agent-page .agent-page-symbol span{font-size:21px}
+.agent-page .agent-page-head h1{font-size:27px}
+.agent-page .agent-page-head .subtitle{font-size:14px}
+.agent-page .agent-page-actions .btn,.agent-page .agent-daily-plan-button{min-height:44px;padding:8px 13px;font-size:14px}
+
+.agent-console{display:grid;grid-template-columns:248px minmax(0,1fr);align-items:start;gap:12px}
+.agent-control-rail{
+  display:flex;flex-direction:column;gap:8px;min-width:0;padding:10px;border:1px solid var(--border);border-radius:19px;
+  background:rgba(255,255,255,.93);box-shadow:var(--shadow-card);
+}
+.agent-identity-card{display:flex;align-items:center;gap:11px;padding:10px 9px 13px;border-bottom:1px solid var(--border)}
+.agent-identity-mark{
+  position:relative;display:grid;place-items:center;flex:0 0 auto;width:43px;height:43px;border-radius:13px;
+  background:linear-gradient(145deg,#D47C43,#A94A20);color:#fff;font-size:19px;font-weight:850;
+}
+.agent-identity-mark span{position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border:2px solid #fff;border-radius:50%;background:#659552}
+.agent-identity-card>div:last-child{display:grid;min-width:0}
+.agent-identity-card>div:last-child>span{color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.08em}
+.agent-identity-card strong{overflow:hidden;color:var(--text-primary);font-size:15px;text-overflow:ellipsis;white-space:nowrap}
+.agent-identity-card small{display:flex;align-items:center;gap:5px;margin-top:2px;color:var(--color-green-dark);font-size:10px}
+.agent-identity-card small i{width:6px;height:6px;border-radius:50%;background:var(--color-green)}
+
+.agent-rail-section{display:grid;gap:7px;padding:11px 8px;border-bottom:1px solid var(--border)}
+.agent-rail-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px}
+.agent-rail-heading>span{color:var(--text-primary);font-size:12px;font-weight:820}
+.agent-rail-heading>small{color:var(--text-muted);font-size:8px;font-weight:800;letter-spacing:.1em}
+.agent-rail-context label{display:grid;gap:4px;color:var(--text-muted);font-size:11px;font-weight:750}
+.agent-rail-context label[hidden]{display:none}
+.agent-rail-context select{
+  width:100%;min-width:0;min-height:39px;padding:6px 30px 6px 9px;border:1px solid var(--border);border-radius:10px;
+  background:#FAF9F6;color:var(--text-primary);font:700 13px var(--font-cn);
+}
+.agent-rail-context select:focus{border-color:var(--color-primary);outline:3px solid rgba(184,93,40,.11)}
+.agent-rail-primary,.agent-rail-button,.agent-rail-nav a{
+  display:flex;align-items:center;width:100%;min-height:42px;border:1px solid transparent;border-radius:10px;font:700 12px var(--font-cn);text-align:left;
+}
+.agent-rail-primary{justify-content:center;gap:6px;margin-top:2px;background:var(--color-primary);color:#fff;box-shadow:0 5px 13px rgba(135,64,24,.13)}
+.agent-rail-primary:hover{background:var(--color-primary-dark)}
+.agent-rail-primary>span{font-size:16px}
+.agent-rail-button,.agent-rail-nav a{gap:8px;padding:7px 8px;background:transparent;color:var(--text-secondary)}
+.agent-rail-button:hover,.agent-rail-nav a:hover{border-color:var(--border);background:var(--surface-sunken);color:var(--text-primary)}
+.agent-rail-button>span:first-child,.agent-rail-nav a>span:first-child{
+  display:grid;place-items:center;flex:0 0 auto;width:27px;height:27px;border-radius:8px;background:var(--surface-sunken);color:var(--color-primary-dark);font-size:13px;
+}
+.agent-rail-button>span:nth-child(2),.agent-rail-nav a>span:nth-child(2){display:grid;flex:1;min-width:0}
+.agent-rail-button small,.agent-rail-nav a small{margin-top:1px;color:var(--text-muted);font-size:9px;font-weight:600}
+.agent-rail-button b,.agent-rail-nav a b{color:var(--text-muted);font-size:17px;font-weight:500}
+.agent-rail-nav{border-bottom:0}
+.agent-rail-status{display:flex;align-items:flex-start;gap:8px;margin-top:auto;padding:10px;border-radius:11px;background:#EEF4EA;color:var(--color-green-dark)}
+.agent-rail-status>span{display:grid;place-items:center;flex:0 0 auto;width:25px;height:25px;border-radius:8px;background:#DCEAD5;font-size:10px;font-weight:850}
+.agent-rail-status p{display:grid;min-width:0}.agent-rail-status strong{font-size:11px}.agent-rail-status small{margin-top:2px;color:#55704C;font-size:9px;line-height:1.45}
+
+.agent-console>.agent-row{
+  display:grid;grid-template-columns:minmax(560px,var(--agent-chat-width,1.65fr)) 12px minmax(330px,.82fr);
+  gap:7px;min-width:0;height:auto!important;align-items:start!important;
+}
+.agent-console .chat-area,.agent-console .plan-area{border-radius:19px}
+.agent-console .agent-chat-head{padding:16px 18px 13px}
+.agent-console .agent-chat-head h2{font-size:19px}
+.agent-console .chat-history{min-height:420px!important;padding:18px 18px 14px!important}
+.agent-console .plan-area{padding-right:15px;padding-left:15px}
+.agent-console .plan-header,.agent-console .plan-sub{margin-right:-15px;margin-left:-15px;padding-right:15px;padding-left:15px}
+.agent-console .plan-header{padding-top:16px}
+.agent-console .plan-title{font-size:19px}
+.agent-console .agent-chat-composer{margin-right:8px;margin-left:8px}
+.agent-console .agent-splitter{width:12px}
+.agent-console .agent-splitter::before{inset:0 5px}
+.agent-console .agent-splitter span{width:27px;margin-left:-8px}
+
+html[data-theme="dark"] .agent-control-rail{background:rgba(27,36,32,.95)}
+html[data-theme="dark"] .agent-rail-context select{border-color:#46534C;background:#17201C}
+html[data-theme="dark"] .agent-rail-status{background:#203126;color:#B9D5AF}
+html[data-theme="dark"] .agent-rail-status>span{background:#2D4934}
+html[data-theme="dark"] .agent-rail-status small{color:#A5BE9D}
+html[data-theme="dark"] .agent-identity-mark span{border-color:#1B2420}
+
+@media(max-width:1340px){
+  .agent-console{grid-template-columns:1fr}
+  .agent-control-rail{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(260px,1fr) minmax(420px,1.6fr);align-items:start;gap:8px;padding:9px}
+  .agent-identity-card{height:100%;border-right:1px solid var(--border);border-bottom:0}
+  .agent-rail-section{height:100%;border-right:1px solid var(--border);border-bottom:0}
+  .agent-rail-nav{grid-template-columns:repeat(3,1fr);border-right:0}
+  .agent-rail-nav .agent-rail-heading{grid-column:1/-1}
+  .agent-rail-nav a{min-width:0}
+  .agent-rail-nav a small{display:none}
+  .agent-rail-status{display:none}
+}
+@media(max-width:1100px){
+  .agent-control-rail{grid-template-columns:minmax(200px,.7fr) minmax(250px,1fr)}
+  .agent-rail-nav{grid-column:1/-1;border-top:1px solid var(--border)}
+}
+@media(max-width:900px){
+  .agent-console>.agent-row{grid-template-columns:1fr;gap:12px}
+  .agent-console .agent-splitter{display:none}
+  .agent-control-rail{grid-template-columns:1fr 1fr}
+  .agent-rail-nav{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ========================================================================
+   V11 — 智能管家重构：紧凑三栏 AI 工作台
+   ======================================================================== */
+.agent-page .agent-main{max-width:none!important;margin:0!important}
+.agent-studio-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:64px;margin:0 0 10px;padding:9px 12px 9px 14px;
+  border:1px solid var(--border);border-radius:13px;background:var(--bg-card);box-shadow:var(--shadow-sm);
+}
+.agent-studio-title{display:flex;align-items:center;gap:11px;min-width:0}
+.agent-studio-mark{display:grid;place-items:center;flex:0 0 auto;width:39px;height:39px;border-radius:11px;background:#123833;color:#7DE0D4;font-size:12px;font-weight:900;letter-spacing:.04em}
+.agent-studio-title>div{display:grid}.agent-studio-title h1{margin:0;color:var(--text-primary);font-size:19px;line-height:1.15;letter-spacing:-.02em}
+.agent-studio-title p{display:flex;align-items:center;gap:6px;margin-top:5px;color:var(--text-muted);font-size:10px;font-weight:650}
+.agent-studio-title p i{width:7px;height:7px;border-radius:50%;background:#36A36E;box-shadow:0 0 0 3px rgba(54,163,110,.12)}
+.agent-studio-actions{display:flex;align-items:center;gap:7px}
+.agent-studio-actions a,.agent-studio-actions button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:7px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-secondary);font:700 11px var(--font-cn)}
+.agent-studio-actions a:hover{border-color:#9CCBC5;color:var(--color-primary-dark);background:#F2FAF8}
+.agent-studio-actions button{border-color:#0F766E;background:#0F766E;color:#fff}.agent-studio-actions button:hover{background:#0B5F59}
+.agent-studio-actions span{font-size:13px}
+
+.agent-page .agent-console{grid-template-columns:212px minmax(0,1fr);gap:10px}
+.agent-page .agent-control-rail{gap:0;padding:0;border:1px solid var(--border);border-radius:13px;background:var(--bg-card);box-shadow:var(--shadow-sm)}
+.agent-page .agent-identity-card{gap:9px;padding:14px 13px;border-bottom:1px solid var(--border);background:linear-gradient(145deg,#F1F9F7,#FFFFFF)}
+.agent-page .agent-identity-mark{width:34px;height:34px;border-radius:10px;background:#D9F1ED;color:#0B5F59;font-size:12px;box-shadow:none}
+.agent-page .agent-identity-card>div:last-child>span{font-size:9px;letter-spacing:.08em}.agent-page .agent-identity-card strong{font-size:11px}.agent-page .agent-identity-card small{font-size:8px}
+.agent-page .agent-rail-section{padding:13px 11px;border-bottom:1px solid var(--border)}
+.agent-page .agent-rail-heading{margin-bottom:8px}.agent-page .agent-rail-heading span{font-size:10px}.agent-page .agent-rail-heading small{font-size:7px}
+.agent-page .agent-rail-context label{gap:4px;margin-bottom:8px;font-size:9px}.agent-page .agent-rail-context select{min-height:36px;padding:5px 28px 5px 8px;border-radius:8px;font-size:10px}
+.agent-page .agent-rail-primary,.agent-page .agent-rail-button,.agent-page .agent-rail-nav a{min-height:36px;border-radius:8px;font-size:10px}
+.agent-page .agent-rail-primary{margin-top:3px;background:#0F766E;box-shadow:none}.agent-page .agent-rail-primary:hover{background:#0B5F59}
+.agent-page .agent-rail-button{margin-top:4px}.agent-page .agent-rail-button>span:first-child,.agent-page .agent-rail-nav a>span:first-child{width:23px;height:23px;border-radius:6px;font-size:10px}
+.agent-page .agent-rail-button small,.agent-page .agent-rail-nav a small{display:none}.agent-page .agent-rail-button b,.agent-page .agent-rail-nav a b{font-size:14px}
+.agent-page .agent-rail-nav{display:grid;gap:2px}.agent-page .agent-rail-nav a{padding:5px 6px}
+.agent-page .agent-rail-status{margin:10px;padding:9px;border-radius:9px;background:#EDF8F4;color:#2C6C55}.agent-page .agent-rail-status>span{width:22px;height:22px}.agent-page .agent-rail-status strong{font-size:9px}.agent-page .agent-rail-status small{font-size:8px}
+
+.agent-page .agent-console>.agent-row{grid-template-columns:minmax(520px,var(--agent-chat-width,1.72fr)) 8px minmax(286px,.72fr);gap:6px}
+.agent-page .chat-area,.agent-page .plan-area{border:1px solid var(--border)!important;border-radius:13px!important;background:var(--bg-card)!important;box-shadow:var(--shadow-sm)!important}
+.agent-page .agent-chat-head{min-height:58px;padding:11px 14px!important;border-bottom:1px solid var(--border);background:var(--bg-card)!important}
+.agent-page .agent-chat-head>div>span,.agent-page .agent-side-eyebrow{color:#0F766E!important;font-size:8px!important;font-weight:850!important;letter-spacing:.10em!important;text-transform:uppercase}
+.agent-page .agent-chat-head h2{margin-top:2px;font-size:15px!important}.agent-page .agent-live-status{padding:5px 8px;border-radius:7px;background:#EFF8F6;color:#59746F;font-size:8px}
+.agent-page .chat-history{background:#F7F9F8!important;padding:14px 14px 8px!important;scrollbar-gutter:auto!important}
+.agent-page .msg{max-width:100%;gap:7px;margin-bottom:13px}.agent-page .msg-ai>div:last-child{min-width:0;width:min(100%,760px)}
+.agent-page .msg-avatar{width:27px;height:27px;border-radius:8px;background:#0F766E;color:#fff;font-size:9px}
+.agent-page .msg-bubble{max-width:min(76%,680px);padding:10px 12px;border:1px solid var(--border);border-radius:4px 12px 12px 12px;background:#fff;color:var(--text-primary);font-size:12px;line-height:1.65;box-shadow:none}
+.agent-page .msg-user .msg-bubble{border-radius:12px 4px 12px 12px;background:#0F766E;color:#fff}
+
+/* 把长篇健康分析改成可快速扫描的紧凑结果卡。 */
+.agent-page .agent-health-card{width:100%!important;max-width:760px!important;border:1px solid #C8DDD8!important;border-radius:12px!important;background:#fff!important;color:var(--text-primary)!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 4px 14px rgba(28,70,63,.05)!important}
+.agent-page .agent-card-status{position:relative;padding:13px 14px 12px!important;border-bottom:1px solid #DCE9E6!important;background:#EEF8F5!important}
+.agent-page .agent-card-status>span{min-height:22px;padding:2px 7px;border-radius:6px;background:#CFE9E3;color:#0B5F59;font-size:9px}
+.agent-page .agent-card-status h3{margin:7px 0 3px!important;color:var(--text-secondary)!important;font-size:10px!important;text-transform:uppercase;letter-spacing:.08em}
+.agent-page .agent-card-status p{margin:0!important;color:var(--text-primary)!important;font-size:15px!important;font-weight:750!important;line-height:1.5!important}
+.agent-page .agent-card-section{padding:11px 14px!important;border-bottom:1px solid var(--border)!important}.agent-page .agent-card-section h4{margin:0 0 8px!important;color:var(--text-secondary)!important;font-size:10px!important}
+.agent-page .agent-facts{gap:7px}.agent-page .agent-fact{padding:9px 10px!important;border:1px solid var(--border)!important;border-radius:9px!important;background:#FAFCFB!important}
+.agent-page .agent-fact>span{font-size:9px!important}.agent-page .agent-fact>strong{margin:3px 0!important;font-size:16px!important}.agent-page .agent-fact>strong small{font-size:9px!important}.agent-page .agent-fact>em,.agent-page .agent-fact p{font-size:9px!important}
+.agent-page .agent-card-actions{gap:7px}.agent-page .agent-card-action{gap:8px;padding:9px 10px!important;border:1px solid #E7D7BB!important;border-radius:9px!important;background:#FFF9EF!important}.agent-page .agent-card-action strong{font-size:11px!important}.agent-page .agent-card-action p{font-size:9px!important}
+.agent-page .agent-card-safety{display:flex;align-items:flex-start;gap:10px;padding:10px 14px!important;background:#FAFCFB!important}.agent-page .agent-card-safety strong{flex:0 0 auto;font-size:10px!important}.agent-page .agent-card-safety p{margin:0!important;font-size:9px!important;line-height:1.5}
+.agent-page .agent-card-basis>summary{min-height:32px;padding:2px 14px!important;font-size:9px!important}.agent-page .agent-card-basis-inner{padding:2px 14px 11px!important;font-size:9px!important}
+.agent-page .agent-health-card button,.agent-page .agent-action-preview-controls button{min-height:32px!important;padding:5px 9px!important;border-width:1px!important;border-radius:7px!important;font-size:9px!important}
+
+.agent-page .agent-chat-composer{margin:0!important;padding:10px 12px 11px!important;border-top:1px solid var(--border);background:#fff!important;box-shadow:none!important}
+.agent-page .agent-composer-label{margin-bottom:6px}.agent-page .agent-composer-label strong{font-size:9px}.agent-page .agent-composer-label span{font-size:8px}
+.agent-page .quick-prompts{gap:5px;margin-bottom:7px}.agent-page .prompt{min-height:26px;padding:4px 8px;border:1px solid var(--border);border-radius:7px;background:#F5F8F7;color:var(--text-secondary);font-size:9px}.agent-page .prompt:hover{border-color:#9FCBC5;background:#EEF8F5;color:#0B5F59}
+.agent-page .chat-input-bar{padding:4px 4px 4px 10px;border:1px solid #C9D9D5;border-radius:10px;background:#fff}.agent-page .chat-input{height:34px!important;min-height:34px!important;border:0!important;outline:0!important;font-size:11px}.agent-page .btn-icon{min-width:64px;height:34px;min-height:34px;border-radius:8px;background:#0F766E;font-size:9px}
+.agent-page .agent-splitter{width:8px}.agent-page .agent-splitter::before{inset:0 3px;background:var(--border)}.agent-page .agent-splitter span{display:none}
+
+.agent-page .plan-area{padding:0 11px 10px!important}.agent-page .plan-header{margin:0 -11px!important;padding:12px 11px 9px!important;border-bottom:1px solid var(--border);background:#fff!important}.agent-page .plan-title{font-size:14px!important}.agent-page .plan-header small{font-size:8px!important}.agent-page .plan-badge{padding:4px 7px;border-radius:7px;background:#DDF3EF;color:#0B5F59;font-size:8px}
+.agent-page .plan-sub{margin:0 -11px 8px!important;padding:6px 11px!important;border-bottom:1px solid var(--border);background:#F7F9F8!important;font-size:8px!important}
+.agent-page .plan-card{gap:7px!important;margin-bottom:6px!important;padding:8px!important;border:1px solid var(--border)!important;border-radius:9px!important;background:#F8FAF9!important}.agent-page .plan-card-icon{width:25px!important;height:25px!important;border-radius:7px!important;font-size:10px!important}.agent-page .plan-card-t{font-size:10px!important}.agent-page .plan-card-d{font-size:8px!important;line-height:1.4!important}.agent-page .plan-card-check{min-height:28px!important}
+.agent-page .agent-inbox-sidebar{margin:6px 0!important;border-width:1px!important;border-radius:9px!important}.agent-page .agent-inbox-head{padding:8px 9px!important}.agent-page .agent-inbox-head span{font-size:8px}.agent-page .agent-inbox-head h2{font-size:10px}.agent-page .agent-inbox-head>strong{padding:3px 6px;font-size:8px}
+.agent-page .agent-daily-tip{margin-top:7px!important;padding:9px!important;border-radius:9px!important}.agent-page .agent-daily-tip-head span{font-size:8px!important}.agent-page .agent-daily-tip-head h2{font-size:10px!important}.agent-page .agent-daily-tip-content{font-size:9px!important;line-height:1.5!important}.agent-page .agent-daily-tip-content h3{font-size:10px!important}
+
+html[data-theme="dark"] .agent-page .agent-identity-card{background:linear-gradient(145deg,#1D302C,#18211F)}
+html[data-theme="dark"] .agent-page .agent-card-status{background:#203633!important}html[data-theme="dark"] .agent-page .chat-history{background:#131A18!important}html[data-theme="dark"] .agent-page .agent-health-card,html[data-theme="dark"] .agent-page .agent-fact{background:#18211F!important}
+
+@media(min-width:1261px){
+  .agent-page .agent-main{padding:10px 12px 12px!important}
+  .agent-page .agent-console{height:auto!important}
+  .agent-page .agent-control-rail,.agent-page .agent-row{height:100%!important}
+}
+@media(max-width:1260px){
+  .agent-page .agent-main{width:calc(100% - 28px);padding-top:14px}
+  .agent-page .agent-console{grid-template-columns:1fr}
+  .agent-page .agent-control-rail{display:grid;grid-template-columns:minmax(190px,.7fr) minmax(240px,.9fr) minmax(360px,1.4fr)}
+  .agent-page .agent-console>.agent-row{grid-template-columns:minmax(0,1fr) 6px minmax(270px,.55fr)}
+}
+@media(max-width:900px){
+  .agent-studio-toolbar{margin:0 0 9px}.agent-studio-title p{display:none}
+  .agent-page .agent-control-rail{grid-template-columns:1fr 1fr}.agent-page .agent-rail-nav{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+  .agent-page .agent-console>.agent-row{grid-template-columns:1fr}.agent-page .agent-splitter{display:none}.agent-page .plan-area{max-height:none!important}
+}
+@media(max-width:620px){
+  .agent-page .agent-main{width:calc(100% - 18px)}.agent-studio-toolbar{align-items:flex-start;flex-direction:column;padding:10px}.agent-studio-actions{width:100%}.agent-studio-actions>*{flex:1}
+  .agent-page .agent-control-rail{display:flex}.agent-page .agent-rail-nav{display:none}.agent-page .agent-facts{grid-template-columns:1fr}.agent-page .agent-card-safety{display:block}.agent-page .agent-card-safety p{margin-top:4px!important}
+  .agent-page .quick-prompts{overflow-x:auto;flex-wrap:nowrap}.agent-page .prompt{flex:0 0 auto}
+}
+
+/* ========================================================================
+   V12 — DeepSeek 式智能管家：历史记录侧栏 + 单一对话滚动区
+   ======================================================================== */
+@media(min-width:901px){
+  body.has-app-shell.agent-page{padding-left:0!important;height:100dvh;overflow:hidden!important;background:#F7F8F8}
+  body.has-app-shell.agent-page>.app-sidebar,body.has-app-shell.agent-page>.app-mobilebar{display:none!important}
+  .agent-page .agent-main{display:flex!important;flex-direction:column!important;width:100%!important;height:100dvh!important;padding:0!important;overflow:hidden!important}
+  .agent-page .agent-studio-toolbar{flex:0 0 60px;min-height:60px;margin:0;padding:8px 18px 8px 272px;border:0;border-bottom:1px solid #E4E8E7;border-radius:0;background:rgba(255,255,255,.96);box-shadow:none}
+  .agent-page .agent-studio-mark{width:34px;height:34px;border-radius:10px}.agent-page .agent-studio-title h1{font-size:16px}
+  .agent-page .agent-console{display:grid!important;grid-template-columns:252px minmax(0,1fr)!important;flex:1!important;min-height:0!important;height:auto!important;gap:0!important;overflow:hidden!important}
+  .agent-page .agent-control-rail{display:flex!important;position:relative;grid-template-columns:none!important;flex-direction:column!important;height:calc(100dvh - 60px)!important;min-height:0!important;padding:12px 10px 10px!important;border:0!important;border-right:1px solid #E1E7E5!important;border-radius:0!important;background:#F1F4F3!important;box-shadow:none!important;overflow:hidden!important}
+  .agent-page .agent-console>.agent-row{display:block!important;position:relative!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  .agent-page .chat-area{display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:hidden!important}
+  .agent-page .agent-splitter{display:none!important}
+}
+
+.agent-page .agent-control-rail .agent-identity-card{flex:0 0 auto;margin-bottom:8px;padding:8px 9px!important;border:0!important;border-radius:10px;background:transparent!important}
+.agent-page .agent-control-rail .agent-identity-mark{width:30px;height:30px;border-radius:9px}.agent-page .agent-control-rail .agent-identity-card strong{font-size:11px}
+.agent-page .agent-rail-context{flex:0 0 auto;padding:0 2px 10px!important;border:0!important}
+.agent-page .agent-conversation-select{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.agent-page .agent-rail-context #agent-subject-wrap{margin:0 0 7px;padding:0 2px}
+.agent-page .agent-rail-context #agent-subject-wrap select{width:100%;background:#fff}
+.agent-page .agent-rail-primary{min-height:40px!important;margin:0!important;border:1px solid #C8E0DB!important;border-radius:9px!important;background:#fff!important;color:#0B5F59!important;font-size:11px!important;box-shadow:none!important}
+.agent-page .agent-rail-primary:hover{border-color:#0F766E!important;background:#EAF7F4!important}
+
+.agent-history-section{display:flex;flex:1;flex-direction:column;min-height:0;padding:10px 2px 5px;border-top:1px solid #DEE5E3}
+.agent-history-heading{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:0 7px 8px;color:#70807D}.agent-history-heading span{font-size:10px;font-weight:800}.agent-history-heading small{font-size:8px}
+.agent-conversation-list{display:grid;align-content:start;gap:3px;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.agent-conversation-list::-webkit-scrollbar{display:none}
+.agent-conversation-list button{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:5px;width:100%;min-height:37px;padding:6px 8px;border:0;border-radius:8px;background:transparent;color:#5C6A68;text-align:left;transition:background .15s,color .15s}
+.agent-conversation-list button>span{display:grid;place-items:center;color:#8A9996;font-size:9px}.agent-conversation-list button strong{overflow:hidden;font-size:10px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}.agent-conversation-list button small{font-size:7px}
+.agent-conversation-list button:hover{background:#E4EAE8;color:#24312F}.agent-conversation-list button.is-active{background:#DDEBE8;color:#0B5F59}.agent-conversation-list button.is-active>span{color:#0F766E}.agent-conversation-list button:disabled{opacity:.5;cursor:not-allowed}
+.agent-history-empty{padding:18px 8px;color:var(--text-muted);font-size:9px;text-align:center}
+.agent-page .agent-rail-footer{display:grid;flex:0 0 auto;gap:2px;padding:7px 2px 0;border-top:1px solid #DEE5E3}
+.agent-page .agent-rail-footer .agent-rail-button{display:flex;width:100%;min-height:35px!important;padding:5px 7px!important;color:#64736F;text-decoration:none}
+.agent-page .agent-rail-footer .agent-rail-button:hover{background:#E5ECEA;color:#24312F}
+.agent-page .agent-rail-nav,.agent-page .agent-rail-status{display:none!important}
+
+@media(min-width:901px){
+  .agent-page .agent-chat-head{flex:0 0 54px;min-height:54px;padding:9px max(20px,calc((100% - 920px)/2))!important;border-bottom:1px solid #EDF0EF!important}
+  .agent-page .agent-chat-head h2{font-size:14px!important}.agent-page .agent-live-status{background:transparent;font-size:9px}
+  .agent-page .chat-history{display:block!important;flex:1!important;width:100%!important;min-height:0!important;height:auto!important;padding:22px max(24px,calc((100% - 900px)/2)) 18px!important;overflow-x:hidden!important;overflow-y:scroll!important;overscroll-behavior:contain;scrollbar-gutter:stable!important;scrollbar-width:auto!important;scrollbar-color:#AEBBB8 #EEF1F0!important;background:#fff!important}
+  .agent-page .chat-history::-webkit-scrollbar{display:block!important;width:10px!important}.agent-page .chat-history::-webkit-scrollbar-track{background:#EEF1F0!important}.agent-page .chat-history::-webkit-scrollbar-thumb{min-height:40px;border:2px solid #EEF1F0;border-radius:8px;background:#AEBBB8!important}.agent-page .chat-history::-webkit-scrollbar-thumb:hover{background:#879794!important}
+  .agent-page .agent-chat-composer{flex:0 0 auto;width:100%;padding:8px max(24px,calc((100% - 900px)/2)) 16px!important;border:0!important;background:#fff!important}
+  .agent-page .msg-ai>div:last-child{width:min(100%,810px)}
+  .agent-page .msg-bubble{max-width:min(78%,720px)}
+}
+
+.agent-page .plan-area{z-index:40!important}
+@media(min-width:901px){
+  .agent-page .plan-area{display:block!important;position:absolute!important;inset:0 0 0 auto!important;width:min(360px,90vw)!important;height:100%!important;min-height:0!important;padding:0 13px 14px!important;overflow-y:auto!important;border:0!important;border-left:1px solid var(--border)!important;border-radius:0!important;background:var(--bg-card)!important;box-shadow:-18px 0 40px rgba(21,45,40,.12)!important;transform:translateX(105%);visibility:hidden;transition:transform .22s ease,visibility .22s}
+  .agent-page .plan-area.is-open{transform:translateX(0);visibility:visible}
+}
+.agent-page .plan-header{position:sticky;top:0;z-index:2;grid-template-columns:minmax(0,1fr) auto auto!important;background:var(--bg-card)!important}
+.agent-plan-close{display:grid!important;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--bg-soft);color:var(--text-secondary);font-size:18px;line-height:1}.agent-plan-close:hover{background:#DDE8E5;color:var(--text-primary)}
+.agent-page .agent-studio-actions .agent-plan-toggle{border-color:var(--border);background:#fff;color:var(--text-secondary)}.agent-page .agent-studio-actions .agent-plan-toggle[aria-expanded="true"]{border-color:#9FCBC5;background:#EAF7F4;color:#0B5F59}
+
+html[data-theme="dark"] body.has-app-shell.agent-page{background:#111816}html[data-theme="dark"] .agent-page .agent-studio-toolbar{background:#18211F;border-color:#30403C}html[data-theme="dark"] .agent-page .agent-control-rail{background:#151E1C!important;border-color:#30403C!important}html[data-theme="dark"] .agent-page .chat-area,html[data-theme="dark"] .agent-page .chat-history,html[data-theme="dark"] .agent-page .agent-chat-composer{background:#111816!important}html[data-theme="dark"] .agent-conversation-list button.is-active{background:#203B36;color:#76D0C5}
+
+@media(max-width:900px){
+  .agent-page .agent-history-section{max-height:210px}.agent-page .agent-conversation-list{scrollbar-width:thin}.agent-page .agent-conversation-list::-webkit-scrollbar{display:block;width:6px}
+  .agent-page .agent-rail-footer{grid-template-columns:1fr 1fr}.agent-page .plan-area{display:none!important}.agent-page .plan-area.is-open{display:block!important}.agent-page .agent-plan-close{display:grid!important}
+  .agent-page .chat-history{overflow-y:visible!important}
+}
+@media(max-width:680px){
+  .agent-page .agent-main{width:calc(100% - 20px)}
+  .agent-control-rail{display:flex;padding:8px}
+  .agent-identity-card{height:auto;border-right:0;border-bottom:1px solid var(--border)}
+  .agent-rail-section{height:auto;border-right:0;border-bottom:1px solid var(--border)}
+  .agent-rail-nav{display:none}
+  .agent-page .agent-page-head{padding:15px}
+  .agent-page .agent-page-symbol{display:none}
+  .agent-page .agent-page-head h1{font-size:25px}
+  .agent-page .agent-page-head .subtitle{font-size:13px}
+  .agent-console .chat-history{min-height:370px!important;padding-inline:11px!important}
+}
+
+/* ========================================================================
+   V10 — 全站健康管理工作台
+   固定应用侧栏、冷静的医疗青色系统、统一密度与单滚动智能管家
+   ======================================================================== */
+:root{
+  --bg-page:#F3F6F5;
+  --bg-card:#FFFFFF;
+  --bg-topbar:#FFFFFF;
+  --bg-soft:#EAF3F1;
+  --border:#DCE5E2;
+  --color-primary:#0F766E;
+  --color-primary-light:#DDF3EF;
+  --color-primary-dark:#0B5F59;
+  --color-green:#2F855A;
+  --color-green-light:#E4F3E9;
+  --color-green-dark:#226544;
+  --color-coral:#D97706;
+  --color-coral-light:#FFF1D6;
+  --color-coral-dark:#A65306;
+  --color-teal:#0F766E;
+  --color-teal-light:#DDF3EF;
+  --text-primary:#24312F;
+  --text-secondary:#526461;
+  --text-muted:#7B8B88;
+  --shadow-sm:0 1px 2px rgba(22,48,43,.04);
+  --shadow-md:0 8px 24px rgba(22,48,43,.07);
+  --shadow-lg:0 18px 44px rgba(22,48,43,.10);
+  --radius-sm:7px;
+  --radius-md:10px;
+  --radius-lg:14px;
+  --radius-xl:16px;
+  --radius-2xl:18px;
+}
+html[data-theme="dark"]{
+  --bg-page:#111816;
+  --bg-card:#18211F;
+  --bg-topbar:#18211F;
+  --bg-soft:#1E2B28;
+  --border:#30403C;
+  --color-primary:#53BDB1;
+  --color-primary-light:#203E3A;
+  --color-primary-dark:#79D4C9;
+  --text-primary:#EAF3F0;
+  --text-secondary:#B2C2BE;
+  --text-muted:#839590;
+}
+
+body.has-app-shell{padding-left:236px;background:var(--bg-page)}
+.app-sidebar{
+  position:fixed;inset:0 auto 0 0;z-index:80;display:flex;flex-direction:column;width:236px;padding:18px 14px 14px;
+  overflow:hidden;background:linear-gradient(180deg,#123833 0%,#102D29 64%,#0D2623 100%);color:#DDEDE9;border-right:1px solid rgba(255,255,255,.07);
+}
+.app-sidebar-brand{display:flex;align-items:center;gap:11px;padding:4px 7px 20px;border-bottom:1px solid rgba(255,255,255,.10)}
+.app-sidebar-brand>span,.app-mobile-brand>span{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;border-radius:11px;background:#45B5A9;color:#082D29;font-weight:900;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.app-sidebar-brand div{display:grid;min-width:0}.app-sidebar-brand strong{font-size:14px;letter-spacing:.03em}.app-sidebar-brand small{margin-top:2px;color:#80AAA4;font-size:9px;font-weight:800;letter-spacing:.19em}
+.app-sidebar-nav{display:flex;flex:1;flex-direction:column;gap:13px;padding:17px 0 10px;min-height:0}
+.app-sidebar-nav section{display:grid;gap:3px}.app-sidebar-nav p{padding:0 11px 5px;color:#759D97;font-size:10px;font-weight:800;letter-spacing:.13em}
+.app-nav-link,.app-tool-link{position:relative;display:flex;align-items:center;gap:10px;min-height:40px;padding:7px 10px;border-radius:9px;color:#BFD4D0;transition:background .18s,color .18s,transform .18s}
+.app-nav-link>span,.app-tool-link>span{display:grid;place-items:center;flex:0 0 auto;width:25px;height:25px;border-radius:7px;background:rgba(255,255,255,.07);font-size:11px;font-weight:850}
+.app-nav-link strong,.app-tool-link strong{font-size:12px;font-weight:700}
+.app-nav-link:hover,.app-tool-link:hover{background:rgba(255,255,255,.07);color:#FFF;transform:translateX(1px)}
+.app-nav-link.is-active{background:#E6F5F2;color:#0B5F59;box-shadow:0 6px 18px rgba(0,0,0,.13)}
+.app-nav-link.is-active>span{background:#BCE7E1;color:#0B5F59}
+.app-sidebar-tools{display:grid;gap:2px;padding:9px 0;border-top:1px solid rgba(255,255,255,.10)}
+.app-tool-link{width:100%;font-family:inherit;text-align:left}
+.app-tool-link .bell-badge,.app-mobile-menu .bell-badge{position:static;margin-left:auto;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#E8922F;color:#fff;font-size:10px;font-style:normal;line-height:19px;text-align:center}
+.app-user-card{display:flex;align-items:center;gap:9px;padding:10px 8px 4px;border-top:1px solid rgba(255,255,255,.10)}
+.app-user-card .avatar,.app-mobilebar .avatar{display:grid;place-items:center;flex:0 0 auto;width:33px;height:33px;border-radius:10px;color:#fff;font-size:12px;font-weight:800}
+.app-user-card div{display:grid;flex:1;min-width:0}.app-user-card strong{overflow:hidden;color:#F3FAF8;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.app-user-card small{color:#7FA8A2;font-size:9px}.app-user-card b{color:#6E9992;font-size:18px}
+.app-mobilebar{display:none}
+
+body.has-app-shell>main,body.has-app-shell main.container,body.has-app-shell .page-container{max-width:1500px;margin-right:auto;margin-left:auto}
+body.has-app-shell main{padding-top:24px;padding-bottom:36px}
+body.has-app-shell .page-title,body.has-app-shell h1{letter-spacing:-.025em}
+body.has-app-shell .card,body.has-app-shell .panel,body.has-app-shell .section-card,body.has-app-shell .metric-card{
+  border-color:var(--border);box-shadow:var(--shadow-sm);
+}
+body.has-app-shell input,body.has-app-shell select,body.has-app-shell textarea{border-color:var(--border);background:var(--bg-card);color:var(--text-primary)}
+body.has-app-shell input:focus,body.has-app-shell select:focus,body.has-app-shell textarea:focus{border-color:var(--color-primary);outline:3px solid rgba(15,118,110,.11)}
+body.has-app-shell .btn-primary,body.has-app-shell button.primary,body.has-app-shell .primary-button{background:var(--color-primary);border-color:var(--color-primary);color:#fff;box-shadow:none}
+body.has-app-shell .btn-primary:hover,body.has-app-shell button.primary:hover,body.has-app-shell .primary-button:hover{background:var(--color-primary-dark)}
+body.has-app-shell table{border-collapse:separate;border-spacing:0}body.has-app-shell th{background:var(--bg-soft);color:var(--text-secondary);font-size:11px;letter-spacing:.04em}body.has-app-shell td{border-color:var(--border)}
+
+/* 智能管家：桌面端是完整工作台，仅对话记录承担主滚动。 */
+@media(min-width:1261px){
+  body.has-app-shell.agent-page{height:100dvh;overflow:hidden}
+  .agent-page .agent-main{display:flex;flex-direction:column;width:100%;height:100dvh;max-width:none!important;padding:14px 16px 16px;overflow:hidden}
+  .agent-page .agent-page-head{flex:0 0 auto;margin-bottom:10px;padding:12px 16px}
+  .agent-page .agent-page-head h1{font-size:23px}.agent-page .agent-page-head .subtitle{font-size:11px}
+  .agent-page .agent-console{flex:1;min-height:0;overflow:hidden}
+  .agent-page .agent-control-rail,.agent-page .agent-row,.agent-page .chat-area,.agent-page .plan-area{height:100%;min-height:0!important;max-height:none!important}
+  .agent-page .agent-control-rail{overflow:hidden}
+  .agent-page .agent-row{align-items:stretch!important;overflow:hidden}
+  .agent-page .chat-area{display:flex;flex-direction:column;overflow:hidden!important}
+  .agent-page .chat-history{flex:1!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;scrollbar-width:thin;scrollbar-color:#9ABCB6 transparent}
+  .agent-page .agent-chat-composer{position:static!important;flex:0 0 auto;margin-bottom:8px}
+  .agent-page .plan-area{overflow:hidden!important;padding-top:10px;padding-bottom:10px}
+  .agent-page .plan-header{padding-top:8px;padding-bottom:8px}.agent-page .plan-title{font-size:17px}.agent-page .plan-sub{padding-top:7px;padding-bottom:7px;font-size:10px}
+  .agent-page .plan-area .card,.agent-page .plan-area .plan-card{padding:9px!important;margin-bottom:7px!important}
+}
+
+@media(max-height:740px) and (min-width:901px){
+  .app-sidebar{padding-top:12px}.app-sidebar-brand{padding-bottom:12px}.app-sidebar-nav{gap:8px;padding-top:11px}.app-nav-link,.app-tool-link{min-height:35px;padding-top:5px;padding-bottom:5px}
+}
+@media(max-width:900px){
+  body.has-app-shell{padding-left:0;padding-top:58px}
+  .app-sidebar{display:none}
+  .app-mobilebar{position:fixed;inset:0 0 auto;z-index:90;display:flex;align-items:center;height:58px;padding:0 14px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);box-shadow:0 6px 20px rgba(22,48,43,.06);backdrop-filter:blur(14px)}
+  html[data-theme="dark"] .app-mobilebar{background:rgba(24,33,31,.96)}
+  .app-mobile-brand{display:flex;align-items:center;gap:8px;margin-right:auto}.app-mobile-brand>span{width:31px;height:31px;border-radius:9px}.app-mobile-brand strong{font-size:13px}
+  .app-mobile-menu{position:relative;margin-right:10px}.app-mobile-menu summary{padding:7px 10px;border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:11px;font-weight:750;list-style:none}.app-mobile-menu summary::-webkit-details-marker{display:none}
+  .app-mobile-menu nav{position:absolute;top:43px;right:-43px;display:grid;width:210px;padding:8px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);box-shadow:var(--shadow-lg)}
+  .app-mobile-menu .app-nav-link{color:var(--text-secondary)}.app-mobile-menu .app-nav-link:hover{background:var(--bg-soft);color:var(--text-primary)}
+  body.has-app-shell main{padding-top:16px}
+}
