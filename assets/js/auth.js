@@ -63,7 +63,7 @@
       </header>
       <aside class="app-sidebar" aria-label="应用导航">
         <nav class="app-sidebar-nav">${NAV_ITEMS.map(navLink).join('')}</nav>
-        <div class="app-sidebar-help"><span>?</span><div><strong>需要帮助？</strong><small>查看使用指南</small></div></div>
+        <div class="app-sidebar-help"><span>?</span><div><strong>需要帮助？</strong><small>查看使用指南</small></div><a href="settings.html" aria-label="系统设置与 API 配置" style="display:grid;place-items:center;width:28px;height:28px;margin-left:auto;border-radius:8px;background:#fff0f3;color:#ff5268;font-size:12px;font-weight:800">⚙</a></div>
       </aside>
       <header class="app-mobilebar">
         <a href="index.html" class="app-mobile-brand"><span>康</span><strong>小康·健康管家</strong></a>
