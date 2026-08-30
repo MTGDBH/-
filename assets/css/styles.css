@@ -5994,3 +5994,570 @@ html[data-theme="dark"] .agent-page{--agent-sidebar:#151E1B;--agent-chat-bg:#111
 .function-form-message{min-height:20px;margin:9px 0 0;color:#A05236;font-size:11px}.function-assess-actions{display:grid;grid-template-columns:150px 1fr 150px;align-items:center;gap:12px;padding:14px 24px 18px;border-top:1px solid var(--border);background:var(--bg-card)}.function-assess-actions>span{text-align:center;color:var(--text-muted);font-size:10px}.function-assess-actions .btn{min-height:44px}.function-back{border:1px solid var(--border);background:var(--bg-soft);color:var(--text-secondary)}
 html[data-theme="dark"] .function-intro{background:#18302B}html[data-theme="dark"] .function-options input:checked+span{background:#1B3933}
 @media(max-width:600px){.function-assess-head{padding:17px 16px 13px}.function-assess-head h2{font-size:20px}.function-assess-body{padding:15px 16px 8px}.function-stepper{grid-template-columns:1fr 24px 1fr}.function-stepper small{display:none}.function-options{grid-template-columns:1fr}.function-assess-actions{grid-template-columns:92px 1fr 112px;padding:12px 16px 15px}.function-assess-actions>span{font-size:9px}}
+
+/* ========================================================================
+   V21 · 移动端核心体验
+   仅在手机/小平板断点生效；桌面端布局、导航和功能保持不变。
+   ======================================================================== */
+.mobile-only,.app-mobile-bottomnav{display:none}
+
+@media(max-width:900px){
+  .desktop-only{display:none!important}
+  .mobile-only{display:initial}
+  html{scroll-padding-top:68px;scroll-behavior:smooth}
+  body.has-app-shell{
+    min-width:320px;padding:56px 0 calc(76px + env(safe-area-inset-bottom));
+    background:#F8F3EC;color:var(--text-primary);font-size:15px;
+  }
+  body.has-app-shell main,body.has-app-shell>main,body.has-app-shell main.container,body.has-app-shell .page-container{
+    width:100%;max-width:560px;margin:0 auto;padding:14px 14px 24px;
+  }
+  body.has-app-shell .page-head{margin:0 0 14px}
+  body.has-app-shell .page-head h1,body.has-app-shell .discovery-head h1{font-size:24px;line-height:1.2;letter-spacing:-.035em}
+  body.has-app-shell .page-head .subtitle,body.has-app-shell .discovery-head p{margin-top:5px;color:var(--text-muted);font-size:13px;line-height:1.55}
+  body.has-app-shell .card,body.has-app-shell .panel,body.has-app-shell .section-card,
+  body.has-app-shell .score-card,body.has-app-shell .todo-col,body.has-app-shell .device-card,
+  body.has-app-shell .pred-card,body.has-app-shell .total-card,body.has-app-shell .life-card,
+  body.has-app-shell .improve-card,body.has-app-shell .profile-form-card{
+    border:1px solid #ECE3D8;border-radius:18px;background:#FFF;box-shadow:0 5px 18px rgba(61,46,31,.045)
+  }
+  body.has-app-shell .btn{min-height:48px;border-radius:13px}
+  body.has-app-shell button,body.has-app-shell a,body.has-app-shell input,body.has-app-shell select{touch-action:manipulation}
+  body.has-app-shell input,body.has-app-shell select,body.has-app-shell textarea{font-size:16px}
+
+  /* 顶部栏与五项底部主导航 */
+  .app-mobilebar{
+    inset:0 0 auto;height:56px;padding:0 12px;border-bottom:1px solid #ECE4DB;
+    background:rgba(255,255,255,.97);box-shadow:0 4px 16px rgba(61,46,31,.045);backdrop-filter:blur(16px)
+  }
+  .app-mobile-brand{gap:7px;margin-right:9px}.app-mobile-brand>span{width:32px;height:32px;border-radius:10px;background:var(--color-primary);color:#fff}
+  .app-mobile-brand strong{font-size:12px;white-space:nowrap}
+  .app-mobile-page-title{margin-right:auto;padding-left:9px;border-left:1px solid var(--border);color:var(--text-muted);font-size:11px;font-weight:800}
+  .app-mobile-alert{position:relative;display:grid;width:38px;height:38px;margin-right:6px;place-items:center;border-radius:12px;color:var(--color-coral-dark);font-size:11px;font-weight:900}
+  .app-mobile-alert:active{background:var(--color-coral-light)}
+  .app-mobile-alert .bell-badge{position:absolute;top:2px;right:1px;display:grid;min-width:17px;height:17px;padding:0 4px;place-items:center;border:2px solid #fff;border-radius:9px;background:var(--color-coral);color:#fff;font-size:9px;font-style:normal}
+  .app-mobilebar .avatar{width:34px;height:34px;border-radius:11px}
+  .app-mobile-bottomnav{
+    position:fixed;z-index:95;inset:auto 0 0;display:grid;grid-template-columns:repeat(5,1fr);
+    min-height:68px;padding:6px max(8px,env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+    border-top:1px solid #E9E0D5;background:rgba(255,255,255,.98);box-shadow:0 -8px 24px rgba(61,46,31,.07);backdrop-filter:blur(16px)
+  }
+  .app-mobile-tab{position:relative;display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:2px;border-radius:13px;color:#817467}
+  .app-mobile-tab>span{display:grid;width:28px;height:27px;place-items:center;border-radius:9px;font-size:16px;font-weight:900;line-height:1}
+  .app-mobile-tab strong{font-size:10px;font-weight:750}
+  .app-mobile-tab.is-active{color:var(--color-primary-dark)}
+  .app-mobile-tab.is-active>span{background:var(--color-primary-light);color:var(--color-primary-dark)}
+  .app-mobile-tab.is-active::after{content:"";position:absolute;bottom:-1px;width:22px;height:3px;border-radius:3px;background:var(--color-primary)}
+  html[data-theme="dark"] .app-mobile-bottomnav,html[data-theme="dark"] .app-mobilebar{background:rgba(24,33,31,.98);border-color:var(--border)}
+
+  /* 1. 首页 / 健康概览 */
+  .mobile-route-home .greeting{height:auto;margin:0 0 12px;align-items:center;flex-direction:row}
+  .mobile-route-home .greeting-left{gap:10px}.mobile-route-home .greeting-icon{width:38px;height:38px}.mobile-route-home .greeting-icon svg{width:25px;height:25px}
+  .mobile-route-home .greeting-title{font-size:21px}.mobile-route-home .greeting-date{margin-top:2px;font-size:11px}
+  .mobile-route-home .greeting-right{display:none}
+  .mobile-route-home .overview-row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+  .mobile-route-home .score-card{position:relative;padding:16px;gap:13px;overflow:hidden}
+  .mobile-route-home .score-header{align-items:center}.mobile-route-home .score-title{font-size:15px}.mobile-route-home .score-title .date{font-size:10px}.mobile-route-home .trend-pill{font-size:10px}
+  .mobile-route-home .score-number{align-items:center;margin:0}.mobile-route-home .score-number-main{font-size:58px;line-height:.95}.mobile-route-home .score-number-unit .of{font-size:15px}.mobile-route-home .score-number-unit .status{font-size:12px}
+  .mobile-route-home .subscore-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .mobile-route-home .subscore{min-height:88px;padding:10px;border-radius:14px}.mobile-route-home .subscore-label{font-size:11px}.mobile-route-home .subscore-value{font-size:22px}.mobile-route-home .subscore-trend{font-size:10px}
+  .mobile-route-home .score-footer{padding-top:2px}.mobile-route-home .score-footer .link{font-size:12px}.mobile-route-home .score-footer .meta{display:none}
+  .mobile-route-home .todo-col{padding:15px;gap:10px}.mobile-route-home .todo-title{font-size:16px}.mobile-route-home .todo-list{gap:7px}
+  .mobile-route-home .todo-item{min-height:54px;padding:10px 11px;border-radius:13px}.mobile-route-home .todo-item .icon{width:34px;height:34px}.mobile-route-home .todo-item .name{font-size:13px}
+  .mobile-route-home .alert{padding:11px;border-radius:14px}.mobile-route-home .alert-mark{width:34px;height:34px}
+  .mobile-route-home .cta{padding:14px;border-radius:16px}.mobile-route-home .cta-action{min-height:40px;margin-top:11px}
+  .mobile-route-home .quick-row{display:grid;height:auto;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .mobile-route-home .quick-card{min-width:0;min-height:72px;padding:11px;border:1px solid #ECE3D8;border-radius:15px;background:#fff}.mobile-route-home .quick-mark{width:36px;height:36px;border-radius:11px}.mobile-route-home .quick-card .name{font-size:13px}.mobile-route-home .quick-card .sub{overflow:hidden;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 2. 快速记录：指标在前，语音录入紧随其后 */
+  .mobile-route-record main.main:not(.discovery-page){display:flex;flex-direction:column}
+  .mobile-route-record main.main:not(.discovery-page)>.page-head{order:0}.mobile-route-record .entry-section{order:1;margin-top:0}.mobile-route-record .bulk-health-entry{order:2}.mobile-route-record .monitor-bottom{order:3}
+  .mobile-route-record .entry-header{margin-bottom:9px}.mobile-route-record .entry-title{font-size:15px}.mobile-route-record .entry-tip{font-size:10px}
+  .mobile-route-record .entry-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .mobile-route-record .entry-card{min-height:122px;padding:12px 10px;border-radius:16px;text-align:left}.mobile-route-record .entry-card:hover{transform:none}
+  .mobile-route-record .entry-card .entry-icon{width:38px;height:38px;border-radius:12px}.mobile-route-record .entry-card .entry-name{font-size:13px}.mobile-route-record .entry-card .entry-value{margin-top:7px;font-size:22px}.mobile-route-record .entry-card .entry-meta{font-size:9px}
+  .mobile-route-record .entry-card-add{min-height:122px}
+  .mobile-route-record .bulk-health-entry{margin:12px 0;padding:14px;border-radius:18px;background:linear-gradient(145deg,#FFF 0%,#FFF8F0 100%)}
+  .mobile-route-record .bulk-entry-head{display:flex;align-items:center}.mobile-route-record .bulk-entry-head h2{margin:0;font-size:16px}.mobile-route-record .bulk-entry-head p,.mobile-route-record .bulk-entry-badge,.mobile-route-record .section-kicker{display:none}
+  .mobile-route-record .bulk-health-textarea{min-height:72px;margin-top:11px;padding:14px 15px;border-width:1px;border-radius:15px;font-size:15px;line-height:1.5;resize:none}
+  .mobile-route-record .bulk-entry-controls{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;margin-top:9px}.mobile-route-record .bulk-entry-controls .btn{min-height:46px;padding:9px;font-size:12px}
+  .mobile-route-record .bulk-entry-controls #bulk-parse-btn{grid-column:auto;grid-row:auto}.mobile-route-record #bulk-clear-btn,.mobile-route-record .bulk-entry-privacy{display:none}
+  .mobile-route-record .monitor-bottom{display:grid;grid-template-columns:1fr;gap:11px}.mobile-route-record .device-card,.mobile-route-record .pred-card{padding:15px;border-radius:18px}
+  .mobile-route-record .device-title,.mobile-route-record .pred-title{font-size:15px}.mobile-route-record .device-item{padding:10px;border-radius:13px}.mobile-route-record .pred-alert{padding:12px;border-radius:13px}.mobile-route-record .pred-chart{padding:11px}
+
+  /* 3. 生活能力评估：手机端只突出 ADL / IADL */
+  .mobile-route-plan .assess-row{display:block;margin:0}.mobile-route-plan .assess-row>.total-card,.mobile-route-plan .assess-right>.improve-card,.mobile-route-plan .disease-risk-panel{display:none}
+  .mobile-route-plan .assess-right{display:block}.mobile-route-plan .life-card{padding:16px}.mobile-route-plan .life-title{font-size:18px}.mobile-route-plan .life-sub{font-size:11px}
+  .mobile-route-plan .life-row{min-height:78px;margin-top:10px;padding:12px;border-radius:15px}.mobile-route-plan .life-icon{width:40px;height:40px;border-radius:12px}.mobile-route-plan .life-name{font-size:14px}.mobile-route-plan .life-desc{font-size:10px}.mobile-route-plan .life-score{font-size:21px}
+  .mobile-route-plan .life-card .btn{margin-top:13px}
+  .function-assess-dialog{width:calc(100vw - 20px);max-height:calc(100dvh - 96px);border-radius:22px 22px 0 0}
+  .function-question{padding:14px}.function-question legend{font-size:15px}.function-options label>span{min-height:54px;font-size:14px}
+
+  /* 4. 智能管家：隐藏桌面控制轨，保留专注对话与证据卡 */
+  body.has-app-shell.agent-page{padding-top:56px;background:#FBFCFB}
+  .agent-page .agent-main{display:block;max-width:560px!important;min-height:calc(100dvh - 132px);padding:0!important}
+  .agent-page .agent-studio-toolbar{position:sticky;z-index:20;top:56px;min-height:54px;margin:0;padding:8px 12px;border:0;border-bottom:1px solid var(--agent-line);border-radius:0;background:rgba(251,252,251,.97)}
+  .agent-page .agent-studio-mark{width:34px;height:34px;background:var(--color-primary);color:#fff}.agent-page .agent-studio-title h1{font-size:17px}.agent-page .agent-studio-title p{display:none}
+  .agent-page .agent-studio-actions a,.agent-page .agent-studio-actions button{width:36px;min-height:36px!important;padding:4px!important;border-radius:11px}.agent-page .agent-studio-actions a strong,.agent-page .agent-studio-actions button strong{display:none}
+  .agent-page .agent-console{display:block;height:auto!important}.agent-page .agent-control-rail,.agent-page .agent-splitter{display:none!important}
+  .agent-page .agent-row{display:block!important;height:auto!important}.agent-page .chat-area{display:flex;min-height:calc(100dvh - 190px);flex-direction:column;background:#FBFCFB}
+  .agent-page .agent-chat-head{display:none}.agent-page .chat-history{flex:1;min-height:420px;padding:18px 12px 10px!important;overflow:visible!important}
+  .agent-page .msg{gap:8px;margin-bottom:18px}.agent-page .msg-avatar{width:30px;height:30px}.agent-page .msg-bubble,.agent-page .msg-ai .msg-bubble{font-size:15px;line-height:1.7}.agent-page .msg-user .msg-bubble{max-width:88%;padding:11px 13px;background:#FFF0E4}
+  .agent-page .agent-health-card{width:calc(100vw - 66px);border-radius:16px!important}.agent-page .agent-card-status p{font-size:18px!important}.agent-page .agent-facts{grid-template-columns:1fr 1fr}.agent-page .agent-fact>strong{font-size:17px!important}
+  .agent-page .agent-chat-composer{position:sticky;z-index:18;bottom:68px;padding:8px 11px 11px!important;background:linear-gradient(180deg,rgba(251,252,251,0),#FBFCFB 18%)}
+  .agent-page .agent-composer-label{display:none}.agent-page .quick-prompts{margin-bottom:8px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.agent-page .prompt{flex:0 0 auto;min-height:34px;border-radius:999px;background:#FFF2E7;color:#8A4C2A;font-size:11px}
+  .agent-page .chat-input-bar{min-height:56px;padding:6px 6px 6px 14px;border-color:#E2D6CA;border-radius:18px;box-shadow:0 8px 24px rgba(61,46,31,.08)}.agent-page .chat-input{font-size:15px}.agent-page .btn-icon{min-width:48px;height:44px;min-height:44px;border-radius:14px;background:var(--color-primary)}
+  .agent-page .plan-area{z-index:110;width:100%;max-width:560px}
+
+  /* 5. 今日计划：把今日执行与复测放在最前，历史结果退出首屏 */
+  .intervention-main{padding-right:14px!important;padding-left:14px!important}.intervention-head{align-items:flex-start;margin-bottom:12px}.intervention-eyebrow,.intervention-head .subtitle{font-size:11px}.intervention-agent-link{display:none}
+  .intervention-notice{display:none}.intervention-sections{display:flex;gap:17px;flex-direction:column}.intervention-today{order:-2;padding:14px;border-radius:18px}.intervention-section[aria-labelledby="retest-title"]{order:-1}
+  .intervention-section[aria-labelledby="completed-title"],.intervention-section[aria-labelledby="paused-title"]{display:none}
+  .intervention-section>header{margin-bottom:9px}.intervention-section>header>div{gap:9px}.intervention-section h2{font-size:17px}.intervention-section header p{display:none}.section-symbol{width:38px;height:38px;border-radius:12px}.section-count{font-size:10px}
+  .intervention-grid{grid-template-columns:1fr;gap:10px}.intervention-card{padding:14px;border-radius:16px}.intervention-card h3{font-size:15px}.plan-actions{gap:8px}.plan-actions .btn{min-height:44px;font-size:12px}
+
+  /* 6. 照护协同 */
+  .care-main{padding:14px!important}.care-head{align-items:flex-start;margin-bottom:12px}.care-head h1{font-size:24px}.care-head .subtitle{font-size:12px}.care-head>.btn{width:auto;min-height:42px;padding:8px 12px;font-size:11px}
+  .care-trust{gap:10px;margin-bottom:12px;padding:12px;border-radius:15px}.care-trust>span{width:36px;height:36px;border-radius:11px}.care-trust strong{font-size:14px}.care-trust p{font-size:11px}
+  .care-panel{margin-bottom:16px;padding:15px}.care-panel-head,.care-section-head{margin-bottom:12px}.care-panel-head h2,.care-section-head h2{font-size:18px}.care-step,.care-count{padding:5px 8px;font-size:10px}
+  .care-grid{grid-template-columns:1fr;gap:10px}.care-card{padding:14px;border-radius:16px}.care-avatar{width:45px;height:45px;border-radius:14px}.care-card-head{margin-bottom:12px}.care-card-head h3{font-size:17px}.care-card-head p,.care-card-head span:last-child{font-size:11px}
+  .care-auth-summary,.care-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.care-auth-summary>div,.care-data-grid>div{min-height:66px;padding:10px}.care-data-grid span{font-size:10px}.care-card-actions{display:grid;grid-template-columns:1fr 1fr}.care-card-actions .btn{min-height:44px;padding:8px;font-size:11px}
+
+  /* 7. 我的与隐私 */
+  .metric-page{padding:14px!important}.metric-page .page-head{margin-bottom:12px}.profile-form-card{margin-bottom:12px;padding:15px}.profile-header{gap:12px}.profile-avatar{width:50px;height:50px;border-radius:16px}.profile-name{font-size:19px}.profile-meta{font-size:11px}
+  .mobile-profile-menu.mobile-only{display:grid;margin-bottom:12px;border:1px solid #ECE3D8;border-radius:18px;background:#fff;box-shadow:0 5px 18px rgba(61,46,31,.045);overflow:hidden}
+  .mobile-profile-menu a{display:grid;grid-template-columns:38px 1fr 18px;align-items:center;gap:10px;min-height:66px;padding:10px 13px;border-bottom:1px solid #F0E8DF}.mobile-profile-menu a:last-child{border-bottom:0}
+  .mobile-profile-menu a>span{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:var(--color-primary-light);color:var(--color-primary-dark);font-size:12px;font-weight:900}.mobile-profile-menu a div{display:grid}.mobile-profile-menu strong{font-size:14px}.mobile-profile-menu small{margin-top:2px;color:var(--text-muted);font-size:10px}.mobile-profile-menu b{color:var(--text-muted);font-size:20px}
+  .metric-page #content>.profile-form-card:last-child{display:none}
+  .profile-form-card h3{font-size:17px!important}.profile-form-card .form{gap:12px}.profile-form-card [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;gap:12px!important}.profile-form-card .btn{width:100%;align-self:stretch!important}
+  .privacy-main{padding:14px!important}.privacy-head{gap:10px}.privacy-head #privacy-refresh{width:auto}.privacy-trust{margin:12px 0;padding:12px}.privacy-section,.privacy-panel,.privacy-danger{margin-top:12px;padding:15px;border-radius:17px}.privacy-section-head{margin-bottom:12px}.privacy-section-head h2,.privacy-danger h2{font-size:18px}.privacy-category{padding:12px}.privacy-policy,.privacy-retention+.privacy-note{font-size:12px}
+
+  /* 8. 趋势与风险 */
+  .discovery-page{padding:14px!important}.discovery-head{margin-bottom:10px}.discovery-back{font-size:11px}.discovery-tabs{top:56px;gap:5px;padding:6px;border-radius:13px}.discovery-tabs button{min-width:max-content;min-height:40px;padding:7px 10px;font-size:12px}
+  .discovery-panel{margin-top:10px;padding:14px;border-radius:18px}.discovery-section-head h2{font-size:17px}.discovery-section-head p{font-size:11px}.safe-badge{font-size:10px}
+  .disease-discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}.disease-discovery-card{padding:12px;border-radius:14px}.disease-discovery-card h3{font-size:14px}
+  .curve-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}.curve-summary article{padding:11px;border-radius:13px}.curve-summary strong{font-size:14px}
+  .metric-choice{overflow-x:auto;scrollbar-width:none}.metric-choice-group{min-width:620px}.curve-svg-wrap{overflow-x:auto}.curve-svg-wrap svg{min-width:680px}.curve-layer-controls{gap:8px;overflow-x:auto;flex-wrap:nowrap}.curve-layer-controls label{flex:0 0 auto;font-size:10px}
+  .reference-cards{grid-template-columns:1fr!important}.model-evidence{font-size:11px}
+}
+
+@media(max-width:390px){
+  .app-mobile-brand strong{display:none}.app-mobile-page-title{border-left:0;padding-left:0}
+  .agent-page .agent-facts{grid-template-columns:1fr}
+  .care-auth-summary,.care-data-grid{grid-template-columns:1fr}
+}
+
+/* V22 · 移动端逐页视觉校正：与移动端总览稿保持一致。 */
+@media(max-width:900px){
+  body.has-app-shell{
+    --color-primary:#F6A15D;--color-primary-light:#FFE9D9;--color-primary-dark:#D96F32;
+    --color-green:#7BAF68;--color-green-light:#E8F2E1;--color-green-dark:#557E46;
+    --color-coral:#EA8268;--color-coral-light:#FBE3DC;--color-coral-dark:#A84432;
+    --color-purple:#9A78C8;--color-purple-light:#F0E8F6;
+    --color-teal:#43837A;--color-teal-light:#E7F1EF;
+    --c-primary:#F6A15D;--bg-page:#F8F3EC;--text-primary:#3D2E1F;--text-secondary:#6B5A4A;--text-muted:#9C8B7A;
+  }
+  .app-mobile-brand>span{background:#F6A15D!important;color:#fff!important}
+  .app-mobile-tab.is-active{color:#D96F32}.app-mobile-tab.is-active>span{background:#FFE9D9;color:#D96F32}.app-mobile-tab.is-active::after{background:#F6A15D}
+  .app-mobile-alert{color:#A84432}
+  .a11y-toolbar{right:10px!important;bottom:calc(76px + env(safe-area-inset-bottom))!important}
+  .a11y-toolbar-toggle{width:46px!important;min-width:46px!important;height:46px!important;padding:0!important;border-radius:50%!important;box-shadow:0 8px 20px rgba(92,52,24,.18)!important}
+  .a11y-toolbar-toggle>span:first-child{width:30px;height:30px}.a11y-toolbar-toggle>span:last-child{display:none}
+  .a11y-toolbar-panel{bottom:54px;width:min(330px,calc(100vw - 24px))}
+
+  /* 首页首屏：健康分 + 三项生命体征 + 预警 + 待办 */
+  .mobile-route-home .score-card{gap:10px}
+  .mobile-route-home .score-number{position:absolute;top:56px;left:17px;z-index:1}
+  .mobile-route-home .score-number-main{color:#F6A15D;font-size:52px}
+  .mobile-route-home .mobile-vital-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 0 112px;min-height:90px}
+  .mobile-vital{display:grid;min-width:0;align-content:center;justify-items:center;gap:5px;padding:9px 5px;border:1px solid #EEE5DC;border-radius:14px;background:#FFF;text-align:center}
+  .mobile-vital>span{display:grid;width:26px;height:26px;place-items:center;border-radius:9px;font-size:10px;font-weight:900}.mobile-vital>div{display:grid;min-width:0}.mobile-vital small{color:var(--text-muted);font-size:9px}.mobile-vital strong{font-size:14px;line-height:1.25;white-space:nowrap}.mobile-vital em{color:var(--text-muted);font-size:8px;font-style:normal}
+  .mobile-vital.orange>span{background:#FFE9D9;color:#D96F32}.mobile-vital.coral>span{background:#FBE3DC;color:#A84432}.mobile-vital.purple>span{background:#F0E8F6;color:#7956A7}
+  .mobile-vital-loading{grid-column:1/-1;align-self:center;color:var(--text-muted);font-size:11px;text-align:center}
+  .mobile-route-home .subscore-grid{display:none}
+  .mobile-route-home .score-footer{margin-top:5px;border-top:1px solid #F0E8DF;padding-top:10px}
+  .mobile-route-home .todo-col{display:flex}.mobile-route-home .todo-col .alert{order:0}.mobile-route-home .todo-col .todo-header{order:1}.mobile-route-home .todo-col .todo-list{order:2}.mobile-route-home .todo-col .cta{order:3}
+
+  /* 快速记录严格保持六项、三列，语音录入出现在首屏下半部 */
+  .mobile-route-record .entry-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px}
+  .mobile-route-record .entry-card{min-height:108px!important;padding:10px 8px!important}
+  .mobile-route-record .entry-card:nth-child(n+7),.mobile-route-record .entry-card-add{display:none!important}
+  .mobile-route-record .entry-card .entry-icon{width:34px;height:34px}.mobile-route-record .entry-card .entry-lbl{margin-top:7px;font-size:12px}.mobile-route-record .entry-card .entry-val{margin-top:5px;font-size:20px;line-height:1.1}.mobile-route-record .entry-card .entry-unit{margin-top:5px;overflow:hidden;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-route-record .bulk-health-entry{margin-top:10px}.mobile-route-record .bulk-entry-head h2::before{content:"语音记录 · ";color:#D96F32}.mobile-route-record .bulk-entry-controls .btn-primary{background:#F6A15D!important}
+
+  /* 趋势与风险采用暖色趋势、蓝色预测区间；去除旧青绿强调色 */
+  .discovery-tabs button.active{border-color:#F6A15D!important;background:#FFF1E5!important;color:#A85324!important}
+  .metric-choice button.active,.metric-choice button[aria-pressed="true"]{border-color:#F6A15D!important;background:#F6A15D!important;color:#fff!important}
+  .discovery-page .btn-primary{background:#F6A15D!important}.discovery-page .btn-secondary{background:#FFF0E3!important;color:#A85324!important}
+  .discovery-page .progress-track>span{background:#F6A15D!important}
+
+  /* 智能管家只保留一个手机端工具按钮，避免桌面三按钮占满首屏 */
+  .agent-page{--agent-accent:#F0904E;--agent-accent-hover:#D96F32;--agent-accent-soft:#FFF0E4;--agent-line:#ECE2D8;--agent-ink:#3D2E1F;--agent-muted:#8C7B6B}
+  .agent-page .agent-studio-toolbar{align-items:center!important;flex-direction:row!important;padding:8px 12px!important}
+  .agent-page .agent-studio-mark,.agent-page .msg-avatar{background:#F6A15D!important;color:#fff!important}
+  .agent-page .agent-studio-actions{width:auto!important;flex:0 0 auto!important}
+  .agent-page .agent-studio-actions>a,.agent-page .agent-studio-actions .agent-plan-toggle{display:none!important}
+  .agent-page #agent-daily-plan{display:grid!important;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;flex:0 0 38px!important;place-items:center;padding:0!important;border-color:#F6A15D!important;background:#F6A15D!important;border-radius:12px!important}
+  .agent-page #agent-daily-plan span{font-size:16px}.agent-page .agent-health-card{border-color:#EBD8C7!important}.agent-page .agent-card-status{background:#FFF0E4!important}
+  .agent-page .agent-clarification-card{border-color:#E8B588!important;background:#FFF!important}.agent-page .agent-clarification-card button{border-color:#E4B082!important;color:#8F4C26!important}.agent-page .agent-clarification-card button:hover{background:#FFF0E4!important}
+  .agent-page .btn-icon{background:#F6A15D!important}.agent-page .prompt{border-color:#F1D9C6!important}
+
+  /* 今日计划与 ADL/IADL 统一暖橙主操作 */
+  .intervention-eyebrow{display:none}.intervention-page .btn-primary,.life-card .btn-primary{background:#F6A15D!important}
+  .intervention-today{border-color:#EAD5C1;background:#FFF5EA}.function-options input:checked+span{border-color:#F6A15D!important;background:#FFE9D9!important;color:#A85324!important}
+
+  /* 照护页先展示已有授权关系，邀请表单按需展开 */
+  .care-head .care-eyebrow{display:none}.care-head h1{font-size:24px}
+  #owner-console:not([hidden]).mobile-owner-console{display:flex!important;flex-direction:column}
+  .mobile-owner-console>.care-section{order:0;margin-top:2px}.mobile-owner-console>.mobile-care-invite-toggle{order:1}.mobile-owner-console>.care-panel{order:2;display:none;margin-top:10px}.mobile-owner-console>.care-panel.is-mobile-expanded{display:block}
+  .mobile-care-invite-toggle.mobile-only{display:grid;width:100%;grid-template-columns:38px 1fr 20px;align-items:center;gap:10px;margin-top:12px;padding:12px;border:1px solid #ECD9C7;border-radius:16px;background:#FFF;color:var(--text-primary);text-align:left;box-shadow:0 5px 18px rgba(61,46,31,.045)}
+  .mobile-care-invite-toggle>span{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:#FFE9D9;color:#D96F32;font-size:18px;font-weight:900}.mobile-care-invite-toggle strong{font-size:14px}.mobile-care-invite-toggle small{grid-column:2;color:var(--text-muted);font-size:10px}.mobile-care-invite-toggle b{grid-column:3;grid-row:1/3;color:var(--text-muted);font-size:20px}
+  .care-page .btn-primary{background:#F6A15D!important}.care-trust{background:#FFF5E7;border-color:#EDD1B2}.care-trust>span{background:#D9823D}
+
+  /* 我的页保持列表式入口，不让资料表单挤占首屏 */
+  .mobile-profile-menu a>span{background:#FFF0E3;color:#B35E2D}.profile-avatar{background:#7BAF68!important}
+  .agent-page .a11y-toolbar{bottom:calc(140px + env(safe-area-inset-bottom))!important}
+}
+
+@media(max-width:360px){
+  .mobile-route-home .mobile-vital-grid{margin-left:102px}.mobile-vital strong{font-size:14px}
+  .mobile-route-record .entry-card .entry-val{font-size:18px}
+}
+
+/* V23 · 移动端细节打磨：紧凑空状态、统一触控反馈与滚动手感。 */
+@media(max-width:900px){
+  body.has-app-shell{-webkit-tap-highlight-color:transparent}
+  body.has-app-shell :focus-visible{outline:3px solid rgba(246,161,93,.32)!important;outline-offset:2px}
+  .app-mobile-tab,.app-mobile-alert,.quick-card,.entry-card,.todo-item,.mobile-profile-menu a,
+  .mobile-care-invite-toggle,.agent-page .prompt,.agent-page .agent-clarification-card button{
+    transition:transform .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease
+  }
+  .app-mobile-tab:active,.quick-card:active,.entry-card:active,.todo-item:active,
+  .mobile-profile-menu a:active,.mobile-care-invite-toggle:active,.agent-page .prompt:active,
+  .agent-page .agent-clarification-card button:active{transform:scale(.97)}
+
+  /* 底栏：强化当前项，留足安全区与拇指点击面积。 */
+  .app-mobile-bottomnav{padding-top:5px;box-shadow:0 -7px 22px rgba(61,46,31,.08)}
+  .app-mobile-tab{min-height:56px;gap:1px}
+  .app-mobile-tab>span{width:32px;height:29px;border-radius:10px}
+  .app-mobile-tab.is-active{background:linear-gradient(180deg,#FFF8F1 0%,rgba(255,248,241,0) 92%)}
+  .app-mobile-tab.is-active>span{box-shadow:0 3px 9px rgba(217,111,50,.12)}
+  .app-mobile-tab.is-active::after{bottom:0;width:20px;height:2px}
+  .a11y-toolbar{right:-1px!important}
+  .a11y-toolbar-toggle{
+    width:35px!important;min-width:35px!important;height:45px!important;opacity:.88;
+    border:1px solid rgba(255,255,255,.7)!important;border-right:0!important;border-radius:15px 0 0 15px!important
+  }
+  .a11y-toolbar-toggle>span:first-child{width:26px;height:26px}
+  .a11y-toolbar-toggle:focus-visible,.a11y-toolbar-toggle:hover{opacity:1}
+
+  /* 首页：空待办不再撑出大块留白，AI 入口改为一行式行动卡。 */
+  .mobile-route-home .overview-row{gap:11px}
+  .mobile-route-home .todo-col{gap:9px}
+  .mobile-route-home .todo-list .empty{
+    min-height:64px;padding:19px 10px;border:1px dashed #E9DED2;border-radius:13px;
+    background:#FCFAF7;font-size:12px;line-height:1.55
+  }
+  .mobile-route-home .todo-meta{font-size:10px}
+  .mobile-route-home .cta{
+    display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:center;gap:9px;
+    margin-top:1px;padding:11px 12px;border-color:#E89050;background:linear-gradient(135deg,#F6A15D,#EB8642);
+    box-shadow:0 8px 18px rgba(217,111,50,.16)
+  }
+  .mobile-route-home .cta-row{min-width:0;gap:9px}
+  .mobile-route-home .cta-mark{width:38px;height:38px;font-size:16px}
+  .mobile-route-home .cta-title{font-size:15px;line-height:1.25}
+  .mobile-route-home .cta-sub{overflow:hidden;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-route-home .cta-action{width:42px;min-height:42px;margin:0;padding:0;border-radius:13px}
+  .mobile-route-home .cta-action span:first-child{display:none}
+  .mobile-route-home .cta-action span:last-child{font-size:18px}
+  .mobile-route-home .quick-card{box-shadow:0 4px 13px rgba(61,46,31,.035)}
+  .mobile-route-home .quick-card::after{font-size:12px}
+
+  /* 快速记录：输入框、指标卡和主要操作使用一致的状态反馈。 */
+  .mobile-route-record .entry-card{border:1px solid #ECE3D8;box-shadow:0 3px 11px rgba(61,46,31,.035)}
+  .mobile-route-record .entry-card:active{border-color:#F2BE91;background:#FFF8F1}
+  .mobile-route-record .bulk-health-textarea::placeholder{color:#A49484;font-size:13px}
+  .mobile-route-record .bulk-entry-controls .btn-primary{box-shadow:0 6px 14px rgba(217,111,50,.17)}
+  .mobile-route-record .device-item,.mobile-route-record .pred-alert{border:1px solid #F0E6DC}
+
+  /* 趋势页：横向指标与图表都具备更自然的滑动定位。 */
+  .discovery-page section[data-pane="trend"] .metric-choice{
+    padding-right:22px;padding-bottom:7px;scroll-snap-type:x proximity;scroll-padding-inline:2px;
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%);
+    mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%)
+  }
+  .discovery-page section[data-pane="trend"] .metric-choice-group{scroll-snap-align:start}
+  .discovery-page .curve-svg-wrap{border:1px solid #EEE5DC;border-radius:14px;background:#FFF;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  .discovery-page .curve-svg-wrap svg{scroll-snap-align:start}
+  .discovery-page .discovery-panel{box-shadow:0 5px 18px rgba(61,46,31,.045)}
+
+  /* 智能管家：澄清卡与输入区更紧凑，横向提示词更易扫读。 */
+  .agent-page .quick-prompts{padding:1px 10px 2px 0;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  .agent-page .prompt{scroll-snap-align:start}
+  .agent-page .agent-clarification-card{width:calc(100vw - 84px);padding:16px;border-width:1px;border-radius:17px;box-shadow:0 7px 20px rgba(61,46,31,.06)}
+  .agent-page .agent-clarification-card>span{font-size:11px}
+  .agent-page .agent-clarification-card h3{margin:5px 0 3px;font-size:18px}
+  .agent-page .agent-clarification-card p{margin-bottom:10px;font-size:13px;line-height:1.55}
+  .agent-page .agent-clarification-card>div{gap:7px}
+  .agent-page .agent-clarification-card button{min-height:46px;border-width:1px;border-radius:11px;font-size:13px}
+  .agent-page .agent-clarification-card small{margin-top:9px;font-size:10px}
+  .agent-page .chat-input-bar:focus-within{border-color:#F1AA70;box-shadow:0 0 0 3px rgba(246,161,93,.13),0 9px 24px rgba(61,46,31,.08)}
+
+  /* 计划、照护与个人中心：缩短空状态，统一表单和列表触感。 */
+  .intervention-empty{min-height:82px!important;padding:15px!important;border-radius:14px}
+  .life-card .btn-primary,.intervention-page .btn-primary{box-shadow:0 6px 14px rgba(217,111,50,.16)}
+  .care-empty{gap:11px;padding:17px;border-width:1px;border-radius:14px;background:#FCFAF7}
+  .care-empty>span{font-size:22px}.care-empty strong{font-size:15px}.care-empty p{font-size:11px;line-height:1.55}
+  .mobile-care-invite-toggle:active{border-color:#F0B984;background:#FFF8F1}
+  .mobile-profile-menu a:active{background:#FFF8F1}
+  .profile-form-card{scroll-margin-top:70px}
+  .profile-form-card input,.profile-form-card select,.profile-form-card textarea,
+  .privacy-main input,.privacy-main select,.privacy-main textarea{min-height:50px;border-radius:12px}
+}
+
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .app-mobile-tab,.app-mobile-alert,.quick-card,.entry-card,.todo-item,.mobile-profile-menu a,
+  .mobile-care-invite-toggle,.agent-page .prompt,.agent-page .agent-clarification-card button{transition:none!important}
+}
+
+/* V24 · 移动端产品化收口：信息层级、零遮挡、长页面分层与统一交互。 */
+@media(max-width:900px){
+  html,body{max-width:100%;overflow-x:clip}
+  body.has-app-shell{padding-top:56px;padding-bottom:calc(76px + env(safe-area-inset-bottom));background:#F7F3ED}
+  body.has-app-shell main,body.has-app-shell>main,body.has-app-shell main.container,
+  body.has-app-shell .page-container{padding:14px 14px 28px}
+  body.has-app-shell .page-head{padding-left:13px}
+  body.has-app-shell .page-head::before{top:2px;width:4px;height:38px;border-radius:99px;background:#EDA15F}
+  body.has-app-shell .page-head h1,body.has-app-shell .discovery-head h1{font-size:23px;line-height:1.22}
+  body.has-app-shell .page-head .subtitle,body.has-app-shell .discovery-head p{font-size:13px;line-height:1.55}
+
+  /* 顶栏中的“辅”是正式入口，页面内不再保留覆盖内容的浮动按钮。 */
+  .app-mobile-brand{flex:0 0 32px;margin-right:8px}.app-mobile-brand strong{display:none!important}
+  .app-mobile-page-title{min-width:0;overflow:hidden;border-left:0;padding-left:0;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+  .app-mobile-a11y,.app-mobile-alert{
+    position:relative;display:grid;flex:0 0 36px;width:36px;height:36px;min-height:36px;margin:0 3px 0 0;
+    place-items:center;border:0;border-radius:11px;background:transparent;color:#8A7665;font:850 11px var(--font-cn)
+  }
+  .app-mobile-a11y:active,.app-mobile-alert:active{background:#FFF0E3;color:#A65326}
+  .app-mobilebar .avatar{flex:0 0 34px}
+  body.has-app-shell .a11y-toolbar{position:fixed!important;z-index:9100!important;inset:0!important;width:0!important;height:0!important;pointer-events:none}
+  body.has-app-shell .a11y-toolbar-toggle{display:none!important}
+  body.has-app-shell .a11y-toolbar-panel{
+    position:fixed!important;z-index:9101;right:12px!important;bottom:calc(78px + env(safe-area-inset-bottom))!important;left:12px!important;
+    width:auto!important;max-height:calc(100dvh - 104px);overflow:auto;padding:18px;border:1px solid #E8DED3;border-radius:22px;
+    box-shadow:0 24px 70px rgba(49,36,25,.24);pointer-events:auto
+  }
+  body.has-app-shell .a11y-toolbar:has(.a11y-toolbar-panel:not([hidden]))::before{
+    content:"";position:fixed;z-index:9100;inset:0;background:rgba(45,35,27,.28);backdrop-filter:blur(2px);pointer-events:auto
+  }
+
+  /* 所有手机端筛选器采用一行等宽结构，避免孤立换行。 */
+  body.has-app-shell .filter-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:14px;flex-wrap:nowrap}
+  body.has-app-shell .filter-bar .chip{display:grid;min-width:0;min-height:42px;place-items:center;padding:7px 5px;border-radius:12px;font-size:13px;font-weight:750;text-align:center}
+  body.has-app-shell .filter-bar .chip.active{border-color:#F0A162;background:#F0A162;box-shadow:0 5px 13px rgba(217,111,50,.16)}
+
+  /* 可展开的低频内容：默认只显示清楚的入口，不把整张表单铺满页面。 */
+  .mobile-collapsible-card{overflow:hidden;scroll-margin-top:70px}
+  .mobile-collapsible-card.is-mobile-collapsed{padding:0!important}
+  .mobile-collapsible-card.is-mobile-collapsed>:not(.mobile-section-toggle){display:none!important}
+  .mobile-section-toggle.mobile-only{
+    display:grid;width:100%;grid-template-columns:1fr auto 20px;align-items:center;gap:8px;min-height:60px;padding:13px 15px;
+    border:0;background:#FFF;color:var(--text-primary);font:inherit;text-align:left
+  }
+  .mobile-section-toggle span{font-size:15px;font-weight:850}.mobile-section-toggle small{color:var(--text-muted);font-size:10px}.mobile-section-toggle b{color:#B46B38;font-size:17px;text-align:center}
+  .mobile-section-toggle:active{background:#FFF8F1}
+  .mobile-collapsible-card:not(.is-mobile-collapsed)>.mobile-section-toggle{margin:-15px -15px 14px;width:calc(100% + 30px);border-bottom:1px solid #F0E8DF;background:#FFFBF7}
+
+  /* 单指标趋势：摘要紧凑、周期选择等宽，图表保持完整可读。 */
+  body:has(#form-record) .metric-page .page-head{margin-bottom:12px}
+  body:has(#form-record) .metric-page .page-head>a{min-height:36px!important;margin-bottom:5px!important;padding:5px 0!important;color:#8B674D;font-size:12px}
+  body:has(#form-record) .metric-stats{gap:9px;margin-bottom:12px}
+  body:has(#form-record) .metric-stat{min-height:104px;padding:14px;border-radius:16px}
+  body:has(#form-record) .metric-stat .label{margin-bottom:5px;font-size:11px}
+  body:has(#form-record) .metric-stat .value{font-size:23px;line-height:1.25}
+  body:has(#form-record) .metric-stat .unit{display:block;margin:2px 0 0;font-size:10px}
+  body:has(#form-record) .metric-chart{padding:15px;border-radius:18px}
+  body:has(#form-record) .metric-chart h3{margin-bottom:10px;font-size:16px}
+  body:has(#form-record) #range-bar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px!important}
+  body:has(#form-record) #range-bar .chip{min-height:42px;padding:7px 4px;border-radius:12px;font-size:12px;font-weight:800}
+  body:has(#form-record) .metric-chart svg{height:190px!important}
+  body:has(#form-record) .metric-comment{margin:12px 0 0;padding:12px 13px;border-left-width:3px;font-size:12px;line-height:1.6}
+
+  /* 今日计划：移除与分组空状态重复的全局提示，三类状态保持同一节奏。 */
+  .intervention-main .intervention-live{display:none!important}
+  .intervention-sections{gap:14px}
+  .intervention-section{margin:0}
+  .intervention-section>header{align-items:center}
+  .intervention-empty{gap:12px;background:#FCFAF7}
+  .intervention-empty>span{flex:0 0 auto}
+
+  /* 照护：刷新降级为右上角轻操作，核心关系优先。 */
+  .care-head{position:relative;padding-right:48px}
+  .care-head>.btn{position:absolute;right:0;top:0;display:grid;width:40px!important;min-width:40px!important;min-height:40px!important;place-items:center;padding:0!important;overflow:hidden;color:transparent!important;font-size:0!important;text-indent:-9999px;border-radius:12px}
+  .care-head>.btn::before{content:"↻";color:#A75B2E;font-size:18px;text-indent:0}
+  .care-trust{box-shadow:none}.care-trust p{line-height:1.55}
+  .care-section{margin-top:18px}.care-section-head{align-items:center}
+  .mobile-care-invite-toggle{box-shadow:0 4px 14px rgba(61,46,31,.04)}
+
+  /* 个人中心：菜单与表单都可直接理解，低频编辑默认折叠。 */
+  .mobile-profile-menu a,.mobile-profile-menu button{
+    display:grid;width:100%;grid-template-columns:38px 1fr 18px;align-items:center;gap:10px;min-height:64px;padding:10px 13px;
+    border:0;border-bottom:1px solid #F0E8DF;background:#FFF;color:var(--text-primary);font:inherit;text-align:left
+  }
+  .mobile-profile-menu a:last-child,.mobile-profile-menu button:last-child{border-bottom:0}
+  .mobile-profile-menu a>span,.mobile-profile-menu button>span{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:#FFF0E3;color:#B35E2D;font-size:12px;font-weight:900}
+  .mobile-profile-menu a div,.mobile-profile-menu button div{display:grid}
+  .mobile-profile-menu button strong{font-size:14px}.mobile-profile-menu button small{margin-top:2px;color:var(--text-muted);font-size:10px}.mobile-profile-menu button b{color:var(--text-muted);font-size:20px}
+  .metric-page #content>.profile-form-card.mobile-collapsible-card{margin-bottom:10px}
+
+  /* 隐私中心：精简首屏，保留所有能力但将政策与保留规则按需展开。 */
+  .privacy-head{position:relative;padding-right:48px!important}
+  .privacy-head #privacy-refresh{position:absolute;right:0;top:0;display:grid;width:40px!important;min-width:40px!important;min-height:40px!important;place-items:center;padding:0!important;overflow:hidden;color:transparent!important;font-size:0!important;text-indent:-9999px;border-radius:12px}
+  .privacy-head #privacy-refresh::before{content:"↻";color:#A75B2E;font-size:18px;text-indent:0}
+  .privacy-eyebrow{margin-bottom:2px;font-size:11px}.privacy-trust{gap:11px;box-shadow:none}.privacy-trust>span{min-width:38px;height:38px;font-size:12px}
+  .privacy-trust strong{font-size:15px}.privacy-trust p,.privacy-copy,.privacy-note p,.privacy-policy p{font-size:12px;line-height:1.65}
+  .privacy-section-head{align-items:flex-start;gap:10px}.privacy-section-head>div{min-width:0}.privacy-section-head p{font-size:10px}.privacy-pill{max-width:150px;padding:6px 9px;font-size:11px;text-align:center}
+  .privacy-category-grid{gap:8px}.privacy-category{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:11px}.privacy-category>span{width:36px;height:36px;border-radius:10px;font-size:13px}
+  .privacy-category h3{font-size:14px}.privacy-category p{font-size:11px;line-height:1.5}.privacy-category>strong{grid-column:auto;font-size:12px}
+  .privacy-row{align-items:flex-start;padding:12px}.privacy-row p{font-size:11px}.privacy-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.privacy-actions .btn{width:100%}.privacy-actions [role=status]{grid-column:1/-1}
+  .privacy-danger{gap:12px}.privacy-danger .btn{width:100%}
+
+  /* 设置：账户操作优先，技术模型配置默认折叠。 */
+  body:has(#form-llm) #content:not([hidden]){display:flex;flex-direction:column}
+  body:has(#form-llm) #content>.profile-form-card:nth-child(2){order:1}
+  body:has(#form-llm) #content>.profile-form-card:nth-child(1){order:2}
+  body:has(#form-llm) #content>.profile-form-card:nth-child(3){order:3}
+  body:has(#form-llm) .settings-account-item{align-items:center;gap:10px;padding:13px 0}
+  body:has(#form-llm) .settings-account-info{min-width:0;flex:1 1 auto;gap:10px}.settings-account-icon{width:38px;height:38px;border-radius:11px}
+  body:has(#form-llm) .settings-account-name{font-size:14px}.settings-account-desc{font-size:10px;line-height:1.45}
+  body:has(#form-llm) .settings-account-item>.btn{width:auto!important;height:40px!important;min-height:40px!important;align-self:center!important;flex:0 0 auto!important;padding:7px 10px;font-size:11px}
+  body:has(#form-llm) .settings-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.settings-actions .btn{min-width:0;width:100%}
+  body:has(#form-llm) .settings-about-mark{width:50px;height:50px;border-radius:15px;font-size:24px}
+  body:has(#form-llm) .mobile-collapsible-card:not(.is-mobile-collapsed)>.settings-card-head{justify-content:flex-end;margin-bottom:4px}
+  body:has(#form-llm) .mobile-collapsible-card:not(.is-mobile-collapsed)>.settings-card-head .settings-section-title{display:none}
+
+  /* 预警：标题操作不抢占整行，筛选固定四列，操作按钮不与正文挤压。 */
+  body:has(#alert-list) .page-head{position:relative;padding-right:92px}
+  body:has(#alert-list) #btn-read-all{position:absolute;right:0;top:0;width:auto;min-height:38px;padding:7px 10px;border-radius:11px;font-size:11px}
+  body:has(#alert-list) .alert-list{gap:10px}
+  body:has(#alert-list) .alert-row{display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;padding:13px;border-left-width:3px;border-radius:16px}
+  body:has(#alert-list) .alert-row>.icon{width:38px;height:38px}
+  body:has(#alert-list) .alert-row .title{font-size:14px;line-height:1.45}.alert-row .message{font-size:11px;line-height:1.55}.alert-row .meta{font-size:9px}
+  body:has(#alert-list) .alert-row .actions{display:grid;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-items:stretch}
+  body:has(#alert-list) .alert-row .actions .btn{width:100%;min-height:40px;padding:7px;font-size:11px}
+
+  /* 健康知识：搜索操作并排、分类不换出孤行，卡片密度更接近内容产品。 */
+  body:has(#article-list) .knowledge-search-panel{gap:12px;margin-bottom:14px;padding:15px;border-radius:18px}
+  body:has(#article-list) .knowledge-search-panel h2{font-size:18px}.knowledge-search-panel p{font-size:12px;line-height:1.6}
+  body:has(#article-list) .knowledge-search-row{grid-template-columns:1fr 1fr;gap:8px}
+  body:has(#article-list) .knowledge-search-row .search-input{grid-column:1/-1;height:48px;font-size:14px}
+  body:has(#article-list) .knowledge-search-row .btn{width:100%;min-height:44px;padding:8px 6px;font-size:12px}
+  body:has(#article-list) .knowledge-privacy-note{font-size:10px!important}
+  body:has(#article-list) .tags{gap:7px;margin-bottom:13px}.tags .tag{font-size:11px}
+  body:has(#article-list) .article-grid{gap:10px}.article-card{padding:15px;border-radius:16px}.article-card h2,.article-card h3{font-size:17px;line-height:1.45}
+
+  /* 可信度细则：四个评分维度和示例按需展开，避免一次铺开数屏表格。 */
+  body:has(.confidence-page) .page-head{margin-bottom:10px}
+  .mobile-confidence-back.mobile-only{display:inline-flex;min-height:34px;align-items:center;margin-bottom:5px;color:#8B674D;font-size:11px;font-weight:750}
+  .confidence-page>h2{margin:18px 0 9px!important;font-size:17px!important}
+  .confidence-sense-banner{padding:17px!important;border-radius:17px!important}
+  .confidence-sense-banner .sense-icon svg{width:36px;height:36px}.confidence-sense-banner h3{font-size:16px}.confidence-sense-banner p{font-size:12px!important;line-height:1.65!important}
+  .confidence-dimension-card,.confidence-example-card{margin-bottom:10px!important;padding:14px!important;border-radius:17px!important}
+  .confidence-dimension-card.is-mobile-collapsed,.confidence-example-card.is-mobile-collapsed,.confidence-sense-banner.is-mobile-collapsed{padding:0!important}
+  .confidence-dim-header{gap:10px}.confidence-dim-icon{width:38px;height:38px;border-radius:11px}.confidence-dim-title{font-size:15px}.confidence-dim-weight{font-size:10px;line-height:1.5}
+  .confidence-level-table{display:block;max-width:100%;overflow-x:auto;font-size:11px}.confidence-level-table th,.confidence-level-table td{min-width:90px;padding:9px}
+  .confidence-example-card .ex-content,.confidence-example-card .ex-score{font-size:12px;line-height:1.65}
+
+  /* 登录 / 注册：首要输入尽量进入首屏，装饰不制造横向溢出。 */
+  body:has(.login-screen){background:#F7F3ED;overflow-x:hidden}
+  .login-screen{min-height:100svh;align-items:flex-start;padding:12px;background:linear-gradient(155deg,#F9F4ED,#F1E6DA)}
+  .login-card{max-width:430px;padding:28px 22px 24px;border-radius:24px;box-shadow:0 18px 55px rgba(61,46,31,.11)}
+  .login-brand{margin-bottom:24px}.login-mark{width:60px;height:60px;margin-bottom:12px;border-radius:18px;font-size:31px}
+  .login-brand h1{margin-bottom:4px;font-size:24px}.login-brand p{font-size:13px}
+  .login-form{gap:14px}.login-form .form-row{gap:6px}.login-form .form-row>label{font-size:14px}
+  .login-form .input{min-height:52px;border-radius:13px;font-size:16px}.login-form .btn{min-height:52px;border-radius:13px}
+  .login-form .input:focus,.login-form .input:focus-visible{outline:0!important;border-color:#E99A5B!important;box-shadow:0 0 0 3px rgba(246,161,93,.18)!important}
+  .login-divider{gap:10px;font-size:11px}.login-hint{margin-top:16px;padding:13px;font-size:11px;line-height:1.6}
+  .register-gender{gap:8px}.register-gender label{min-height:54px;padding:9px;border-width:1px;font-size:14px}
+  .register-gender input[type="radio"]{width:20px!important;height:20px!important;min-height:20px!important;flex:0 0 20px}
+  .register-agree input[type="checkbox"]{width:18px!important;height:18px!important;min-height:18px!important;flex:0 0 18px}
+  .register-agree{font-size:11px;line-height:1.5}
+  .login-deco{filter:blur(75px);opacity:.1}.login-deco-1{right:-150px}.login-deco-2{left:-130px}
+  body:has(.login-screen) .a11y-toolbar{top:14px!important;right:14px!important;bottom:auto!important;width:auto!important;height:auto!important}
+  body:has(.login-screen) .a11y-toolbar-toggle{width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;border-radius:12px!important;box-shadow:0 6px 16px rgba(61,46,31,.12)!important}
+  body:has(.login-screen) .a11y-toolbar-toggle>span:first-child{width:26px;height:26px}body:has(.login-screen) .a11y-toolbar-toggle>span:last-child{display:none}
+  body:has(.login-screen) .a11y-toolbar-panel{position:fixed;right:12px;bottom:12px;left:12px;width:auto;max-height:calc(100dvh - 24px);overflow:auto}
+}
+
+@media(max-width:350px){
+  .app-mobile-a11y,.app-mobile-alert{flex-basis:34px;width:34px}.app-mobilebar .avatar{flex-basis:32px;width:32px;height:32px}
+  .mobile-route-home .mobile-vital-grid{margin-left:96px;gap:5px}.mobile-vital{padding-inline:3px}.mobile-vital strong{font-size:12px}
+  body.has-app-shell .filter-bar{gap:5px}.privacy-category{grid-template-columns:34px minmax(0,1fr)}.privacy-category>strong{grid-column:2}
+}
+
+@media(max-width:370px){
+  .mobile-route-home .score-number{position:static;top:auto;left:auto;margin:0!important}
+  .mobile-route-home .score-number-main{font-size:49px}
+  .mobile-route-home .mobile-vital-grid{margin:0;min-height:82px;gap:6px}
+  .mobile-route-home .score-footer{margin-top:1px}
+}
+
+/* V24 · 移动端深色主题完整覆盖，修正后置浅色规则造成的混色与低对比。 */
+@media(max-width:900px){
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell{
+    --text-primary:#F4EEE7;--text-secondary:#C7BBB0;--text-muted:#9F9287;--bg-page:#111714;--bg-card:#19211D;--border:#344039;
+    background:#111714!important;color:#F4EEE7
+  }
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell main,
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell .agent-main{background:#111714;color:#F4EEE7}
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobilebar,
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-bottomnav{border-color:#313B36;background:rgba(19,27,23,.97);color:#F4EEE7}
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-page-title,
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-a11y,
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-alert{color:#C2B5AA}
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-tab{color:#A99D92}
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-tab.is-active{background:linear-gradient(180deg,rgba(246,161,93,.13),transparent);color:#F2A267}
+  html[data-theme="dark"]:not([data-contrast="high"]) .app-mobile-tab.is-active>span{background:#3A2A20;color:#FFB77D;box-shadow:none}
+
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell :where(
+    .card,.panel,.section-card,.score-card,.todo-col,.quick-card,.entry-card,.bulk-health-entry,.device-card,.pred-card,
+    .metric-stat,.metric-chart,.profile-form-card,.life-card,.total-card,.improve-card,.intervention-card,.intervention-today,
+    .care-panel,.care-card,.mobile-profile-menu,.privacy-section,.privacy-panel,.privacy-danger,.knowledge-search-panel,
+    .article-card,.discovery-panel,.confidence-dimension-card,.confidence-example-card,.confidence-sense-banner
+  ){border-color:#344039!important;background:#19211D!important;color:#F4EEE7!important;box-shadow:0 6px 20px rgba(0,0,0,.12)!important}
+
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell :where(h1,h2,h3,h4,.name,.title,.settings-section-title,.profile-name,.confidence-dim-title){color:#F4EEE7!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell :where(p,.subtitle,.sub,.meta,.hint-text,.settings-section-desc,.profile-meta,.confidence-dim-weight){color:#BEB2A7!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-vital{border-color:#344039;background:#202924}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .score-footer{border-color:#344039}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .todo-list .empty,
+  html[data-theme="dark"]:not([data-contrast="high"]) .care-empty,
+  html[data-theme="dark"]:not([data-contrast="high"]) .intervention-empty{border-color:#3A4640;background:#202924;color:#BEB2A7}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .cta-action{border-color:#71513A;background:#26302B;color:#FFB77D}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .alert{border-color:#673D34;background:#38231F}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .alert .name{color:#FFB39E!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-route-home .alert .desc{color:#DDB9AF!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-profile-menu a,
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-profile-menu button,
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-section-toggle{border-color:#303B35;background:#19211D;color:#F4EEE7}
+  html[data-theme="dark"]:not([data-contrast="high"]) .mobile-collapsible-card:not(.is-mobile-collapsed)>.mobile-section-toggle{border-color:#344039;background:#202924}
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell :where(input,select,textarea,.input,.search-input,.bulk-health-textarea){border-color:#455149!important;background-color:#202924!important;color:#F4EEE7!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell :where(input,textarea,.search-input,.bulk-health-textarea)::placeholder{color:#877B71}
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell .filter-bar .chip,
+  html[data-theme="dark"]:not([data-contrast="high"]) body:has(#form-record) #range-bar .chip{border-color:#465249;background:#202924;color:#C9BDB2}
+  html[data-theme="dark"]:not([data-contrast="high"]) body.has-app-shell .filter-bar .chip.active,
+  html[data-theme="dark"]:not([data-contrast="high"]) body:has(#form-record) #range-bar .chip.active{border-color:#E58D4D;background:#E58D4D;color:#19110C}
+  html[data-theme="dark"]:not([data-contrast="high"]) .settings-account-item{border-color:#344039}
+  html[data-theme="dark"]:not([data-contrast="high"]) .settings-account-item>.btn{border-color:#5B493C;background:#33261F;color:#FFC18F}
+  html[data-theme="dark"]:not([data-contrast="high"]) .privacy-category,
+  html[data-theme="dark"]:not([data-contrast="high"]) .privacy-row{border-color:#344039;background:#202924}
+  html[data-theme="dark"]:not([data-contrast="high"]) .care-trust,
+  html[data-theme="dark"]:not([data-contrast="high"]) .privacy-trust{border-color:#46594F;background:#20302A;color:#E9F1EB}
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .chat-area,
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .agent-studio-toolbar{border-color:#344039;background:#111714!important}
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .agent-chat-composer{background:linear-gradient(180deg,rgba(17,23,20,0),#111714 18%)}
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .chat-input-bar{border-color:#455149;background:#202924}
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .agent-clarification-card{border-color:#5D493A!important;background:#19211D!important;color:#F4EEE7}
+  html[data-theme="dark"]:not([data-contrast="high"]) .agent-page .agent-clarification-card button{border-color:#6A513E!important;background:#202924;color:#F0B587!important}
+}

@@ -11,7 +11,7 @@
 
   <main class="metric-page">
     <header class="page-head">
-      <h1>个人资料</h1>
+      <h1><span class="desktop-only">个人资料</span><span class="mobile-only">我的与隐私</span></h1>
       <p class="subtitle">修改您的基本信息和紧急联系人</p>
     </header>
 
@@ -27,6 +27,16 @@
           </div>
         </div>
       </section>
+
+      <nav class="mobile-profile-menu mobile-only" aria-label="我的常用功能">
+        <a href="care.html"><span aria-hidden="true">护</span><div><strong>授权管理</strong><small>家属与医生照护授权</small></div><b aria-hidden="true">›</b></a>
+        <a href="privacy.html"><span aria-hidden="true">盾</span><div><strong>数据与隐私</strong><small>导出数据、查看访问记录</small></div><b aria-hidden="true">›</b></a>
+        <a href="#risk-profile"><span aria-hidden="true">档</span><div><strong>健康档案</strong><small>完善风险评估与基本资料</small></div><b aria-hidden="true">›</b></a>
+        <a href="#emergency-contact"><span aria-hidden="true">联</span><div><strong>紧急联系人</strong><small>设置家属联系方式</small></div><b aria-hidden="true">›</b></a>
+        <a href="#account-security"><span aria-hidden="true">锁</span><div><strong>账号安全</strong><small>修改密码与账号管理</small></div><b aria-hidden="true">›</b></a>
+        <button type="button" data-theme-toggle><span data-theme-icon aria-hidden="true">月</span><div><strong>外观模式</strong><small>切换浅色或深色界面</small></div><b aria-hidden="true">›</b></button>
+        <button type="button" data-profile-a11y><span aria-hidden="true">辅</span><div><strong>显示与朗读</strong><small>调整字号、对比度和朗读</small></div><b aria-hidden="true">›</b></button>
+      </nav>
 
       <section class="profile-form-card">
         <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 8px;font-weight:700">风险评估资料</h3>
@@ -68,7 +78,7 @@
         </form>
       </section>
 
-      <section class="profile-form-card">
+      <section class="profile-form-card" id="emergency-contact">
         <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 20px;font-weight:700">紧急联系人</h3>
         <form class="form" id="form-emergency">
           <div class="form-row">
@@ -83,7 +93,7 @@
         </form>
       </section>
 
-      <section class="profile-form-card">
+      <section class="profile-form-card" id="account-security">
         <h3 style="font-size:20px;color:var(--c-text);font-family:var(--font-cn);margin:0 0 20px;font-weight:700">修改密码</h3>
         <form class="form" id="form-password">
           <div class="form-row">
