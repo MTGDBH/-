@@ -107,6 +107,11 @@ function runUnit(tempRoot) {
   for (const file of unitTests) runNodeFile(file, tempRoot, seedDatabase);
 }
 
+function runSecurityNodeTests(tempRoot) {
+  const seedDatabase = createSeedDatabase(tempRoot);
+  for (const file of securityNodeTests) runNodeFile(file, tempRoot, seedDatabase);
+}
+
 async function waitForServer(baseUrl, child) {
   for (let attempt = 0; attempt < 80; attempt += 1) {
     if (child.exitCode !== null) throw new Error(`test server exited early with ${child.exitCode}`);
@@ -174,7 +179,7 @@ async function main() {
     else if (group === 'integration') await runIntegration(tempRoot);
     else if (group === 'graphrag' || group === 'curve') runPython(group);
     else if (group === 'security') {
-      for (const file of securityNodeTests) runNodeFile(file, tempRoot);
+      runSecurityNodeTests(tempRoot);
       runPython(group);
     }
     else if (group === 'syntax') runSyntax();
@@ -184,7 +189,7 @@ async function main() {
       runPython('unit');
       runPython('graphrag');
       runPython('curve');
-      for (const file of securityNodeTests) runNodeFile(file, tempRoot);
+      runSecurityNodeTests(tempRoot);
       runPython('security');
       runSyntax();
     } else throw new Error(`unknown test group: ${group}`);

@@ -34,9 +34,11 @@ def git_status() -> bytes:
 
 def syntax_check() -> int:
     failures = []
-    for path in ROOT.rglob("*.py"):
-        if any(part in {".git", ".venv", "node_modules", "__pycache__"} for part in path.parts):
-            continue
+    tracked = subprocess.check_output(
+        ["git", "ls-files", "*.py"], cwd=ROOT, text=True, encoding="utf-8"
+    )
+    for relative_path in tracked.splitlines():
+        path = ROOT / relative_path
         try:
             ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
         except (SyntaxError, UnicodeError) as exc:
