@@ -73,16 +73,16 @@ function gitStatus() {
   return spawnSync('git', ['status', '--porcelain=v1', '-z'], { cwd: repoRoot }).stdout;
 }
 
-function tempDatabase(tempRoot, name = 'app.db') {
+function tempDatabase(tempRoot, name = 'app.db', sourceDatabase = null) {
   const destination = path.join(tempRoot, name);
-  const source = path.join(serverRoot, 'data', 'app.db');
-  if (fs.existsSync(source)) {
-    fs.copyFileSync(source, destination);
-    for (const suffix of ['-wal', '-shm']) {
-      if (fs.existsSync(source + suffix)) fs.copyFileSync(source + suffix, destination + suffix);
-    }
-  }
+  if (sourceDatabase) fs.copyFileSync(sourceDatabase, destination);
   return destination;
+}
+
+function createSeedDatabase(tempRoot) {
+  const seedDatabase = path.join(tempRoot, 'seed.db');
+  run(process.execPath, ['data/seed.js'], { env: { DB_PATH: seedDatabase, NODE_ENV: 'test' } });
+  return seedDatabase;
 }
 
 function run(command, args, options = {}) {
@@ -95,13 +95,16 @@ function run(command, args, options = {}) {
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with exit code ${result.status}`);
 }
 
-function runNodeFile(file, tempRoot) {
-  const dbPath = tempDatabase(tempRoot, `${path.basename(file).replace(/\W/g, '-')}.db`);
+function runNodeFile(file, tempRoot, sourceDatabase = null) {
+  const dbPath = tempDatabase(tempRoot, `${path.basename(file).replace(/\W/g, '-')}.db`, sourceDatabase);
   run(process.execPath, [file], { env: { DB_PATH: dbPath } });
 }
 
 function runUnit(tempRoot) {
-  for (const file of unitTests) runNodeFile(file, tempRoot);
+  // Build one deterministic fixture database instead of copying the developer's
+  // ignored server/data/app.db, which does not exist in GitHub Actions.
+  const seedDatabase = createSeedDatabase(tempRoot);
+  for (const file of unitTests) runNodeFile(file, tempRoot, seedDatabase);
 }
 
 async function waitForServer(baseUrl, child) {

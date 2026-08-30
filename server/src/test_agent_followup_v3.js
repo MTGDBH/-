@@ -5,7 +5,9 @@ import { buildFollowupComparison, confirmFollowupCandidate, createFollowupForAct
 const rollback = Symbol('rollback');
 try {
   db.transaction(() => {
-    const userId = 1, actorId = 1;
+    const userId = Number(db.prepare(`INSERT INTO users (name,password,role) VALUES (?,?,'senior')`)
+      .run(`followup-v3-${Date.now()}`, 'test-only').lastInsertRowid);
+    const actorId = userId;
     const baselineInsert = db.prepare(`INSERT INTO metrics (user_id,type,value,value2,unit,recorded_at,source,measurement_condition) VALUES (?,?,?,?,?,?,?,?)`)
       .run(userId, 'bp', 146, 94, 'mmHg', new Date(Date.now() - 3600000).toISOString(), 'manual', 'morning_rest');
     const actionInsert = db.prepare(`INSERT INTO action_requests (user_id,actor_user_id,subject_user_id,action_type,payload,status,idempotency_key) VALUES (?,?,?,?,?,'pending_confirmation',?)`)
