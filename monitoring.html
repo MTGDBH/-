@@ -11,9 +11,27 @@
 
   <main class="main">
     <header class="page-head">
-      <h1><span class="desktop-only">健康监测</span><span class="mobile-only">快速记录</span></h1>
-      <p class="subtitle"><span class="desktop-only">记录、查看与预测你的健康指标</span><span class="mobile-only">点选指标，或直接说出今天的健康数据</span></p>
+      <h1><span class="desktop-only">记录与趋势</span><span class="mobile-only">快速记录</span></h1>
+      <p class="subtitle"><span class="desktop-only">清晰掌握每一次变化，让健康趋势更有依据</span><span class="mobile-only">点选指标，或直接说出今天的健康数据</span></p>
     </header>
+
+    <section class="desktop-record-board desktop-only" aria-label="健康记录趋势">
+      <div class="desktop-metric-tabs"><button class="is-active">血压</button><a href="metric.html?type=glucose">血糖</a><a href="metric.html?type=hr">心率</a><a href="metric.html?type=weight">体重</a><a href="metric.html?type=sleep">睡眠</a><a class="desktop-add-record" href="#metric-grid">＋ 添加记录</a></div>
+      <div class="desktop-stat-strip">
+        <article><small>最近一次</small><strong id="record-latest">--/--</strong><span>mmHg</span></article>
+        <article><small>7 天平均</small><strong id="record-average">--/--</strong><span>mmHg</span></article>
+        <article><small>最高收缩压</small><strong id="record-high">--</strong><span>mmHg</span></article>
+        <article><small>趋势状态</small><strong class="record-status" id="record-status">数据不足</strong><span>近 7 天</span></article>
+      </div>
+      <article class="desktop-trend-card">
+        <div class="desktop-card-title"><div><strong>血压趋势</strong><small>最近 7 天</small></div><div class="desktop-chart-legend"><span><i class="sbp"></i>收缩压</span><span><i class="dbp"></i>舒张压</span></div></div>
+        <svg id="desktop-bp-chart" viewBox="0 0 900 220" role="img" aria-label="最近七天血压趋势"></svg>
+      </article>
+      <article class="desktop-record-table-card">
+        <div class="desktop-section-heading"><div><h2>最近记录</h2><p>按时间由近到远</p></div><a href="metric.html?type=bp">查看全部 ›</a></div>
+        <table><thead><tr><th>日期时间</th><th>收缩压</th><th>舒张压</th><th>状态</th><th>来源</th></tr></thead><tbody id="desktop-record-rows"><tr><td colspan="5">正在读取记录…</td></tr></tbody></table>
+      </article>
+    </section>
 
     <section class="bulk-health-entry" aria-labelledby="bulk-entry-title">
       <div class="bulk-entry-head">
@@ -173,8 +191,40 @@
   <script>
     document.addEventListener('auth:ready', () => {
       loadAll();
+      loadDesktopRecordBoard();
     });
     Auth.init();
+
+    async function loadDesktopRecordBoard() {
+      try {
+        const data = await API.get('/api/health/metrics/bp/history?days=7');
+        const points = data.points || [];
+        if (!points.length) return;
+        const latest = points[points.length - 1];
+        const avg = key => Math.round(points.reduce((sum, item) => sum + Number(item[key] || 0), 0) / points.length);
+        const avgS = avg('value'), avgD = avg('value2');
+        document.getElementById('record-latest').textContent = `${Math.round(latest.value)}/${Math.round(latest.value2)}`;
+        document.getElementById('record-average').textContent = `${avgS}/${avgD}`;
+        document.getElementById('record-high').textContent = Math.max(...points.map(item => Number(item.value)));
+        const state = avgS >= 140 || avgD >= 90 ? '需要关注' : avgS >= 130 || avgD >= 85 ? '略有偏高' : '总体平稳';
+        document.getElementById('record-status').textContent = state;
+        const svg = document.getElementById('desktop-bp-chart');
+        const width = 900, height = 220, left = 48, right = 20, top = 20, bottom = 38;
+        const values = points.flatMap(item => [Number(item.value), Number(item.value2)]);
+        const min = Math.max(40, Math.floor((Math.min(...values) - 10) / 10) * 10), max = Math.ceil((Math.max(...values) + 10) / 10) * 10;
+        const x = index => left + index * ((width - left - right) / Math.max(1, points.length - 1));
+        const y = value => top + (max - value) * ((height - top - bottom) / Math.max(1, max - min));
+        const path = key => points.map((item, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(Number(item[key])).toFixed(1)}`).join(' ');
+        const grid = [0,1,2,3,4].map(i => { const gy = top + i * (height-top-bottom)/4; const label = Math.round(max - i*(max-min)/4); return `<line x1="${left}" y1="${gy}" x2="${width-right}" y2="${gy}"/><text x="8" y="${gy+4}">${label}</text>`; }).join('');
+        const labels = points.map((item,index) => `<text class="x-label" x="${x(index)}" y="${height-10}" text-anchor="middle">${new Date(item.recorded_at).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})}</text>`).join('');
+        const dots = key => points.map((item,index) => `<circle cx="${x(index)}" cy="${y(Number(item[key]))}" r="4"/>`).join('');
+        svg.innerHTML = `<g class="chart-grid">${grid}</g>${labels}<path class="chart-sbp" d="${path('value')}"/><g class="chart-sbp-dots">${dots('value')}</g><path class="chart-dbp" d="${path('value2')}"/><g class="chart-dbp-dots">${dots('value2')}</g>`;
+        document.getElementById('desktop-record-rows').innerHTML = points.slice().reverse().slice(0,4).map(item => {
+          const status = Number(item.value) >= 140 || Number(item.value2) >= 90 ? '偏高' : '正常';
+          return `<tr><td>${new Date(item.recorded_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td><strong>${Math.round(item.value)}</strong> mmHg</td><td><strong>${Math.round(item.value2)}</strong> mmHg</td><td><span class="table-status ${status === '正常' ? 'ok' : ''}">${status}</span></td><td>手动记录</td></tr>`;
+        }).join('');
+      } catch {}
+    }
 
     // 内置指标定义：从 /api/health/metric-defs 拉取（后端 metric_defs 表为单一数据源）
     let METRIC_DEFS = [];

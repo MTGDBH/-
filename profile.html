@@ -18,6 +18,20 @@
     <div class="loading-page" id="loading"><span class="loading"></span> 读取中…</div>
 
     <div id="content" hidden>
+      <aside class="desktop-profile-nav desktop-only">
+        <div class="desktop-profile-card"><div class="profile-avatar" id="desktop-avatar">张</div><strong id="desktop-display-name">—</strong><small>健康账户</small></div>
+        <nav><a class="is-active" href="#desktop-privacy-overview"><span>人</span>个人信息<b>›</b></a><a href="care.html"><span>护</span>授权管理<b>›</b></a><a href="privacy.html"><span>盾</span>数据与隐私<b>›</b></a><a href="#account-security"><span>锁</span>账号安全<b>›</b></a><button type="button" data-theme-toggle><span data-theme-icon>月</span>显示模式<b>›</b></button></nav>
+      </aside>
+      <section class="desktop-privacy-overview desktop-only" id="desktop-privacy-overview">
+        <header><div><h2>个人信息与隐私</h2><p>管理资料、授权和数据访问方式</p></div><span>安全保护中</span></header>
+        <div class="privacy-overview-list">
+          <a href="privacy.html"><span class="pink">盾</span><div><strong>隐私保护</strong><small>健康数据仅在授权范围内使用</small></div><em>已开启</em><b>›</b></a>
+          <a href="care.html"><span class="purple">护</span><div><strong>家属与医生授权</strong><small>查看和管理当前协作者权限</small></div><em>可随时撤回</em><b>›</b></a>
+          <a href="privacy.html"><span class="blue">迹</span><div><strong>数据访问记录</strong><small>查看最近谁访问过您的数据</small></div><em>完整留痕</em><b>›</b></a>
+          <a href="privacy.html"><span class="orange">出</span><div><strong>导出个人数据</strong><small>下载自己的健康档案与记录</small></div><em>JSON / CSV</em><b>›</b></a>
+        </div>
+        <div class="desktop-privacy-note"><span>✓</span><p><strong>您的数据由您做主</strong><small>我们不会将您的个人健康数据用于广告，也不会在未经同意时分享给第三方。</small></p></div>
+      </section>
       <section class="profile-form-card">
         <div class="profile-header">
           <div class="profile-avatar" id="avatar" style="background:#7FB069">张</div>
@@ -144,6 +158,9 @@
       document.getElementById('avatar').textContent = (u.name || '?').slice(0, 1);
       document.getElementById('avatar').style.background = u.avatar_color || '#7FB069';
       document.getElementById('display-name').textContent = u.name || '—';
+      document.getElementById('desktop-display-name').textContent = u.name || '—';
+      document.getElementById('desktop-avatar').textContent = (u.name || '?').slice(0, 1);
+      document.getElementById('desktop-avatar').style.background = u.avatar_color || '#ff5268';
       const parts = [];
       if (u.age) parts.push(`${u.age} 岁`);
       if (u.height) parts.push(`身高 ${u.height}m`);

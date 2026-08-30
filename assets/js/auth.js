@@ -1,13 +1,12 @@
 // 鉴权、全站应用框架与用户信息
 (function () {
   const NAV_ITEMS = [
-    { key: 'overview', icon: '概', label: '健康概览', href: 'index.html' },
-    { key: 'monitoring', icon: '测', label: '健康监测', href: 'monitoring.html' },
-    { key: 'assessment', icon: '评', label: '健康评估', href: 'assessment.html' },
-    { key: 'agent', icon: '智', label: '智能管家', href: 'agent.html' },
-    { key: 'intervention', icon: '计', label: '改善计划', href: 'intervention.html' },
-    { key: 'care', icon: '护', label: '照护协同', href: 'care.html' },
-    { key: 'knowledge', icon: '知', label: '健康知识', href: 'knowledge.html' },
+    { key: 'overview', icon: '⌂', label: '健康总览', href: 'index.html' },
+    { key: 'monitoring', icon: '⌁', label: '记录与趋势', href: 'monitoring.html' },
+    { key: 'agent', icon: '✦', label: '智能管家', href: 'agent.html' },
+    { key: 'intervention', icon: '✓', label: '今日计划', href: 'intervention.html' },
+    { key: 'care', icon: '♧', label: '照护协同', href: 'care.html' },
+    { key: 'profile', icon: '人', label: '我的与隐私', href: 'profile.html' },
   ];
 
   const MOBILE_NAV_ITEMS = [
@@ -22,7 +21,10 @@
     const p = location.pathname.split('/').pop() || 'index.html';
     const hit = NAV_ITEMS.find(n => n.href === p);
     if (hit) return hit.key;
-    if (p === 'metric.html' || p === 'alerts.html') return 'monitoring';
+    if (['metric.html', 'prediction.html', 'alerts.html'].includes(p)) return 'monitoring';
+    if (['assessment.html'].includes(p)) return 'intervention';
+    if (['knowledge.html', 'confidence.html'].includes(p)) return 'agent';
+    if (['privacy.html', 'settings.html'].includes(p)) return 'profile';
     return null;
   }
 
@@ -43,8 +45,6 @@
     const mobileKey = mobileKeyFromPath();
     const initials = (user.name || '你').slice(0, 1);
     const avColor = user.avatar_color || '#0F766E';
-    const workspaceItems = NAV_ITEMS.slice(0, 4);
-    const serviceItems = NAV_ITEMS.slice(4);
     const navLink = n => `<a href="${n.href}" class="app-nav-link${n.key === activeKey ? ' is-active' : ''}"${n.key === activeKey ? ' aria-current="page"' : ''}><span aria-hidden="true">${n.icon}</span><strong>${n.label}</strong></a>`;
     const mobileLink = n => `<a href="${n.href}" class="app-mobile-tab${n.key === mobileKey ? ' is-active' : ''}"${n.key === mobileKey ? ' aria-current="page"' : ''}><span aria-hidden="true">${n.icon}</span><strong>${n.label}</strong></a>`;
     const mobileTitle = MOBILE_NAV_ITEMS.find(item => item.key === mobileKey)?.label || '首页';
@@ -52,18 +52,18 @@
 
     slot.outerHTML = `
       ${skipLink}
-      <aside class="app-sidebar" aria-label="应用导航">
-        <a href="index.html" class="app-sidebar-brand" aria-label="小康健康管家首页"><span>康</span><div><strong>小康健康管家</strong><small>HEALTH OS</small></div></a>
-        <nav class="app-sidebar-nav">
-          <section><p>健康工作台</p>${workspaceItems.map(navLink).join('')}</section>
-          <section><p>服务与知识</p>${serviceItems.map(navLink).join('')}</section>
-        </nav>
-        <div class="app-sidebar-tools">
-          <a href="alerts.html" class="app-tool-link"><span aria-hidden="true">醒</span><strong>预警中心</strong><i class="bell-badge" data-alert-badge hidden></i></a>
-          <a href="settings.html" class="app-tool-link"><span aria-hidden="true">设</span><strong>系统设置</strong></a>
-          <button type="button" class="app-tool-link" data-theme-toggle aria-label="切换到深色模式" aria-pressed="false"><span data-theme-icon aria-hidden="true">月</span><strong>显示模式</strong></button>
+      <header class="app-desktop-topbar desktop-only">
+        <a href="index.html" class="app-desktop-brand" aria-label="小康健康管家首页"><span>康</span><strong>小康健康</strong></a>
+        <div class="app-desktop-tools">
+          <span class="app-sync-state"><i></i> 数据已同步</span>
+          <a href="alerts.html" class="app-desktop-icon" aria-label="预警中心">♢<i class="bell-badge" data-alert-badge hidden></i></a>
+          <button type="button" class="app-desktop-icon" data-theme-toggle aria-label="切换显示模式" aria-pressed="false"><span data-theme-icon aria-hidden="true">月</span></button>
+          <a href="profile.html" class="app-desktop-user"><span class="avatar" style="background:${avColor}">${initials}</span><div><strong>${user.name}</strong><small>${user.age ? `${user.age} 岁` : '健康账户'}</small></div><b>⌄</b></a>
         </div>
-        <a href="profile.html" class="app-user-card"><span class="avatar" style="background:${avColor}">${initials}</span><div><strong>${user.name}</strong><small>查看个人资料</small></div><b aria-hidden="true">›</b></a>
+      </header>
+      <aside class="app-sidebar" aria-label="应用导航">
+        <nav class="app-sidebar-nav">${NAV_ITEMS.map(navLink).join('')}</nav>
+        <div class="app-sidebar-help"><span>?</span><div><strong>需要帮助？</strong><small>查看使用指南</small></div></div>
       </aside>
       <header class="app-mobilebar">
         <a href="index.html" class="app-mobile-brand"><span>康</span><strong>小康·健康管家</strong></a>

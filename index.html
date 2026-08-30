@@ -10,6 +10,34 @@
   <div id="app-nav"></div>
 
   <main class="main">
+    <section class="desktop-dashboard desktop-only" aria-label="健康总览">
+      <header class="desktop-page-heading">
+        <div><h1>早上好，<span id="desktop-user-name">您好</span></h1><p id="desktop-date">今天也要照顾好自己</p></div>
+        <a class="desktop-primary-action" href="monitoring.html">＋ 记录健康数据</a>
+      </header>
+      <div class="desktop-overview-grid">
+        <article class="desktop-score-panel">
+          <div class="desktop-card-title"><div><span class="desktop-icon-tile">♥</span><strong>今日健康状态</strong></div><a href="assessment.html">查看报告 ›</a></div>
+          <div class="desktop-score-body"><div class="desktop-score-ring"><strong id="desktop-score">--</strong><span>分</span></div><div><h2 id="desktop-score-status">正在读取</h2><p>较昨日 <b id="desktop-score-trend">--</b></p><small>睡眠、活动与关键指标综合得分</small></div></div>
+        </article>
+        <article class="desktop-alert-panel" id="desktop-alert-panel">
+          <div class="desktop-alert-icon">!</div><div><span>需要关注</span><h2 id="desktop-alert-title">血压略有波动</h2><p id="desktop-alert-desc">建议保持静坐后复测并记录</p></div><a href="alerts.html">查看详情 ›</a>
+        </article>
+      </div>
+      <section class="desktop-vitals-section">
+        <div class="desktop-section-heading"><div><h2>关键指标</h2><p>最近一次测量</p></div><a href="monitoring.html">全部记录 ›</a></div>
+        <div class="desktop-vitals-grid">
+          <a href="metric.html?type=bp"><span class="vital-icon pink">压</span><div><small>血压</small><strong id="desktop-bp">--/--</strong><em>mmHg</em></div><b>›</b></a>
+          <a href="metric.html?type=hr"><span class="vital-icon orange">心</span><div><small>心率</small><strong id="desktop-hr">--</strong><em>次/分</em></div><b>›</b></a>
+          <a href="metric.html?type=glucose"><span class="vital-icon purple">糖</span><div><small>血糖</small><strong id="desktop-glucose">--</strong><em>mmol/L</em></div><b>›</b></a>
+          <a href="metric.html?type=weight"><span class="vital-icon blue">重</span><div><small>体重</small><strong id="desktop-weight">--</strong><em>kg</em></div><b>›</b></a>
+        </div>
+      </section>
+      <div class="desktop-bottom-grid">
+        <section class="desktop-task-panel"><div class="desktop-section-heading"><div><h2>今日任务</h2><p id="desktop-task-count">0 项待完成</p></div><a href="intervention.html">全部计划 ›</a></div><div id="desktop-task-list" class="desktop-task-list"><p class="desktop-empty">正在读取今日任务…</p></div></section>
+        <aside class="desktop-reminder-panel"><span>✦</span><div><small>小康提醒</small><h2>每天一点小改变</h2><p>晚饭后散步 20 分钟，有助于维持血糖和睡眠状态。</p><a href="agent.html">问问智能管家 →</a></div></aside>
+      </div>
+    </section>
     <!-- 问候栏 -->
     <section class="greeting">
       <div class="greeting-left">
@@ -158,6 +186,7 @@
     document.addEventListener('auth:ready', (e) => {
       const u = e.detail;
       document.querySelector('[data-bind="greeting"]').textContent = greeting(u.name);
+      loadDesktopDashboard(u);
       loadSummary();
       loadTodos();
       loadAlerts();
@@ -169,6 +198,38 @@
       const h = new Date().getHours();
       const time = h < 11 ? '早上好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
       return `${name || '您'}，${time}`;
+    }
+
+    async function loadDesktopDashboard(user) {
+      document.getElementById('desktop-user-name').textContent = user.name || '您好';
+      document.getElementById('desktop-date').textContent = `${new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })} · 今天也要照顾好自己`;
+      try {
+        const [summary, metrics, todos] = await Promise.all([
+          API.get('/api/health/summary'), API.get('/api/health/metrics'), API.get('/api/todos/today')
+        ]);
+        document.getElementById('desktop-score').textContent = summary.total_score ?? '--';
+        document.getElementById('desktop-score-status').textContent = summary.total_score >= 80 ? '整体状态良好' : summary.total_score >= 60 ? '有几项需要关注' : '建议及时评估';
+        document.getElementById('desktop-score-trend').textContent = summary.trend || '保持稳定';
+        const show = (id, metric, formatter) => {
+          const item = metrics[metric];
+          document.getElementById(id).textContent = item ? formatter(item) : '--';
+        };
+        show('desktop-bp', 'bp', v => `${Math.round(v.value)}/${Math.round(v.value2)}`);
+        show('desktop-hr', 'hr', v => Math.round(v.value));
+        show('desktop-glucose', 'glucose', v => Number(v.value).toFixed(1));
+        show('desktop-weight', 'weight', v => Number(v.value).toFixed(1));
+        const pending = (todos || []).filter(item => !item.completed);
+        document.getElementById('desktop-task-count').textContent = `${pending.length} 项待完成`;
+        document.getElementById('desktop-task-list').innerHTML = pending.length ? pending.slice(0, 3).map((item, index) => `<a href="intervention.html"><i>${index + 1}</i><div><strong>${escapeHTML(item.title || item.content || '健康任务')}</strong><small>${escapeHTML(item.time || item.scheduled_time || '今天完成')}</small></div><span>去完成 ›</span></a>`).join('') : '<p class="desktop-empty">今天的任务已全部完成，做得很好。</p>';
+      } catch {}
+      try {
+        const alertData = await API.get('/api/alerts?status=pending');
+        const first = alertData.items?.[0];
+        if (first) {
+          document.getElementById('desktop-alert-title').textContent = first.title || '有一项指标需要关注';
+          document.getElementById('desktop-alert-desc').textContent = first.description || first.message || '查看详情并按建议处理';
+        }
+      } catch {}
     }
 
     async function loadSummary() {
