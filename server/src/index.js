@@ -78,6 +78,7 @@ app.use('/api/auth', authRouter);
 
 // ===== 静态前端（Sealos / 单容器部署）=====
 app.get('/login', (_req, res) => res.redirect('/login.html'));
+app.get('/mobile', (_req, res) => res.sendFile(path.join(ROOT_DIR, 'mobile.html')));
 app.get('/', (_req, res) => res.sendFile(path.join(ROOT_DIR, 'index.html')));
 app.use(express.static(ROOT_DIR));
 

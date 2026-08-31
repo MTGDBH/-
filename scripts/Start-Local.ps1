@@ -15,8 +15,8 @@ if (-not (Test-Path -LiteralPath $VenvPython)) { throw 'Python 虚拟环境不�
 try {
   $Existing = Invoke-RestMethod -Uri 'http://localhost:3001/api/health' -TimeoutSec 2
   if ($Existing.ok) {
-    Start-Process 'http://localhost:3001/prediction.html'
-    Write-Host '服务已在运行，已打开预测页。'
+    Start-Process 'http://localhost:3001/mobile'
+    Write-Host '服务已在运行，已打开新版移动端。'
     exit 0
   }
 } catch { }
@@ -44,7 +44,7 @@ if (-not $Ready) {
   throw '服务启动失败，请查看 server\server-runtime.err.log。'
 }
 
-Start-Process 'http://localhost:3001/prediction.html'
-Write-Host "项目已启动：http://localhost:3001/prediction.html"
+Start-Process 'http://localhost:3001/mobile'
+Write-Host "项目已启动：http://localhost:3001/mobile"
 Write-Host "人群模型状态：$($Health.populationModels)"
 Write-Host "进程号：$($Process.Id)；运行 scripts\Stop-Local.ps1 可停止。"

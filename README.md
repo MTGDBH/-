@@ -22,12 +22,13 @@
 | 复测随访闭环 | 已完成 | 支持建议、确认、执行、到期、候选测量匹配、结果回填、取消/拒绝等状态 |
 | Docker 与本地部署 | 已完成 | Windows 安装/启动/停止脚本；单容器 Dockerfile；Node 服务同时托管前端和 API |
 
-## 15 个根目录 HTML 页面
+## 16 个根目录 HTML 页面
 
-页面总数按仓库根目录 `*.html` 实际文件统计为 **15**：11 个登录后功能页、2 个鉴权页、2 个无需登录的展示/开发页。
+页面总数按仓库根目录 `*.html` 实际文件统计为 **16**：新增 1 个统一移动端应用，同时保留 11 个桌面功能页、2 个鉴权页和 2 个展示/开发页。
 
 | 类型 | 页面 | 用途 |
 |---|---|---|
+| 移动端 | `mobile.html` / `/mobile` | 新版手机应用：登录、健康摘要、测量、趋势、计划、评估、提醒、智能管家、知识、照护与账户设置 |
 | 鉴权 | `login.html` | 登录、演示账号入口 |
 | 鉴权 | `register.html` | 创建老人或家属账号并建立会话 |
 | 功能 | `index.html` | 健康概览、待办、预警和快捷入口 |
@@ -73,7 +74,7 @@ Set-Location 'D:\BIGCHUANG\-'
 .\scripts\Start-Local.ps1 -SkipSetup
 ```
 
-服务和前端统一运行在 `http://localhost:3001/`，启动脚本默认打开 `prediction.html`。停止：
+服务和前端统一运行在 `http://localhost:3001/`，启动脚本默认打开新版移动端 `/mobile`。手机访问旧页面时会自动进入对应的新版移动视图；桌面端仍保留原页面。停止：
 
 ```powershell
 .\scripts\Stop-Local.ps1
@@ -91,7 +92,7 @@ npm ci
 npm start
 ```
 
-Node 服务已同时托管根目录静态页面，不需要另开 Python 静态服务器。浏览器访问 `http://localhost:3001/login.html`。
+Node 服务已同时托管根目录静态页面，不需要另开 Python 静态服务器。移动端访问 `http://localhost:3001/mobile`，桌面端仍可访问 `http://localhost:3001/login.html`。
 
 ### Docker
 

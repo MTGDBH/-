@@ -11,6 +11,21 @@
     document.documentElement.style.colorScheme = theme;
   } catch {}
 
+  // 手机端统一进入新版应用；保留 desktop=1 作为桌面版显式入口。
+  const mobileAppPath = location.pathname === '/mobile' || /mobile\.html$/.test(location.pathname);
+  const forceDesktop = new URLSearchParams(location.search).get('desktop') === '1';
+  if (!mobileAppPath && !forceDesktop && window.matchMedia?.('(max-width: 900px)').matches) {
+    const page = location.pathname.split('/').pop() || 'index.html';
+    const viewByPage = {
+      'index.html':'home', 'login.html':'home', 'register.html':'home', 'monitoring.html':'monitor', 'metric.html':'monitor',
+      'prediction.html':'trends', 'alerts.html':'risk', 'assessment.html':'assessment', 'intervention.html':'plans',
+      'agent.html':'chat', 'knowledge.html':'knowledge', 'confidence.html':'knowledge', 'care.html':'care',
+      'profile.html':'profile', 'privacy.html':'settings', 'settings.html':'settings',
+    };
+    location.replace(`/mobile?view=${encodeURIComponent(viewByPage[page] || 'home')}`);
+    return;
+  }
+
   // 如果通过 file:// 协议打开，自动跳转到后端服务地址（同源才能正常读写 cookie）
   if (location.protocol === 'file:') {
     var page = location.pathname.split('/').pop() || 'index.html';
@@ -34,7 +49,7 @@
   };
 
   const BASE = resolveBase();
-  const isLoginPage = () => /login\.html$/.test(location.pathname) || location.pathname === '/login.html';
+  const isLoginPage = () => /login\.html$/.test(location.pathname) || location.pathname === '/login.html' || /mobile\.html$/.test(location.pathname) || location.pathname === '/mobile';
 
   class APIError extends Error {
     constructor(message, details = {}) {

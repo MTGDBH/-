@@ -51,6 +51,7 @@ const unitTests = [
   'src/test_intervention_evaluation.js',
   'src/test_intervention_frontend_contract.js',
   'src/test_care_frontend_contract.js',
+  'src/test_mobile_frontend_contract.js',
   'src/test_privacy_contract.js',
   'src/test_agent_intervention_loop.js',
   'src/test_agent_security_v3.js',
