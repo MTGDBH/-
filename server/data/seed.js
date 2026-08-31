@@ -149,12 +149,12 @@ const insertChat = db.prepare(`
   INSERT INTO chat_messages (user_id, role, content, created_at) VALUES (1, ?, ?, ?)
 `);
 insertChat.run('assistant',
-  '张奶奶，早上好！我已经看过你今早的血压和昨晚的心率数据，整体稳定。不过收缩压有点偏高，要不要我帮你出一份今天的调理方案？',
+  '张奶奶，早上好！我可以按最新记录帮你整理趋势、依据和下一步。健康数据需要结合测量时间与条件判断；如有明显不适，请优先联系医生。',
   new Date(Date.now() - 2 * 3600 * 1000).toISOString());
 insertChat.run('user', '好的，帮我看看今天该怎么调',
   new Date(Date.now() - 110 * 60 * 1000).toISOString());
 insertChat.run('assistant',
-  '好的，我给你定制了 5 步方案：\n1. 饮食：早餐少盐，多吃蔬菜\n2. 运动：午后散步 30 分钟\n3. 作息：22:30 前准备入睡\n4. 用药：18:00 服用降压药\n5. 复查：下周三 9:00 心内科',
+  '今天可以先做两件事：\n1. 按平时身体情况安排轻松活动；不舒服时立即停止。\n2. 在相同条件下继续记录血压、心率和睡眠。\n我不会替你决定用药或声称已经预约；相关事项需要本人和医生确认。',
   new Date(Date.now() - 105 * 60 * 1000).toISOString());
 console.log('✓ 对话历史：3 条');
 

@@ -571,6 +571,11 @@ addColumnIfMissing('chat_messages', 'client_request_id', 'TEXT');
 addColumnIfMissing('chat_messages', 'parent_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'supersedes_message_id', 'INTEGER');
 addColumnIfMissing('chat_messages', 'run_id', 'INTEGER');
+addColumnIfMissing('llm_call_logs', 'prompt_tokens', 'INTEGER');
+addColumnIfMissing('llm_call_logs', 'completion_tokens', 'INTEGER');
+addColumnIfMissing('llm_call_logs', 'total_tokens', 'INTEGER');
+addColumnIfMissing('llm_call_logs', 'cache_hit_tokens', 'INTEGER');
+addColumnIfMissing('llm_call_logs', 'estimated_cost_cny', 'REAL');
 
 // 安全迁移：旧版可能把 LLM API Key 写入 settings。启动后立即移除密钥，仅保留非敏感元数据。
 const legacyLlmConfig = db.prepare("SELECT value FROM settings WHERE key='llm_config'").get();

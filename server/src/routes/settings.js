@@ -1,27 +1,23 @@
 import express from 'express';
-import db from '../db.js';
 import { getLLMStatus } from '../ai/agent.js';
 import { requireCapability } from '../middleware/accessControl.js';
 import { getLLMConfig, publicLLMConfig } from '../services/llmConfigService.js';
+import { hasPermission } from '../contracts/accessControl.js';
 
 const router = express.Router();
 
-router.get('/llm', (_req, res) => res.json(publicLLMConfig()));
+router.get('/llm', (req, res) => res.json({
+  ...publicLLMConfig(),
+  can_test: hasPermission(req.user?.role, 'manage_system_settings'),
+  configuration_method: 'server_environment',
+}));
 router.get('/llm/status', (_req, res) => res.json(getLLMStatus()));
 
 router.put('/llm', requireCapability('manage_system_settings'), (req, res) => {
-  if (String(req.body?.api_key || '').trim()) {
-    return res.status(400).json({ error: '为避免密钥明文落库，请通过服务器环境变量配置 API Key' });
-  }
-  const current = publicLLMConfig();
-  const metadata = {
-    base_url: String(req.body?.base_url || current.base_url || '').slice(0, 500),
-    model: String(req.body?.model || current.model || '').slice(0, 120),
-    secret_source: 'environment',
-  };
-  db.prepare(`INSERT INTO settings (key,value,updated_at) VALUES ('llm_metadata',?,datetime('now','localtime'))
-    ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=datetime('now','localtime')`).run(JSON.stringify(metadata));
-  res.json({ ...publicLLMConfig(), ...metadata, note: 'API Key 只从环境变量读取，未写入数据库' });
+  res.status(409).json({
+    error: '模型配置由服务器环境变量管理，请修改 server/.env 后重启服务',
+    code: 'LLM_CONFIG_READ_ONLY', retryable: false, stage: 'configuration',
+  });
 });
 
 router.post('/llm/test', requireCapability('manage_system_settings'), async (_req, res) => {

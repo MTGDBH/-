@@ -83,7 +83,7 @@ const hasRealLLM = () => !!getLLMConfig();
  * 调用真实 LLM（支持 risk_predict 工具调用）
  * 容错：第一/二轮偶发空回复 → 不带工具重试一次；仍空则抛错（由 chat() 降级）
  */
-async function callOpenAI(messages, healthSummary, user, intent = {}) {
+async function callOpenAI(messages, healthSummary, user, intent = {}, signal = null) {
   const cfg = getLLMConfig();
   const startedAt = Date.now();
   const provider = cfg?.provider || providerFromBaseUrl(cfg?.base_url);
@@ -129,7 +129,9 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     tool_choice: forcedToolChoice,
   };
   if (forcedToolChoice === 'none') body1.response_format = { type: 'json_object' };
-  const data = await postJSON(url, headers, body1);
+  const usages = [];
+  const data = await postJSON(url, headers, body1, signal);
+  if (data.usage) usages.push(data.usage);
   const choice = data.choices?.[0]?.message || {};
 
   let finalText = '';
@@ -192,7 +194,8 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
       temperature: 0.6,
       response_format: { type: 'json_object' },
     };
-    const data2 = await postJSON(url, headers, body2);
+    const data2 = await postJSON(url, headers, body2, signal);
+    if (data2.usage) usages.push(data2.usage);
     finalText = data2.choices?.[0]?.message?.content || '';
   } else {
     finalText = choice.content || '';
@@ -204,7 +207,8 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
       ? [...systemMsgs, ...messages, toolContext.assistant, ...toolContext.toolResults]
       : [...systemMsgs, ...messages];
     const retryBody = { model, messages: retryMsgs, temperature: 0.6 };  // 无 response_format，最稳
-    const dataR = await postJSON(url, headers, retryBody);
+    const dataR = await postJSON(url, headers, retryBody, signal);
+    if (dataR.usage) usages.push(dataR.usage);
     finalText = dataR.choices?.[0]?.message?.content || '';
   }
 
@@ -218,7 +222,8 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
       model, temperature: 0.2, response_format: { type: 'json_object' },
       messages: [...repairMsgs, { role: 'system', content: '上一轮输出未满足 JSON 契约。请只返回合法 JSON 对象，必须包含 content、plan、confidence；不要使用 Markdown 代码块。' }],
     };
-    const repaired = await postJSON(url, headers, repairBody);
+    const repaired = await postJSON(url, headers, repairBody, signal);
+    if (repaired.usage) usages.push(repaired.usage);
     const repairedText = repaired.choices?.[0]?.message?.content || '';
     if (repairedText.trim()) parsedFinal = safeParseJSON(repairedText);
   }
@@ -233,6 +238,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
     call_status: 'success',
     latency_ms: Date.now() - startedAt,
     tool_calls: [...new Set(toolContext?.assistant?.tool_calls?.map(tc => tc.function?.name).filter(Boolean) || [])],
+    usage: aggregateUsage(usages),
   };
   return normalized;
 }
@@ -241,7 +247,7 @@ async function callOpenAI(messages, healthSummary, user, intent = {}) {
  * V2 证据解释器：工具已经由后端编排并执行，本轮明确不向模型开放任何工具。
  * 模型只能把结构化证据改写成老人易懂的回答；所有数字仍需通过后置守卫。
  */
-export async function composeGroundedResponse({ messages = [], userMessage = '', healthSummary = {}, user = {}, actor = null, authority = 'self', intent = {}, toolResults = [], memories = [], conversationSummary = null }) {
+export async function composeGroundedResponse({ messages = [], userMessage = '', healthSummary = {}, user = {}, actor = null, authority = 'self', intent = {}, toolResults = [], memories = [], conversationSummary = null, signal = null }) {
   const cfg = getLLMConfig();
   if (!cfg) return null;
   const startedAt = Date.now();
@@ -268,24 +274,42 @@ export async function composeGroundedResponse({ messages = [], userMessage = '',
       { role: 'user', content: userMessage },
     ],
   };
-  const data = await postJSON(`${base}/chat/completions`, { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.api_key}` }, body);
+  const data = await postJSON(`${base}/chat/completions`, { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.api_key}` }, body, signal);
   const rawText = data.choices?.[0]?.message?.content || '';
   const parsed = safeParseJSON(rawText);
   const normalized = normalizeAgentResult(parsed);
   normalized.__toolResults = toolResults.map(item => item.result).filter(Boolean);
   const guarded = applyResponseGuards(normalized, userMessage, healthSummary, intent);
   if (guarded.degraded) throw new Error('V2_COMPOSER_OUTPUT_REJECTED');
-  guarded.__llm = { provider, model: body.model, call_status: 'success', latency_ms: Date.now() - startedAt, tool_calls: [] };
+  guarded.__llm = { provider, model: body.model, call_status: 'success', latency_ms: Date.now() - startedAt, tool_calls: [], usage: aggregateUsage([data.usage]) };
   return guarded;
 }
 
-async function postJSON(url, headers, body) {
+function aggregateUsage(rows = []) {
+  const values = rows.filter(Boolean);
+  const sum = key => values.reduce((total, row) => total + Number(row?.[key] || 0), 0);
+  const promptTokens = sum('prompt_tokens');
+  const completionTokens = sum('completion_tokens');
+  const cacheHitTokens = values.reduce((total, row) => total + Number(row?.prompt_cache_hit_tokens || row?.prompt_tokens_details?.cached_tokens || 0), 0);
+  const price = key => String(process.env[key] || '').trim() === '' ? NaN : Number(process.env[key]);
+  const inputRate = price('LLM_INPUT_COST_PER_1M_CNY');
+  const cacheRate = price('LLM_CACHE_HIT_COST_PER_1M_CNY');
+  const outputRate = price('LLM_OUTPUT_COST_PER_1M_CNY');
+  const priced = [inputRate, outputRate].every(Number.isFinite);
+  const uncached = Math.max(0, promptTokens - cacheHitTokens);
+  return { prompt_tokens: promptTokens, completion_tokens: completionTokens, total_tokens: sum('total_tokens') || promptTokens + completionTokens,
+    cache_hit_tokens: cacheHitTokens, estimated_cost_cny: priced ? +((uncached * inputRate + cacheHitTokens * (Number.isFinite(cacheRate) ? cacheRate : inputRate) + completionTokens * outputRate) / 1_000_000).toFixed(6) : null };
+}
+
+async function postJSON(url, headers, body, signal = null) {
+  const timeoutSignal = AbortSignal.timeout(Number(process.env.DEEPSEEK_TIMEOUT_MS || 45000));
+  const combinedSignal = signal && typeof AbortSignal.any === 'function' ? AbortSignal.any([signal, timeoutSignal]) : signal || timeoutSignal;
   const res = await fetch(url, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
     // 网络异常不能让老人端请求无限挂起；超时后由主流程转入真实工具兜底。
-    signal: AbortSignal.timeout(Number(process.env.DEEPSEEK_TIMEOUT_MS || 45000)),
+    signal: combinedSignal,
   });
   if (!res.ok) {
     await res.text();

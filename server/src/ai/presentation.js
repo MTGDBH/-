@@ -167,7 +167,8 @@ function presentationActions(plan, intent, tone, liveContext, strictEvidence = f
     actions.unshift({ title: '安排一次规范复测', description: '选择时间后先生成待确认预览，确认后才创建站内待办。', action_type: 'schedule_recheck', requires_confirmation: true, ...scheduleFields({}) });
   }
   if (actions.length) return actions.slice(0, 2);
-  return strictEvidence ? [] : [defaultAction(intent, tone)];
+  // 冻结证据链时仍需兑现“下一步”回答契约，但只给不写库、不触发敏感动作的建议。
+  return [defaultAction(intent, tone)];
 }
 
 function safetyFor(tone, intent, response) {

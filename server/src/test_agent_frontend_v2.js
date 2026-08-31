@@ -3,9 +3,14 @@ import fs from 'node:fs';
 
 const html = fs.readFileSync(new URL('../../agent.html', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../../assets/css/styles.css', import.meta.url), 'utf8');
+const accessibilityCss = fs.readFileSync(new URL('../../assets/css/agent-accessibility.css', import.meta.url), 'utf8');
+const apiClient = fs.readFileSync(new URL('../../assets/js/api.js', import.meta.url), 'utf8');
+const settings = fs.readFileSync(new URL('../../settings.html', import.meta.url), 'utf8');
+const apiRoutes = fs.readFileSync(new URL('./routes/api.js', import.meta.url), 'utf8');
 const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(script, 'agent inline script is required');
 new Function(script);
+new Function(apiClient);
 
 for (const text of ['选择老人', '新对话', '已记住的信息', '要记住这件事吗', '读取依据']) assert.match(html, new RegExp(text));
 for (const text of ['当前结论', '关键数据', '下一步行动', '需要帮助时', '查看依据']) assert.match(html, new RegExp(text));
@@ -60,5 +65,14 @@ assert.match(css, /@media\(max-width:1260px\)/);
 assert.match(css, /\.agent-chat-composer/);
 assert.match(css, /overflow:visible!important/);
 assert.match(css, /\.agent-workspace-height-resizer/);
+for (const text of ['agent-run-progress', 'agent-stop-wait', '正在读取健康记录', '正在分析趋势和风险', '停止等待']) assert.ok(html.includes(text), `${text} 运行状态内容缺失`);
+assert.ok(html.includes('assets/css/agent-accessibility.css'), '适老可读性覆盖样式未加载');
+assert.match(accessibilityCss, /font-size:16px!important/);
+assert.match(accessibilityCss, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+for (const text of ['APIError', 'CLIENT_TIMEOUT', 'requestId', 'retryable', 'AbortSignal']) assert.ok(apiClient.includes(text), `${text} API 错误与取消契约缺失`);
+for (const text of ['/api/chat/stream', '/api/chat/cancel', 'API.stream', 'event === \'delta\'']) assert.ok(html.includes(text) || apiClient.includes(text), `${text} 流式取消契约缺失`);
+for (const text of ['text/event-stream', 'X-Accel-Buffering', 'registerAgentRun', 'AGENT_CANCELLED']) assert.ok(apiRoutes.includes(text), `${text} 服务端流式取消契约缺失`);
+for (const text of ['agent-trend-chart', '趋势引用日期', '查看依据与可信度', '不能替代医生诊断']) assert.ok(html.includes(text) || accessibilityCss.includes(text), `${text} 趋势与可信度展示缺失`);
+for (const text of ['模型调用监控', 'failure_count', 'fallback_count', 'total_tokens', 'estimated_cost_cny']) assert.ok(settings.includes(text), `${text} 模型监控界面缺失`);
 
 console.log('agent v2 frontend static acceptance: PASS');

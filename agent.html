@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>智能管家 · 小康·健康管家</title>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/agent-accessibility.css">
   <style>@media(min-width:901px){body.has-app-shell.agent-page{padding:64px 0 0 196px!important}body.has-app-shell.agent-page>.app-sidebar{display:flex!important}.agent-page .agent-console>.agent-row{position:relative!important;display:grid!important;width:100%!important;grid-template-columns:minmax(0,1fr) 360px!important;gap:18px!important;height:calc(100vh - 154px)!important;overflow:hidden!important}.agent-page .agent-home-link{display:inline-flex!important;align-items:center;gap:7px;background:#fff!important;border:1px solid #e9ebf0!important;color:#ff5268!important}.agent-page .agent-home-link span{font-size:17px;line-height:1}.agent-page .agent-home-link:hover{border-color:#ffc2ca!important;background:#fff5f6!important}.agent-page .plan-area{padding:14px 12px!important}.agent-page .agent-inbox-sidebar{max-height:370px;overflow:hidden}.agent-page .agent-inbox-sidebar .agent-inbox-list{max-height:275px;overflow:auto;padding:8px}.agent-page .agent-inbox-sidebar .agent-inbox-item{padding:10px;font-size:12px;line-height:1.45}.agent-page .agent-inbox-sidebar .agent-inbox-item-head strong{font-size:14px}.agent-page .agent-inbox-sidebar .agent-inbox-item-head time{font-size:10px}.agent-page .agent-inbox-sidebar .followup-pair{gap:6px;margin:8px 0}.agent-page .agent-inbox-sidebar .followup-pair>div{padding:9px}.agent-page .agent-inbox-sidebar .followup-pair strong{font-size:16px}.agent-page .agent-inbox-sidebar .agent-inbox-actions{gap:6px;margin-top:8px}.agent-page .agent-inbox-sidebar .agent-inbox-actions button,.agent-page .agent-inbox-sidebar .agent-inbox-actions .btn{min-height:34px;padding:5px 7px;font-size:11px}.agent-page .agent-row .chat-history{padding:22px 30px!important}.agent-page .agent-row .msg-bubble{max-width:760px}}</style>
 </head>
 <body class="agent-page">
@@ -70,6 +71,10 @@
         <div class="chat-history" id="chat-history"></div>
         <div class="agent-chat-composer">
           <div class="agent-composer-label"><strong>可以这样问</strong><span>建议仅作健康管理参考</span></div>
+          <div class="agent-run-progress" id="agent-run-progress" role="status" aria-live="polite" hidden>
+            <span id="agent-run-stage">正在读取健康记录…</span>
+            <button type="button" id="agent-stop-wait">停止等待</button>
+          </div>
           <div class="quick-prompts" id="quick-prompts"></div>
           <div class="chat-input-bar">
             <input class="input chat-input" id="chat-input" placeholder="例如：帮我看看最近的血压变化" aria-label="输入健康问题" />
@@ -277,6 +282,9 @@
     let me = null;
     let subjectId = null;
     let conversationId = null;
+    let activeChatController = null;
+    let activeClientRequestId = null;
+    let chatProgressTimer = null;
 
     const agentQuery = () => `subject_user_id=${encodeURIComponent(subjectId)}${conversationId ? `&conversation_id=${encodeURIComponent(conversationId)}` : ''}`;
     const requestId = () => (globalThis.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(36).slice(2)}`);
@@ -451,8 +459,14 @@
 
     function bindSend() {
       document.getElementById('btn-send').addEventListener('click', send);
+      document.getElementById('agent-stop-wait').addEventListener('click', async () => {
+        if (!activeChatController) return;
+        const id = activeClientRequestId;
+        if (id) API.post('/api/chat/cancel', { client_request_id: id }, { timeoutMs: 5000 }).catch(() => {});
+        activeChatController.abort();
+      });
       document.getElementById('chat-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') send();
+        if (e.key === 'Enter' && !e.isComposing) send();
       });
     }
 
@@ -609,13 +623,25 @@
     function renderEvidenceBody(evidence) {
       if (!evidence || ((!Array.isArray(evidence.items) || !evidence.items.length) && !evidence.graph)) return '';
       const trendName = { rising: '上升', falling: '下降', stable: '基本稳定', unknown: '暂不判断' };
+      const trendChart = item => {
+        const series = (item.series || []).filter(point => Number.isFinite(Number(point.value))).slice(-14);
+        if (series.length < 2) return '';
+        const allValues = series.flatMap(point => [Number(point.value), Number(point.value2)].filter(Number.isFinite));
+        const min = Math.min(...allValues), max = Math.max(...allValues), range = Math.max(1, max - min);
+        const points = key => series.map((point, index) => `${(index / (series.length - 1) * 100).toFixed(1)},${(32 - ((Number(point[key]) - min) / range) * 28).toFixed(1)}`).join(' ');
+        const secondary = series.some(point => Number.isFinite(Number(point.value2))) ? `<polyline class="secondary" points="${points('value2')}"/>` : '';
+        const start = displayDate(series[0].recorded_at), end = displayDate(series.at(-1).recorded_at);
+        return `<div class="agent-trend-chart" role="img" aria-label="${escapeHTML(item.metric)}从${escapeHTML(start)}到${escapeHTML(end)}的趋势图">
+          <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="34" x2="100" y2="34"/><polyline points="${points('value')}"/>${secondary}</svg>
+          <span>${escapeHTML(start)}</span><strong>${escapeHTML(item.metric)}近 ${series.length} 次记录</strong><span>${escapeHTML(end)}</span></div>`;
+      };
       const rows = (evidence.items || []).slice(0, 4).map(item => {
         const value = item.latest_value == null ? '—' : `${item.latest_value}${item.unit ? ' ' + displayUnit(item.unit) : ''}`;
         const date = item.measured_at ? new Date(item.measured_at).toLocaleDateString('zh-CN') : '—';
-        return `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f2e9df">
-          <span style="color:#6f6257">${escapeHTML(displayMetric(item.metric))} · ${escapeHTML(date)}</span>
-          <span style="color:#3d2e1f;font-weight:600">${escapeHTML(value)} · ${escapeHTML(trendName[item.trend] || '暂不判断')}</span>
-        </div>`;
+        const range = item.trend_start_date && item.trend_end_date ? `${displayDate(item.trend_start_date)}—${displayDate(item.trend_end_date)}` : date;
+        return `<div class="agent-evidence-row"><div><span>${escapeHTML(displayMetric(item.metric))} · 最新 ${escapeHTML(date)}</span>
+          <strong>${escapeHTML(value)} · ${escapeHTML(trendName[item.trend] || '暂不判断')}</strong></div>
+          <small>趋势引用日期：${escapeHTML(range)} · ${Number(item.data_points || 0)} 条记录</small>${trendChart(item)}</div>`;
       }).join('');
       const graph = evidence.graph;
       const graphCitations = graph?.citations?.slice?.(0, 3) || [];
@@ -688,7 +714,13 @@
     function renderCardBasis(m, providerLabel) {
       const trace = m.tool_trace || m.evidence?.tool_trace || [];
       const traceHtml = trace.length ? `<div class="agent-card-trace"><strong>读取内容</strong>${trace.map(item => `<span class="${item.status==='success'?'ok':'error'}">${escapeHTML(displayTool(item))} · ${item.status==='success'?'已完成':'暂不可用'}${item.freshness?` · ${escapeHTML(displayDate(item.freshness))}`:''}</span>`).join('')}</div>` : '';
-      return `<details class="agent-card-basis"><summary>查看依据</summary><div class="agent-card-basis-inner"><div class="agent-card-provider">回答来源：${escapeHTML(providerLabel)}</div>${traceHtml}${renderEvidenceBody(m.evidence) || '<p>本次没有读取个人健康数据。</p>'}</div></details>`;
+      const conf = m.confidence || {};
+      const level = Number(conf.score) >= 85 ? '较高' : Number(conf.score) >= 70 ? '中等' : '有限';
+      const confidenceHtml = conf.type === 'data' ? `<div class="agent-confidence-explain"><strong>可信度 ${escapeHTML(conf.score ?? '—')} · ${level}</strong>
+        <p>${escapeHTML(conf.reasoning || '根据可用数据、记录完整度和后端核验规则计算。')}</p>
+        ${(conf.sources || []).length ? `<small>计算依据：${conf.sources.slice(0, 4).map(escapeHTML).join('；')}</small>` : ''}
+        <small>可信度表示本次回答的证据充分程度，不表示疾病发生概率，也不能替代医生诊断。</small></div>` : `<div class="agent-confidence-explain"><strong>一般健康知识</strong><p>本次没有足够个人数据用于量化可信度。</p></div>`;
+      return `<details class="agent-card-basis"><summary>查看依据与可信度</summary><div class="agent-card-basis-inner"><div class="agent-card-provider">回答来源：${escapeHTML(providerLabel)}</div>${confidenceHtml}${traceHtml}${renderEvidenceBody(m.evidence) || '<p>本次没有读取个人健康数据。</p>'}</div></details>`;
     }
 
     function renderHealthCard(m, providerLabel) {
@@ -729,7 +761,7 @@
       const providerLabel = llmMeta.call_status === 'success'
         ? '健康智能分析'
         : (llmMeta.call_status === 'fallback' ? '本地健康工具结果' : (m.source === 'mock' ? '本地演示结果' : m.source === 'tool' ? '健康工具结果' : '本地健康知识结果'));
-      const sourceHtml = m.role === 'assistant' ? `<div style="margin:4px 0 5px;color:#a88970;font-size:11px">回答来源：${escapeHTML(providerLabel)}</div>` : '';
+      const sourceHtml = m.role === 'assistant' ? `<div class="agent-source-label">回答来源：${escapeHTML(providerLabel)}</div>` : '';
       const hasHealthCard = m.presentation?.mode === 'health_card' || m.presentation?.mode === 'emergency';
       const hasClarification = m.presentation?.mode === 'clarification';
       const visiblePlans = (m.plan || []).map(p => normalizeVisiblePlan(p, m.content || '')).filter(isValidVisiblePlan).slice(0, 1);
@@ -763,6 +795,7 @@
     }
 
     async function send() {
+      if (activeChatController) return;
       const input = document.getElementById('chat-input');
       const text = input.value.trim();
       if (!text) return;
@@ -770,8 +803,34 @@
       lastUserMessage = text;
       appendUserMsg(text);
       const typingEl = appendTyping();
+      const btn = document.getElementById('btn-send');
+      const progress = document.getElementById('agent-run-progress');
+      const stage = document.getElementById('agent-run-stage');
+      const stages = ['正在读取健康记录…', '正在分析趋势和风险…', '正在核对数据与知识依据…'];
+      let stageIndex = 0;
+      activeChatController = new AbortController();
+      activeClientRequestId = requestId();
+      btn.disabled = true;
+      input.disabled = true;
+      progress.hidden = false;
+      stage.textContent = stages[0];
+      chatProgressTimer = setInterval(() => {
+        stageIndex = Math.min(stageIndex + 1, stages.length - 1);
+        stage.textContent = stages[stageIndex];
+      }, 1400);
       try {
-        const r = await API.post('/api/chat', { message: text, subject_user_id: subjectId, conversation_id: conversationId, client_request_id: requestId() });
+        let streamedText = '';
+        const r = await API.stream('/api/chat/stream', { message: text, subject_user_id: subjectId, conversation_id: conversationId, client_request_id: activeClientRequestId }, {
+          signal: activeChatController.signal, timeoutMs: 65_000,
+          onEvent(event, payload) {
+            if (event === 'progress' && payload.text) stage.textContent = payload.text;
+            if (event === 'delta') {
+              streamedText += payload.content || '';
+              const bubble = typingEl.querySelector('.msg-bubble');
+              if (bubble) bubble.textContent = streamedText;
+            }
+          },
+        });
         conversationId = r.conversation_id || conversationId;
         typingEl.remove();
         document.getElementById('chat-history').insertAdjacentHTML('beforeend',
@@ -796,7 +855,20 @@
         }
       } catch (err) {
         typingEl.remove();
-        appendAssistantMsg('我网络不太好，稍后再试？', []);
+        if (err.code === 'CLIENT_CANCELLED' || err.code === 'AGENT_CANCELLED') appendAssistantMsg('本次分析已在服务器停止，没有保存未完成的回答。', []);
+        else {
+          const trace = err.requestId ? `（请求编号：${err.requestId}）` : '';
+          appendAssistantMsg(`${err.message || '本次回答暂时失败'}${trace}${err.retryable ? '，可以稍后重试。' : '。'}`, []);
+        }
+      } finally {
+        clearInterval(chatProgressTimer);
+        chatProgressTimer = null;
+        activeChatController = null;
+        activeClientRequestId = null;
+        btn.disabled = false;
+        input.disabled = false;
+        progress.hidden = true;
+        input.focus();
       }
     }
 

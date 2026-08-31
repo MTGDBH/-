@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>设置 · 小康·健康管家</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
-  <style>@media(min-width:901px){body:has(#form-llm) .metric-page>#content{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:15px!important}body:has(#form-llm) .metric-page>#content>.profile-form-card{display:block!important;grid-column:1!important}.settings-card-head{display:flex;align-items:center;justify-content:space-between}.settings-section-title{font-size:18px!important}.settings-section-desc{max-width:760px;line-height:1.7}.settings-actions{display:flex;gap:10px}}</style>
+  <style>.ops-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.ops-metric{padding:14px;border:1px solid #eadfd4;border-radius:12px;background:#fffaf6}.ops-metric span,.ops-metric small{display:block;color:#806f61}.ops-metric strong{display:block;margin:5px 0;font-size:22px;color:#3d2e1f}.ops-note{margin-top:12px;color:#806f61;font-size:13px}@media(max-width:720px){.ops-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(min-width:901px){body:has(#form-llm) .metric-page>#content{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:15px!important}body:has(#form-llm) .metric-page>#content>.profile-form-card{display:block!important;grid-column:1!important}.settings-card-head{display:flex;align-items:center;justify-content:space-between}.settings-section-title{font-size:18px!important}.settings-section-desc{max-width:760px;line-height:1.7}.settings-actions{display:flex;gap:10px}}</style>
   <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F4A261'/><text x='50' y='66' text-anchor='middle' font-size='56' font-weight='700' fill='white' font-family='sans-serif'>康</text></svg>" />
 </head>
 <body>
@@ -27,8 +27,8 @@
           <span class="settings-mode-badge" id="mode-badge">Mock 模式</span>
         </div>
         <p class="settings-section-desc">
-          配置大模型 API 后，智能管家将从 Mock 规则回复切换为真实 LLM 对话。
-          支持 OpenAI 兼容接口（如 OpenAI、DeepSeek、混元等）。
+          模型密钥、接口地址和模型名称由服务器环境变量统一管理，页面不会接收或保存密钥。
+          修改 <code>server/.env</code> 并重启服务后，状态会在这里自动更新。
         </p>
 
         <form class="form" id="form-llm" style="margin-top: 24px">
@@ -42,8 +42,7 @@
                 </svg>
               </span>
               <input class="input" type="password" id="api_key" name="api_key"
-                     placeholder="留空则保持现有 Key 不变" style="padding-left:48px" />
-              <button type="button" class="login-toggle-pwd" id="toggle-key">显示</button>
+                     placeholder="密钥仅保存在服务器环境变量中" style="padding-left:48px" readonly disabled />
             </div>
             <span class="hint-text" id="key-hint">未配置 API Key</span>
           </div>
@@ -51,23 +50,27 @@
           <div class="form-row">
             <label for="base_url">接口地址（Base URL）</label>
             <input class="input" type="text" id="base_url" name="base_url"
-                   placeholder="https://api.openai.com/v1" />
+                   placeholder="https://api.openai.com/v1" readonly />
             <span class="hint-text">OpenAI / DeepSeek / 混元等兼容接口地址</span>
           </div>
 
           <div class="form-row">
             <label for="model">模型名称</label>
             <input class="input" type="text" id="model" name="model"
-                   placeholder="gpt-4o-mini" />
+                   placeholder="gpt-4o-mini" readonly />
             <span class="hint-text">如 gpt-4o-mini、deepseek-chat、hunyuan-pro 等</span>
           </div>
 
           <div class="settings-actions">
             <button type="button" class="btn btn-secondary" id="btn-test">测试连接</button>
-            <button type="submit" class="btn btn-primary">保存配置</button>
           </div>
           <div class="settings-test-result" id="test-result" hidden></div>
         </form>
+      </section>
+
+      <section class="profile-form-card" id="ops-monitor" hidden>
+        <div class="settings-card-head"><div><h3 class="settings-section-title">模型调用监控</h3><p class="settings-section-desc">仅管理员可见；汇总最近 24 小时的真实调用日志。</p></div><button type="button" class="btn btn-secondary" id="btn-refresh-ops">刷新</button></div>
+        <div class="ops-grid" id="ops-grid"></div><p class="ops-note" id="ops-note"></p>
       </section>
 
       <!-- 账户管理 -->
@@ -138,11 +141,29 @@
       try {
         const cfg = await API.get('/api/settings/llm');
         renderConfig(cfg);
+        await loadOpsMetrics();
         document.getElementById('loading').hidden = true;
         document.getElementById('content').hidden = false;
         bindEvents();
       } catch (err) {
         document.getElementById('loading').innerHTML = '加载失败：' + err.message;
+      }
+    }
+
+    async function loadOpsMetrics() {
+      try {
+        const data = await API.get('/api/ops/metrics');
+        const m = data.llm || {}, d = m.last_24h || {};
+        document.getElementById('ops-monitor').hidden = false;
+        const percent = value => `${(Number(value || 0) * 100).toFixed(1)}%`;
+        document.getElementById('ops-grid').innerHTML = [
+          ['调用次数', d.calls || 0, `当前运行 ${m.active_runs || 0}`], ['P95 耗时', m.p95_latency_ms == null ? '—' : `${m.p95_latency_ms} ms`, `成功率 ${percent(d.success_rate)}`],
+          ['失败 / 降级', `${d.failure_count || 0} / ${d.fallback_count || 0}`, `失败率 ${percent(d.failure_rate)} · 降级率 ${percent(d.fallback_rate)}`],
+          ['Token / 估算成本', `${Number(d.total_tokens || 0).toLocaleString('zh-CN')}`, d.cost_estimate_available ? `约 ¥${Number(d.estimated_cost_cny || 0).toFixed(4)}` : '单价尚未配置'],
+        ].map(row => `<article class="ops-metric"><span>${row[0]}</span><strong>${row[1]}</strong><small>${row[2]}</small></article>`).join('');
+        document.getElementById('ops-note').textContent = m.cost_note || '';
+      } catch (error) {
+        if (error.status !== 403) console.warn('模型监控暂不可用', error);
       }
     }
 
@@ -167,37 +188,14 @@
         keyHint.textContent = '未配置 API Key（当前为 Mock 模式）';
         keyHint.style.color = 'var(--color-coral-dark)';
       }
+      const testButton = document.getElementById('btn-test');
+      testButton.hidden = !cfg.can_test;
+      if (!cfg.can_test) document.getElementById('test-result').textContent = '仅系统管理员可以发起外部模型连通性测试。';
     }
 
     function bindEvents() {
-      // API Key 显示/隐藏
-      document.getElementById('toggle-key').addEventListener('click', () => {
-        const inp = document.getElementById('api_key');
-        const btn = document.getElementById('toggle-key');
-        if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '隐藏'; }
-        else { inp.type = 'password'; btn.textContent = '显示'; }
-      });
-
-      // 保存配置
-      document.getElementById('form-llm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const apiKey = document.getElementById('api_key').value.trim();
-        const baseUrl = document.getElementById('base_url').value.trim();
-        const model = document.getElementById('model').value.trim();
-
-        try {
-          const cfg = await API.put('/api/settings/llm', {
-            api_key: apiKey || undefined,
-            base_url: baseUrl,
-            model: model,
-          });
-          renderConfig(cfg);
-          document.getElementById('api_key').value = '';
-          toast('配置已保存', 'success');
-        } catch (err) {
-          toast(err.message, 'error');
-        }
-      });
+      document.getElementById('form-llm').addEventListener('submit', e => e.preventDefault());
+      document.getElementById('btn-refresh-ops')?.addEventListener('click', loadOpsMetrics);
 
       // 测试连接
       document.getElementById('btn-test').addEventListener('click', async () => {

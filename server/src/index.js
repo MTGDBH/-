@@ -33,6 +33,12 @@ async function ensureSeedData() {
 await ensureSeedData();
 cleanupPrivacyRetention();
 
+// 请求编号必须在排队和超时中间件之前建立，确保所有错误都可以追踪。
+app.use((req, res, next) => {
+  req.request_id = String(req.get('x-request-id') || crypto.randomUUID()).slice(0, 100);
+  res.setHeader('X-Request-Id', req.request_id);
+  next();
+});
 app.use(requestLimits);
 app.use(express.json({ limit: process.env.HTTP_MAX_BODY_SIZE || '1mb' }));
 
@@ -47,8 +53,6 @@ app.use(cors({
 }));
 
 app.use((req, res, next) => {
-  req.request_id = String(req.get('x-request-id') || crypto.randomUUID()).slice(0, 100);
-  res.setHeader('X-Request-Id', req.request_id);
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
@@ -113,7 +117,13 @@ app.use('/api/ops', opsRouter);
 // 错误处理
 app.use((err, req, res, _next) => {
   console.error(JSON.stringify({ event: 'request_error', request_id: req.request_id, code: err.code || 'INTERNAL', status: err.status || 500 }));
-  res.status(err.status || 500).json({ error: err.status && err.status < 500 ? err.message : '服务暂时没有响应，请稍后再试', request_id: req.request_id });
+  const status = err.status || 500;
+  res.status(status).json({
+    error: status < 500 ? err.message : '服务暂时没有响应，请稍后再试',
+    code: err.code || (status >= 500 ? 'INTERNAL' : `HTTP_${status}`), request_id: req.request_id,
+    retryable: err.retryable ?? [408, 425, 429, 502, 503, 504].includes(status),
+    retry_after_ms: err.retryAfterMs || null, stage: err.stage || 'server',
+  });
 });
 
 app.listen(PORT, () => {

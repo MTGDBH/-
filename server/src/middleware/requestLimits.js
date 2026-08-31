@@ -1,6 +1,7 @@
 const MAX_CONCURRENCY = Math.max(1, Number(process.env.HTTP_MAX_CONCURRENCY || 100));
 const MAX_QUEUE = Math.max(0, Number(process.env.HTTP_MAX_QUEUE || 200));
-const REQUEST_TIMEOUT_MS = Math.max(1000, Number(process.env.HTTP_REQUEST_TIMEOUT_MS || 30_000));
+// 必须长于 LLM 的 45 秒上游超时，否则客户端已收到 504 时后端仍可能继续写入消息。
+const REQUEST_TIMEOUT_MS = Math.max(1000, Number(process.env.HTTP_REQUEST_TIMEOUT_MS || 60_000));
 let active = 0;
 const queue = [];
 
@@ -18,7 +19,11 @@ function admit(entry) {
     }
   };
   const requestTimer = setTimeout(() => {
-    if (!entry.res.headersSent) entry.res.status(504).json({ error: '请求处理超时', code: 'REQUEST_TIMEOUT' });
+    entry.req.requestTimedOut = true;
+    if (!entry.res.headersSent) entry.res.status(504).json({
+      error: '请求处理超时', code: 'REQUEST_TIMEOUT', request_id: entry.req.request_id || null,
+      retryable: true, retry_after_ms: 1500, stage: 'server_timeout',
+    });
     else entry.res.end();
   }, REQUEST_TIMEOUT_MS);
   requestTimer.unref?.();
@@ -29,11 +34,11 @@ function admit(entry) {
 export function requestLimits(req, res, next) {
   const entry = { req, res, next, queueTimer: null };
   if (active < MAX_CONCURRENCY) return admit(entry);
-  if (queue.length >= MAX_QUEUE) return res.status(503).json({ error: '服务繁忙，请稍后重试', code: 'REQUEST_QUEUE_FULL' });
+  if (queue.length >= MAX_QUEUE) return res.status(503).json({ error: '服务繁忙，请稍后重试', code: 'REQUEST_QUEUE_FULL', request_id: req.request_id || null, retryable: true, retry_after_ms: 2000, stage: 'queue' });
   entry.queueTimer = setTimeout(() => {
     const index = queue.indexOf(entry);
     if (index >= 0) queue.splice(index, 1);
-    if (!res.headersSent) res.status(503).json({ error: '排队超时，请稍后重试', code: 'REQUEST_QUEUE_TIMEOUT' });
+    if (!res.headersSent) res.status(503).json({ error: '排队超时，请稍后重试', code: 'REQUEST_QUEUE_TIMEOUT', request_id: req.request_id || null, retryable: true, retry_after_ms: 2000, stage: 'queue' });
   }, REQUEST_TIMEOUT_MS);
   entry.queueTimer.unref?.(); queue.push(entry);
 }

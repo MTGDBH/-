@@ -9,6 +9,8 @@ import { runAgentV3 } from '../ai/orchestratorV3.js';
 import { listFollowups } from '../lib/followups.js';
 import { recordLLM, recordSafetyRule } from '../services/opsMetrics.js';
 import { interventionRepository } from '../repositories/interventionRepository.js';
+import { cancelAgentRun, registerAgentRun } from '../services/agentRunCancellation.js';
+import { getLLMConfig } from '../services/llmConfigService.js';
 
 const router = express.Router();
 
@@ -73,7 +75,9 @@ function serializeChatRow(row) {
     linkage_version: row.linkage_version || null,
     tool_calls: parseJSON(row.tool_calls, []),
     feedback: feedback || null,
-    llm: { provider: row.provider || 'unknown', model: row.model || null, call_status: row.call_status || 'unknown', latency_ms: row.latency_ms, tool_calls: parseJSON(row.tool_calls, []), fallback_reason: row.fallback_reason || null },
+    llm: { provider: row.provider || 'unknown', model: row.model || null, call_status: row.call_status || 'unknown', latency_ms: row.latency_ms, tool_calls: parseJSON(row.tool_calls, []), fallback_reason: row.fallback_reason || null,
+      usage: { prompt_tokens: row.prompt_tokens ?? null, completion_tokens: row.completion_tokens ?? null, total_tokens: row.total_tokens ?? null,
+        cache_hit_tokens: row.cache_hit_tokens ?? null, estimated_cost_cny: row.estimated_cost_cny ?? null } },
   };
 }
 
@@ -83,13 +87,32 @@ function resolveAgentRequestSubject(req, rawId) {
   return resolved;
 }
 
+function streamEvent(res, event, payload = {}) {
+  if (!res.writableEnded && !res.destroyed) res.write(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`);
+}
+
+async function sendChatResponse(res, payload, status = 200) {
+  if (!res.locals.agentStream) return res.status(status).json(payload);
+  if (status >= 400) {
+    streamEvent(res, 'error', { ...payload, status });
+    return res.end();
+  }
+  const content = String(payload.content || '');
+  for (let index = 0; index < content.length; index += 18) {
+    streamEvent(res, 'delta', { content: content.slice(index, index + 18) });
+    await new Promise(resolve => setImmediate(resolve));
+  }
+  streamEvent(res, 'result', payload);
+  return res.end();
+}
+
 async function handleAgentChat(req, res) {
   const message = String(req.body?.message || '').trim();
   const resolved = resolveAgentRequestSubject(req, req.body?.subject_user_id);
-  if (resolved.error) return res.status(resolved.error).json({ error: resolved.message });
+  if (resolved.error) return sendChatResponse(res, { error: resolved.message, code: 'SUBJECT_ACCESS_DENIED' }, resolved.error);
   const conversation = ensureConversation(req.user.id, resolved.subject.id, req.body?.conversation_id);
-  if (!conversation) return res.status(404).json({ error: '对话不存在或不属于当前老人' });
-  if (conversation.status !== 'active') return res.status(409).json({ error: '该对话已归档，请新建对话后继续' });
+  if (!conversation) return sendChatResponse(res, { error: '对话不存在或不属于当前老人', code: 'CONVERSATION_NOT_FOUND' }, 404);
+  if (conversation.status !== 'active') return sendChatResponse(res, { error: '该对话已归档，请新建对话后继续', code: 'CONVERSATION_ARCHIVED' }, 409);
   const clientRequestId = String(req.body?.client_request_id || crypto.randomUUID()).slice(0, 100);
   const existingRun = db.prepare(`SELECT id,subject_user_id,conversation_id,status,output_message_id FROM agent_runs
     WHERE actor_user_id=? AND client_request_id=?`).get(req.user.id, clientRequestId);
@@ -97,7 +120,7 @@ async function handleAgentChat(req, res) {
     && Number(existingRun.conversation_id) === Number(conversation.id);
   if (sameRequestScope && existingRun.status === 'completed' && existingRun.output_message_id) {
     const existing = serializeChatRow(db.prepare('SELECT * FROM chat_messages WHERE id=?').get(existingRun.output_message_id));
-    return res.json({
+    return sendChatResponse(res, {
       ...existing,
       conversation_id: conversation.id,
       run_id: existingRun.id,
@@ -107,12 +130,12 @@ async function handleAgentChat(req, res) {
       idempotent_replay: true,
     });
   }
-  if (existingRun) return res.status(409).json({ error: 'client_request_id 已被使用，请不要跨对话重复使用' });
+  if (existingRun) return sendChatResponse(res, { error: 'client_request_id 已被使用，请不要跨对话重复使用', code: 'CLIENT_REQUEST_ID_REUSED' }, 409);
   let userMessageId = null;
   if (req.body?._reuse_user_message_id) {
     const reused = db.prepare(`SELECT id FROM chat_messages WHERE id=? AND role='user' AND conversation_id=? AND actor_user_id=? AND subject_user_id=?`)
       .get(Number(req.body._reuse_user_message_id), conversation.id, req.user.id, resolved.subject.id);
-    if (!reused) return res.status(404).json({ error: '原始用户消息不存在' });
+    if (!reused) return sendChatResponse(res, { error: '原始用户消息不存在', code: 'SOURCE_MESSAGE_NOT_FOUND' }, 404);
     userMessageId = reused.id;
   } else {
     const userInsert = db.prepare(`INSERT INTO chat_messages
@@ -121,13 +144,35 @@ async function handleAgentChat(req, res) {
     userMessageId = Number(userInsert.lastInsertRowid);
   }
   let result;
+  const task = registerAgentRun(req.user.id, clientRequestId);
+  let taskFinished = false;
+  const disconnect = () => {
+    if (!taskFinished && !res.writableEnded) cancelAgentRun(req.user.id, clientRequestId, 'client_disconnected');
+  };
+  res.once('close', disconnect);
   try {
-    result = await runAgentV3({ actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId });
+    result = await runAgentV3({
+      actor: req.user, subject: resolved.subject, conversation, message, clientRequestId, userMessageId,
+      signal: task.signal,
+      onProgress: (stage, text) => { if (res.locals.agentStream) streamEvent(res, 'progress', { stage, text, client_request_id: clientRequestId }); },
+    });
   } catch (error) {
-    db.prepare(`UPDATE agent_runs SET status='error',error_code=?,completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run('AGENT_V3_FAILED', new Date().toISOString(), req.user.id, clientRequestId);
+    const cancelled = task.signal.aborted || error?.code === 'AGENT_CANCELLED' || error?.name === 'AbortError';
+    db.prepare(`UPDATE agent_runs SET status=?,error_code=?,completed_at=? WHERE actor_user_id=? AND client_request_id=?`).run(cancelled ? 'cancelled' : 'error', cancelled ? 'AGENT_CANCELLED' : 'AGENT_V3_FAILED', new Date().toISOString(), req.user.id, clientRequestId);
+    const failedRuns = db.prepare('SELECT id FROM agent_runs WHERE actor_user_id=? AND client_request_id=?').all(req.user.id, clientRequestId);
+    for (const run of failedRuns) db.prepare(`UPDATE agent_tool_calls SET status=?,error_code=?,failure_reason=?,completed_at=? WHERE run_id=? AND status='running'`)
+      .run(cancelled ? 'cancelled' : 'error', cancelled ? 'AGENT_CANCELLED' : 'AGENT_V3_FAILED', cancelled ? 'client_cancelled' : 'agent_failed', new Date().toISOString(), run.id);
+    const cfg = getLLMConfig();
+    db.prepare(`INSERT INTO llm_call_logs (user_id,provider,model,status,fallback_reason) VALUES (?,?,?,?,?)`)
+      .run(req.user.id, cfg?.provider || 'none', cfg?.model || null, cancelled ? 'cancelled' : 'error', cancelled ? 'user_cancelled' : 'agent_failed');
+    recordLLM(cancelled ? 'cancelled' : 'error', null);
     console.error('[agent-v3] failed:', error.message);
-    return res.status(500).json({ error: 'agent error' });
+    taskFinished = true; task.finish(); res.off('close', disconnect);
+    return sendChatResponse(res, cancelled
+      ? { error: '本次生成已取消', code: 'AGENT_CANCELLED', retryable: false, stage: 'cancelled', client_request_id: clientRequestId }
+      : { error: '智能管家暂时无法完成回答', code: 'AGENT_V3_FAILED', retryable: true, stage: 'agent', client_request_id: clientRequestId }, cancelled ? 499 : 500);
   }
+  taskFinished = true; task.finish(); res.off('close', disconnect);
   const needsPersonalEvidence = !!result.context_manifest?.live_context_loaded;
   const healthContext = needsPersonalEvidence ? buildHealthContext(resolved.subject, 90) : null;
   const evidenceTypes = new Set(result.context_manifest?.live_metric_types || []);
@@ -141,6 +186,7 @@ async function handleAgentChat(req, res) {
   const backendEvidence = evidenceContext ? buildEvidenceCard(evidenceContext, message, result.confidence) : null;
   const mergedEvidence = (backendEvidence || result.evidence) ? { ...(backendEvidence || {}), graph: result.evidence || null, tool_trace: result.tool_trace || [] } : { tool_trace: result.tool_trace || [] };
   const llm = result.__llm || result.llm || { provider: result.source || 'tool', model: null, call_status: result.source === 'safety_rule' ? 'safety_rule' : 'tool', tool_calls: [] };
+  const usage = llm.usage || {};
   recordLLM(llm.call_status || 'tool', llm.latency_ms);
   if (result.source === 'safety_rule') recordSafetyRule();
   const assistantInsert = db.prepare(`INSERT INTO chat_messages
@@ -157,22 +203,24 @@ async function handleAgentChat(req, res) {
       conversation.id, req.user.id, resolved.subject.id, userMessageId, req.body?._supersedes_message_id || null, result.run_id,
       JSON.stringify(result.task_state || {}), JSON.stringify(result.context_manifest || {}));
   db.prepare(`INSERT INTO llm_call_logs
-    (user_id,chat_message_id,provider,model,status,latency_ms,tool_calls,fallback_reason,graph_index_version)
-    VALUES (?,?,?,?,?,?,?,?,?)`).run(
+    (user_id,chat_message_id,provider,model,status,latency_ms,tool_calls,fallback_reason,graph_index_version,prompt_tokens,completion_tokens,total_tokens,cache_hit_tokens,estimated_cost_cny)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
       req.user.id, assistantInsert.lastInsertRowid, llm.provider || result.source || 'tool', llm.model || null,
       llm.call_status || 'tool', Number.isFinite(Number(llm.latency_ms)) ? Number(llm.latency_ms) : null,
       JSON.stringify((result.tool_trace || []).map(item => item.name)), llm.fallback_reason || null,
-      result.evidence?.index_version || result.evidence?.version || null);
+      result.evidence?.index_version || result.evidence?.version || null,
+      usage.prompt_tokens || null, usage.completion_tokens || null, usage.total_tokens || null, usage.cache_hit_tokens || null,
+      usage.estimated_cost_cny != null && Number.isFinite(Number(usage.estimated_cost_cny)) ? Number(usage.estimated_cost_cny) : null);
   db.prepare('UPDATE agent_runs SET output_message_id=? WHERE id=?').run(assistantInsert.lastInsertRowid, result.run_id);
   db.prepare('UPDATE agent_conversations SET updated_at=? WHERE id=?').run(new Date().toISOString(), conversation.id);
   refreshConversationSummary(conversation.id);
-  return res.json({
+  return sendChatResponse(res, {
     id: assistantInsert.lastInsertRowid, role: 'assistant', content: result.content, plan: result.plan || [], confidence: result.confidence || { type: 'common_sense' },
     evidence: mergedEvidence, presentation: result.presentation || { mode: 'plain' }, source: result.source || llm.provider, llm, conversation_id: conversation.id, run_id: result.run_id,
     task_state: result.task_state || { goal: '', status: 'completed', next_step: '', success_criteria: '' },
     tool_trace: result.tool_trace || [], context_manifest: result.context_manifest || {}, memory_candidates: result.memory_candidates || [], action_previews: result.action_previews || [],
     prediction_snapshot: result.prediction_snapshot || null, graph_evidence_snapshot: result.graph_evidence_snapshot || null,
-    linkage_version: result.linkage_version || null,
+    linkage_version: result.linkage_version || null, client_request_id: clientRequestId,
   });
 }
 
@@ -508,6 +556,31 @@ router.post('/chat', async (req, res) => {
     return res.status(400).json({ error: 'message is required' });
   }
   return handleAgentChat(req, res);
+});
+
+router.post('/chat/stream', async (req, res) => {
+  const message = String(req.body?.message || '').trim();
+  if (!message) return res.status(400).json({ error: 'message is required', code: 'MESSAGE_REQUIRED' });
+  res.status(200);
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+  res.locals.agentStream = true;
+  streamEvent(res, 'progress', { stage: 'accepted', text: '已接收请求，准备分析…', client_request_id: req.body?.client_request_id || null });
+  const heartbeat = setInterval(() => streamEvent(res, 'heartbeat', { at: new Date().toISOString() }), 12_000);
+  heartbeat.unref?.();
+  try { return await handleAgentChat(req, res); }
+  finally { clearInterval(heartbeat); }
+});
+
+router.post('/chat/cancel', (req, res) => {
+  const clientRequestId = String(req.body?.client_request_id || '').slice(0, 100);
+  if (!clientRequestId) return res.status(400).json({ error: 'client_request_id is required', code: 'CLIENT_REQUEST_ID_REQUIRED' });
+  const cancelled = cancelAgentRun(req.user.id, clientRequestId);
+  res.status(cancelled ? 202 : 404).json({ cancelled, client_request_id: clientRequestId,
+    code: cancelled ? 'CANCEL_ACCEPTED' : 'ACTIVE_RUN_NOT_FOUND' });
 });
 
 router.get('/chat/history', (req, res) => {

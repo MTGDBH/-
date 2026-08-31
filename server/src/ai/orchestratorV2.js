@@ -24,6 +24,7 @@ import {
   curveGraphContext, enforceSafeCurveGraphResponse,
 } from './safeCurveGraphLink.js';
 import { AGENT_TOOL_REGISTRY } from './toolRegistry.js';
+import { throwIfAgentCancelled } from '../services/agentRunCancellation.js';
 import { authorizeToolCall } from './policyEngine.js';
 import { inspectUntrustedInput, sanitizeUntrustedToolText, securityRefusal } from './attackGuard.js';
 import { verifyAgentResult } from './resultVerifier.js';
@@ -274,7 +275,8 @@ function modelResultView(name, result) {
   return result;
 }
 
-async function executeOne(runId, callIndex, item, ctx, dataVersion) {
+async function executeOne(runId, callIndex, item, ctx, dataVersion, signal = null) {
+  throwIfAgentCancelled(signal);
   const spec = REGISTRY[item.name];
   if (!spec) return { name: item.name, status: 'error', error_code: 'TOOL_NOT_REGISTERED', result: null };
   const args = stable(item.args || {});
@@ -288,12 +290,15 @@ async function executeOne(runId, callIndex, item, ctx, dataVersion) {
   let result = null, fullResult = null, failureResult = null, errorCode = null;
   for (let attempt = 0; attempt <= spec.retry; attempt++) {
     try {
-      fullResult = sanitizeResult(await timeout(spec.run(ctx, args), spec.timeout_ms));
+      throwIfAgentCancelled(signal);
+      fullResult = sanitizeResult(await abortable(timeout(spec.run(ctx, args), spec.timeout_ms), signal));
+      throwIfAgentCancelled(signal);
       if (!fullResult || typeof fullResult !== 'object' || fullResult.success === false) throw Object.assign(new Error('tool result unavailable'), { code: fullResult?.reason_code || 'TOOL_RESULT_INVALID' });
       if (!spec.validate(fullResult)) throw Object.assign(new Error('tool result schema mismatch'), { code: 'TOOL_RESULT_SCHEMA' });
       result = modelResultView(item.name, fullResult);
       break;
     } catch (error) {
+      if (signal?.aborted || error?.code === 'AGENT_CANCELLED') throw error;
       if (fullResult) failureResult = fullResult;
       errorCode = ['TOOL_TIMEOUT', 'TOOL_RESULT_INVALID', 'TOOL_RESULT_SCHEMA'].includes(error.code) || /^(MODEL_|INTERVENTION_|TARGET_|TRACEABLE_|BASELINE_|ADHERENCE_|ACTIVE_|EVALUAT|EMERGENCY_|MEDICATION_)/.test(String(error.code || '')) ? error.code : 'TOOL_UNAVAILABLE';
       if (attempt >= spec.retry) { result = null; fullResult = null; }
@@ -336,7 +341,7 @@ function minimalLiveContext(full, message, intent) {
   const keep = object => types == null ? object : Object.fromEntries(Object.entries(object || {}).filter(([key]) => types.includes(key)));
   return {
     as_of: nowIso(), window_days: full.window_days,
-    latest: keep(full.latest), quality_by_type: keep(full.quality_by_type),
+    latest: keep(full.latest), quality_by_type: keep(full.quality_by_type), series_by_type: keep(full.series_by_type),
     behavior: types == null || types.some(type => ['sleep', 'steps'].includes(type)) ? full.behavior : {},
     alerts: intent.healthSummaryHit || intent.alertsHit ? full.alerts : [],
     todos: intent.healthSummaryHit ? full.todos : [],
@@ -567,8 +572,19 @@ function normalizeOutputPhrases(value) {
     .trim();
 }
 
-export async function runAgentV2({ actor, subject, conversation, message, clientRequestId, userMessageId, intentOverride = null }) {
+function abortable(promise, signal) {
+  if (!signal) return promise;
+  throwIfAgentCancelled(signal);
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(Object.assign(signal.reason instanceof Error ? signal.reason : new Error('agent cancelled'), { code: 'AGENT_CANCELLED' }));
+    signal.addEventListener('abort', onAbort, { once: true });
+    Promise.resolve(promise).then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+  });
+}
+
+export async function runAgentV2({ actor, subject, conversation, message, clientRequestId, userMessageId, intentOverride = null, signal = null, onProgress = null }) {
   const started = Date.now();
+  throwIfAgentCancelled(signal);
   const intent = intentOverride || classifyAgentIntent(message);
   const runInsert = db.prepare(`INSERT INTO agent_runs (conversation_id,actor_user_id,subject_user_id,client_request_id,intent)
     VALUES (?,?,?,?,?)`).run(conversation.id, actor.id, subject.id, clientRequestId || null, JSON.stringify(intent));
@@ -583,6 +599,7 @@ export async function runAgentV2({ actor, subject, conversation, message, client
       manifest: { max_tokens: MAX_CONTEXT_TOKENS, emergency_bypass: !!emergency, security_bypass: attack.blocked, security_flags: attack.flags, live_context_loaded: false, live_metric_types: [], recent_messages: 0, confirmed_memories: 0, estimated_tokens: 0, pruned: [], replan_count: 0 },
     };
   } else {
+    onProgress?.('context', '正在读取健康记录…');
     const fullContext = needsLiveHealthContext(message, intent) ? buildHealthContext(subject, 90) : null;
     liveContext = minimalLiveContext(fullContext, message, intent);
     contextPlan = buildContextPlan(conversation, subject, message, intent, liveContext, actor);
@@ -595,12 +612,13 @@ export async function runAgentV2({ actor, subject, conversation, message, client
     const toolPlan = planAgentTools(intent, message);
     const ctx = { actor, subject, message, audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', liveContext: liveContext || {} };
     const version = subjectDataVersion(subject.id);
-    toolResults = await Promise.all(toolPlan.map((item, index) => executeOne(runId, index, item, ctx, version)));
+    toolResults = await Promise.all(toolPlan.map((item, index) => executeOne(runId, index, item, ctx, version, signal)));
+    throwIfAgentCancelled(signal);
     const noSuccess = toolResults.length > 0 && !toolResults.some(item => item.status === 'success');
     if (noSuccess && toolPlan.length < MAX_TOOL_CALLS && !toolPlan.some(item => item.name === 'health_summary')) {
       contextPlan.manifest.replan_count = 1;
       contextPlan.manifest.replan_reason = 'all_primary_tools_failed';
-      toolResults.push(await executeOne(runId, toolPlan.length, { name: 'health_summary', args: {} }, ctx, version));
+      toolResults.push(await executeOne(runId, toolPlan.length, { name: 'health_summary', args: {} }, ctx, version, signal));
     } else contextPlan.manifest.replan_count ||= 0;
   }
   fitToolResultsIntoContext(contextPlan, toolResults);
@@ -608,15 +626,20 @@ export async function runAgentV2({ actor, subject, conversation, message, client
   let response = emergency || (attack.blocked ? securityRefusal() : null);
   let curveGraphLink = null;
   if (!response) {
+    onProgress?.('analysis', '正在分析趋势和风险…');
     if (intent.interventionHit) response = deterministicReply(message, toolResults, intent);
     else try {
         response = await composeGroundedResponse({
           messages: contextPlan.recent.map(row => ({ role: row.role, content: row.content })), userMessage: message,
           healthSummary: { context: liveContext }, user: subject, actor, authority: actor.id === subject.id ? 'self' : 'caregiver', intent,
           toolResults, memories: contextPlan.memories.map(row => ({ category: row.category, content: row.content })), conversationSummary: contextPlan.summary,
+          signal,
         });
         if (response && (toolResults.length || liveContext) && !groundedNumbersMatch(response.content, toolResults, liveContext)) response = null;
-      } catch { response = null; }
+      } catch (error) {
+        if (signal?.aborted || error?.code === 'AGENT_CANCELLED') throw error;
+        response = null;
+      }
     response ||= deterministicReply(message, toolResults, intent);
 
     // Curve -> GraphRAG 安全联动：预测事件在后端生成并冻结；LLM 的候选文本随后会被
@@ -627,12 +650,13 @@ export async function runAgentV2({ actor, subject, conversation, message, client
       const predictionSnapshot = buildPredictionSnapshot(trendResult, capturedAt);
       let graphRaw = { index_version: null, results: [], recommendations: [] };
       try {
-        graphRaw = await queryKnowledgeGraph(
+        throwIfAgentCancelled(signal);
+        graphRaw = await abortable(queryKnowledgeGraph(
           buildControlledGraphQuery(predictionSnapshot.events),
           intent.disease || diseaseFromMessage(message),
           curveGraphContext(predictionSnapshot.events),
           { audience: actor.role === 'doctor' ? 'doctor' : actor.id === subject.id ? 'elderly' : 'caregiver', topK: 8, maxHops: 2, includeTrace: true, sourceGate: 'exclude_legacy_pending' },
-        );
+        ), signal);
       } catch (error) {
         console.error('[curve-graphrag-link] evidence retrieval failed:', error.message);
       }
@@ -642,6 +666,8 @@ export async function runAgentV2({ actor, subject, conversation, message, client
       response = { ...response, ...curveGraphLink };
     }
   }
+  throwIfAgentCancelled(signal);
+  onProgress?.('verification', '正在核对数据、日期与知识依据…');
   const previews = intent.interventionHit ? [] : actionPreview(message);
   if (previews.length && !curveGraphLink) response.plan = previews;
   response.plan = (response.plan || []).slice(0, 2);

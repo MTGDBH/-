@@ -1,3 +1,5 @@
+import { activeAgentRunCount } from './agentRunCancellation.js';
+
 const MAX_SAMPLES = 2000;
 const state = {
   graphrag: { latency_ms: [], calls: 0, empty: 0, degraded: 0, review_gates: 0 },
@@ -66,6 +68,21 @@ export function metricsSnapshot() {
     WHERE confirmation_token_hash IS NOT NULL ORDER BY id DESC LIMIT 2000`).all();
   const agentLatency = completedRuns.map(row => Number(row.latency_ms)).filter(Number.isFinite);
   const verificationFailures = completedRuns.filter(row => { try { return JSON.parse(row.context_manifest || '{}').verification_errors?.length; } catch { return false; } }).length;
+  const llmRows = db.prepare(`SELECT status,latency_ms,prompt_tokens,completion_tokens,total_tokens,cache_hit_tokens,estimated_cost_cny,created_at
+    FROM llm_call_logs WHERE created_at>=datetime('now','-7 days') ORDER BY id DESC LIMIT 10000`).all();
+  const llm24h = llmRows.filter(row => new Date(`${String(row.created_at).replace(' ', 'T')}+08:00`).getTime() >= Date.now() - 86400000);
+  const summarizeLLM = rows => {
+    const calls = rows.length;
+    const success = rows.filter(row => row.status === 'success').length;
+    const failures = rows.filter(row => ['error','failed','timeout'].includes(String(row.status))).length;
+    const fallbacks = rows.filter(row => !['success','tool','safety_rule'].includes(String(row.status))).length;
+    const tokens = name => rows.reduce((sum, row) => sum + Number(row[name] || 0), 0);
+    return { calls, success_count: success, failure_count: failures, fallback_count: fallbacks,
+      success_rate: rate(success, calls), failure_rate: rate(failures, calls), fallback_rate: rate(fallbacks, calls),
+      prompt_tokens: tokens('prompt_tokens'), completion_tokens: tokens('completion_tokens'), total_tokens: tokens('total_tokens'),
+      cache_hit_tokens: tokens('cache_hit_tokens'), estimated_cost_cny: +rows.reduce((sum, row) => sum + Number(row.estimated_cost_cny || 0), 0).toFixed(6),
+      cost_estimate_available: rows.some(row => row.estimated_cost_cny != null) };
+  };
   return {
     schema_version: 'ops-metrics.v1', generated_at: new Date().toISOString(),
     graphrag: {
@@ -77,7 +94,9 @@ export function metricsSnapshot() {
       interval_width_p50: percentile(state.curve.interval_width, 0.5), interval_width_p95: percentile(state.curve.interval_width, 0.95),
       boundary_hit_count: state.curve.boundary_hit, model_distribution: { ...state.curve.models },
     },
-    llm: { calls: state.llm.calls, p50_latency_ms: percentile(state.llm.latency_ms, 0.5), p95_latency_ms: percentile(state.llm.latency_ms, 0.95), error_rate: rate(state.llm.errors, state.llm.calls), degradation_rate: rate(state.llm.degraded, state.llm.calls), circuit_open_count: state.llm.circuit_open },
+    llm: { calls: state.llm.calls, p50_latency_ms: percentile(state.llm.latency_ms, 0.5), p95_latency_ms: percentile(state.llm.latency_ms, 0.95), error_rate: rate(state.llm.errors, state.llm.calls), degradation_rate: rate(state.llm.degraded, state.llm.calls), circuit_open_count: state.llm.circuit_open,
+      active_runs: activeAgentRunCount(), last_24h: summarizeLLM(llm24h), last_7d: summarizeLLM(llmRows),
+      cost_note: '成本按环境变量中的每百万 Token 单价估算；未配置单价时仅 Token 统计有效。' },
     safety: { rule_hit_count: state.safety.rule_hits }, python: { ...state.python,
       p50_latency_ms: percentile(state.python.latency_ms, 0.5), p95_latency_ms: percentile(state.python.latency_ms, 0.95),
       error_rate: rate(state.python.failures, state.python.service_calls + state.python.cli_calls),

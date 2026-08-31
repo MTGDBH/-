@@ -48,6 +48,11 @@ export function buildHealthContext(user, days = 90) {
     quality_by_type,
     latest,
     trend_by_type,
+    series_by_type: Object.fromEntries(Object.entries(byType).map(([type, values]) => [type, values.slice(-14).map(row => ({
+      recorded_at: row.recorded_at,
+      value: Number.isFinite(Number(row.value)) ? Number(row.value) : null,
+      value2: Number.isFinite(Number(row.value2)) ? Number(row.value2) : null,
+    })).filter(row => row.value != null)])),
     behavior,
     todos,
     alerts,
@@ -115,6 +120,9 @@ export function buildEvidenceCard(context, message = '', confidence = {}) {
       period_days: ctx.window_days || 90,
       trend: trend?.direction || 'unknown',
       trend_delta: trend?.delta ?? null,
+      trend_start_date: trend?.start_date || null,
+      trend_end_date: trend?.end_date || null,
+      series: (ctx.series_by_type?.[type] || []).slice(-14),
       quality: ctx.quality_by_type?.[type] || { invalid_flags: [], missing_condition_count: 0 },
     };
   }).filter(x => x.latest_value != null).slice(0, 8);

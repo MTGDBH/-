@@ -37,6 +37,7 @@ const unitTests = [
   'src/test_agent_orchestrator_v2.js',
   'src/test_agent_presentation_v2.js',
   'src/test_agent_frontend_v2.js',
+  'src/test_agent_streaming_metrics.js',
   'src/test_health_intake.js',
   'src/test_health_text_parser.js',
   'src/test_knowledge_expansion.js',
