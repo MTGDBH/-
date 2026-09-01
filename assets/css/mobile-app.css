@@ -1519,3 +1519,10 @@ button.alert-row {
     flex-basis: 82px;
   }
 }
+
+/* Keep conditionally-rendered fields/cards hidden even when component display rules apply. */
+.field[hidden],
+.alert-row[hidden],
+.chart-card[hidden] {
+  display: none !important;
+}

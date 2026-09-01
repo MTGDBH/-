@@ -35,6 +35,7 @@ assert.match(js, /data-dimension-view/);
 assert.match(js, /view\.startsWith\("record-"\)/);
 assert.match(js, /function iconSvg/);
 assert.match(js, /aria-current/);
+assert.match(css, /\.field\[hidden\]/);
 assert.match(js, /replace\(\s*\/\[&<>'"\]\/g/);
 assert.ok((js.match(/esc\(/g) || []).length >= 40, 'dynamic mobile content must be escaped');
 assert.match(js, /role="alert"/);
