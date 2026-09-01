@@ -30,6 +30,11 @@ for (const endpoint of [
 for (const view of ['home','monitor','record-bp','trends','plans','assessment','risk','chat','knowledge','profile','care','settings']) {
   assert.ok(js.includes(view), `${view} mobile view missing`);
 }
+assert.match(js, /data-trend-filter/);
+assert.match(js, /data-dimension-view/);
+assert.match(js, /view\.startsWith\("record-"\)/);
+assert.match(js, /function iconSvg/);
+assert.match(js, /aria-current/);
 assert.match(js, /replace\(\s*\/\[&<>'"\]\/g/);
 assert.ok((js.match(/esc\(/g) || []).length >= 40, 'dynamic mobile content must be escaped');
 assert.match(js, /role="alert"/);

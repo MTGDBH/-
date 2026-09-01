@@ -74,8 +74,85 @@
           `<text x="${14 + index * 146}" y="142">${esc(String(point.recorded_at || "").slice(5, 10))}</text>`,
       )
       .join("");
-    return `<svg class="wide-chart" viewBox="0 0 320 150" role="img" aria-label="最近趋势"><line x1="14" y1="125" x2="306" y2="125" stroke="#eceef2"/><polyline points="${line("value")}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>${secondKey ? `<polyline points="${line(secondKey)}" fill="none" stroke="#f3ae69" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ""}${labels}</svg>`;
+    const primaryLine = line("value");
+    const gradientId = `trend-${color.replace(/[^a-z0-9]/gi, "")}`;
+    return `<svg class="wide-chart" viewBox="0 0 320 150" role="img" aria-label="最近趋势"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><line x1="14" y1="125" x2="306" y2="125" stroke="#eceef2"/><polygon points="14,125 ${primaryLine} 306,125" fill="url(#${gradientId})"/><polyline points="${primaryLine}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>${secondKey ? `<polyline points="${line(secondKey)}" fill="none" stroke="#f3ae69" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ""}${labels}</svg>`;
   };
+
+  const iconPaths = {
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    back: '<path d="m15 18-6-6 6-6"/>',
+    close: '<path d="m6 6 12 12M18 6 6 18"/>',
+    home: '<path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"/>',
+    moon: '<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.6 6.6 0 0 0 21 12.8z"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18m-13 5 2.2 2.2L16 12"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm13 10v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    user: '<path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/>',
+    bot: '<rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01M8 16h8"/>',
+    mic: '<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+    activity: '<path d="M13 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-2 4 3 2 2-3m-5 1-2 5-4 2m6-7 4 5 4 1m-8-1-1 8m5-8 2 8"/>',
+    chart: '<path d="M3 3v18h18M7 16l4-5 3 3 6-8"/>',
+    droplet: '<path d="M12 2s7 7.1 7 12a7 7 0 0 1-14 0c0-4.9 7-12 7-12z"/>',
+    pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+    scale: '<path d="M5 4h14l2 17H3L5 4zm4 4a3 3 0 0 1 6 0"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14zm0 0A2.5 2.5 0 0 0 6.5 22H20"/>',
+    food: '<path d="M7 2v8m-3-8v5a3 3 0 0 0 6 0V2M7 10v12m10-20v20m0-20c-3 3-3 8 0 10"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zm-3-10 2 2 4-4"/>',
+    lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>',
+    eyeOff: '<path d="m3 3 18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.1 3M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.1-.9"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/>',
+    warning: '<path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0zM12 9v4m0 4h.01"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+    send: '<path d="m22 2-7 20-4-9-9-4 20-7zM11 13 22 2"/>',
+    sparkle: '<path d="m12 3 1.3 3.7L17 8l-3.7 1.3L12 13l-1.3-3.7L7 8l3.7-1.3L12 3zm6 11 .8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14z"/>',
+  };
+
+  function iconSvg(name, label = "") {
+    return `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"${label ? ` aria-label="${esc(label)}" role="img"` : ' aria-hidden="true"'}>${iconPaths[name] || iconPaths.sparkle}</svg>`;
+  }
+
+  function enhanceIcons(scope = document) {
+    const map = {
+      "⌂": "home", "♡": "heart", "♥": "heart", "☾": "moon",
+      "✓": "calendar", "♧": "users", "♟": "activity", "步": "activity",
+      "滴": "droplet", "心": "pulse", "氧": "pulse", "重": "scale",
+      "食": "food", "书": "book", "⚙": "settings", "⌁": "chart",
+      "!": "warning", "医": "pulse", "人": "user", "锁": "lock",
+      "年": "calendar", "角": "users", "AI": "sparkle", "◉": "bot",
+      "♙": "user", "◎": "chart",
+    };
+    scope.querySelectorAll("i").forEach((node) => {
+      const name = map[node.textContent.trim()];
+      if (name) node.innerHTML = iconSvg(name);
+    });
+    const direct = [
+      ["[data-menu]", "menu"], ["[data-back]", "back"],
+      ["[data-auth-back]", "back"], ["[data-close]", "close"],
+      [".big-mic", "mic"], ['[aria-label="发送"]', "send"],
+      ['[aria-label="搜索"]', "search"], [".ask-box > b", "mic"],
+    ];
+    direct.forEach(([selector, name]) =>
+      scope.querySelectorAll(selector).forEach((node) => {
+        node.innerHTML = iconSvg(name);
+      }),
+    );
+    scope.querySelectorAll(".health-good > i").forEach((node) => {
+      node.innerHTML = iconSvg("check");
+    });
+    scope.querySelectorAll(".avatar-large").forEach((node) => {
+      if (node.textContent.trim() === "锁") node.innerHTML = iconSvg("shield");
+    });
+    scope.querySelectorAll(".bottom-nav button.active").forEach((node) => {
+      node.setAttribute("aria-current", "page");
+    });
+    scope.querySelectorAll("[data-password-toggle]").forEach((node) => {
+      const input = node.parentElement?.querySelector("input");
+      node.innerHTML = iconSvg(input?.type === "password" ? "eye" : "eyeOff");
+    });
+  }
 
   function toast(message) {
     document.querySelector(".toast")?.remove();
@@ -109,7 +186,7 @@
       button.addEventListener("click", () => {
         const input = button.parentElement.querySelector("input");
         input.type = input.type === "password" ? "text" : "password";
-        button.textContent = input.type === "password" ? "◎" : "◉";
+        button.innerHTML = iconSvg(input.type === "password" ? "eye" : "eyeOff");
         button.setAttribute(
           "aria-label",
           input.type === "password" ? "显示密码" : "隐藏密码",
@@ -120,6 +197,7 @@
 
   function renderLogin(message = "") {
     root.innerHTML = `<section class="mobile-app"><div class="auth-screen"><div class="auth-brand"><h1>小康健康</h1><p>陪您一起管理每天的健康</p></div><form class="auth-form" id="login-form">${authField({ icon: "人", id: "login-account", name: "identifier", label: "请输入姓名或手机号", autocomplete: "username", value: "张奶奶" })}${authField({ icon: "锁", id: "login-password", name: "password", label: "请输入密码", type: "password", autocomplete: "current-password" })}<p class="form-error" id="login-error" role="alert">${esc(message)}</p><button class="primary-button" type="submit">登录</button><button class="text-button" type="button" data-register>注册新账号</button></form><div class="demo-note">ⓘ 演示账号：张奶奶 / 123456</div></div></section>`;
+    enhanceIcons(root);
     bindPasswordToggle();
     document
       .querySelector("[data-register]")
@@ -140,7 +218,7 @@
             password: data.get("password"),
           });
           state.user = result.user;
-          await renderHome();
+          navigate("home");
         } catch (err) {
           error.textContent = err.message || "登录失败，请稍后重试";
           button.disabled = false;
@@ -151,6 +229,7 @@
 
   function renderRegister() {
     root.innerHTML = `<section class="mobile-app"><button class="icon-button" data-auth-back aria-label="返回" style="position:absolute;z-index:2;top:calc(8px + env(safe-area-inset-top));left:12px">‹</button><div class="auth-screen"><div class="auth-brand" style="margin-top:clamp(88px,15dvh,140px)"><h1 style="font-size:27px">创建健康账户</h1></div><form class="auth-form" id="register-form">${authField({ icon: "人", id: "register-name", name: "name", label: "请输入姓名", autocomplete: "name" })}${authField({ icon: "年", id: "register-age", name: "age", label: "请输入年龄", type: "number", inputmode: "numeric" })}<label class="auth-field" for="register-role"><i>角</i><select id="register-role" name="role" aria-label="账户角色" style="width:100%;height:58px;border:0;background:transparent;outline:0"><option value="senior">老人账户</option><option value="caregiver">家属账户</option></select></label>${authField({ icon: "锁", id: "register-password", name: "password", label: "请设置至少6位密码", type: "password", autocomplete: "new-password" })}<p class="form-error" id="register-error" role="alert"></p><button class="primary-button" type="submit">创建账户</button></form><div class="demo-note" style="border:0">ⓘ 信息仅用于健康管理</div></div></section>`;
+    enhanceIcons(root);
     bindPasswordToggle();
     document
       .querySelector("[data-auth-back]")
@@ -173,7 +252,7 @@
             password: data.get("password"),
           });
           state.user = result.user;
-          await renderHome();
+          navigate("home");
         } catch (error) {
           document.getElementById("register-error").textContent =
             error.message || "创建账户失败";
@@ -184,7 +263,8 @@
   }
 
   function topbar(title = "小康健康", back = false) {
-    return `<header class="topbar"><button class="icon-button" ${back ? "data-back" : "data-menu"} aria-label="${back ? "返回" : "菜单"}">${back ? "‹" : "☰"}</button><strong>${esc(title)}</strong><span></span></header>`;
+    const online = title === "和小康聊聊";
+    return `<header class="topbar"><button class="icon-button" ${back ? "data-back" : "data-menu"} aria-label="${back ? "返回" : "菜单"}">${back ? "‹" : "☰"}</button><span class="topbar-title"><strong>${esc(title)}</strong>${online ? "<small><i></i>小康在线</small>" : ""}</span><span></span></header>`;
   }
 
   function bottomNav(active = "home") {
@@ -199,6 +279,7 @@
 
   function shell(content, active = "home", title = "小康健康", options = {}) {
     root.innerHTML = `<section class="mobile-app">${topbar(title, options.back)}<div class="app-screen">${content}</div>${bottomNav(active)}</section>`;
+    enhanceIcons(root);
     bindNavigation();
     document
       .querySelector("[data-menu]")
@@ -234,6 +315,7 @@
     const layer = document.createElement("div");
     layer.className = "drawer-backdrop";
     layer.innerHTML = `<aside class="drawer"><div class="drawer-head"><strong>小康健康</strong><button class="icon-button" data-close aria-label="关闭">×</button></div><div class="drawer-user"><i>${esc((state.user?.name || "您").slice(0, 1))}</i><span><b>${esc(state.user?.name || "健康账户")}</b><small>● 健康服务已连接</small></span></div><nav class="drawer-nav">${items.map(([view, icon, label]) => `<button data-view="${view}"><i>${icon}</i><span>${label}</span><b>›</b></button>`).join("")}</nav></aside>`;
+    enhanceIcons(layer);
     app.append(layer);
     layer.addEventListener("click", (event) => {
       if (event.target === layer || event.target.closest("[data-close]"))
@@ -336,11 +418,16 @@
         "monitor",
         "健康监测",
       );
+      const recentTab = document.querySelector(".pill-tabs .active");
+      if (recentTab) {
+        recentTab.disabled = true;
+        recentTab.setAttribute("aria-current", "page");
+      }
       document
         .querySelectorAll("[data-record-type]")
         .forEach((button) =>
           button.addEventListener("click", () =>
-            renderRecord(button.dataset.recordType),
+            navigate(`record-${button.dataset.recordType}`),
           ),
         );
     } catch (error) {
@@ -368,14 +455,24 @@
     );
     const select = document.getElementById("metric-type"),
       secondary = document.getElementById("secondary-field"),
-      label = document.getElementById("metric-value-label");
-    select.addEventListener("change", () => {
+      label = document.getElementById("metric-value-label"),
+      primaryInput = document.querySelector('#metric-form [name="value"]'),
+      secondaryInput = document.querySelector('#metric-form [name="value2"]');
+    const syncMetricFields = () => {
       secondary.hidden = select.value !== "bp";
+      secondaryInput.required = select.value === "bp";
       label.textContent =
         select.value === "bp"
-          ? "收缩压"
+          ? "收缩压（高压）"
           : `${metricMeta[select.value].label}数值`;
-    });
+      secondary.querySelector("span").textContent = "舒张压（低压）";
+      primaryInput.placeholder = select.value === "bp" ? "例如 138" : "请输入测量数值";
+      primaryInput.step = ["glucose", "sleep", "weight"].includes(select.value)
+        ? "0.1"
+        : "1";
+    };
+    syncMetricFields();
+    select.addEventListener("change", syncMetricFields);
     document
       .getElementById("metric-form")
       .addEventListener("submit", async (event) => {
@@ -384,20 +481,32 @@
           data = new FormData(form),
           type = data.get("type"),
           button = form.querySelector("[type=submit]");
+        const primaryValue = Number(data.get("value"));
+        const secondaryValue = Number(data.get("value2"));
+        if (!Number.isFinite(primaryValue) || primaryValue <= 0) {
+          document.getElementById("metric-error").textContent = "请输入有效的测量数值";
+          primaryInput.focus();
+          return;
+        }
+        if (type === "bp" && (!Number.isFinite(secondaryValue) || secondaryValue <= 0)) {
+          document.getElementById("metric-error").textContent = "请同时填写有效的高压和低压";
+          secondaryInput.focus();
+          return;
+        }
         button.disabled = true;
         button.textContent = "正在保存…";
         document.getElementById("metric-error").textContent = "";
         try {
           await API.post("/api/health/metrics", {
             type,
-            value: Number(data.get("value")),
-            value2: type === "bp" ? Number(data.get("value2")) : null,
+            value: primaryValue,
+            value2: type === "bp" ? secondaryValue : null,
             unit: metricMeta[type].unit,
             note: data.get("note"),
             measurement_condition: type === "bp" ? "morning_rest" : "unknown",
           });
           toast("健康数据已保存");
-          setTimeout(renderMonitor, 350);
+          setTimeout(() => navigate("monitor"), 350);
         } catch (error) {
           document.getElementById("metric-error").textContent =
             error.message || "保存失败";
@@ -419,12 +528,23 @@
         API.get("/api/health/metrics/sleep/history?days=30"),
         API.get("/api/health/metrics/steps/history?days=30"),
       ]);
-      const card = (title, text, data, color, second) =>
-        `<article class="data-card chart-card"><h3>${title}</h3><p>${text}</p>${wideChart(data.points, color, second)}</article>`;
+      const card = (type, title, text, data, color, second) =>
+        `<article class="data-card chart-card" data-trend-card="${type}"><div class="chart-card-title"><span class="row-icon">${iconSvg(type === "bp" ? "heart" : type === "sleep" ? "moon" : "activity")}</span><div><h3>${title}</h3><p>${text}</p></div></div>${wideChart(data.points, color, second)}</article>`;
       shell(
-        `<div class="pill-tabs"><button class="active">全部</button><button>血压</button><button>睡眠</button><button>活动</button></div><div class="page-heading"><h1>最近有什么变化</h1><p>基于近 30 天真实记录分析</p></div><div class="card-stack">${card("血压变化", "关注长期变化，不以单次读数作判断", bp, "#f58a2f", "value2")}${card("睡眠变化", "规律作息有助于保持睡眠质量", sleep, "#8177f6")}${card("步数变化", "量力而行，逐步增加日常活动", steps, "#39b96a")}</div>`,
+        `<div class="pill-tabs" aria-label="趋势分类"><button class="active" data-trend-filter="all">全部</button><button data-trend-filter="bp">血压</button><button data-trend-filter="sleep">睡眠</button><button data-trend-filter="activity">活动</button></div><div class="page-heading"><h1>最近有什么变化</h1><p>基于近 30 天真实记录分析</p></div><div class="card-stack" id="trend-cards">${card("bp", "血压总体稳定", "关注长期变化，不以单次读数作判断", bp, "#f58a2f", "value2")}${card("sleep", "睡眠有所改善", "规律作息有助于保持睡眠质量", sleep, "#8177f6")}${card("activity", "步数稳步增加", "量力而行，逐步增加日常活动", steps, "#39b96a")}</div>`,
         "monitor",
         "健康趋势",
+      );
+      document.querySelectorAll("[data-trend-filter]").forEach((button) =>
+        button.addEventListener("click", () => {
+          const filter = button.dataset.trendFilter;
+          document
+            .querySelectorAll("[data-trend-filter]")
+            .forEach((item) => item.classList.toggle("active", item === button));
+          document.querySelectorAll("[data-trend-card]").forEach((item) => {
+            item.hidden = filter !== "all" && item.dataset.trendCard !== filter;
+          });
+        }),
       );
     } catch (error) {
       shell(
@@ -516,10 +636,26 @@
         todos: "计划完成",
         nutrition: "营养",
       };
+      const dimensionViews = {
+        chronic: "monitor",
+        metrics: "monitor",
+        activity: "trends",
+        sleep: "trends",
+        todos: "plans",
+        nutrition: "knowledge",
+      };
+      const dimensionIcons = {
+        chronic: "heart",
+        metrics: "heart",
+        activity: "activity",
+        sleep: "moon",
+        todos: "calendar",
+        nutrition: "food",
+      };
       const dimensions = Object.entries(assessment.subscores || {})
         .map(
-          ([key, value], index) =>
-            `<div class="dimension-row"><i class="row-icon">${["♥", "步", "☾", "✓", "食"][index % 5]}</i><span class="row-copy"><b>${esc(labels[key] || key)}</b><small>基于近期记录计算</small></span><span class="row-value">${Math.round(Number(value) || 0)} 分</span><b>›</b></div>`,
+          ([key, value]) =>
+            `<button class="dimension-row" data-dimension-view="${dimensionViews[key] || "monitor"}"><i class="row-icon">${iconSvg(dimensionIcons[key] || "sparkle")}</i><span class="row-copy"><b>${esc(labels[key] || key)}</b><small>查看相关记录与建议</small></span><span class="row-value">${Math.round(Number(value) || 0)} 分</span><b>›</b></button>`,
         )
         .join("");
       shell(
@@ -537,6 +673,11 @@
           : "近期状态一般";
       const assessmentTitle = document.querySelector(".score-ring + div h1");
       if (assessmentTitle) assessmentTitle.textContent = assessmentLabel;
+      document.querySelectorAll("[data-dimension-view]").forEach((button) =>
+        button.addEventListener("click", () =>
+          navigate(button.dataset.dimensionView),
+        ),
+      );
       document
         .getElementById("save-assessment")
         .addEventListener("click", async () => {
@@ -570,13 +711,13 @@
       const rows = items.length
         ? items
             .map(
-              (item) =>
-                `<button class="alert-row ${esc(item.severity)}" data-alert="${item.id}"><i class="row-icon">!</i><span class="row-copy"><b>${esc(item.title)}</b><small>${esc(item.message || "请留意近期健康变化")}</small></span><span class="row-value">${item.status === "pending" ? "待处理" : "已查看"}</span></button>`,
+              (item, index) =>
+                `<button class="alert-row ${esc(item.severity)}" data-alert="${item.id}"${index >= 5 ? " hidden data-extra-alert" : ""}><i class="row-icon">!</i><span class="row-copy"><b>${esc(item.title)}</b><small>${esc(item.message || "请留意近期健康变化")}</small></span><span class="row-value">${item.status === "pending" ? "待处理" : "已查看"}</span></button>`,
             )
             .join("")
         : '<div class="empty-state"><b>今天暂无异常提醒</b>继续保持良好的生活习惯</div>';
       shell(
-        `<div class="page-heading"><h1>${items.some((item) => item.status === "pending") ? "需要关注" : "近期状态稳定"}</h1><p>提醒来自已记录数据，只用于健康管理参考</p></div><div class="data-card" style="padding:0">${rows}</div><div class="data-card" style="margin-top:18px"><h3>温馨提示</h3><p>如出现胸痛、呼吸困难、意识改变、单侧无力或言语含糊，请及时联系急救服务。</p></div>`,
+        `<div class="page-heading"><h1>${items.some((item) => item.status === "pending") ? "需要关注" : "近期状态稳定"}</h1><p>提醒来自已记录数据，只用于健康管理参考</p></div><div class="data-card" style="padding:0">${rows}</div>${items.length > 5 ? `<button class="outline-button alert-toggle" id="toggle-alerts">查看其余 ${items.length - 5} 条提醒</button>` : ""}<div class="data-card safety-tip"><span class="row-icon">${iconSvg("shield")}</span><div><h3>温馨提示</h3><p>如出现胸痛、呼吸困难、意识改变、单侧无力或言语含糊，请及时联系急救服务。</p></div></div>`,
         "home",
         "风险提醒",
         { back: true },
@@ -594,6 +735,15 @@
           }
         }),
       );
+      document.getElementById("toggle-alerts")?.addEventListener("click", (event) => {
+        const shouldShow = document.querySelector("[data-extra-alert]")?.hidden;
+        document.querySelectorAll("[data-extra-alert]").forEach((item) => {
+          item.hidden = !shouldShow;
+        });
+        event.currentTarget.textContent = shouldShow
+          ? "收起其余提醒"
+          : `查看其余 ${Math.max(0, items.length - 5)} 条提醒`;
+      });
     } catch (error) {
       shell(
         `<div class="empty-state"><b>提醒暂时不可用</b>${esc(error.message)}</div>`,
@@ -610,6 +760,13 @@
       "chat",
       "和小康聊聊",
     );
+    const promptIcons = ["heart", "droplet", "moon"];
+    document
+      .querySelectorAll(".suggestion-list [data-chat-prompt]")
+      .forEach((button, index) => {
+        const label = button.textContent.trim().replace(/^[♥滴☾]\s*/, "");
+        button.innerHTML = `<span class="prompt-icon">${iconSvg(promptIcons[index] || "sparkle")}</span><span>${esc(label)}</span>`;
+      });
     const ask = async (message) => {
       const answer = document.getElementById("chat-answer");
       if (!message.trim()) return;
@@ -710,6 +867,12 @@
         "profile",
         "个人资料",
       );
+      const profileForm = document.getElementById("profile-form");
+      const heightInput = profileForm.elements.height;
+      heightInput.min = "1";
+      heightInput.max = "2.2";
+      heightInput.step = "0.01";
+      heightInput.parentElement.querySelector("span").textContent = "身高（米）";
       document
         .getElementById("profile-form")
         .addEventListener("submit", async (event) => {
@@ -866,6 +1029,10 @@
     state.previous = state.view || "home";
     state.view = view;
     history.replaceState(null, "", `/mobile?view=${encodeURIComponent(view)}`);
+    if (view.startsWith("record-") && metricMeta[view.slice(7)]) {
+      renderRecord(view.slice(7));
+      return;
+    }
     const routes = {
       home: renderHome,
       monitor: renderMonitor,
