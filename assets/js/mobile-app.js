@@ -9,6 +9,15 @@
     health: null,
     metrics: null,
     toastTimer: null,
+    voiceRecognition: null,
+    band: {
+      phase: "idle",
+      message: "尚未连接手环",
+      device: null,
+      serverDeviceId: null,
+      measurements: new Map(),
+      savedDevices: [],
+    },
     previous: "home",
   };
 
@@ -96,6 +105,7 @@
     chart: '<path d="M3 3v18h18M7 16l4-5 3 3 6-8"/>',
     droplet: '<path d="M12 2s7 7.1 7 12a7 7 0 0 1-14 0c0-4.9 7-12 7-12z"/>',
     pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+    thermometer: '<path d="M14 14.8V5a4 4 0 0 0-8 0v9.8a6 6 0 1 0 8 0zM10 7v10"/>',
     scale: '<path d="M5 4h14l2 17H3L5 4zm4 4a3 3 0 0 1 6 0"/>',
     book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14zm0 0A2.5 2.5 0 0 0 6.5 22H20"/>',
     food: '<path d="M7 2v8m-3-8v5a3 3 0 0 0 6 0V2M7 10v12m10-20v20m0-20c-3 3-3 8 0 10"/>',
@@ -108,6 +118,7 @@
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     send: '<path d="m22 2-7 20-4-9-9-4 20-7zM11 13 22 2"/>',
     sparkle: '<path d="m12 3 1.3 3.7L17 8l-3.7 1.3L12 13l-1.3-3.7L7 8l3.7-1.3L12 3zm6 11 .8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14z"/>',
+    bluetooth: '<path d="m7 7 10 10-5 4V3l5 4L7 17"/>',
   };
 
   function iconSvg(name, label = "") {
@@ -118,11 +129,12 @@
     const map = {
       "⌂": "home", "♡": "heart", "♥": "heart", "☾": "moon",
       "✓": "calendar", "♧": "users", "♟": "activity", "步": "activity",
-      "滴": "droplet", "心": "pulse", "氧": "pulse", "重": "scale",
+      "滴": "droplet", "心": "pulse", "氧": "pulse", "重": "scale", "温": "thermometer",
       "食": "food", "书": "book", "⚙": "settings", "⌁": "chart",
       "!": "warning", "医": "pulse", "人": "user", "锁": "lock",
       "年": "calendar", "角": "users", "AI": "sparkle", "◉": "bot",
       "♙": "user", "◎": "chart",
+      "蓝": "bluetooth",
     };
     scope.querySelectorAll("i").forEach((node) => {
       const name = map[node.textContent.trim()];
@@ -279,6 +291,8 @@
 
   function shell(content, active = "home", title = "小康健康", options = {}) {
     root.innerHTML = `<section class="mobile-app">${topbar(title, options.back)}<div class="app-screen">${content}</div>${bottomNav(active)}</section>`;
+    const screen = root.querySelector(".app-screen");
+    if (screen) screen.scrollTop = 0;
     enhanceIcons(root);
     bindNavigation();
     document
@@ -310,6 +324,7 @@
       ["assessment", "◎", "健康评估"],
       ["knowledge", "书", "健康知识"],
       ["care", "♧", "照护协同"],
+      ["wearable", "蓝", "连接智能手环"],
       ["settings", "⚙", "隐私与设置"],
     ];
     const layer = document.createElement("div");
@@ -384,6 +399,7 @@
     hr: { label: "心率", icon: "心", unit: "bpm", color: "#ff6666" },
     spo2: { label: "血氧", icon: "氧", unit: "%", color: "#5e8deb" },
     weight: { label: "体重", icon: "重", unit: "kg", color: "#f2a132" },
+    temp: { label: "体温", icon: "温", unit: "°C", color: "#e0784e" },
     sleep: { label: "睡眠", icon: "☾", unit: "小时", color: "#8177f6" },
     steps: { label: "步数", icon: "步", unit: "步", color: "#39b96a" },
   };
@@ -405,7 +421,7 @@
     try {
       const metrics = await API.get("/api/health/metrics");
       state.metrics = metrics;
-      const types = ["bp", "glucose", "hr", "sleep", "steps"];
+      const types = ["bp", "glucose", "hr", "spo2", "temp", "weight", "sleep", "steps"];
       const rows = types
         .map((type) => {
           const item = metrics[type],
@@ -414,7 +430,7 @@
         })
         .join("");
       shell(
-        `<div class="pill-tabs"><button class="active">最近测量</button><button data-view="trends">健康趋势</button><button data-view="assessment">健康评估</button></div><div class="page-heading"><h1>最近测量</h1><p>定期监测有助于了解健康趋势</p></div><div class="card-stack">${rows}</div><button class="black-button" data-view="record" style="margin-top:14px">＋ 记录一次测量</button>`,
+        `<div class="pill-tabs"><button class="active">最近测量</button><button data-view="trends">健康趋势</button><button data-view="assessment">健康评估</button></div><div class="page-heading"><h1>最近测量</h1><p>定期监测有助于了解健康趋势</p></div><button class="wearable-entry" data-view="wearable"><i>蓝</i><span><b>连接智能手环</b><small>读取手环支持的心率、血氧等数据</small></span><strong>去连接 ›</strong></button><div class="card-stack">${rows}</div><button class="black-button" data-view="record" style="margin-top:14px">＋ 记录一次测量</button>`,
         "monitor",
         "健康监测",
       );
@@ -437,6 +453,157 @@
         "健康监测",
       );
     }
+  }
+
+  function bandStatusClass(phase) {
+    if (phase === "connected") return "ok";
+    if (["choosing", "connecting", "syncing"].includes(phase)) return "busy";
+    if (["error", "limited"].includes(phase)) return "warning";
+    return "idle";
+  }
+
+  function bandMeasurementValue(measurement) {
+    if (measurement.type === "bp") return `${Math.round(measurement.value)} / ${Math.round(measurement.value2)} 毫米汞柱`;
+    const digits = ["glucose", "weight", "temp", "spo2"].includes(measurement.type) ? 1 : 0;
+    const rawUnit = measurement.unit || metricMeta[measurement.type]?.unit || "";
+    const unit = ({ bpm: "次/分", "°C": "℃", kg: "千克", "mmol/L": "毫摩尔/升" })[rawUnit] || rawUnit;
+    return `${Number(measurement.value).toFixed(digits)} ${unit}`;
+  }
+
+  function updateWearableUi() {
+    const band = state.band;
+    const status = document.getElementById("band-status");
+    if (status) {
+      status.className = `band-status ${bandStatusClass(band.phase)}`;
+      status.innerHTML = `<i aria-hidden="true">${band.phase === "connected" ? "✓" : band.phase === "error" || band.phase === "limited" ? "!" : "蓝"}</i><span><b>${band.device ? esc(band.device.name) : "蓝牙手环"}</b><small>${esc(band.message)}</small></span>`;
+      enhanceIcons(status);
+    }
+    const connectButton = document.getElementById("band-connect");
+    if (connectButton) {
+      const waiting = ["choosing", "connecting"].includes(band.phase);
+      connectButton.disabled = waiting;
+      connectButton.textContent = waiting ? "正在连接…" : band.device?.connected ? "重新选择设备" : "选择并连接手环";
+    }
+    const disconnectButton = document.getElementById("band-disconnect");
+    if (disconnectButton) disconnectButton.hidden = !band.device?.connected;
+    const detail = document.getElementById("band-device-detail");
+    if (detail) {
+      detail.hidden = !band.device;
+      detail.innerHTML = band.device ? `<span>厂商：${esc(band.device.manufacturer || "设备未提供")}</span><span>型号：${esc(band.device.model || "设备未提供")}</span><span>电量：${band.device.battery == null ? "设备未提供" : `${Math.round(band.device.battery)}%`}</span><span>可读取：${esc(band.device.supported?.join("、") || "没有标准健康数据")}</span>` : "";
+    }
+    const readings = document.getElementById("band-readings");
+    if (readings) {
+      const values = Array.from(band.measurements.values());
+      readings.innerHTML = values.length ? values.map((measurement) => `<label class="band-reading"><input type="checkbox" data-band-metric="${esc(measurement.type)}"${measurement.synced ? " disabled" : " checked"}><i aria-hidden="true">${metricMeta[measurement.type]?.icon || "测"}</i><span><b>${esc(measurement.label || metricMeta[measurement.type]?.label || "健康数据")}</b><small>${measurement.synced ? "已存入健康档案" : `读取时间 ${timeLabel(measurement.recorded_at)}`}</small></span><strong>${esc(bandMeasurementValue(measurement))}</strong></label>`).join("") : '<div class="band-empty"><b>还没有读到健康数据</b><span>连接后，请佩戴好设备并完成一次测量。部分手环只会在新测量时发送数据。</span></div>';
+      enhanceIcons(readings);
+    }
+    const syncButton = document.getElementById("band-sync");
+    if (syncButton) {
+      const pending = Array.from(band.measurements.values()).some((item) => !item.synced);
+      syncButton.disabled = !band.serverDeviceId || !pending || band.phase === "syncing";
+      syncButton.textContent = band.phase === "syncing" ? "正在同步…" : "核对无误，存入健康档案";
+    }
+  }
+
+  async function connectWearable() {
+    const adapter = window.BluetoothHealth;
+    if (!adapter?.isSupported()) {
+      state.band.phase = "error";
+      state.band.message = "当前浏览器不支持网页蓝牙，请使用安卓 Chrome 或电脑 Chrome / Edge";
+      updateWearableUi();
+      return;
+    }
+    try {
+      const device = await adapter.requestAndConnect({
+        onStatus: (phase, message) => {
+          state.band.phase = phase;
+          state.band.message = message;
+          updateWearableUi();
+        },
+        onMeasurement: (measurement) => {
+          if (!metricMeta[measurement.type]) return;
+          state.band.measurements.set(measurement.type, { ...measurement, synced: false });
+          updateWearableUi();
+        },
+        onDisconnect: async () => {
+          state.band.phase = "idle";
+          state.band.message = "设备已断开，请重新连接";
+          if (state.band.device) state.band.device.connected = false;
+          updateWearableUi();
+          if (state.band.serverDeviceId) {
+            try { await API.patch(`/api/devices/${state.band.serverDeviceId}`, { status: "disconnected" }); } catch {}
+          }
+        },
+      });
+      state.band.device = device;
+      const saved = await API.post("/api/devices", {
+        name: device.name,
+        kind: "bluetooth_health",
+        bluetooth_id: device.id,
+        battery_level: device.battery,
+      });
+      state.band.serverDeviceId = saved.id;
+      updateWearableUi();
+    } catch (error) {
+      state.band.phase = "error";
+      state.band.message = error.message || "蓝牙连接失败";
+      updateWearableUi();
+    }
+  }
+
+  async function syncWearableMeasurements() {
+    const selected = Array.from(document.querySelectorAll("[data-band-metric]:checked"))
+      .map((input) => state.band.measurements.get(input.dataset.bandMetric))
+      .filter(Boolean);
+    if (!selected.length || !state.band.serverDeviceId) return;
+    state.band.phase = "syncing";
+    state.band.message = `正在保存 ${selected.length} 项健康数据`;
+    updateWearableUi();
+    let savedCount = 0;
+    try {
+      for (const measurement of selected) {
+        await API.post(`/api/devices/${state.band.serverDeviceId}/sync`, {
+          type: measurement.type,
+          value: measurement.value,
+          value2: measurement.value2 ?? null,
+          unit: measurement.unit,
+          recorded_at: measurement.recorded_at,
+          battery_level: state.band.device?.battery,
+          measurement_condition: "unknown",
+        });
+        measurement.synced = true;
+        savedCount += 1;
+      }
+      state.band.phase = "connected";
+      state.band.message = `已保存 ${savedCount} 项数据到健康档案`;
+      toast("手环数据已存入健康档案");
+    } catch (error) {
+      state.band.phase = "error";
+      state.band.message = `已保存 ${savedCount} 项，其余保存失败：${error.message || "请稍后重试"}`;
+    }
+    updateWearableUi();
+  }
+
+  async function renderWearable() {
+    const supported = Boolean(window.BluetoothHealth?.isSupported());
+    try { state.band.savedDevices = await API.get("/api/devices"); } catch { state.band.savedDevices = []; }
+    const savedList = state.band.savedDevices.length
+      ? state.band.savedDevices.map((device) => `<li><span><b>${esc(device.name)}</b><small>${device.last_sync ? `上次同步 ${new Date(device.last_sync).toLocaleString("zh-CN")}` : "还没有同步健康数据"}</small></span><em>${device.status === "connected" ? "已登记" : "未连接"}</em></li>`).join("")
+      : '<li class="empty">还没有已登记的设备</li>';
+    shell(
+      `<div class="page-heading"><h1>连接智能手环</h1><p>连接后先查看读数，确认无误再存入健康档案</p></div><section class="data-card band-panel"><div class="band-status idle" id="band-status" role="status" aria-live="polite"></div><div class="band-actions"><button class="primary-button" id="band-connect" type="button"${supported ? "" : " disabled"}>${supported ? "选择并连接手环" : "当前浏览器不支持蓝牙"}</button><button class="text-button" id="band-disconnect" type="button" hidden>断开连接</button></div><div class="band-device-detail" id="band-device-detail" hidden></div></section><section class="band-section"><h2>本次读取结果</h2><p>数据不会自动保存，请先核对。</p><div class="band-readings" id="band-readings"></div><button class="black-button" id="band-sync" type="button" disabled>核对无误，存入健康档案</button></section><details class="band-help"><summary>哪些手环可以连接？</summary><p>支持标准蓝牙健康服务的心率带、血压计、血氧仪、体温计、血糖仪和体重秤通常可以读取。</p><p>小米、华为、Apple 等消费手环常使用厂商私有协议，网页可能只能连上但读不到数据。步数和睡眠数据也通常属于私有数据。</p><p>请在手环靠近手机、蓝牙已开启时操作。连接窗口必须由您亲自点按钮打开。</p></details><section class="band-history"><h2>已登记设备</h2><ul>${savedList}</ul></section>`,
+      "monitor",
+      "智能手环",
+      { back: true, backTo: "monitor" },
+    );
+    if (!supported && state.band.phase === "idle") {
+      state.band.phase = "error";
+      state.band.message = "当前浏览器不支持网页蓝牙，请使用安卓 Chrome 或电脑 Chrome / Edge";
+    }
+    updateWearableUi();
+    document.getElementById("band-connect")?.addEventListener("click", connectWearable);
+    document.getElementById("band-disconnect")?.addEventListener("click", () => window.BluetoothHealth?.disconnect());
+    document.getElementById("band-sync")?.addEventListener("click", syncWearableMeasurements);
   }
 
   function renderRecord(initialType = "bp") {
@@ -754,9 +921,62 @@
     }
   }
 
+  function formatAnswerDate(value) {
+    const text = String(value || "");
+    if (!/^\d{4}-\d{2}-\d{2}/.test(text)) return text;
+    const [year, month, day] = text.slice(0, 10).split("-");
+    return `${year}/${Number(month)}/${Number(day)}`;
+  }
+
+  function renderHealthAnswer(result) {
+    const presentation = result?.presentation || {};
+    if (!["health_card", "emergency"].includes(presentation.mode)) return "";
+    const tone = presentation.status?.tone || "stable";
+    const urgent = presentation.mode === "emergency" || tone === "urgent";
+    const toneLabels = {
+      stable: "状态平稳",
+      watch: "建议留意",
+      warning: "重点关注",
+      urgent: "立即求助",
+      insufficient: "资料不足",
+    };
+    const facts = (presentation.facts || []).slice(0, 2);
+    const actions = (presentation.actions || []).slice(0, 2);
+    const factHtml = facts
+      .map((fact) => {
+        const meta = [
+          fact.measured_at ? `记录时间：${formatAnswerDate(fact.measured_at)}` : "",
+          fact.context || "",
+          fact.trend && fact.trend !== "暂不判断" ? fact.trend : "",
+        ].filter(Boolean);
+        return `<div class="health-answer-fact"><span>${esc(fact.label || "健康数据")}</span><strong>${esc(fact.value ?? "—")}${fact.unit ? `<small>${esc(fact.unit)}</small>` : ""}</strong>${meta.length ? `<p>${meta.map(esc).join(" · ")}</p>` : ""}</div>`;
+      })
+      .join("");
+    const actionHtml = actions
+      .map(
+        (action, index) =>
+          `<li><b>${index + 1}</b><div><strong>${esc(action.title || "继续观察")}</strong>${action.description ? `<p>${esc(action.description)}</p>` : ""}${action.requires_confirmation ? '<small>需要您确认后才会执行</small>' : ""}</div></li>`,
+      )
+      .join("");
+    const confidence = result.confidence || {};
+    const score = Number(confidence.score);
+    const confidenceText =
+      confidence.type === "data"
+        ? `数据依据${score >= 85 ? "较充分" : score >= 70 ? "一般" : "有限"}`
+        : "一般健康知识";
+    const sources = (confidence.sources || []).slice(0, 3);
+    return `<article class="health-answer-card tone-${esc(tone)}" aria-label="${urgent ? "紧急健康提醒" : "健康评估结果"}"><header class="health-answer-summary"><span class="health-answer-tone">${esc(toneLabels[tone] || "健康提示")}</span><h2>${esc(presentation.status?.title || "当前情况")}</h2><p>${esc(presentation.status?.text || result.content || "暂时没有评估结果")}</p></header>${factHtml ? `<section><h3>最需要看的数据</h3><div class="health-answer-facts">${factHtml}</div></section>` : ""}<section><h3>${urgent ? "现在就要做" : "今天怎么做"}</h3>${actionHtml ? `<ol class="health-answer-actions">${actionHtml}</ol>` : '<p class="health-answer-empty">今天没有额外安排，继续按原计划记录。</p>'}</section><aside class="health-answer-safety" ${urgent ? 'role="alert"' : ""}><h3>${urgent ? "请立即处理" : "什么时候需要求助"}</h3><p>${esc(presentation.safety?.text || "如果身体明显不舒服，请及时联系家人或医生。")}</p></aside><details class="health-answer-basis"><summary>查看回答依据</summary><div><strong>${esc(confidenceText)}</strong>${sources.length ? `<p>${sources.map(esc).join("；")}</p>` : ""}<small>这里表示回答依据的充分程度，不是患病概率，也不能代替医生诊断。</small></div></details></article>`;
+  }
+
   function renderChat() {
+    if (state.voiceRecognition) {
+      try {
+        state.voiceRecognition.abort();
+      } catch {}
+      state.voiceRecognition = null;
+    }
     shell(
-      `<div class="chat-hero"><button class="big-mic" data-chat-prompt="我今天身体怎么样？" aria-label="询问今日身体状况">◉</button><div class="suggestion-list"><button data-chat-prompt="我今天身体怎么样？">♥　我今天身体怎么样？</button><button data-chat-prompt="帮我看看最近的血压变化">滴　帮我看看血压</button><button data-chat-prompt="我今天要做什么？">☾　我今天要做什么？</button></div></div><form class="chat-composer" id="chat-form"><input name="message" maxlength="500" placeholder="继续问小康" aria-label="向小康提问"><button type="submit" aria-label="发送">➤</button></form><div id="chat-answer"></div>`,
+      `<div class="chat-hero"><button class="big-mic" type="button" data-voice-input aria-label="开始语音输入" aria-pressed="false">◉</button><p class="voice-status" id="voice-status" role="status">轻点麦克风开始说话</p><div class="suggestion-list"><button data-chat-prompt="我今天身体怎么样？">♥　健康评估：我今天身体怎么样？</button><button data-chat-prompt="帮我看看最近的血压变化">滴　帮我看看血压</button><button data-chat-prompt="我今天要做什么？">☾　我今天要做什么？</button></div></div><form class="chat-composer" id="chat-form"><input name="message" maxlength="500" placeholder="继续问小康" aria-label="向小康提问"><button type="submit" aria-label="发送">➤</button></form><div id="chat-answer"></div>`,
       "chat",
       "和小康聊聊",
     );
@@ -767,6 +987,92 @@
         const label = button.textContent.trim().replace(/^[♥滴☾]\s*/, "");
         button.innerHTML = `<span class="prompt-icon">${iconSvg(promptIcons[index] || "sparkle")}</span><span>${esc(label)}</span>`;
       });
+    const voiceButton = document.querySelector("[data-voice-input]");
+    const voiceStatus = document.getElementById("voice-status");
+    const messageInput = document.querySelector('#chat-form [name="message"]');
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "zh-CN";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      state.voiceRecognition = recognition;
+      let listening = false;
+      let originalText = "";
+      let finalText = "";
+      let endMessage = "";
+      const setListening = (active, message) => {
+        listening = active;
+        voiceButton.classList.toggle("listening", active);
+        voiceButton.setAttribute("aria-pressed", String(active));
+        voiceButton.setAttribute(
+          "aria-label",
+          active ? "停止语音输入" : "开始语音输入",
+        );
+        voiceStatus.textContent = message;
+      };
+      recognition.onstart = () =>
+        setListening(true, "正在聆听，请说出您想问的问题…");
+      recognition.onresult = (event) => {
+        let interimText = "";
+        for (let index = event.resultIndex; index < event.results.length; index += 1) {
+          const transcript = event.results[index][0]?.transcript || "";
+          if (event.results[index].isFinal) finalText += transcript;
+          else interimText += transcript;
+        }
+        const spokenText = `${finalText}${interimText}`.trim();
+        messageInput.value = [originalText, spokenText]
+          .filter(Boolean)
+          .join(originalText && spokenText ? " " : "")
+          .slice(0, 500);
+        voiceStatus.textContent = interimText
+          ? "正在识别…"
+          : "已识别，您可以继续说";
+      };
+      recognition.onerror = (event) => {
+        const messages = {
+          "not-allowed": "请允许浏览器使用麦克风后再试",
+          "service-not-allowed": "浏览器未开启语音识别服务",
+          "audio-capture": "没有检测到可用的麦克风",
+          "no-speech": "没有听清，请再说一次",
+          network: "语音识别服务暂时不可用",
+        };
+        endMessage = messages[event.error] || "语音输入未完成，请再试一次";
+        if (event.error !== "aborted") toast(endMessage);
+      };
+      recognition.onend = () => {
+        const message =
+          endMessage ||
+          (messageInput.value.trim()
+            ? "语音已转为文字，确认后点击发送"
+            : "轻点麦克风开始说话");
+        setListening(false, message);
+      };
+      voiceButton.addEventListener("click", () => {
+        if (listening) {
+          recognition.stop();
+          voiceStatus.textContent = "正在完成识别…";
+          return;
+        }
+        originalText = messageInput.value.trim();
+        finalText = "";
+        endMessage = "";
+        try {
+          recognition.start();
+        } catch {
+          setListening(false, "语音输入暂时无法启动，请稍后重试");
+        }
+      });
+    } else {
+      voiceButton.classList.add("unsupported");
+      voiceButton.setAttribute("aria-disabled", "true");
+      voiceStatus.textContent = "当前浏览器不支持语音输入，请使用文字提问";
+      voiceButton.addEventListener("click", () =>
+        toast("当前浏览器不支持语音输入"),
+      );
+    }
     const ask = async (message) => {
       const answer = document.getElementById("chat-answer");
       if (!message.trim()) return;
@@ -775,8 +1081,26 @@
         '<div class="app-loading"><span></span><p>小康正在分析您的健康记录…</p></div>';
       try {
         const result = await API.post("/api/chat", { message });
-        answer.textContent = result.content || "暂时没有生成回答";
+        const healthAnswer = renderHealthAnswer(result);
+        if (healthAnswer) {
+          answer.className = "health-answer-wrap";
+          answer.innerHTML = healthAnswer;
+          setTimeout(
+            () =>
+              answer.scrollIntoView({
+                behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+                  ? "auto"
+                  : "smooth",
+                block: "start",
+              }),
+            40,
+          );
+        } else {
+          answer.className = "data-card chat-answer";
+          answer.textContent = result.content || "暂时没有生成回答";
+        }
       } catch (error) {
+        answer.className = "data-card chat-answer";
         answer.textContent = error.message || "小康暂时无法回答，请稍后重试";
       }
     };
@@ -789,6 +1113,11 @@
       event.preventDefault();
       const input = event.currentTarget.elements.message;
       const value = input.value;
+      if (voiceButton.getAttribute("aria-pressed") === "true") {
+        try {
+          state.voiceRecognition?.stop();
+        } catch {}
+      }
       input.value = "";
       ask(value);
     });
@@ -1026,6 +1355,12 @@
 
   function navigate(view) {
     if (!view) return;
+    if (state.view === "chat" && view !== "chat" && state.voiceRecognition) {
+      try {
+        state.voiceRecognition.abort();
+      } catch {}
+      state.voiceRecognition = null;
+    }
     state.previous = state.view || "home";
     state.view = view;
     history.replaceState(null, "", `/mobile?view=${encodeURIComponent(view)}`);
@@ -1036,6 +1371,7 @@
     const routes = {
       home: renderHome,
       monitor: renderMonitor,
+      wearable: renderWearable,
       record: () => renderRecord("bp"),
       "record-bp": () => renderRecord("bp"),
       trends: renderTrends,

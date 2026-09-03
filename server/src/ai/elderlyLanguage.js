@@ -24,6 +24,7 @@ const UNIT_NAMES = Object.freeze({
   'mmol/L': '毫摩尔/升',
   h: '小时',
   celsius: '摄氏度',
+  '°C': '℃',
 });
 
 export function metricName(value) {

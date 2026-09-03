@@ -345,11 +345,20 @@ router.get('/devices', (req, res) => {
 });
 
 router.post('/devices', (req, res) => {
-  const { name, kind, battery_level } = req.body || {};
+  const { name, kind, battery_level, bluetooth_id } = req.body || {};
   if (!name || !kind) return res.status(400).json({ error: 'name and kind are required' });
   const battery = battery_level == null ? null : Math.max(0, Math.min(100, Number(battery_level)));
-  const r = db.prepare('INSERT INTO devices (user_id, name, kind, status, battery_level) VALUES (?, ?, ?, ?, ?)')
-    .run(req.user.id, String(name).slice(0, 80), String(kind).slice(0, 40), 'connected', Number.isFinite(battery) ? battery : null);
+  const bluetoothId = bluetooth_id ? String(bluetooth_id).slice(0, 200) : null;
+  if (bluetoothId) {
+    const existing = db.prepare('SELECT * FROM devices WHERE user_id = ? AND bluetooth_id = ?').get(req.user.id, bluetoothId);
+    if (existing) {
+      db.prepare('UPDATE devices SET name = ?, kind = ?, status = ?, battery_level = COALESCE(?, battery_level), sync_error = NULL WHERE id = ? AND user_id = ?')
+        .run(String(name).slice(0, 80), String(kind).slice(0, 40), 'connected', Number.isFinite(battery) ? battery : null, existing.id, req.user.id);
+      return res.json(db.prepare('SELECT * FROM devices WHERE id = ?').get(existing.id));
+    }
+  }
+  const r = db.prepare('INSERT INTO devices (user_id, name, kind, status, battery_level, bluetooth_id) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(req.user.id, String(name).slice(0, 80), String(kind).slice(0, 40), 'connected', Number.isFinite(battery) ? battery : null, bluetoothId);
   res.status(201).json(db.prepare('SELECT * FROM devices WHERE id = ?').get(r.lastInsertRowid));
 });
 

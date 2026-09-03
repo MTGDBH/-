@@ -742,6 +742,8 @@ addColumnIfMissing('metric_defs', 'prediction_mode', "TEXT NOT NULL DEFAULT 'not
 // 设备同步状态扩展
 addColumnIfMissing('devices', 'battery_level', 'INTEGER');
 addColumnIfMissing('devices', 'sync_error', 'TEXT');
+addColumnIfMissing('devices', 'bluetooth_id', 'TEXT');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_devices_user_bluetooth ON devices(user_id, bluetooth_id) WHERE bluetooth_id IS NOT NULL');
 
 // ============= 核心指标定义（单一数据源）=============
 // 家庭可采集的核心指标。心电历史数据不删除，但不再作为家庭录入/预测模块展示。

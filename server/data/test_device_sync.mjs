@@ -10,7 +10,9 @@ async function request(path, options = {}) {
 const login = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, age: 74, gender: 'female', password: '123456' }) });
 const cookie = (login.headers.get('set-cookie') || '').split(';')[0]; const auth = { Cookie: cookie };
 try {
-  const device = (await request('/api/devices', { method: 'POST', headers: auth, body: JSON.stringify({ name: '回归血压计', kind: 'blood_pressure', battery_level: 88 }) })).body;
+  const device = (await request('/api/devices', { method: 'POST', headers: auth, body: JSON.stringify({ name: '回归血压计', kind: 'blood_pressure', battery_level: 88, bluetooth_id: 'integration-ble-device-1' }) })).body;
+  const reconnected = (await request('/api/devices', { method: 'POST', headers: auth, body: JSON.stringify({ name: '回归血压计', kind: 'blood_pressure', battery_level: 87, bluetooth_id: 'integration-ble-device-1' }) })).body;
+  if (reconnected.id !== device.id || reconnected.battery_level !== 87) throw new Error('bluetooth device reconnect should update instead of duplicating');
   const synced = await request(`/api/devices/${device.id}/sync`, { method: 'POST', headers: auth, body: JSON.stringify({ type: 'bp', value: 132, value2: 82, unit: 'mmHg', battery_level: 86 }) });
   if (synced.body.metric?.source !== 'device' || synced.body.metric?.device_id !== device.id) throw new Error('device metric not persisted');
   const list = (await request('/api/devices', { headers: auth })).body;

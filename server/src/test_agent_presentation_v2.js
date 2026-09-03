@@ -35,9 +35,10 @@ const card = buildAgentPresentation({
   ] }, toolResults, liveContext, intent: baseIntent, subject, actor,
 });
 assert.equal(card.mode, 'health_card');
+assert.equal(card.template_version, 'elderly_practical_v1');
 assert.equal(card.status.tone, 'stable');
 assert.equal(card.status.text, '近期血压总体平稳');
-assert.ok(card.facts.length <= 3, '关键数据最多3项');
+assert.ok(card.facts.length <= 2, '老人端关键数据最多2项');
 assert.ok(card.actions.length <= 2, '行动最多2项');
 assert.equal(card.facts[0].value, '128/85');
 assert.equal(card.facts[0].unit, '毫米汞柱', '老人端不得显示英文单位');
@@ -75,5 +76,25 @@ const localized = buildAgentPresentation({
 });
 assert.doesNotMatch(localized.status.text, /systo|mmHg/i, '内部指标代码不得进入卡片');
 assert.match(localized.status.text, /高压（收缩压）|毫米汞柱/);
+
+const practical = buildAgentPresentation({
+  response: { content: '现在：。血压略有回升，睡眠时间偏短。', plan: [] },
+  toolResults: [{ name: 'alerts', status: 'success', result: { pending: 3, critical: 1 } }],
+  liveContext: {
+    latest: {
+      steps: { value: 4300, unit: '步', recorded_at: '2026-08-29', measurement_condition: 'unknown' },
+      glucose: { value: 6.7, unit: 'mmol/L', recorded_at: '2026-08-28', measurement_condition: 'fasting' },
+      bp: { value: 141, value2: 83, unit: 'mmHg', recorded_at: '2026-08-28', measurement_condition: 'morning_rest' },
+      sleep: { value: 6.2, unit: 'h', recorded_at: '2026-08-28' },
+    },
+  },
+  intent: { healthSummaryHit: true }, subject, actor, message: '我今天身体怎么样？',
+});
+assert.doesNotMatch(practical.status.text, /^[。；，、]/, '结论不得以无意义标点开头');
+assert.equal(practical.facts.length, 2);
+assert.equal(practical.facts[0].label, '最近血压', '结论最先提到的指标必须优先展示');
+assert.equal(practical.facts[1].label, '待处理提醒', '严重提醒必须保留在关键数据中');
+assert.equal(practical.facts[0].context, '早晨静坐后');
+assert.doesNotMatch(JSON.stringify(practical), /"(?:unknown|fasting)"/, '老人端不得出现内部测量条件代码');
 
 console.log('agent presentation v2 structured cards: PASS');

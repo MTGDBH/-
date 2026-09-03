@@ -17,6 +17,12 @@ const RISK_NAMES = {
   low: '相对较低', watch: '建议留意', high: '重点关注', evidence_limited: '资料不足',
   management: '已确诊，转入管理', lower_than_threshold: '相对较低', higher_than_threshold: '建议留意',
 };
+const CONDITION_NAMES = {
+  morning_rest: '早晨静坐后', evening_rest: '晚间静坐后', fasting: '空腹',
+  postprandial_2h: '餐后2小时', random: '随机测量', resting: '静息时',
+  active: '活动后', morning_fasting: '晨起空腹', other: '其他条件',
+  unknown: '测量条件未填写',
+};
 
 function cleanText(value, max = 220) {
   return localizeVisibleText(value)
@@ -34,7 +40,22 @@ function statusText(content) {
   const lines = String(content || '').split(/\n+/).map(line => cleanText(line)).filter(Boolean);
   const now = lines.find(line => /^现在[：:]/.test(line));
   const chosen = now || lines[0] || '已完成本次健康信息整理。';
-  return cleanText(chosen.replace(/^(?:现在|当前结论)[：:]\s*/, ''), 150);
+  return cleanText(chosen.replace(/^(?:现在|当前结论)[：:]\s*/, '').replace(/^[。；，、\s]+/, ''), 150);
+}
+
+function conditionText(value, needsCondition = false) {
+  const raw = String(value || '').trim();
+  if (!raw) return needsCondition ? '测量条件未填写' : null;
+  return CONDITION_NAMES[raw] || cleanText(raw, 60);
+}
+
+function visibleNote(value) {
+  return cleanText(value, 80)
+    .split('·')
+    .map(part => part.trim())
+    .filter(part => part && !/^[a-z][a-z0-9_-]*-v\d+$/i.test(part))
+    .slice(0, 1)
+    .join('');
 }
 
 function trendForMetric(type, toolResults) {
@@ -61,15 +82,44 @@ function liveFacts(liveContext, toolResults) {
     const isBp = type === 'bp' && row.value2 != null;
     const needsCondition = ['bp', 'glucose', 'hr'].includes(type);
     facts.push({
+      metric_type: type,
       label: def.label,
       value: isBp ? `${row.value}/${row.value2}` : String(row.value),
       unit: unitName(row.unit || def.unit),
       measured_at: row.recorded_at ? String(row.recorded_at).slice(0, 10) : null,
-      context: row.measurement_condition || row.note || (needsCondition ? '测量条件未填写' : null),
+      context: conditionText(row.measurement_condition, needsCondition) || visibleNote(row.note) || null,
       trend: trendForMetric(type, toolResults),
     });
   }
   return facts;
+}
+
+function selectFacts(facts, conclusion, message, tone) {
+  const visibleText = `${conclusion || ''} ${message || ''}`;
+  const metricNames = {
+    bp: ['血压', '高压', '低压'], glucose: ['血糖'], hr: ['心率'], weight: ['体重'],
+    sleep: ['睡眠'], steps: ['步数', '活动'], spo2: ['血氧'], temp: ['体温'], resp: ['呼吸'],
+  };
+  return facts
+    .map((fact, index) => {
+      let score = 0;
+      const terms = metricNames[fact.metric_type] || [];
+      const messageHit = terms.some(term => String(message || '').includes(term));
+      const positions = terms.map(term => visibleText.indexOf(term)).filter(position => position >= 0);
+      if (messageHit) score += 100;
+      else if (positions.length) score += Math.max(45, 105 - Math.min(...positions) * 2);
+      if (fact.label === '待处理提醒') {
+        if (/提醒|预警/.test(visibleText)) score += 65;
+        if (/严重提醒\s*[1-9]/.test(fact.context || '')) score += tone === 'urgent' ? 110 : 94;
+      }
+      if (fact.label.includes('筛查')) score += /风险|筛查/.test(visibleText) ? 70 : 20;
+      if (fact.label === '待处理复测') score += /复测|随访/.test(visibleText) ? 70 : 10;
+      if (fact.trend && fact.trend !== '暂不判断') score += 8;
+      return { fact, index, score };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(item => item.fact)
+    .slice(0, 2);
 }
 
 function toolFacts(toolResults) {
@@ -185,18 +235,21 @@ export function buildAgentPresentation({ response, toolResults = [], liveContext
     || intent.behaviorHit || intent.deviceHit || intent.alertsHit || intent.actionHit || intent.followupHit || intent.interventionHit || !!liveContext;
   if (!personalCard) return { mode: 'plain' };
   const tone = toneFor(response, toolResults);
-  const facts = emergency
+  const conclusion = statusText(response?.content);
+  const factCandidates = emergency
     ? [{ label: '发现的情况', value: '您描述了需要立即处理的急症信号', unit: '', measured_at: null, context: null, trend: null }]
     : (response?.prediction_snapshot?.events?.length
       ? linkedCurveFacts(response, toolResults)
       : [...toolFacts(toolResults), ...liveFacts(liveContext, toolResults)]
-    ).filter((item, index, rows) => rows.findIndex(old => old.label === item.label) === index).slice(0, 3);
+    ).filter((item, index, rows) => rows.findIndex(old => old.label === item.label) === index);
+  const facts = emergency ? factCandidates : selectFacts(factCandidates, conclusion, message, tone);
   if (!facts.length) facts.push({ label: '关键数据', value: '暂无足够的规范记录', unit: '', measured_at: null, context: '请先补充记录', trend: null });
   const caregiver = actor?.id && subject?.id && Number(actor.id) !== Number(subject.id);
   return {
+    template_version: 'elderly_practical_v1',
     mode: emergency ? 'emergency' : 'health_card',
     subject_name: caregiver ? cleanText(subject.name, 40) : null,
-    status: { title: caregiver ? `${cleanText(subject.name, 30)}的当前结论` : '当前结论', text: statusText(response?.content), tone },
+    status: { title: caregiver ? `${cleanText(subject.name, 30)}的当前结论` : '当前结论', text: conclusion, tone },
     facts,
     actions: presentationActions(emergency ? [] : response?.plan, intent, tone, liveContext, !!response?.linkage_version),
     safety: safetyFor(tone, intent, response),
